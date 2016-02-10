@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(OpenSkyNet)
+add_subdirectory(App)
+add_subdirectory(openskynet)
+add_subdirectory(classification)
+add_subdirectory(network)
+add_subdirectory(utility)
+add_subdirectory(vector)
+add_subdirectory(libopenskynet-test)
+
