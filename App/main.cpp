@@ -26,6 +26,8 @@ int main(int ac, const char* av[]) {
             ("help", "Usage")
             ("connectId", po::value<string>(), "Connection id used for licensing")
             ("credentials", po::value<string>(), "Credentials for the map service")
+            ("server", po::value<string>(), "URL to a valid WMS or WMTS service (premium users only).")
+            ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
             ("gpu", "Use GPU for processing.")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("startCol", po::value<long>(), "Starting tile column.")
@@ -38,11 +40,14 @@ int main(int ac, const char* av[]) {
             ("format", po::value<string>(), "Output file format for the results.  Valid values are shp, kml, elasticsearch, postgis, fgdb")
             ("output", po::value<string>(), "Output location with file name and path or URL.")
             ("outputLayerName", po::value<string>(), "The output layer name, index name, or table name.")
-            ("server", po::value<string>(), "URL to a valid WMS or WMTS service (premium users only).")
             ("confidence", po::value<double>(), "A factor to weed out weak matches for the classification process.")
             ("pyramid", "Pyramid the downloaded tile and run detection on all resultant images.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("windowSize", po::value<long>(), "Used with stepSize to determine the height and width of the sliding window. \n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("stepSize", po::value<long>(), "Used with windowSize to determine how much the sliding window moves on each step.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process. ")
+            ("pyramidWindowSizes", po::value<vector<long>>()->multitoken(), "Window sizes for pyramiding.")
+            ("pyramidStepSizes", po::value<vector<long>>()->multitoken(), "Step sizes for pyramiding.")
+            ("classThresholds", po::value<vector<pair<string, float>>>()->multitoken(), "Class specific thresholds.")
+            ("threshold", po::value<double>(), "A global threshold.")
             ;
 
     po::variables_map vm;
@@ -64,6 +69,68 @@ int main(int ac, const char* av[]) {
     } else {
         cout << "ConnectId was not set. Using default connectId.\n";
         args.connectId = DEFAULT_CONNECTID;
+    }
+
+    if (vm.count("credentials")){
+        args.credentials = vm["credentials"].as<string>();
+    }
+
+    if (vm.count("server")) {
+        args.url = vm["server"].as<string>() + "?connectId=" + args.connectId;
+        cout << "server was set to "
+        << args.url << ".\n";
+    } else {
+        args.url = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
+        args.url += "?connectId=" + args.connectId;
+        std::cout << "No url provided, using default.\n";
+    }
+
+    if (vm.count("image")) {
+        args.image = vm["image"].as<string>();
+        cout << "Input image was set to "
+        << args.image << ". Not using tile server.\n";
+        args.useTileServer = false;
+    } else {
+        cout << "Image path was not set. Using tile server.\n";
+    }
+
+    if (vm.count("bbox")) {
+        char buffer[100];
+        args.bbox = vm["bbox"].as<vector<double>>();
+        if (args.bbox.size() != 4) {
+            cout << "Invalid  number of parameters for bounding box." << endl;
+        } else {
+            sprintf(buffer, "LL: %.16g, %.16g, UR: %.16g. %.16g", args.bbox[0], args.bbox[1], args.bbox[2], args.bbox[3]);
+            cout << buffer << "\n";
+        }
+    }
+    else {
+        if (vm.count("rowSpan") && vm.count("columnSpan"))
+        {
+            cout << "Specifying tiles instead of bounding rectangle." << "\n";
+            if (vm.count("startRow")){
+                args.startRow = vm["startRow"].as<long>();
+            }
+            if (vm.count("startCol")){
+                args.startColumn = vm["startCol"].as<long>();
+            }
+            if (vm.count("rowSpan")){
+                args.rowSpan = vm["rowSpan"].as<long>();
+            }
+            if (vm.count("columnSpan")){
+                args.columnSpan = vm["columnSpan"].as<long>();
+            }
+        }
+        else {
+            if (! args.useTileServer) {
+                // Local image 
+                cout << "Classifying entire local image.\n";
+            }
+            else {
+                cout << "Bounding box not set. Unable to continue.\n";
+                return 1;
+            }
+        }
     }
 
     args.useGPU = false;
@@ -115,70 +182,23 @@ int main(int ac, const char* av[]) {
         cout << "output layer name set to " << args.layerName << ".\n";
     }
     else {
-        cout << "Default layer name of skynetdetects will be used.";
+        cout << "Default layer name of skynetdetects will be used." << endl;
         args.layerName = "skynetdetects";
     }
-
-    if (vm.count("server")) {
-        args.url = vm["server"].as<string>() + "?connectId=" + args.connectId;
-        cout << "server was set to "
-        << args.url << ".\n";
-    } else {
-        args.url = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
-        args.url += "?connectId=" + args.connectId;
-        std::cout << "No url provided, using default.\n";
-    }
-
-    if (vm.count("bbox")) {
-        char buffer[100];
-        args.bbox = vm["bbox"].as<vector<double>>();
-        if (args.bbox.size() != 4) {
-            cout << "Invalid  number of parameters for bounding box." << endl;
-        } else {
-            sprintf(buffer, "LL: %.16g, %.16g, UR: %.16g. %.16g", args.bbox[0], args.bbox[1], args.bbox[2], args.bbox[3]);
-            cout << buffer << "\n";
-        }
-    }
-    else {
-        if (vm.count("rowSpan") && vm.count("columnSpan"))
-        {
-            cout << "Specifying tiles instead of bounding rectangle." << "\n";
-            if (vm.count("startRow")){
-                args.startRow = vm["startRow"].as<long>();
-            }
-            if (vm.count("startCol")){
-                args.startColumn = vm["startCol"].as<long>();
-            }
-            if (vm.count("rowSpan")){
-                args.rowSpan = vm["rowSpan"].as<long>();
-            }
-            if (vm.count("columnSpan")){
-                args.columnSpan = vm["columnSpan"].as<long>();
-            }
-        }
-        else {
-            cout << "Bounding box not set. Unable to continue.\n";
-            return 1;
-        }
-    }
-
-    if (vm.count("credentials")){
-        args.credentials = vm["credentials"].as<string>();
-    }
-
-    args.multiPass = vm.count("pyramid");
 
     args.confidence = 0.0;
     if (vm.count("confidence")){
         args.confidence = vm["confidence"].as<double>();
     }
 
-
-
     args.zoom = 18;
     if (vm.count("zoom")){
         args.zoom = vm["zoom"].as<long>();
     }
+
+
+    /* Previous method of setting windowing */
+    args.multiPass = vm.count("pyramid");
 
     args.stepSize = 0;
     args.windowSize = 0;
@@ -195,8 +215,48 @@ int main(int ac, const char* av[]) {
         return INVALID_MULTIPASS;
     }
 
+    /* New multiresolution pyramiding */
+    if (vm.count("pyramidWindowSizes")) {
+
+        vector<long> winSizes = vm["pyramidWindowSizes"].as<vector<long>>();
+        for (auto it = winSizes.begin(); it != winSizes.end(); it++) {
+            args.pyramidWindowSizes.push_back(*it);
+        }
+    }
+    else {
+        args.pyramidWindowSizes.push_back(args.windowSize);
+    }
+    if (vm.count("pyramidStepSizes")) {
+        vector<long> winSteps = vm["pyramidStepSizes"].as<vector<long>>();
+        for (auto it = winSteps.begin(); it != winSteps.end(); it++) {
+            args.pyramidWindowSteps.push_back(*it);
+        }
+    }
+    else {
+        args.pyramidWindowSteps.push_back(args.stepSize);
+    }
+
+
+    /* Class-specific thresholds */
+    if (vm.count("classThresholds")) {
+        cout << "Class-specific thresholds" << endl;
+        cout << "Number of thresholds specified: " << vm.count("classThresholds") << endl;
+        vector<pair<string, float>> cT = vm["classThresholds"].as<vector<pair<string, float>>>();
+        /* From command line options into std::map for faster searching */
+        for (auto it = cT.begin(); it != cT.end(); it++) {
+            args.classThresholds[it->first] = it->second;
+            cout << it->first << ": " << it->second << endl;
+        }
+    }
+    
+    /* Class-specific thresholds */
+    args.threshold = 0.0;
+    if (vm.count("threshold")){
+        args.threshold = vm["threshold"].as<double>();
+    }
+
+
     boost::timer::auto_cpu_timer t;
     return classifyBroadAreaMultiProcess(args);
-
 
 }
