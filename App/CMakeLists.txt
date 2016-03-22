@@ -2,10 +2,13 @@ cmake_policy(SET CMP0015 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 set(SOURCE_FILES main.cpp)
-include_directories(openskynet/include)
+include_directories(openskynet/include
+    ${DEEPCORE_INCLUDE_DIR}
+    )
+
 link_directories(openskynet)
 add_executable(OpenSkyNet ${SOURCE_FILES})
-target_link_libraries(OpenSkyNet openskynet)
+target_link_libraries(OpenSkyNet openskynet ${DEEPCORE_LIBRARIES} ${CURL_LIBRARY})
 
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)

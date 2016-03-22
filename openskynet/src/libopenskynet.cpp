@@ -20,7 +20,7 @@
 #include <opencv2/imgcodecs/imgcodecs_c.h>
 #include <opencv2/highgui/highgui_c.h>
 #include <opencv2/highgui.hpp>
-#include "../../classification/include/Classifier.h"
+#include <Classifier.h>
 #include <CaffeBatchClassifier.h>
 //#include <sys/ioctl.h>
 #include <boost/timer/timer.hpp>

@@ -1,7 +1,10 @@
 cmake_policy(SET CMP0015 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
-include_directories(include)
+include_directories(include
+    ${DEEPCORE_INCLUDE_DIR}
+    )
+
 add_library(openskynet SHARED 
     src/libopenskynet.cpp 
     src/WorkItem.cpp
@@ -26,21 +29,6 @@ if (Caffe_FOUND)
 endif()
 
 
-include_directories(classification/include)
-link_directories(classification)
-target_link_libraries(openskynet classification)
-
-include_directories(vector/include)
-link_directories(vector)
-target_link_libraries(openskynet vector)
-
-include_directories(network/include)
-link_directories(network)
-target_link_libraries(openskynet network)
-
-include_directories(utility/include)
-link_directories(utility)
-target_link_libraries(openskynet utility)
 
 
 find_package(GDAL REQUIRED)
