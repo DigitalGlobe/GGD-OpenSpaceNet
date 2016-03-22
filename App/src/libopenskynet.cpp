@@ -14,9 +14,9 @@
 #include <opencv2/imgcodecs.hpp>
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
-#include <Classifier.h>
-#include <coordinateHelper.h>
-#include <HttpDownloader.h>
+#include <classification/Classifier.h>
+#include <utility/coordinateHelper.h>
+#include <network/HttpDownloader.h>
 #include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>

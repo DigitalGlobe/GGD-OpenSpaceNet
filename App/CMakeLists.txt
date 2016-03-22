@@ -8,19 +8,13 @@ add_executable(OpenSkyNet ${SOURCE_FILES})
 
 add_definitions(-DUSE_OPENCV)
 
-include_directories(/usr/local/include/DeepCore/classification)
-target_link_libraries(OpenSkyNet /usr/local/lib/DeepCore/libclassification.a)
 
-include_directories(/usr/local/include/DeepCore/vector)
-target_link_libraries(OpenSkyNet /usr/local/lib/DeepCore/libvector.a)
-
-include_directories(/usr/local/include/DeepCore/network)
-target_link_libraries(OpenSkyNet /usr/local/lib/DeepCore/libnetwork.a)
-
-include_directories(/usr/local/include/DeepCore/utility)
-link_directories(utility)
-target_link_libraries(OpenSkyNet /usr/local/lib/DeepCore/libutility.a)
-
+find_package(DeepCore REQUIRED)
+if (DeepCore_FOUND)
+    message(Include Dirs: "${DEEPCORE_INCLUDE_DIRS}")
+    include_directories(${DEEPCORE_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNet ${DEEPCORE_LIBRARIES})
+endif()
 
 find_package(CUDA REQUIRED)
 if (CUDA_FOUND)
