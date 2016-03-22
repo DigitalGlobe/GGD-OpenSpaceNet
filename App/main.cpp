@@ -1,23 +1,24 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "../openskynet/include/libopenskynet.h"
+#include "include/libopenskynet.h"
 #include <boost/timer/timer.hpp>
+#include <glog/logging.h>
 
 using namespace std;
 
-std::string outputLogo() {
-    std::cout << "DigitalGlobe, Inc.\n";
-    std::cout << "   ___                   ____  _          _   _      _         \n";
-    std::cout << "  / _ \\ _ __   ___ _ __ / ___|| | ___   _| \\ | | ___| |_       \n";
-    std::cout << " | | | | '_ \\ / _ \\ '_ \\\\___ \\| |/ / | | |  \\| |/ _ \\ __|      \n";
-    std::cout << " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n";
-    std::cout << "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n";
-    std::cout << "       |_|                          |___/                                     " << std::endl;
+void outputLogo() {
+    cout << "DigitalGlobe, Inc.\n";
+    cout << "   ___                   ____  _          _   _      _         \n";
+    cout << "  / _ \\ _ __   ___ _ __ / ___|| | ___   _| \\ | | ___| |_       \n";
+    cout << " | | | | '_ \\ / _ \\ '_ \\\\___ \\| |/ / | | |  \\| |/ _ \\ __|      \n";
+    cout << " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n";
+    cout << "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n";
+    cout << "       |_|                          |___/                                     " << endl;
 }
 
 int main(int ac, const char* av[]) {
 
-    //outputLogo();
+    outputLogo();
     namespace po = boost::program_options;
     string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis", "fgdb"};
     // Declare the supported options.
@@ -27,6 +28,7 @@ int main(int ac, const char* av[]) {
             ("connectId", po::value<string>(), "Connection id used for licensing")
             ("credentials", po::value<string>(), "Credentials for the map service")
             ("gpu", "Use GPU for processing.")
+            ("api", "Use DigitalGlobe Web API as the source of tiles")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("startCol", po::value<long>(), "Starting tile column.")
             ("startRow", po::value<long>(), "Starting tile row.")
@@ -38,7 +40,6 @@ int main(int ac, const char* av[]) {
             ("format", po::value<string>(), "Output file format for the results.  Valid values are shp, kml, elasticsearch, postgis, fgdb")
             ("output", po::value<string>(), "Output location with file name and path or URL.")
             ("outputLayerName", po::value<string>(), "The output layer name, index name, or table name.")
-            ("server", po::value<string>(), "URL to a valid WMS or WMTS service (premium users only).")
             ("confidence", po::value<double>(), "A factor to weed out weak matches for the classification process.")
             ("pyramid", "Pyramid the downloaded tile and run detection on all resultant images.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("windowSize", po::value<long>(), "Used with stepSize to determine the height and width of the sliding window. \n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
@@ -115,25 +116,19 @@ int main(int ac, const char* av[]) {
         cout << "output layer name set to " << args.layerName << ".\n";
     }
     else {
-        cout << "Default layer name of skynetdetects will be used.";
+        cout << "Default layer name of skynetdetects will be used.\n";
         args.layerName = "skynetdetects";
     }
 
-    if (vm.count("server")) {
-        args.url = vm["server"].as<string>() + "?connectId=" + args.connectId;
-        cout << "server was set to "
-        << args.url << ".\n";
-    } else {
-        args.url = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
-        args.url += "?connectId=" + args.connectId;
-        std::cout << "No url provided, using default.\n";
+    if (vm.count("api")) {
+        args.webApi = true;
     }
 
     if (vm.count("bbox")) {
         char buffer[100];
         args.bbox = vm["bbox"].as<vector<double>>();
         if (args.bbox.size() != 4) {
-            cout << "Invalid  number of parameters for bounding box." << endl;
+            cout << "Invalid  number of parameters for bounding box.\n" << endl;
         } else {
             sprintf(buffer, "LL: %.16g, %.16g, UR: %.16g. %.16g", args.bbox[0], args.bbox[1], args.bbox[2], args.bbox[3]);
             cout << buffer << "\n";
@@ -191,11 +186,12 @@ int main(int ac, const char* av[]) {
     }
 
     if ((args.stepSize == 0 && args.windowSize  > 0) || (args.stepSize > 0 && args.windowSize == 0)){
-        cout << "Unable to continue as configured.  Sliding window processing must have a step size and window size.";
+        cout << "Unable to continue as configured.  Sliding window processing must have a step size and window size.\n";
         return INVALID_MULTIPASS;
     }
 
     boost::timer::auto_cpu_timer t;
+
     return classifyBroadAreaMultiProcess(args);
 
 

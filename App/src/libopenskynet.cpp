@@ -3,7 +3,7 @@
 //
 #include <iostream>
 #include <vector>
-#include <libopenskynet.h>
+#include "../include/libopenskynet.h"
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>
@@ -12,14 +12,15 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
-#include <WorkItem.h>
+#include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
-#include "../../classification/include/Classifier.h"
-#include "../../utility/include/coordinateHelper.h"
-#include "../../network/include/HttpDownloader.h"
+#include <Classifier.h>
+#include <coordinateHelper.h>
+#include <HttpDownloader.h>
 #include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
+#include <caffe/caffe.hpp>
 
 boost::lockfree::queue<WorkItem *> queue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
@@ -237,10 +238,12 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     tileCount = new long(0);
     *tileCount = numCols * numRows;
 
-    std::string completedUrl = args.url;
-    completedUrl += "&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService";
-    completedUrl += "&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg";
-    completedUrl += "&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
+    //std::string completedUrl = args.url;
+    //completedUrl += "&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService";
+    //completedUrl += "&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg";
+    //completedUrl += "&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
+
+    std::string completedUrl = "";
 
     if (!boost::filesystem::is_directory(args.modelPath)) {
         std::cout << "No model file was found.  Aborting processing.";
