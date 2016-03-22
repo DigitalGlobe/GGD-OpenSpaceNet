@@ -166,6 +166,7 @@ int main(int ac, const char* av[]) {
         << args.outputFormat << ".\n";
     } else {
         cout << "Output format was not set. Forcing to shp.\n";
+        args.outputFormat = "shp";
     }
 
     //TODO: make this smarter wrt format.  If the output format is ES, then the default doesn't work.
@@ -175,6 +176,7 @@ int main(int ac, const char* av[]) {
         << args.outputPath << ".\n";
     } else {
         cout << "Output path was not set. Output to current working directory.\n";
+        args.outputPath = "./";
     }
 
     if (vm.count("outputLayerName")){

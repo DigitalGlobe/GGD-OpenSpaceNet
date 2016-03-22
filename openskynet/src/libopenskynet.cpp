@@ -22,7 +22,6 @@
 #include <opencv2/highgui.hpp>
 #include <Classifier.h>
 #include <CaffeBatchClassifier.h>
-//#include <sys/ioctl.h>
 #include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
@@ -60,16 +59,7 @@ inline std::vector<std::string> glob(const std::string& pat){
 void persistResultsWindows(std::vector<WindowPrediction>& results, Tile *tile, 
                            VectorFeatureSet* geom, const Threshold& thresholds, 
                            const cv::Rect *rect = nullptr) {
-    int counter = 0;
     for (auto result = results.begin(); result != results.end(); result++) {
-        /*
-        if (counter == 550) {
-            break;
-        }
-        */
-        //std::cout << "window coords: " << result->window.xOffset << " " << result->window.yOffset
-        //          << " " << result->window.width << " " << result->window.height << std::endl;
-        counter++;
         if (result->predictions.size() > 0) {
             for (auto prediction = result->predictions.begin(); 
                  prediction != result->predictions.end(); prediction++) {
