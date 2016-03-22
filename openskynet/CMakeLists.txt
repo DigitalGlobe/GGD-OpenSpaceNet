@@ -2,7 +2,10 @@ cmake_policy(SET CMP0015 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 include_directories(include)
-add_library(openskynet SHARED src/libopenskynet.cpp include/libopenskynet.h ../utility/src/coordinateHelper.cpp ../utility/include/coordinateHelper.h ../vector/src/VectorFeatureSet.cpp ../vector/include/VectorFeatureSet.h src/WorkItem.cpp include/WorkItem.h include/OpenSkyNetArgs.h ../network/src/HttpDownloader.cpp ../network/include/HttpDownloader.h)
+add_library(openskynet SHARED 
+    src/libopenskynet.cpp 
+    src/WorkItem.cpp
+    )
 
 find_package(CUDA REQUIRED)
 if (CUDA_FOUND)
