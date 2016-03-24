@@ -30,7 +30,8 @@ struct OpenSkyNetArgs {
     bool useTileServer = true;
     bool useGPU = false;
     std::vector<double> bbox;
-    std::string modelPath = "";
+    //std::string modelPath = "";
+    std::vector<std::string> modelPath;
     std::string geometryType = "";
     std::string outputFormat = "";
     std::string outputPath = "";

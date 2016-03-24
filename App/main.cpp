@@ -35,7 +35,7 @@ int main(int ac, const char* av[]) {
             ("columnSpan", po::value<long>(), "Number of columns.")
             ("zoom", po::value<long>(), "Zoom level to request tiles at. Defaults to zoom level 18.")
             ("rowSpan", po::value<long>(),"Number of rows.")
-            ("model", po::value<string>(), "Folder location of the trained model.")
+            ("model", po::value<vector<string>>()->multitoken(), "Folder location of the trained model.")
             ("type", po::value<string>(), "Output geometry type.  Currently only POINT and POLYGON are valid.")
             ("format", po::value<string>(), "Output file format for the results.  Valid values are shp, kml, elasticsearch, postgis, fgdb")
             ("output", po::value<string>(), "Output location with file name and path or URL.")
@@ -144,9 +144,12 @@ int main(int ac, const char* av[]) {
     // How is this defaulted?
     //TODO: Get with Andrew about default models.
     if (vm.count("model")) {
-        args.modelPath =  vm["model"].as<string>();
-        cout << "Model location is "
-        << args.modelPath << ".\n";
+        args.modelPath =  vm["model"].as<vector<string>>();
+        cout << "Num Models: " << args.modelPath.size() << endl;
+        cout << "Model location is " << endl;
+        for (auto it = args.modelPath.begin(); it != args.modelPath.end(); it++) {
+           cout << "  " << *it << endl; 
+        }
     } else {
         cout << "Model was not set. Unable to continue.\n";
         return 1;

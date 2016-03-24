@@ -116,23 +116,23 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     }
 
     /* Retrieve the caffe model paths */
-    if (!boost::filesystem::is_directory(args.modelPath)) {
+    if (!boost::filesystem::is_directory(args.modelPath[0])) {
         std::cout << "Model directory not found.  Aborting processing.";
         return NO_MODEL_FILE;
     }
 
     //TODO: Support multiple directories for ensemble model
     std::vector<std::string> modelGlob;
-    modelGlob = glob(args.modelPath + "/*.caffemodel");
+    modelGlob = glob(args.modelPath[0] + "/*.caffemodel");
     if (modelGlob.size() == 0) {
         std::cout << "No model file .caffemodel was found.  Aborting processing.";
         return NO_MODEL_FILE;
     }
 
     std::string modelFile = modelGlob[0];
-    std::string meanFile = args.modelPath + "mean.binaryproto";
-    std::string labelFile = args.modelPath + "labels.txt";
-    std::string deployFile = args.modelPath + "deploy.prototxt";
+    std::string meanFile = args.modelPath[0] + "mean.binaryproto";
+    std::string labelFile = args.modelPath[0] + "labels.txt";
+    std::string deployFile = args.modelPath[0] + "deploy.prototxt";
 
     std::cout << "Initializing classifier from model.\n";
     classifier = new CaffeBatchClassifier(deployFile, modelFile, meanFile, labelFile, *pyramid, args.useGPU);
