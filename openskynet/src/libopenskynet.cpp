@@ -174,7 +174,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     tiler->PrintTiling();
     (*tileCount) = tiler->getNumTiles();
 
-    while (! tiler->empty()) {
+    while (not tiler->empty()) {
         Tile* tilePtr;
         tiler->pop(tilePtr);
 
