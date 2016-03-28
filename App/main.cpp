@@ -2,6 +2,7 @@
 #include <boost/program_options.hpp>
 #include "../openskynet/include/libopenskynet.h"
 #include <boost/timer/timer.hpp>
+#include <glog/logging.h>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ std::string outputLogo() {
 }
 
 int main(int ac, const char* av[]) {
-
+    google::InitGoogleLogging(*av); // Turn off Caffe google output
     //outputLogo();
     namespace po = boost::program_options;
     string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis", "fgdb"};
