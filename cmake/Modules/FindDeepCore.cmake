@@ -19,9 +19,24 @@ find_library(DEEPCORE_NETWORK_LIB_DIR NAMES network
     PATHS ${DEEPCORE_DIR}
     PATH_SUFFIXES lib lib64)
 
-find_path(DEEPCORE_INCLUDE_DIR Classifier.h
+find_path(DEEPCORE_UTILITY_INCLUDE_DIR Error.h
           PATHS ${DEEPCORE_DIR}
-          PATH_SUFFIXES include)
+          PATH_SUFFIXES include/utility)
+
+find_path(DEEPCORE_VECTOR_INCLUDE_DIR VectorFeatureSet.h
+          PATHS ${DEEPCORE_DIR}
+          PATH_SUFFIXES include/vector)
+
+find_path(DEEPCORE_IMAGERY_INCLUDE_DIR Tile.h
+          PATHS ${DEEPCORE_DIR}
+          PATH_SUFFIXES include/imagery)
+
+find_path(DEEPCORE_CLASS_INCLUDE_DIR Classifier.h
+          PATHS ${DEEPCORE_DIR}
+          PATH_SUFFIXES include/classification)
+
+# Get the parent directory
+get_filename_component(DEEPCORE_INCLUDE_DIR ${DEEPCORE_CLASS_INCLUDE_DIR} PATH)
 
 set(DEEPCORE_LIBRARIES 
     ${DEEPCORE_CLASS_LIB_DIR}
@@ -30,7 +45,6 @@ set(DEEPCORE_LIBRARIES
     ${DEEPCORE_VECTOR_LIB_DIR}
     ${DEEPCORE_NETWORK_LIB_DIR}
     )
-
 
 message(STATUS "DEEPCORE_LIBRARIES: ${DEEPCORE_LIBRARIES}")
 message(STATUS "DEEPCORE_INCLUDE_DIR: ${DEEPCORE_INCLUDE_DIR}")

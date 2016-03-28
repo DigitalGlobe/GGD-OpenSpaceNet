@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <libopenskynet.h>
-#include <coordinateHelper.h>
+#include "../include/libopenskynet.h"
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>

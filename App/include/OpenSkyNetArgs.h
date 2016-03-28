@@ -29,12 +29,14 @@ struct OpenSkyNetArgs {
     std::string image = "";
     bool useTileServer = true;
     bool useGPU = false;
+    bool webApi = false;
     std::vector<double> bbox;
     std::string modelPath = "";
     std::string geometryType = "";
     std::string outputFormat = "";
     std::string outputPath = "";
     std::string layerName = "";
+    std::string authToken = "";
     int zoom = 0;
     long startColumn = 0;
     long startRow = 0;
