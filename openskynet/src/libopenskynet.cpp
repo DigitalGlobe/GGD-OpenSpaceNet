@@ -72,9 +72,9 @@ void persistResultsWindows(std::vector<WindowPrediction>& results, Tile *tile,
                     tile->getWindowCoords(result->window, geometry);
                     std::cout << "Creating polygon from tile sub rect " << geometry[0].first << "," << geometry[0].second <<
                     " from tile " << tile->tile().first << "," << tile->tile().second << ".\n";
-                    /* How to abstract away zoom ? */
-                    //geom->addPolygon(result->predictions, geometry, tile->tile(), tile->zoom(), 0);
-                    geom->addPolygon(result->predictions, geometry, tile->tile(), -1, 0);
+                    
+                    geom->addPolygon(result->predictions, geometry, tile->tile(), tile->zoom(), 0);
+
                     // break if any are satisfied - all predictions get written
                     break;
                 }
@@ -164,12 +164,10 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     else {
         std::cout << "Classifcation on local image" << std::endl;
         /* Tile image and put Tiles on classification queue */
-        /* TODO: Tile size (and offset) from command line?
-         * Can we calculate the offset from the pyramid? 
-         * **/
-        //tiler = new GdalTileProducer(args.image, 280, 280, 0, 0);
-        tiler = new GdalTileProducer(args.image, 1400, 1400, 30, 30);
-        fs->setProjection(tiler->getSpr());
+        tiler = new GdalTileProducer(args.image, 1000, 1000, 30, 30);
+
+        /* The following line outputs a projection file .prj corresponding to the GeoTif for the vector layer */
+        //fs->setProjection(tiler->getSpr());
     }
     tiler->PrintTiling();
     (*tileCount) = tiler->getNumTiles();
