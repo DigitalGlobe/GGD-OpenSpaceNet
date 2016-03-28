@@ -13,8 +13,8 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
-#include <TileRequest.h>
-#include <Tile.h>
+#include <imagery/TileRequest.h>
+#include <imagery/Tile.h>
 #include <OpenSkyNetArgs.h>
 #include <opencv2/imgcodecs/imgcodecs_c.h>
 #include <opencv2/highgui/highgui_c.h>
@@ -25,8 +25,8 @@
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
 #include <glob.h>
-#include <GdalTileProducer.h>
-#include <WmtsTileProducer.h>
+#include <imagery/GdalTileProducer.h>
+#include <imagery/WmtsTileProducer.h>
 #include <Threshold.h>
 
 boost::lockfree::queue<TileRequest *> tileRequestQueue(50000);
