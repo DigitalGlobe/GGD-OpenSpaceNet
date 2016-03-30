@@ -1,23 +1,24 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "../openskynet/include/libopenskynet.h"
+#include "include/libopenskynet.h"
 #include <boost/timer/timer.hpp>
+#include <glog/logging.h>
 
 using namespace std;
 
-std::string outputLogo() {
-    std::cout << "DigitalGlobe, Inc.\n";
-    std::cout << "   ___                   ____  _          _   _      _         \n";
-    std::cout << "  / _ \\ _ __   ___ _ __ / ___|| | ___   _| \\ | | ___| |_       \n";
-    std::cout << " | | | | '_ \\ / _ \\ '_ \\\\___ \\| |/ / | | |  \\| |/ _ \\ __|      \n";
-    std::cout << " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n";
-    std::cout << "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n";
-    std::cout << "       |_|                          |___/                                     " << std::endl;
+void outputLogo() {
+    cout << "DigitalGlobe, Inc.\n";
+    cout << "   ___                   ____  _          _   _      _         \n";
+    cout << "  / _ \\ _ __   ___ _ __ / ___|| | ___   _| \\ | | ___| |_       \n";
+    cout << " | | | | '_ \\ / _ \\ '_ \\\\___ \\| |/ / | | |  \\| |/ _ \\ __|      \n";
+    cout << " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n";
+    cout << "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n";
+    cout << "       |_|                          |___/                                     " << endl;
 }
 
 int main(int ac, const char* av[]) {
-
-    //outputLogo();
+    google::InitGoogleLogging(*av); // Turn off Caffe google output
+    outputLogo();
     namespace po = boost::program_options;
     string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis", "fgdb"};
     // Declare the supported options.
@@ -29,6 +30,7 @@ int main(int ac, const char* av[]) {
             ("server", po::value<string>(), "URL to a valid WMS or WMTS service (premium users only).")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
             ("gpu", "Use GPU for processing.")
+            ("api", "Use DigitalGlobe Web API as the source of tiles")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("startCol", po::value<long>(), "Starting tile column.")
             ("startRow", po::value<long>(), "Starting tile row.")
@@ -190,6 +192,16 @@ int main(int ac, const char* av[]) {
         args.layerName = "skynetdetects";
     }
 
+    if (vm.count("api")) {
+        args.webApi = true;
+    }
+
+    if (vm.count("credentials")){
+        args.credentials = vm["credentials"].as<string>();
+    }
+
+    args.multiPass = vm.count("pyramid");
+
     args.confidence = 0.0;
     if (vm.count("confidence")){
         args.confidence = vm["confidence"].as<double>();
@@ -215,7 +227,7 @@ int main(int ac, const char* av[]) {
     }
 
     if ((args.stepSize == 0 && args.windowSize  > 0) || (args.stepSize > 0 && args.windowSize == 0)){
-        cout << "Unable to continue as configured.  Sliding window processing must have a step size and window size.";
+        cout << "Unable to continue as configured.  Sliding window processing must have a step size and window size.\n";
         return INVALID_MULTIPASS;
     }
 
@@ -261,6 +273,7 @@ int main(int ac, const char* av[]) {
 
 
     boost::timer::auto_cpu_timer t;
+
     return classifyBroadAreaMultiProcess(args);
 
 }

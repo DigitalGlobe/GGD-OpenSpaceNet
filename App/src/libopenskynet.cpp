@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <libopenskynet.h>
-#include <coordinateHelper.h>
+#include "../include/libopenskynet.h"
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>
@@ -14,8 +13,8 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
-#include <TileRequest.h>
-#include <Tile.h>
+#include <imagery/TileRequest.h>
+#include <imagery/Tile.h>
 #include <OpenSkyNetArgs.h>
 #include <opencv2/imgcodecs/imgcodecs_c.h>
 #include <opencv2/highgui/highgui_c.h>
@@ -26,8 +25,8 @@
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
 #include <glob.h>
-#include <GdalTileProducer.h>
-#include <WmtsTileProducer.h>
+#include <imagery/GdalTileProducer.h>
+#include <imagery/WmtsTileProducer.h>
 #include <Threshold.h>
 
 /* Function used to glob model names directories for ensemble models */
@@ -73,9 +72,9 @@ void persistResultsWindows(std::vector<WindowPrediction>& results, Tile *tile,
                     tile->getWindowCoords(result->window, geometry);
                     std::cout << "Creating polygon from tile sub rect " << geometry[0].first << "," << geometry[0].second <<
                     " from tile " << tile->tile().first << "," << tile->tile().second << ".\n";
-                    /* How to abstract away zoom ? */
-                    //geom->addPolygon(result->predictions, geometry, tile->tile(), tile->zoom(), 0);
-                    geom->addPolygon(result->predictions, geometry, tile->tile(), -1, 0);
+                    
+                    geom->addPolygon(result->predictions, geometry, tile->tile(), tile->zoom(), 0);
+
                     // break if any are satisfied - all predictions get written
                     break;
                 }
@@ -178,12 +177,10 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     else {
         std::cout << "Classifcation on local image" << std::endl;
         /* Tile image and put Tiles on classification queue */
-        /* TODO: Tile size (and offset) from command line?
-         * Can we calculate the offset from the pyramid? 
-         * **/
-        //tiler = new GdalTileProducer(args.image, 280, 280, 0, 0);
-        tiler = new GdalTileProducer(args.image, 1400, 1400, 30, 30);
-        fs->setProjection(tiler->getSpr());
+        tiler = new GdalTileProducer(args.image, 1000, 1000, 30, 30);
+
+        /* The following line outputs a projection file .prj corresponding to the GeoTif for the vector layer */
+        //fs->setProjection(tiler->getSpr());
     }
 
     tiler->PrintTiling();
@@ -192,7 +189,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     long processedCount = 0;
     const long tileCount = tiler->getNumTiles();
 
-    while (! tiler->empty()) {
+    while (not tiler->empty()) {
         Tile* tilePtr;
         tiler->pop(tilePtr);
 

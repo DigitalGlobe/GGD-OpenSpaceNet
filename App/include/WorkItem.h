@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <opencv2/core/mat.hpp>
-#include <VectorFeatureSet.h>
+#include <vector/VectorFeatureSet.h>
 
 #ifndef OPENSKYNET_WORKITEM_H
 #define OPENSKYNET_WORKITEM_H
