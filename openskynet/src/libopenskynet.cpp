@@ -30,30 +30,31 @@
 #include <WmtsTileProducer.h>
 #include <Threshold.h>
 
-boost::lockfree::queue<TileRequest *> tileRequestQueue(50000);
-boost::lockfree::queue<Tile *> classificationQueue(50000);
-const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
-
-std::string outputPath;
-std::string outputFormat;
-std::string credentials;
-GeometryType outputType;
-CaffeBatchClassifier *classifier = nullptr;
-double scale = 2.0;
-
-long *tileCount = new long(0);
-long *processedCount = new long(0);
-
 /* Function used to glob model names directories for ensemble models */
-inline std::vector<std::string> glob(const std::string& pat){
+bool modelGlob(const std::string& inPath, const std::vector<std::string>& suffixes, std::vector<std::string>& modelPaths) {
+    bool foundAll = true;
     glob_t glob_result;
-    glob(pat.c_str(),GLOB_TILDE,NULL,&glob_result);
-    std::vector<string> ret;
-    for(unsigned int i=0;i<glob_result.gl_pathc;++i){
-        ret.push_back(string(glob_result.gl_pathv[i]));
+    modelPaths.clear();
+    
+    for (auto it = suffixes.begin(); it != suffixes.end(); it++) {
+        std::string fullPath = inPath + (*it);
+        glob(fullPath.c_str(), GLOB_TILDE, NULL, &glob_result);
+        if (glob_result.gl_pathc < 1) {
+            std::cout << "Error: no path matches " << fullPath << std::endl;
+            modelPaths.push_back("");
+            foundAll = false;
+        }
+        else if (glob_result.gl_pathc > 1) {
+            std::cout << "Error: more than one path matches " << fullPath << std::endl;
+            modelPaths.push_back("");
+            foundAll = false;
+        }
+        else {
+            modelPaths.push_back(glob_result.gl_pathv[0]);
+        }
     }
     globfree(&glob_result);
-    return ret;
+    return foundAll;
 }
 
 void persistResultsWindows(std::vector<WindowPrediction>& results, Tile *tile, 
@@ -87,14 +88,7 @@ void persistResultsWindows(std::vector<WindowPrediction>& results, Tile *tile,
 int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     curlpp::Cleanup cleaner;
 
-    /* geometryType is originally set to an empty string to GeometryType::POLYGON is the default */
-    outputType = args.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
-
     /* Create pyramid object */
-    /* 
-     */
-    /* Process the pyramid options */
-    //Pyramid* pyramid = new Pyramid(150, 30, 30, 1.5);
     std::cout << "Pyramid window sizes: " << std::endl;
     for (auto it = args.pyramidWindowSizes.begin(); it != args.pyramidWindowSizes.end(); it++) {
 
@@ -112,30 +106,50 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     for (pyramid->begin(); ! pyramid->end(); ++(*pyramid)) {
         long winSize, stepSize;
         pyramid->current(winSize, stepSize);
-        std::cout << winSize << ", " << stepSize << std::endl;
+        std::cout << "  Window size " << winSize << " step " << stepSize << std::endl;
     }
 
-    /* Retrieve the caffe model paths */
-    if (!boost::filesystem::is_directory(args.modelPath[0])) {
-        std::cout << "Model directory not found.  Aborting processing.";
-        return NO_MODEL_FILE;
+    /* Multiple directories for ensemble model */
+    /* TODO: Should this be a struct? One for each model? */
+    std::vector<std::string> modelFiles;
+    std::vector<std::string> meanFiles;
+    std::vector<std::string> labelFiles;
+    std::vector<std::string> deployFiles;
+
+    /* Model suffixes required for caffe models */
+    std::vector<std::string> modelSuffixes;
+    modelSuffixes.push_back("*.caffemodel");
+    modelSuffixes.push_back("mean.binaryproto");
+    modelSuffixes.push_back("labels.txt");
+    modelSuffixes.push_back("deploy.prototxt");
+
+    for (auto pathIt = args.modelPath.begin(); pathIt != args.modelPath.end(); pathIt++) {
+        std::vector<std::string> paths;
+        bool modelFound = modelGlob((*pathIt), modelSuffixes, paths);
+        if (modelFound) {
+            modelFiles.push_back(paths[0]);
+            meanFiles.push_back(paths[1]);
+            labelFiles.push_back(paths[2]);
+            deployFiles.push_back(paths[3]);
+        }
+        else {
+            std::cout << "Error: Unable to determine model from path " << *pathIt << std::endl;
+            return NO_MODEL_FILE;
+        }
     }
 
-    //TODO: Support multiple directories for ensemble model
-    std::vector<std::string> modelGlob;
-    modelGlob = glob(args.modelPath[0] + "/*.caffemodel");
-    if (modelGlob.size() == 0) {
-        std::cout << "No model file .caffemodel was found.  Aborting processing.";
-        return NO_MODEL_FILE;
+    std::cout << "Using models: " << std::endl;
+    int numModels = modelFiles.size();
+    for (int i = 0; i < numModels; i++) {
+        std::cout << "Model " << i << std::endl;
+        std::cout << "  model " << modelFiles[i] << std::endl;
+        std::cout << "  mean " << meanFiles[i] << std::endl;
+        std::cout << "  labels " << labelFiles[i] << std::endl;
+        std::cout << "  deploy " << deployFiles[i] << std::endl;
     }
-
-    std::string modelFile = modelGlob[0];
-    std::string meanFile = args.modelPath[0] + "mean.binaryproto";
-    std::string labelFile = args.modelPath[0] + "labels.txt";
-    std::string deployFile = args.modelPath[0] + "deploy.prototxt";
 
     std::cout << "Initializing classifier from model.\n";
-    classifier = new CaffeBatchClassifier(deployFile, modelFile, meanFile, labelFile, *pyramid, args.useGPU);
+    CaffeBatchClassifier* classifier = new CaffeBatchClassifier(deployFiles[0], modelFiles[0], meanFiles[0], labelFiles[0], *pyramid, args.useGPU);
     std::cout << "Classifier initialization complete.\n";
 
     /* Class specific and global thresholding */
@@ -171,8 +185,12 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         tiler = new GdalTileProducer(args.image, 1400, 1400, 30, 30);
         fs->setProjection(tiler->getSpr());
     }
+
     tiler->PrintTiling();
-    (*tileCount) = tiler->getNumTiles();
+
+    /* Tile counting */
+    long processedCount = 0;
+    const long tileCount = tiler->getNumTiles();
 
     while (! tiler->empty()) {
         Tile* tilePtr;
@@ -186,15 +204,12 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
         delete tilePtr;
 
-        double percentage = (((double) ++*processedCount) / *tileCount) * 100.0;
+        double percentage = (((double) ++processedCount) / tileCount) * 100.0;
         std::cout << "Classification " << percentage << "% completed." << std::endl;
     }
 
 
     delete tiler;
-
-    delete tileCount;
-    delete processedCount;
 
     delete fs;
 

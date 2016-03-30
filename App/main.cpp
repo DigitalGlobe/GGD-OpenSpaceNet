@@ -145,10 +145,9 @@ int main(int ac, const char* av[]) {
     //TODO: Get with Andrew about default models.
     if (vm.count("model")) {
         args.modelPath =  vm["model"].as<vector<string>>();
-        cout << "Num Models: " << args.modelPath.size() << endl;
-        cout << "Model location is " << endl;
-        for (auto it = args.modelPath.begin(); it != args.modelPath.end(); it++) {
-           cout << "  " << *it << endl; 
+        cout << "Model locations are: " << endl;
+        for (auto modelIt = args.modelPath.begin(); modelIt != args.modelPath.end(); modelIt++) {
+            cout << "  " << *modelIt << endl;
         }
     } else {
         cout << "Model was not set. Unable to continue.\n";
