@@ -31,10 +31,22 @@ if (OpenCV_FOUND)
 endif()
 
 
+###########################################################################################
+# Defines global Caffe_LINK flag, This flag is required to prevent linker from excluding
+# some objects which are not addressed directly but are registered via static constructors
+if(BUILD_SHARED_LIBS)
+  set(Caffe_LINK caffe)
+else()
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(Caffe_LINK -Wl,-force_load caffe)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(Caffe_LINK -Wl,--whole-archive caffe -Wl,--no-whole-archive)
+  endif()
+endif()
 find_package(Caffe REQUIRED)
 if (Caffe_FOUND)
     include_directories(${Caffe_INCLUDE_DIRS})
-    target_link_libraries(OpenSkyNet ${Caffe_LIBRARIES})
+    target_link_libraries(OpenSkyNet ${Caffe_LINK})
 endif()
 
 find_package(GDAL REQUIRED)
@@ -47,9 +59,9 @@ if(GDAL_FOUND)
     target_link_libraries(OpenSkyNet libhdf5.a)
     target_link_libraries(OpenSkyNet libjpeg.a)
     target_link_libraries(OpenSkyNet libturbojpeg.a)
-    target_link_libraries(OpenSkyNet /usr/local/pgsql/lib/libpq.a)
-    target_link_libraries(OpenSkyNet /usr/local/FileGDB_API-64/lib/libFileGDBAPI.so)
-    target_link_libraries(OpenSkyNet /usr/local/FileGDB_API-64/lib/libfgdbunixrtl.so)
+    target_link_libraries(OpenSkyNet /opt/DeepCore/pgsql/lib/libpq.a)
+    target_link_libraries(OpenSkyNet /opt/DeepCore/FileGDB_API-64/lib/libFileGDBAPI.so)
+    target_link_libraries(OpenSkyNet /opt/DeepCore/FileGDB_API-64/lib/libfgdbunixrtl.so)
     target_link_libraries(OpenSkyNet libcurl.a)
     target_link_libraries(OpenSkyNet libssl.a)
     target_link_libraries(OpenSkyNet libcrypto.a)
@@ -74,8 +86,8 @@ if (CURL_FOUND)
     target_link_libraries(OpenSkyNet ${CURL_LIBS})
 endif()
 
-include_directories(/usr/local/include/curlpp)
-target_link_libraries(OpenSkyNet /usr/local/lib/libcurlpp.a)
+include_directories(/opt/DeepCore/include/curlpp)
+target_link_libraries(OpenSkyNet /opt/DeepCore/lib/libcurlpp.a)
 
 find_package(LibLZMA)
 if (LIBLZMA_FOUND)
@@ -83,9 +95,7 @@ if (LIBLZMA_FOUND)
     target_link_libraries(OpenSkyNet ${LIBLZMA_LIBRARIES})
 endif()
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/FileGDB_API-64/lib)
 target_link_libraries(OpenSkyNet pthread)
-target_link_libraries(OpenSkyNet /usr/local/cuda-7.5/lib64/libculibos.a)
 
 INSTALL(TARGETS OpenSkyNet
         RUNTIME DESTINATION bin
