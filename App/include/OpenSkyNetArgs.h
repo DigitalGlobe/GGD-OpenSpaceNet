@@ -10,7 +10,7 @@
 
 struct OpenSkyNetArgs {
     const static int CURRENT_VERSION = 1;
-    std::string connectId = "";
+    std::string token = "";
     std::string credentials = "";
     bool useGPU = false;
     bool webApi = false;

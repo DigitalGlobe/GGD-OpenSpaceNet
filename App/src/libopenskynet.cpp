@@ -14,9 +14,9 @@
 #include <opencv2/imgcodecs.hpp>
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
-#include <classification/Classifier.h>
-#include <utility/coordinateHelper.h>
-#include <network/HttpDownloader.h>
+#include <DeepCore/classification/Classifier.h>
+#include <DeepCore/utility/coordinateHelper.h>
+#include <DeepCore/network/HttpDownloader.h>
 #include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
@@ -42,13 +42,14 @@ long *stepSize = new long(0);
 long *windowSize = new long(0);
 double scale = 2.0;
 double *confidence = new double(0.0);
-long *failures;
-long *tileCount;
-long *downloadedCount;
-long *processedCount;
+long *failures = new long(0);
+long *tileCount = new long(0);
+long *downloadedCount = new long(0);
+long *processedCount = new long(0);
 int batchSize = 1e4;
 
-
+static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
+static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connnectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (results.size() > 0) {
         if (outputType == GeometryType::POINT) {
@@ -238,12 +239,15 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     tileCount = new long(0);
     *tileCount = numCols * numRows;
 
-    //std::string completedUrl = args.url;
-    //completedUrl += "&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService";
-    //completedUrl += "&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg";
-    //completedUrl += "&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
-
     std::string completedUrl = "";
+    if (args.webApi){
+        completedUrl = WEB_API_URL;
+    }
+    else {
+        completedUrl = WMTS_URL;
+    }
+
+    boost::replace_all(completedUrl, "ccc_connect_id", args.token);
 
     if (!boost::filesystem::is_directory(args.modelPath)) {
         std::cout << "No model file was found.  Aborting processing.";
@@ -282,8 +286,15 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         for (long j = colStart; j < colStart + numCols; j++) {
             WorkItem *item = new WorkItem;
             std::string finalUrl = completedUrl;
-            finalUrl += (boost::format("&tilerow=%1d") % i).str();
-            finalUrl += (boost::format("&tilecol=%ld") % j).str();
+            if (args.webApi){
+                boost::replace_all(finalUrl, "{z}", (boost::format("%1d") % args.zoom).str());
+                boost::replace_all(finalUrl, "{x}", (boost::format("%1d") % j).str());
+                boost::replace_all(finalUrl, "{y}", (boost::format("%1d") % i).str());
+            }
+            else {
+                finalUrl += (boost::format("&tilerow=%1d") % i).str();
+                finalUrl += (boost::format("&tilecol=%ld") % j).str();
+            }
             item->setUrl(finalUrl);
             item->setTile(j, i);
             item->setZoom(args.zoom);

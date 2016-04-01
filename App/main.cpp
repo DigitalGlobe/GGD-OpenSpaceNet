@@ -25,8 +25,8 @@ int main(int ac, const char* av[]) {
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "Usage")
-            ("connectId", po::value<string>(), "Connection id used for licensing")
-            ("credentials", po::value<string>(), "Credentials for the map service")
+            ("token", po::value<string>(), "API token used for licensing. This is the connectId for the WMTS service or the API key for the Web Maps API.")
+            ("credentials", po::value<string>(), "Credentials for the map service. Not required for Web Maps API.")
             ("gpu", "Use GPU for processing.")
             ("api", "Use DigitalGlobe Web API as the source of tiles")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
@@ -56,15 +56,23 @@ int main(int ac, const char* av[]) {
     }
     OpenSkyNetArgs args;
 
+    if (vm.count("api")) {
+        args.webApi = true;
+    }
+
     const string DEFAULT_CONNECTID = "bede7af2-593a-4b9a-81ae-a06fc58b0c5b";
-    if (vm.count("connectId")) {
-        args.connectId = vm["connectId"].as<string>();
-        cout << "ConnectId was set to "
-        << args.connectId << ".\n";
+    if (vm.count("token")) {
+        args.token = vm["token"].as<string>();
+        cout << "token was set to "
+        << args.token << ".\n";
 
     } else {
-        cout << "ConnectId was not set. Using default connectId.\n";
-        args.connectId = DEFAULT_CONNECTID;
+        if (args.webApi){
+            cout << "A token must be supplied to use the Web Maps API.\n";
+            return 1;
+        }
+        cout << "token was not set. Using default token.\n";
+        args.token = DEFAULT_CONNECTID;
     }
 
     args.useGPU = false;
@@ -120,9 +128,6 @@ int main(int ac, const char* av[]) {
         args.layerName = "skynetdetects";
     }
 
-    if (vm.count("api")) {
-        args.webApi = true;
-    }
 
     if (vm.count("bbox")) {
         char buffer[100];
