@@ -21,6 +21,7 @@
 #include <opencv2/highgui.hpp>
 #include <Classifier.h>
 #include <CaffeBatchClassifier.h>
+#include <CaffeEnsembleBatchClassifier.h>
 #include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
@@ -148,7 +149,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     }
 
     std::cout << "Initializing classifier from model.\n";
-    CaffeBatchClassifier* classifier = new CaffeBatchClassifier(deployFiles[0], modelFiles[0], meanFiles[0], labelFiles[0], *pyramid, args.useGPU);
+    CaffeEnsembleBatchClassifier* classifier = new CaffeEnsembleBatchClassifier(deployFiles, modelFiles, meanFiles, labelFiles, *pyramid, args.useGPU);
     std::cout << "Classifier initialization complete.\n";
 
     /* Class specific and global thresholding */
