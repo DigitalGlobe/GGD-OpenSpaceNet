@@ -96,6 +96,8 @@ int main(int ac, const char* av[]) {
         cout << "Image path was not set. Using tile server.\n";
     }
 
+    /* Bounding box */
+    args.bbox.clear();
     if (vm.count("bbox")) {
         char buffer[100];
         args.bbox = vm["bbox"].as<vector<double>>();

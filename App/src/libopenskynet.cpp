@@ -179,7 +179,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     else {
         std::cout << "Classifcation on local image" << std::endl;
         /* Tile image and put Tiles on classification queue */
-        tiler = new GdalTileProducer(args.image, 1000, 1000, 30, 30);
+        tiler = new GdalTileProducer(args.image, args.bbox, 1000, 1000, 30, 30);
 
         /* The following line outputs a projection file .prj corresponding to the GeoTif for the vector layer */
         //fs->setProjection(tiler->getSpr());
@@ -199,7 +199,6 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         results = classifier->Classify(*tilePtr, 5, thresholds.getLowestThreshold());
         /* Now process results */
         persistResultsWindows(results, tilePtr, fs, thresholds);
-        tilePtr->printTileOffsets();
 
         delete tilePtr;
 
