@@ -148,7 +148,8 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         std::cout << "  deploy " << deployFiles[i] << std::endl;
     }
 
-    std::cout << "Initializing classifier from model.\n";
+    std::cout << "Initializing classifier.\n";
+    //CaffeBatchClassifier* classifier = new CaffeBatchClassifier(deployFiles[0], modelFiles[0], meanFiles[0], labelFiles[0], *pyramid, args.useGPU);
     CaffeEnsembleBatchClassifier* classifier = new CaffeEnsembleBatchClassifier(deployFiles, modelFiles, meanFiles, labelFiles, *pyramid, args.useGPU);
     std::cout << "Classifier initialization complete.\n";
 
