@@ -20,7 +20,7 @@ int main(int ac, const char* av[]) {
 
     outputLogo();
     namespace po = boost::program_options;
-    string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis", "fgdb"};
+    string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis"};
     // Declare the supported options.
     po::options_description desc("Allowed options");
     desc.add_options()

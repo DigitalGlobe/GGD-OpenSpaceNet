@@ -14,7 +14,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
-#include <DeepCore/classification/Classifier.h>
+#include <DeepCore/classification/CaffeClassifier.h>
 #include <DeepCore/utility/coordinateHelper.h>
 #include <DeepCore/network/HttpDownloader.h>
 #include <boost/timer/timer.hpp>
@@ -35,7 +35,7 @@ std::string outputFormat;
 std::string credentials;
 GeometryType outputType;
 
-Classifier *classifier = nullptr;
+CaffeClassifier *classifier = nullptr;
 bool *multiPass = new bool(false);
 bool *pyramid = new bool(false);
 long *stepSize = new long(0);
@@ -264,7 +264,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     //Loading of the model I'm currently using (200+ MB) takes a couple of seconds.  For that reason, I'm using a single
     //model and loading it prior to any items being processed.
     std::cout << "Initializing classifier from model.\n";
-    classifier = new Classifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
+    classifier = new CaffeClassifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
     std::cout << "Classifier initialization complete.\n";
     VectorFeatureSet *fs;
     try {
