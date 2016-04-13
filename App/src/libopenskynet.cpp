@@ -21,6 +21,7 @@
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
+#include <curlpp/Exception.hpp>
 
 boost::lockfree::queue<WorkItem *> queue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
@@ -117,7 +118,7 @@ int classifyTile(WorkItem *item) {
             }
         }
 
-        results = classifier->Classify(data_mat, 5);
+        results = classifier->Classify(data_mat, 5, *confidence);
         persistResults(results, item);
         double percentage = (((double) ++*processedCount) / *tileCount) * 100.0;
         std::cout << "Classification " << percentage << "% completed.";
@@ -137,21 +138,33 @@ int processTile(WorkItem *item) {
     //cv::Mat *image = downloader.download(item->url(), credentials);
     //if (image != nullptr) {
     if (item->retryCount() < 5){
-        bool retVal = downloader.download(item->url(), image, credentials);
-        if (retVal){
-            item->addImage(image);
-            if (*pyramid) { //downscale the images
-                item->pyramid(scale, 30);
+
+        bool retVal = false;
+        try {
+            retVal = downloader.download(item->url(), image, credentials);
+            if (retVal){
+                item->addImage(image);
+                if (*pyramid) { //downscale the images
+                    item->pyramid(scale, 30);
+                }
+                classificationQueue.push(item);
             }
-            classificationQueue.push(item);
-        }
-        else {
+            else {
+                std::cout << "Download failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
+                std::cout << "Adding the tile back to the queue for redownload.\n";
+                item->incrementRetryCount();
+                queue.push(item);
+                return -1;
+            }
+        } catch (curlpp::RuntimeError){
             std::cout << "Download failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
             std::cout << "Adding the tile back to the queue for redownload.\n";
             item->incrementRetryCount();
             queue.push(item);
             return -1;
+
         }
+
     }
     else
     {
@@ -256,7 +269,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     //TODO: make this a little smarter!  This would be a good place to load multiple models and have it
     // create multiple classifiers, maybe based on folder structure or maybe zipped file placement.
-    modelFile = args.modelPath + "model1.caffemodel";
+    modelFile = args.modelPath + "model.caffemodel";
     meanFile = args.modelPath + "mean.binaryproto";
     labelFile = args.modelPath + "labels.txt";
     deployFile = args.modelPath + "deploy.prototxt";
