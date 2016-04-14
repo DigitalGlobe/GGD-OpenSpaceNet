@@ -229,7 +229,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     *pyramid = args.multiPass;
     *stepSize = args.stepSize;
     *windowSize = args.windowSize;
-
+    *confidence = args.confidence;
 
     //if the bbox is specified, it takes precedence!
     if (args.bbox.size() != 0) {
