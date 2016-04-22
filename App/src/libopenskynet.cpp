@@ -10,14 +10,19 @@
 #include <boost/thread.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/progress.hpp>
+
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
 #include <DeepCore/classification/CaffeClassifier.h>
+#include <DeepCore/imagery/TileRequest.h>
+#include <DeepCore/imagery/Tile.h>
+#include <DeepCore/imagery/GdalTileProducer.h>
+#include <DeepCore/imagery/WmtsTileProducer.h>
 #include <DeepCore/utility/coordinateHelper.h>
 #include <DeepCore/network/HttpDownloader.h>
-#include <boost/timer/timer.hpp>
 #include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
@@ -48,6 +53,8 @@ long *tileCount = new long(0);
 long *downloadedCount = new long(0);
 long *processedCount = new long(0);
 int batchSize = 1e4;
+boost::progress_display *show_progress = nullptr;
+int *current = new int(0);
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connnectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
@@ -65,9 +72,7 @@ void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::
                 item->geometry()->addPoint(results, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
                                            item->tile(), item->zoom(), 0);
             }
-            std::cout << "Creating point from tile " << item->tile().first << "," << item->tile().second <<
-            ".\n";
-        }
+         }
         else {
             std::vector<std::pair<double, double>> geometry;
             if (rect == nullptr) {
@@ -81,23 +86,16 @@ void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::
                         coordinateHelper::num2deg(item->tile().second, item->tile().first + 1, item->zoom()));
                 geometry.push_back(
                         coordinateHelper::num2deg(item->tile().second, item->tile().first, item->zoom()));
-                std::cout << "Creating polygon from tile " << item->tile().first << "," << item->tile().second <<
-                ".\n";
-            } else {
+             } else {
                 geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().second,
                                                              item->tile().first,
                                                              item->zoom());
-                std::cout << "Creating polygon from tile sub rect " << geometry[0].first << "," << geometry[0].second <<
-                " from tile " << item->tile().first << "," << item->tile().second << ".\n";
 
             }
             item->geometry()->addPolygon(results, geometry, item->tile(), item->zoom(), 0);
 
         }
 
-    }
-    else {
-        std::cout << "No results found from tile: " << item->tile().first << ", " << item->tile().second << ".\n";
     }
 
 }
@@ -120,8 +118,7 @@ int classifyTile(WorkItem *item) {
 
         results = classifier->Classify(data_mat, 5, *confidence);
         persistResults(results, item);
-        double percentage = (((double) ++*processedCount) / *tileCount) * 100.0;
-        std::cout << "Classification " << percentage << "% completed.";
+
     }
 
     return 0;
@@ -135,8 +132,6 @@ int processTile(WorkItem *item) {
     HttpDownloader downloader;
     cv::Mat image;
 
-    //cv::Mat *image = downloader.download(item->url(), credentials);
-    //if (image != nullptr) {
     if (item->retryCount() < 5){
 
         bool retVal = false;
@@ -150,15 +145,11 @@ int processTile(WorkItem *item) {
                 classificationQueue.push(item);
             }
             else {
-                std::cout << "Download failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
-                std::cout << "Adding the tile back to the queue for redownload.\n";
                 item->incrementRetryCount();
                 queue.push(item);
                 return -1;
             }
         } catch (curlpp::RuntimeError){
-            std::cout << "Download failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
-            std::cout << "Adding the tile back to the queue for redownload.\n";
             item->incrementRetryCount();
             queue.push(item);
             return -1;
@@ -168,7 +159,6 @@ int processTile(WorkItem *item) {
     }
     else
     {
-        std::cout << "Maximum retries failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
         ++failures;
         delete item;
         return -1;
@@ -183,8 +173,7 @@ int process() {
     while (queue.pop(item)) {
         int retVal = processTile(item);
         if (retVal == 0){
-            double percentage = (((double) ++*downloadedCount) / *tileCount) * 100.0;
-            std::cout << "Downloads: " << percentage << "% completed.\n";
+            ++(*show_progress);
         }
     }
     return 0;
@@ -195,23 +184,22 @@ int process() {
 // with the classifier being slow to load and fast to process, the current implementation uses a pair of queues, but only
 // the download queue is multi-threaded.  The classifier's Predict call mutates the state of the net, which is generally
 // bad in a multi-threaded call, so it's all processed sequentially.  The speed of the classifier on GPU makes this possible.
-void downloadAndProcessRow(){
-    std::cout << "Downloading:\n";
+void downloadAndProcessRow(int numThreads){
     //start working by downloading everything
     boost::thread_group downloadThreads;
-    for (int i = 0; i < consumer_thread_count; ++i) {
+    for (int i = 0; i < numThreads; ++i) {
         downloadThreads.create_thread(process);
     }
     downloadThreads.join_all();
 
-    std::cout << "Download complete.\n";
-    std::cout << "Processing:\n";
 
     //classify the images once complete.
 
     WorkItem *item;
     while (classificationQueue.pop(item)) {
         classifyTile(item);
+        ++(*show_progress);
+        delete item;
     }
 }
 
@@ -247,8 +235,8 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     }
 
 
-    std::cout << "columns: " << colStart << " to " << (colStart + numCols - 1) << ".\n";
-    std::cout << "rows: " << rowStart << " to " << (rowStart + numRows - 1) << ".\n";
+    //std::cout << "columns: " << colStart << " to " << (colStart + numCols - 1) << ".\n";
+    //std::cout << "rows: " << rowStart << " to " << (rowStart + numRows - 1) << ".\n";
     tileCount = new long(0);
     *tileCount = numCols * numRows;
 
@@ -276,9 +264,9 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     //Loading of the model I'm currently using (200+ MB) takes a couple of seconds.  For that reason, I'm using a single
     //model and loading it prior to any items being processed.
-    std::cout << "Initializing classifier from model.\n";
+    //std::cout << "Initializing classifier from model.\n";
     classifier = new CaffeClassifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
-    std::cout << "Classifier initialization complete.\n";
+    //std::cout << "Classifier initialization complete.\n";
     VectorFeatureSet *fs;
     try {
         fs = new VectorFeatureSet(args.outputPath, args.outputFormat, args.layerName);
@@ -291,9 +279,15 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     outputType = args.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
     credentials = args.credentials;
-    std::cout << "Loading initial urls for downloading.\n";
+    //std::cout << "Loading initial urls for downloading.\n";
     downloadedCount = new long(0);
     processedCount = new long(0);
+    int numThreads = consumer_thread_count * args.numThreads;
+    if (numCols < numThreads){
+        numThreads = numCols;
+    }
+    std::cout << (boost::format("Num threads: %1d") % numThreads).str() << std::endl;
+    show_progress = new boost::progress_display((numRows * numCols) * 2UL);
 
     for (long i = rowStart; i < rowStart + numRows; i++) {
         for (long j = colStart; j < colStart + numCols; j++) {
@@ -314,10 +308,10 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
             item->geometry() = fs;
             queue.push(item);
         }
-        downloadAndProcessRow();
+        downloadAndProcessRow(numThreads);
     }
 
-    std::cout << "Number of failures: " << *failures << std::endl;
+    std::cout << "\nNumber of failures: " << *failures << std::endl;
 
     //cleanup
     delete classifier;
