@@ -80,6 +80,12 @@ if(Boost_FOUND)
 
 endif()
 
+find_package(DeepCore REQUIRED)
+if (DEEPCORE_FOUND)
+    include_directories(${DEEPCORE_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNet ${DEEPCORE_LIBRARIES})
+ endif()
+
 find_package(CURL REQUIRED)
 if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})

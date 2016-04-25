@@ -16,11 +16,13 @@
 #include <opencv2/imgcodecs.hpp>
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
-#include <DeepCore/classification/CaffeClassifier.h>
-#include <DeepCore/imagery/TileRequest.h>
+#include <DeepCore/classification/Classifier.h>
+#include <DeepCore/classification/GbdxModelReader.h>
+#include <DeepCore/classification/ModelMetadata.h>
+#include <DeepCore/classification/Model.h>
+#include <DeepCore/classification/Prediction.h>
 #include <DeepCore/imagery/Tile.h>
-#include <DeepCore/imagery/GdalTileProducer.h>
-#include <DeepCore/imagery/WmtsTileProducer.h>
+#include <DeepCore/imagery/WmtsTile.h>
 #include <DeepCore/utility/coordinateHelper.h>
 #include <DeepCore/network/HttpDownloader.h>
 #include <curl/curl.h>
@@ -28,7 +30,9 @@
 #include <caffe/caffe.hpp>
 #include <curlpp/Exception.hpp>
 
-boost::lockfree::queue<WorkItem *> queue(50000);
+using namespace dg::deepcore::classification;
+using namespace std;
+boost::lockfree::queue<WorkItem *> downloadQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
 const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
 
@@ -41,7 +45,8 @@ std::string outputFormat;
 std::string credentials;
 GeometryType outputType;
 
-CaffeClassifier *classifier = nullptr;
+Model* model = nullptr;
+Classifier *classifier = nullptr;
 bool *multiPass = new bool(false);
 bool *pyramid = new bool(false);
 long *stepSize = new long(0);
@@ -58,18 +63,27 @@ int *current = new int(0);
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connnectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
+
+void convertPredictions(const std::vector<Prediction>& predictions, std::vector<std::pair<std::string, float>>& out ){
+    for (int i = 0; i < predictions.size(); i++){
+        out.push_back({predictions[i].label, predictions[i].confidence});
+    }
+}
+
 void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (results.size() > 0) {
+        std::vector<std::pair<string, float>> predictions;
+        convertPredictions(results, predictions);
         if (outputType == GeometryType::POINT) {
             if (rect == nullptr) {
                 //flip the result because the converter helper takes row then column
-                item->geometry()->addPoint(results,
+                item->geometry()->addPoint(predictions,
                                            coordinateHelper::num2deg(item->tile().second, item->tile().first,
                                                                      item->zoom()),
                                            item->tile(), item->zoom(), 0);
 
             } else {
-                item->geometry()->addPoint(results, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
+                item->geometry()->addPoint(predictions, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
                                            item->tile(), item->zoom(), 0);
             }
          }
@@ -92,7 +106,7 @@ void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::
                                                              item->zoom());
 
             }
-            item->geometry()->addPolygon(results, geometry, item->tile(), item->zoom(), 0);
+            item->geometry()->addPolygon(predictions, geometry, item->tile(), item->zoom(), 0);
 
         }
 
@@ -108,15 +122,15 @@ int classifyTile(WorkItem *item) {
             //Sliding window implementation
             std::vector<cv::Rect> rects = item->get_sliding_windows(data_mat, *windowSize, *windowSize, *stepSize);
             for (int j = 0; j < rects.size(); ++j) {
-                cv::Mat mat(data_mat, rects[j]);
-                results = classifier->Classify(mat, 5, *confidence);
+                 cv::Mat mat(data_mat, rects[j]);
+                results = classifier->classify(WmtsTile(mat), *confidence);
                 if (results.size() > 0) {
                     persistResults(results, item, &rects[j]);
                 }
             }
         }
 
-        results = classifier->Classify(data_mat, 5, *confidence);
+        results = classifier->classify(WmtsTile(data_mat), *confidence);
         persistResults(results, item);
 
     }
@@ -146,12 +160,12 @@ int processTile(WorkItem *item) {
             }
             else {
                 item->incrementRetryCount();
-                queue.push(item);
+                downloadQueue.push(item);
                 return -1;
             }
         } catch (curlpp::RuntimeError){
             item->incrementRetryCount();
-            queue.push(item);
+            downloadQueue.push(item);
             return -1;
 
         }
@@ -170,7 +184,7 @@ int processTile(WorkItem *item) {
 
 int process() {
     WorkItem *item;
-    while (queue.pop(item)) {
+    while (downloadQueue.pop(item)) {
         int retVal = processTile(item);
         if (retVal == 0){
             ++(*show_progress);
@@ -182,7 +196,7 @@ int process() {
 // Since this problem is a classic producer-consumer problem, the original implementation was a pair of queues, with
 // WorkItems being shuffled from one to another based on successful completion of the previous stage.  Due to some issues
 // with the classifier being slow to load and fast to process, the current implementation uses a pair of queues, but only
-// the download queue is multi-threaded.  The classifier's Predict call mutates the state of the net, which is generally
+// the download downloadQueue is multi-threaded.  The classifier's Predict call mutates the state of the net, which is generally
 // bad in a multi-threaded call, so it's all processed sequentially.  The speed of the classifier on GPU makes this possible.
 void downloadAndProcessRow(int numThreads){
     //start working by downloading everything
@@ -250,10 +264,10 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     boost::replace_all(completedUrl, "ccc_connect_id", args.token);
 
-    if (!boost::filesystem::is_directory(args.modelPath)) {
-        std::cout << "No model file was found.  Aborting processing.";
-        return NO_MODEL_FILE;
-    }
+    //if (!boost::filesystem::is_directory(args.modelPath)) {
+    //    std::cout << "No model file was found.  Aborting processing.";
+    //    return NO_MODEL_FILE;
+    //}
 
     //TODO: make this a little smarter!  This would be a good place to load multiple models and have it
     // create multiple classifiers, maybe based on folder structure or maybe zipped file placement.
@@ -265,7 +279,15 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     //Loading of the model I'm currently using (200+ MB) takes a couple of seconds.  For that reason, I'm using a single
     //model and loading it prior to any items being processed.
     //std::cout << "Initializing classifier from model.\n";
-    classifier = new CaffeClassifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
+    GbdxModelReader modelReader(args.modelPath);
+    ModelPackage* modelPackage = modelReader.readModel();
+    if (modelPackage == nullptr){
+        cout << "Unable to generate model from the provided package." << endl;
+        return -1;
+    }
+    model = Model::create(*modelPackage, args.useGPU);
+    classifier = &(model->classifer());
+    //classifier = new CaffeBatchClassifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
     //std::cout << "Classifier initialization complete.\n";
     VectorFeatureSet *fs;
     try {
@@ -306,7 +328,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
             item->setTile(j, i);
             item->setZoom(args.zoom);
             item->geometry() = fs;
-            queue.push(item);
+            downloadQueue.push(item);
         }
         downloadAndProcessRow(numThreads);
     }
@@ -314,7 +336,8 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     std::cout << "\nNumber of failures: " << *failures << std::endl;
 
     //cleanup
-    delete classifier;
+    //delete classifier;
+    delete model;
     delete tileCount, downloadedCount, processedCount;
     delete fs;
     delete multiPass;
