@@ -62,7 +62,7 @@ boost::progress_display *show_progress = nullptr;
 int *current = new int(0);
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
-static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connnectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
+static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 
 void convertPredictions(const std::vector<Prediction>& predictions, std::vector<std::pair<std::string, float>>& out ){
     for (int i = 0; i < predictions.size(); i++){
