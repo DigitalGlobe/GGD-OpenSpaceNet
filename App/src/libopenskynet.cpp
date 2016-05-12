@@ -15,6 +15,8 @@
 #include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
 #include <DeepCore/classification/Classifier.h>
+#include <DeepCore/classification/GbdxModelReader.h>
+#include <DeepCore/classification/Model.h>
 #include <DeepCore/utility/coordinateHelper.h>
 #include <DeepCore/network/HttpDownloader.h>
 #include <boost/timer/timer.hpp>
@@ -22,7 +24,7 @@
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
 
-boost::lockfree::queue<WorkItem *> queue(50000);
+boost::lockfree::queue<WorkItem *> workQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
 const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
 
@@ -35,7 +37,10 @@ std::string outputFormat;
 std::string credentials;
 GeometryType outputType;
 
-Classifier *classifier = nullptr;
+using namespace dg::deepcore::classification;
+using namespace std;
+
+Model* model = nullptr;
 bool *multiPass = new bool(false);
 bool *pyramid = new bool(false);
 long *stepSize = new long(0);
@@ -46,22 +51,26 @@ long *failures = new long(0);
 long *tileCount = new long(0);
 long *downloadedCount = new long(0);
 long *processedCount = new long(0);
-int batchSize = 1e4;
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connnectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (results.size() > 0) {
+        vector<pair<string, float>> package;
+        for (auto itr: results) {
+            package.push_back(pair<string, float>(itr.label, itr.confidence));
+        }
+
         if (outputType == GeometryType::POINT) {
             if (rect == nullptr) {
                 //flip the result because the converter helper takes row then column
-                item->geometry()->addPoint(results,
+                item->geometry()->addPoint(package,
                                            coordinateHelper::num2deg(item->tile().second, item->tile().first,
                                                                      item->zoom()),
                                            item->tile(), item->zoom(), 0);
 
             } else {
-                item->geometry()->addPoint(results, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
+                item->geometry()->addPoint(package, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
                                            item->tile(), item->zoom(), 0);
             }
             std::cout << "Creating point from tile " << item->tile().first << "," << item->tile().second <<
@@ -90,7 +99,7 @@ void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::
                 " from tile " << item->tile().first << "," << item->tile().second << ".\n";
 
             }
-            item->geometry()->addPolygon(results, geometry, item->tile(), item->zoom(), 0);
+            item->geometry()->addPolygon(package, geometry, item->tile(), item->zoom(), 0);
 
         }
 
@@ -110,14 +119,14 @@ int classifyTile(WorkItem *item) {
             std::vector<cv::Rect> rects = item->get_sliding_windows(data_mat, *windowSize, *windowSize, *stepSize);
             for (int j = 0; j < rects.size(); ++j) {
                 cv::Mat mat(data_mat, rects[j]);
-                results = classifier->Classify(mat, 5, *confidence);
+                results = model->classifer().classify(mat, 5, *confidence);
                 if (results.size() > 0) {
                     persistResults(results, item, &rects[j]);
                 }
             }
         }
 
-        results = classifier->Classify(data_mat, 5);
+        results = model->classifer().classify(data_mat, 5);
         persistResults(results, item);
         double percentage = (((double) ++*processedCount) / *tileCount) * 100.0;
         std::cout << "Classification " << percentage << "% completed.";
@@ -149,7 +158,7 @@ int processTile(WorkItem *item) {
             std::cout << "Download failed for tile " << item->tile().first << " " << item->tile().second << ".\n";
             std::cout << "Adding the tile back to the queue for redownload.\n";
             item->incrementRetryCount();
-            queue.push(item);
+            workQueue.push(item);
             return -1;
         }
     }
@@ -167,7 +176,7 @@ int processTile(WorkItem *item) {
 
 int process() {
     WorkItem *item;
-    while (queue.pop(item)) {
+    while (workQueue.pop(item)) {
         int retVal = processTile(item);
         if (retVal == 0){
             double percentage = (((double) ++*downloadedCount) / *tileCount) * 100.0;
@@ -249,23 +258,32 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     boost::replace_all(completedUrl, "ccc_connect_id", args.token);
 
-    if (!boost::filesystem::is_directory(args.modelPath)) {
-        std::cout << "No model file was found.  Aborting processing.";
-        return NO_MODEL_FILE;
-    }
-
-    //TODO: make this a little smarter!  This would be a good place to load multiple models and have it
-    // create multiple classifiers, maybe based on folder structure or maybe zipped file placement.
-    modelFile = args.modelPath + "model1.caffemodel";
-    meanFile = args.modelPath + "mean.binaryproto";
-    labelFile = args.modelPath + "labels.txt";
-    deployFile = args.modelPath + "deploy.prototxt";
 
     //Loading of the model I'm currently using (200+ MB) takes a couple of seconds.  For that reason, I'm using a single
     //model and loading it prior to any items being processed.
     std::cout << "Initializing classifier from model.\n";
-    classifier = new Classifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
+
+    // Load a model from a gbdxm file
+    GbdxModelReader gbdxModelReader(args.modelPath);
+    unique_ptr<ModelPackage> modelPackage(gbdxModelReader.readModel());
+    if (modelPackage == nullptr) {
+        std::cout << "The model package could not be loaded.";
+        curl_global_cleanup();
+        return NO_MODEL_FILE;
+    }
+    model = Model::create(*modelPackage, args.useGPU);
+    if (model == nullptr) {
+        std::cout << "The model could not be loaded.";
+        curl_global_cleanup();
+        return NO_MODEL_FILE;
+    }
+    if ((model->capabilities() & Model::CLASSIFY) == 0) {
+        std::cout << "The supplied model can not be used for classification";
+        curl_global_cleanup();
+        return NO_MODEL_FILE;
+    }
     std::cout << "Classifier initialization complete.\n";
+
     VectorFeatureSet *fs;
     try {
         fs = new VectorFeatureSet(args.outputPath, args.outputFormat, args.layerName);
@@ -299,7 +317,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
             item->setTile(j, i);
             item->setZoom(args.zoom);
             item->geometry() = fs;
-            queue.push(item);
+            workQueue.push(item);
         }
         downloadAndProcessRow();
     }
@@ -307,7 +325,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     std::cout << "Number of failures: " << *failures << std::endl;
 
     //cleanup
-    delete classifier;
+    delete model;
     delete tileCount, downloadedCount, processedCount;
     delete fs;
     delete multiPass;

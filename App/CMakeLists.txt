@@ -1,10 +1,10 @@
 cmake_policy(SET CMP0015 NEW)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -static")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
 
-set(SOURCE_FILES main.cpp src/WorkItem.cpp src/libopenskynet.cpp)
-set(${HEADERS} include/WorkItem.h include/libopenskynet.h include/OpenSkyNetArgs.h)
+set(SOURCE_FILES main.cpp src/WorkItem.cpp src/libopenskynet.cpp src/OsnRequest.cpp src/OsnServer.cpp)
+set(HEADERS include/WorkItem.h include/libopenskynet.h include/OpenSkyNetArgs.h include/OsnRequest.h include/OsnServer.h)
 include_directories(include)
-add_executable(OpenSkyNet ${SOURCE_FILES})
+add_executable(OpenSkyNet ${SOURCE_FILES} ${HEADERS})
 
 add_definitions(-DUSE_OPENCV)
 
@@ -14,20 +14,6 @@ if (DeepCore_FOUND)
     message(Include Dirs: "${DEEPCORE_INCLUDE_DIRS}")
     include_directories(${DEEPCORE_INCLUDE_DIRS})
     target_link_libraries(OpenSkyNet ${DEEPCORE_LIBRARIES})
-endif()
-
-find_package(CUDA REQUIRED)
-if (CUDA_FOUND)
-    include_directories(${CUDA_INCLUDE_DIRS})
-    target_link_libraries(OpenSkyNet ${CUDA_LIBRARIES})
-    target_link_libraries(OpenSkyNet libculibos.a)
-endif()
-
-
-find_package(OpenCV REQUIRED)
-if (OpenCV_FOUND)
-    include_directories(${OpenCV_INCLUDE_DIRS})
-    target_link_libraries(OpenSkyNet ${OpenCV_LIBS})
 endif()
 
 
@@ -47,6 +33,19 @@ find_package(Caffe REQUIRED)
 if (Caffe_FOUND)
     include_directories(${Caffe_INCLUDE_DIRS})
     target_link_libraries(OpenSkyNet ${Caffe_LINK})
+endif()
+
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNet ${OpenCV_LIBS})
+endif()
+
+find_package(CUDA REQUIRED)
+if (CUDA_FOUND)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNet ${CUDA_LIBRARIES})
+    target_link_libraries(OpenSkyNet libculibos.a)
 endif()
 
 find_package(GDAL REQUIRED)
@@ -72,12 +71,11 @@ endif()
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.59.0 REQUIRED COMPONENTS timer system filesystem thread date_time program_options chrono)
+find_package(Boost 1.59.0 COMPONENTS regex system filesystem timer coroutine context filesystem date_time program_options chrono thread REQUIRED)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     target_link_libraries(OpenSkyNet ${Boost_LIBRARIES})
-
 endif()
 
 find_package(CURL REQUIRED)
