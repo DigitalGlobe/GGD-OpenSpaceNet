@@ -27,8 +27,6 @@
 #include "OpenSkyNetArgs.h"
 
 #include <network/JsonRpcServer.h>
-#include <network/MilNetRequest.h>
-#include <network/MilNetResponse.h>
 #include <classification/Model.h>
 
 #include <memory>

@@ -6,10 +6,12 @@
 #include <string>
 #include <vector>
 #include <opencv2/core/mat.hpp>
-#include <DeepCore/vector/VectorFeatureSet.h>
+#include <vector/VectorFeatureSet.h>
 
 #ifndef OPENSKYNET_WORKITEM_H
 #define OPENSKYNET_WORKITEM_H
+
+using dg::deepcore::vector::VectorFeatureSet;
 
 
 class WorkItem {
