@@ -1,12 +1,13 @@
 //
 // Created by joe on 12/5/15.
 //
-#include <string>
-#include <vector>
-#include <map>
-
 #ifndef OPENSKYNET_OPENSKYNETARGS_H
 #define OPENSKYNET_OPENSKYNETARGS_H
+
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 typedef std::vector<std::pair<std::string, float>> ClassThresholds;
 

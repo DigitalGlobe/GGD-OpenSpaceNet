@@ -1,9 +1,11 @@
 //
 // Created by joe on 11/11/15.
 //
+#include "../include/libopenskynet.h"
+#include "../include/WorkItem.h"
+
 #include <iostream>
 #include <vector>
-#include "../include/libopenskynet.h"
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>
@@ -14,13 +16,10 @@
 
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
-#include "../include/WorkItem.h"
 #include <opencv2/highgui.hpp>
 #include <DeepCore/classification/Classifier.h>
 #include <DeepCore/classification/GbdxModelReader.h>
-#include <DeepCore/classification/ModelMetadata.h>
 #include <DeepCore/classification/Model.h>
-#include <DeepCore/classification/Prediction.h>
 #include <DeepCore/imagery/Tile.h>
 #include <DeepCore/imagery/WmtsTile.h>
 #include <DeepCore/utility/coordinateHelper.h>
@@ -31,6 +30,9 @@
 #include <curlpp/Exception.hpp>
 
 using namespace dg::deepcore::classification;
+using namespace dg::deepcore::imagery;
+using namespace dg::deepcore::vector;
+
 using namespace std;
 boost::lockfree::queue<WorkItem *> downloadQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
@@ -64,21 +66,13 @@ int *current = new int(0);
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 
-void convertPredictions(const std::vector<Prediction>& predictions, std::vector<std::pair<std::string, float>>& out ){
-    for (int i = 0; i < predictions.size(); i++){
-        out.push_back({predictions[i].label, predictions[i].confidence});
-    }
-}
-
-void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::Rect *rect = nullptr) {
-    if (results.size() > 0) {
-        std::vector<std::pair<string, float>> predictions;
-        convertPredictions(results, predictions);
+void persistResults(std::vector<Prediction> &predictions, WorkItem *item, const cv::Rect *rect = nullptr) {
+    if (predictions.size() > 0) {
         if (outputType == GeometryType::POINT) {
             if (rect == nullptr) {
                 //flip the result because the converter helper takes row then column
                 item->geometry()->addPoint(predictions,
-                                           coordinateHelper::num2deg(item->tile().second, item->tile().first,
+                                           coordinateHelper::num2deg(item->tile().y, item->tile().x,
                                                                      item->zoom()),
                                            item->tile(), item->zoom(), 0);
 
@@ -88,21 +82,21 @@ void persistResults(std::vector<Prediction> &results, WorkItem *item, const cv::
             }
          }
         else {
-            std::vector<std::pair<double, double>> geometry;
+            std::vector<cv::Point2d> geometry;
             if (rect == nullptr) {
                 geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().second, item->tile().first, item->zoom()));
+                        coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom()));
                 geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().second + 1, item->tile().first, item->zoom()));
+                        coordinateHelper::num2deg(item->tile().y + 1, item->tile().x, item->zoom()));
                 geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().second + 1, item->tile().first + 1, item->zoom()));
+                        coordinateHelper::num2deg(item->tile().y + 1, item->tile().x + 1, item->zoom()));
                 geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().second, item->tile().first + 1, item->zoom()));
+                        coordinateHelper::num2deg(item->tile().y, item->tile().x + 1, item->zoom()));
                 geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().second, item->tile().first, item->zoom()));
+                        coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom()));
              } else {
-                geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().second,
-                                                             item->tile().first,
+                geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().y,
+                                                             item->tile().x,
                                                              item->zoom());
 
             }
@@ -121,16 +115,16 @@ int classifyTile(WorkItem *item) {
         if (*multiPass) {
             //Sliding window implementation
             std::vector<cv::Rect> rects = item->get_sliding_windows(data_mat, *windowSize, *windowSize, *stepSize);
-            for (int j = 0; j < rects.size(); ++j) {
-                 cv::Mat mat(data_mat, rects[j]);
-                results = classifier->classify(WmtsTile(mat), *confidence);
+            for (const auto& rect : rects) {
+                 cv::Mat mat(data_mat, rect);
+                results = classifier->classify(mat, *confidence);
                 if (results.size() > 0) {
-                    persistResults(results, item, &rects[j]);
+                    persistResults(results, item, &rect);
                 }
             }
         }
 
-        results = classifier->classify(WmtsTile(data_mat), *confidence);
+        results = classifier->classify(data_mat, *confidence);
         persistResults(results, item);
 
     }
@@ -238,14 +232,14 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         std::vector<double> aoi = args.bbox;
         int zoomLevel = args.zoom;
 
-        std::pair<double, double> llCorner = coordinateHelper::deg2num(aoi[1], aoi[0], zoomLevel);
-        std::pair<double, double> urCorner = coordinateHelper::deg2num(aoi[3], aoi[2], zoomLevel);
+        auto llCorner = coordinateHelper::deg2num(aoi[1], aoi[0], zoomLevel);
+        auto urCorner = coordinateHelper::deg2num(aoi[3], aoi[2], zoomLevel);
 
-        numCols = (int) (urCorner.first - llCorner.first);
-        numRows = (int) (llCorner.second - urCorner.second);
+        numCols = (int) (urCorner.x - llCorner.x);
+        numRows = (int) (llCorner.y - urCorner.y);
 
-        rowStart = (int) (llCorner.second - numRows);
-        colStart = (int) (urCorner.first - numCols);
+        rowStart = (int) (llCorner.y - numRows);
+        colStart = (int) (urCorner.x - numCols);
     }
 
 
@@ -338,11 +332,14 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     //cleanup
     //delete classifier;
     delete model;
-    delete tileCount, downloadedCount, processedCount;
+    delete tileCount;
+    delete downloadedCount;
+    delete processedCount;
     delete fs;
     delete multiPass;
     delete pyramid;
-    delete stepSize, windowSize;
+    delete stepSize;
+    delete windowSize;
     delete confidence;
     delete failures;
 

@@ -20,7 +20,7 @@ int main(int ac, const char* av[]) {
 
     outputLogo();
     namespace po = boost::program_options;
-    string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis"};
+    // string allowedOutputs[] = {"shp", "kml", "elasticsearch", "postgis"};
     // Declare the supported options.
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -107,13 +107,9 @@ int main(int ac, const char* av[]) {
     }
 
     if (vm.count("bbox")) {
-        char buffer[100];
         args.bbox = vm["bbox"].as<vector<double>>();
         if (args.bbox.size() != 4) {
             cout << "Invalid  number of parameters for bounding box." << endl;
-        } else {
-            //sprintf(buffer, "LL: %.16g, %.16g, UR: %.16g. %.16g", args.bbox[0], args.bbox[1], args.bbox[2], args.bbox[3]);
-            //cout << buffer << "\n";
         }
     }
     else {

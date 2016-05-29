@@ -9,6 +9,7 @@
 
 #include "../include/WorkItem.h"
 
+using namespace dg::deepcore::vector;
 
 const std::string& WorkItem::url(){
     return _url;
@@ -18,13 +19,16 @@ void WorkItem::setUrl(const std::string& url){
     _url = url;
 }
 
-const std::pair<double, double>& WorkItem::tile(){
+const cv::Point2d& WorkItem::tile(){
     return _tile;
 };
 
+void WorkItem::setTile(const cv::Point2d& tile){
+    _tile = tile;
+}
+
 void WorkItem::setTile(double x, double y){
-    _tile.first = x;
-    _tile.second = y;
+    setTile({x, y});
 }
 
 const std::vector<cv::Mat>& WorkItem::images(){
@@ -36,7 +40,7 @@ void WorkItem::addImage(cv::Mat &stream){
 }
 
 cv::Mat& WorkItem::getImage(int index){
-    if (_images.size() < index){
+    if (_images.size() < (size_t)index){
         throw "Index out of range";
     } else {
         return _images[index];
