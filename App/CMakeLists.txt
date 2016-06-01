@@ -1,5 +1,5 @@
 cmake_policy(SET CMP0015 NEW)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -static")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2")
 
 set(SOURCE_FILES main.cpp src/WorkItem.cpp src/libopenskynet.cpp)
 set(${HEADERS} include/WorkItem.h include/libopenskynet.h include/OpenSkyNetArgs.h)
@@ -79,6 +79,12 @@ if(Boost_FOUND)
     target_link_libraries(OpenSkyNet ${Boost_LIBRARIES})
 
 endif()
+
+find_package(DeepCore REQUIRED)
+if (DEEPCORE_FOUND)
+    include_directories(${DEEPCORE_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNet ${DEEPCORE_LIBRARIES})
+ endif()
 
 find_package(CURL REQUIRED)
 if (CURL_FOUND)
