@@ -257,11 +257,6 @@ int addFeature(VectorFeatureSet& fs, const GdalImage& image, const cv::Rect& win
 }
 
 int classifyFromFile(OpenSkyNetArgs &args) {
-    if(!boost::filesystem::is_regular_file(args.image)) {
-        std::cerr << args.image << "does not exist." << std::endl;
-        return INVALID_URL;
-    }
-
     cout << "Reading image..." << endl;
     GdalImage gdalImage(args.image);
 
