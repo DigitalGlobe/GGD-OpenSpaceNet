@@ -20,5 +20,6 @@ enum GeometryType {
 };
 
 
+int classifyFromFile(OpenSkyNetArgs &args);
 int classifyBroadAreaMultiProcess(OpenSkyNetArgs& args);
 #endif //OPENSKYNET_LIBOPENSKYNET_H

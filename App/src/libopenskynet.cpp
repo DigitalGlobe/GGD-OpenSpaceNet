@@ -5,7 +5,6 @@
 #include "../include/WorkItem.h"
 
 #include <iostream>
-#include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>
@@ -20,11 +19,10 @@
 #include <DeepCore/classification/Classifier.h>
 #include <DeepCore/classification/GbdxModelReader.h>
 #include <DeepCore/classification/Model.h>
-#include <DeepCore/imagery/Tile.h>
-#include <DeepCore/imagery/WmtsTile.h>
+#include <DeepCore/classification/SlidingWindowDetector.h>
+#include <DeepCore/imagery/GdalImage.h>
 #include <DeepCore/utility/coordinateHelper.h>
 #include <DeepCore/network/HttpDownloader.h>
-#include <curl/curl.h>
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
 #include <curlpp/Exception.hpp>
@@ -38,30 +36,20 @@ boost::lockfree::queue<WorkItem *> downloadQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
 const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
 
-std::string modelFile;
-std::string meanFile;
-std::string labelFile;
-std::string deployFile;
-std::string outputPath;
-std::string outputFormat;
 std::string credentials;
 GeometryType outputType;
 
 Model* model = nullptr;
 Classifier *classifier = nullptr;
-bool *multiPass = new bool(false);
-bool *pyramid = new bool(false);
-long *stepSize = new long(0);
-long *windowSize = new long(0);
+bool multiPass = false;
+bool pyramid = false;
+int stepSize = 0;
+long windowSize = 0;
 double scale = 2.0;
-double *confidence = new double(0.0);
-long *failures = new long(0);
-long *tileCount = new long(0);
-long *downloadedCount = new long(0);
-long *processedCount = new long(0);
-int batchSize = 1e4;
-boost::progress_display *show_progress = nullptr;
-int *current = new int(0);
+double confidence = 0.0;
+long failures = 0;
+
+unique_ptr<boost::progress_display> show_progress;
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
@@ -112,19 +100,19 @@ int classifyTile(WorkItem *item) {
     for (size_t i = 0; i < item->images().size(); ++i) {
         const cv::Mat& data_mat = item->images().at(i); //convert string into a vector
         std::vector<Prediction> results;
-        if (*multiPass) {
+        if (multiPass) {
             //Sliding window implementation
-            std::vector<cv::Rect> rects = item->get_sliding_windows(data_mat, *windowSize, *windowSize, *stepSize);
+            std::vector<cv::Rect> rects = item->get_sliding_windows(data_mat, windowSize, windowSize, stepSize);
             for (const auto& rect : rects) {
                  cv::Mat mat(data_mat, rect);
-                results = classifier->classify(mat, *confidence);
+                results = classifier->classify(mat, confidence);
                 if (results.size() > 0) {
                     persistResults(results, item, &rect);
                 }
             }
         }
 
-        results = classifier->classify(data_mat, *confidence);
+        results = classifier->classify(data_mat, confidence);
         persistResults(results, item);
 
     }
@@ -147,7 +135,7 @@ int processTile(WorkItem *item) {
             retVal = downloader.download(item->url(), image, credentials);
             if (retVal){
                 item->addImage(image);
-                if (*pyramid) { //downscale the images
+                if (pyramid) { //downscale the images
                     item->pyramid(scale, 30);
                 }
                 classificationQueue.push(item);
@@ -211,6 +199,141 @@ void downloadAndProcessRow(int numThreads){
     }
 }
 
+VectorFeatureSet* createFeatureSet(const OpenSkyNetArgs& args) {
+    unique_ptr<VectorFeatureSet> fs(new VectorFeatureSet(args.outputPath, args.outputFormat, args.layerName));
+    outputType = args.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
+
+    return fs.release();
+}
+
+int loadModel(const OpenSkyNetArgs& args) {
+    GbdxModelReader modelReader(args.modelPath);
+
+    cout << "Reading model package..." << endl;
+    unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
+    if (modelPackage == nullptr){
+        cerr << "Unable to generate model from the provided package." << endl;
+        return -1;
+    }
+
+    cout << "Reading model..." << endl;
+    model = Model::create(*modelPackage, args.useGPU);
+
+    return 0;
+}
+
+int addFeature(VectorFeatureSet& fs, const GdalImage& image, const cv::Rect& window, const vector<Prediction>& predictions)
+{
+    if(predictions.empty()) {
+        return SUCCESS;
+    }
+
+    if(outputType == GeometryType::POINT) {
+        cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+        auto point = image.imageToLL(center);
+        fs.addPoint(predictions, point, {-1, -1}, 0, 0);
+    } else if(outputType == GeometryType::POLYGON){
+        vector<cv::Point> points = {
+                window.tl(),
+                { window.x + window.width, window.y },
+                window.br(),
+                { window.x, window.y + window.height },
+                window.tl()
+        };
+
+        vector<cv::Point2d> llPoints;
+        for(const auto& point : points) {
+            auto llPoint = image.imageToLL(point);
+            llPoints.push_back(llPoint);
+        }
+
+        fs.addPolygon(predictions, llPoints, {0, 0}, 0, 0);
+    } else {
+        cerr << "Invalid output type." << endl;
+        return -1;
+    }
+
+    return SUCCESS;
+}
+
+int classifyFromFile(OpenSkyNetArgs &args) {
+    if(!boost::filesystem::is_regular_file(args.image)) {
+        std::cerr << args.image << "does not exist." << std::endl;
+        return INVALID_URL;
+    }
+
+    cout << "Reading image..." << endl;
+    GdalImage gdalImage(args.image);
+
+    cv::Rect2d bbox;
+    if(args.bbox.size() == 4) {
+        bbox = cv::Rect(cv::Point2d(args.bbox[1], args.bbox[0]), cv::Point2d(args.bbox[4], args.bbox[3]));
+    }
+
+    if(!gdalImage.projection().empty()) {
+        auto ul = gdalImage.imageToLL({0, 0});
+        auto lr = gdalImage.imageToLL(gdalImage.size());
+        cv::Rect2d imageBbox(ul, lr);
+
+        if(bbox.area() == 0) {
+            bbox = imageBbox;
+        } else {
+            bbox &= imageBbox;
+
+            if(bbox.area() == 0) {
+                cerr << "Bounding box and the image don't intersect." << endl;
+                return BAD_OUTPUT_FORMAT;
+            }
+        }
+    } else if(bbox.area() == 0) {
+        cerr << "No bounding box specified and image is not geo-registered." << endl;
+        return BAD_OUTPUT_FORMAT;
+    }
+
+    auto image = gdalImage.readImage();
+    if(loadModel(args)) {
+        return -1;
+    }
+
+    cv::Point step;
+    if(!args.stepSize) {
+        classifier = &model->classifer();
+
+        cout << "Classifying..." << endl;
+        auto predictions = classifier->classify(image, args.confidence);
+
+        unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
+        addFeature(*fs, gdalImage, cv::Rect({ 0, 0 } , image.size()), predictions);
+    } else {
+        step = { args.stepSize, args.stepSize };
+
+        auto& detector = model->detector();
+        if(detector.detectorType() != Detector::SLIDING_WINDOW) {
+            cerr << "Unsupported model type." << endl;
+            return -1;
+        }
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
+
+        Pyramid pyramid;
+        if(args.multiPass) {
+            pyramid = Pyramid(image.size(), model->metadata().windowSize(), step, 2.0);
+        } else {
+            pyramid = Pyramid({ { image.size(), step } });
+        }
+
+        cout << "Detecting features..." << endl;
+        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence);
+        unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
+
+        for(const auto& prediction : predictions) {
+            addFeature(*fs, gdalImage, prediction.window, prediction.predictions);
+        }
+    }
+
+    return SUCCESS;
+}
+
 int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     curlpp::Cleanup cleaner;
     long numCols = 0, numRows = 0, rowStart = 0, colStart = 0;
@@ -221,11 +344,11 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         numCols = args.columnSpan;
         numRows = args.rowSpan;
     }
-    *multiPass = (args.stepSize >= 1 && args.windowSize >= 1);
-    *pyramid = args.multiPass;
-    *stepSize = args.stepSize;
-    *windowSize = args.windowSize;
-    *confidence = args.confidence;
+    multiPass = (args.stepSize >= 1 && args.windowSize >= 1);
+    pyramid = args.multiPass;
+    stepSize = args.stepSize;
+    windowSize = args.windowSize;
+    confidence = args.confidence;
 
     //if the bbox is specified, it takes precedence!
     if (args.bbox.size() != 0) {
@@ -242,12 +365,6 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         colStart = (int) (urCorner.x - numCols);
     }
 
-
-    //std::cout << "columns: " << colStart << " to " << (colStart + numCols - 1) << ".\n";
-    //std::cout << "rows: " << rowStart << " to " << (rowStart + numRows - 1) << ".\n";
-    tileCount = new long(0);
-    *tileCount = numCols * numRows;
-
     std::string completedUrl = "";
     if (args.webApi){
         completedUrl = WEB_API_URL;
@@ -258,52 +375,23 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     boost::replace_all(completedUrl, "ccc_connect_id", args.token);
 
-    //if (!boost::filesystem::is_directory(args.modelPath)) {
-    //    std::cout << "No model file was found.  Aborting processing.";
-    //    return NO_MODEL_FILE;
-    //}
-
-    //TODO: make this a little smarter!  This would be a good place to load multiple models and have it
-    // create multiple classifiers, maybe based on folder structure or maybe zipped file placement.
-    modelFile = args.modelPath + "model.caffemodel";
-    meanFile = args.modelPath + "mean.binaryproto";
-    labelFile = args.modelPath + "labels.txt";
-    deployFile = args.modelPath + "deploy.prototxt";
-
     //Loading of the model I'm currently using (200+ MB) takes a couple of seconds.  For that reason, I'm using a single
     //model and loading it prior to any items being processed.
-    //std::cout << "Initializing classifier from model.\n";
-    GbdxModelReader modelReader(args.modelPath);
-    ModelPackage* modelPackage = modelReader.readModel();
-    if (modelPackage == nullptr){
-        cout << "Unable to generate model from the provided package." << endl;
+    if(loadModel(args)) {
         return -1;
     }
-    model = Model::create(*modelPackage, args.useGPU);
-    classifier = &(model->classifer());
-    //classifier = new CaffeBatchClassifier(deployFile, modelFile, meanFile, labelFile, args.useGPU);
-    //std::cout << "Classifier initialization complete.\n";
-    VectorFeatureSet *fs;
-    try {
-        fs = new VectorFeatureSet(args.outputPath, args.outputFormat, args.layerName);
-    }
-    catch (std::invalid_argument) {
-        std::cout << "An invalid format was provided for output.";
-        curl_global_cleanup();
-        return BAD_OUTPUT_FORMAT;
-    }
 
-    outputType = args.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
+    classifier = &(model->classifer());
+
+    unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
     credentials = args.credentials;
-    //std::cout << "Loading initial urls for downloading.\n";
-    downloadedCount = new long(0);
-    processedCount = new long(0);
+
     int numThreads = consumer_thread_count * args.numThreads;
     if (numCols < numThreads){
         numThreads = numCols;
     }
     std::cout << (boost::format("Num threads: %1d") % numThreads).str() << std::endl;
-    show_progress = new boost::progress_display((numRows * numCols) * 2UL);
+    show_progress.reset(new boost::progress_display((numRows * numCols) * 2UL));
 
     for (long i = rowStart; i < rowStart + numRows; i++) {
         for (long j = colStart; j < colStart + numCols; j++) {
@@ -321,27 +409,13 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
             item->setUrl(finalUrl);
             item->setTile(j, i);
             item->setZoom(args.zoom);
-            item->geometry() = fs;
+            item->geometry() = fs.get();
             downloadQueue.push(item);
         }
         downloadAndProcessRow(numThreads);
     }
 
-    std::cout << "\nNumber of failures: " << *failures << std::endl;
-
-    //cleanup
-    //delete classifier;
-    delete model;
-    delete tileCount;
-    delete downloadedCount;
-    delete processedCount;
-    delete fs;
-    delete multiPass;
-    delete pyramid;
-    delete stepSize;
-    delete windowSize;
-    delete confidence;
-    delete failures;
+    std::cout << "\nNumber of failures: " << failures << std::endl;
 
     return SUCCESS;
 }
