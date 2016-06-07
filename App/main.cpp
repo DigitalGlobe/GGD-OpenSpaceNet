@@ -18,6 +18,8 @@ void outputLogo() {
 
 int main(int ac, const char* av[]) {
     dg::deepcore::log::init();
+    auto tempSink = dg::deepcore::log::addClogSink(dg::deepcore::level_t::error, dg::deepcore::level_t::fatal,
+                                                   dg::deepcore::log::dg_log_format::dg_short_log);
 
     outputLogo();
     namespace po = boost::program_options;
@@ -141,6 +143,7 @@ int main(int ac, const char* av[]) {
         args.outputFormat = vm["format"].as<string>();
     } else {
         cout << "Output format was not set. Forcing to shp.\n";
+        args.outputFormat = "shp";
     }
 
     //TODO: make this smarter wrt format.  If the output format is ES, then the default doesn't work.
