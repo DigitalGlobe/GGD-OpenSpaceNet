@@ -37,7 +37,6 @@ struct OpenSkyNetArgs {
     std::string outputFormat = "";
     std::string outputPath = "";
     std::string layerName = "";
-    std::string authToken = "";
     int zoom = 0;
     long startColumn = 0;
     long startRow = 0;
@@ -50,8 +49,8 @@ struct OpenSkyNetArgs {
     double threshold = 0.0;
     long numThreads = 1;
 
-    long windowSize = 0;
-    long stepSize = 0;
+    int windowSize = 0;
+    int stepSize = 0;
     std::vector<long> pyramidWindowSizes;
     std::vector<long> pyramidWindowSteps;
 };
