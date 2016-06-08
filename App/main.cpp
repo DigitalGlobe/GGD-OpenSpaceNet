@@ -1,10 +1,20 @@
-#include <iostream>
+#include <fstream>
 #include <boost/program_options.hpp>
 #include "include/libopenskynet.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/timer/timer.hpp>
 #include <DeepCore/utility/Logging.h>
 
 using namespace std;
+using namespace dg::deepcore;
+
+using boost::algorithm::is_any_of;
+using boost::algorithm::split;
+using boost::algorithm::trim;
+using boost::algorithm::to_lower;
+
+void setupLogging(boost::shared_ptr<log::sinks::sink>& clogSink, const string& logLevel, const string& logFile);
 
 void outputLogo() {
     cout << "DigitalGlobe, Inc.\n";
@@ -17,9 +27,7 @@ void outputLogo() {
 }
 
 int main(int ac, const char* av[]) {
-    dg::deepcore::log::init();
-    auto tempSink = dg::deepcore::log::addClogSink(dg::deepcore::level_t::error, dg::deepcore::level_t::fatal,
-                                                   dg::deepcore::log::dg_log_format::dg_short_log);
+    auto clogSink = log::addClogSink(dg::deepcore::level_t::error, dg::deepcore::level_t::fatal, dg::deepcore::log::dg_log_format::dg_short_log);
 
     outputLogo();
     namespace po = boost::program_options;
@@ -48,18 +56,33 @@ int main(int ac, const char* av[]) {
             ("pyramid", "Pyramid the downloaded tile and run detection on all resultant images.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("windowSize", po::value<long>(), "Used with stepSize to determine the height and width of the sliding window. \n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("stepSize", po::value<long>(), "Used with windowSize to determine how much the sliding window moves on each step.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process. ")
-            ("numConcurrentDownloads", po::value<long>(), "Used to speed up downloads by allowing multiple conccurrent downloads to happen at once.")
+            ("numConcurrentDownloads", po::value<long>(), "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
+            ("log", po::value<string>(), "Log level. Permitted values are: trace, debug, info, warning, error, fatal. Default level: error.")
+            ("logFile", po::value<string>(), "Name of the file to save the log to. Default logs to console.")
             ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc, po::command_line_style::unix_style ^ po::command_line_style::allow_short), vm);
     po::notify(vm);
 
+    dg::deepcore::log::init();
+
     if (vm.count("help")) {
         cout << desc << "\n";
         return 0;
     }
+
     OpenSkyNetArgs args;
+
+    string logFile;
+    if(vm.count("logFile")) {
+        logFile = vm["logFile"].as<string>();
+    }
+
+    if(vm.count("log")) {
+        auto logLevel = vm["log"].as<string>();
+        setupLogging(clogSink, logLevel, logFile);
+    }
 
     if (vm.count("api")) {
         args.webApi = true;
@@ -252,5 +275,42 @@ int main(int ac, const char* av[]) {
         exit(1);
     } catch (...) {
         cerr << "Unknown error" << endl;
+    }
+}
+
+void setupLogging(boost::shared_ptr<log::sinks::sink> &clogSink, const string &logLevel, const string &logFile) {
+    // Split the log level into level:channel and normalize
+    vector<string> parts;
+    split(parts, logLevel, is_any_of(":"));
+    for(auto& part : parts) {
+        trim(part);
+        to_lower(part);
+    }
+
+    if(parts.empty()) {
+        DG_LOG(OpenSkyNet, error) << "Log level must be specified";
+        exit(1);
+    }
+
+    auto level = log::stringToLevel(parts[0]);
+    boost::shared_ptr<log::sinks::sink> sink;
+    if(logFile.empty()) {
+        if(level != level_t::error) {
+            log::removeSink(clogSink);
+            sink = log::addClogSink(level, level_t::fatal, log::dg_short_log);
+        } else {
+            sink = clogSink;
+        }
+    } else {
+        auto ofs = boost::make_shared<ofstream>(logFile);
+        if(ofs->fail()) {
+            DG_LOG(OpenSkyNet, error) << "Error opening log file " << logFile << " for writing.";
+        }
+        log::removeSink(clogSink);
+        sink = log::addStreamSink(ofs, level, level_t::fatal, log::dg_long_log);
+    }
+
+    if(parts.size() > 1) {
+        // TODO: Setup channel filter
     }
 }
