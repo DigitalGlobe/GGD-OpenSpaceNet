@@ -14,7 +14,7 @@ using boost::algorithm::split;
 using boost::algorithm::trim;
 using boost::algorithm::to_lower;
 
-void setupLogging(boost::shared_ptr<log::sinks::sink>& clogSink, const string& logLevel, const string& logFile);
+void setupLogging(const boost::shared_ptr<log::sinks::sink>& clogSink, const string& logLevel, const string& logFile);
 
 void outputLogo() {
     cout << "DigitalGlobe, Inc.\n";
@@ -278,7 +278,7 @@ int main(int ac, const char* av[]) {
     }
 }
 
-void setupLogging(boost::shared_ptr<log::sinks::sink> &clogSink, const string &logLevel, const string &logFile) {
+void setupLogging(const boost::shared_ptr<log::sinks::sink> &clogSink, const string &logLevel, const string &logFile) {
     // Split the log level into level:channel and normalize
     vector<string> parts;
     split(parts, logLevel, is_any_of(":"));
@@ -306,7 +306,6 @@ void setupLogging(boost::shared_ptr<log::sinks::sink> &clogSink, const string &l
         if(ofs->fail()) {
             DG_LOG(OpenSkyNet, error) << "Error opening log file " << logFile << " for writing.";
         }
-        log::removeSink(clogSink);
         sink = log::addStreamSink(ofs, level, level_t::fatal, log::dg_long_log);
     }
 
