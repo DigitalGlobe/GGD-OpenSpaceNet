@@ -53,6 +53,7 @@ unique_ptr<boost::progress_display> show_progress;
 
 static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmmhkk79/{z}/{x}/{y}.jpg?access_token=ccc_connect_id";
 static const string WMTS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
+static const string EVWHS_URL = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 
 void persistResults(std::vector<Prediction> &predictions, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (predictions.size() > 0) {
@@ -366,11 +367,15 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     }
 
     std::string completedUrl = "";
-    if (args.webApi){
-        completedUrl = WEB_API_URL;
-    }
-    else {
-        completedUrl = WMTS_URL;
+    switch (args.service){
+        case TileSource::MAPS_API:
+            completedUrl = WEB_API_URL;
+            break;
+        case TileSource::EVWHS:
+            completedUrl = EVWHS_URL;
+            break;
+        default:
+            completedUrl = WMTS_URL;
     }
 
     boost::replace_all(completedUrl, "ccc_connect_id", args.token);
@@ -397,7 +402,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         for (long j = colStart; j < colStart + numCols; j++) {
             WorkItem *item = new WorkItem;
             std::string finalUrl = completedUrl;
-            if (args.webApi){
+            if (args.service == TileSource::MAPS_API){
                 boost::replace_all(finalUrl, "{z}", (boost::format("%1d") % args.zoom).str());
                 boost::replace_all(finalUrl, "{x}", (boost::format("%1d") % j).str());
                 boost::replace_all(finalUrl, "{y}", (boost::format("%1d") % i).str());

@@ -22,15 +22,21 @@ namespace std {
     }
 }
 
+enum TileSource {
+    DGCS = 0,
+    EVWHS,
+    MAPS_API
+};
+
 struct OpenSkyNetArgs {
     const static int CURRENT_VERSION = 1;
     std::string token = "";
     std::string credentials = "";
     std::string url = "";
     std::string image = "";
+    TileSource service = TileSource::DGCS;
     bool useTileServer = true;
     bool useGPU = false;
-    bool webApi = false;
     std::vector<double> bbox;
     std::string modelPath = "";
     std::string geometryType = "";

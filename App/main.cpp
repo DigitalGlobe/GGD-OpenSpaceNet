@@ -3,6 +3,8 @@
 #include "include/libopenskynet.h"
 #include <boost/timer/timer.hpp>
 #include <DeepCore/utility/Logging.h>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <version.h>
 
 using namespace std;
 
@@ -23,13 +25,16 @@ int main(int ac, const char* av[]) {
     namespace po = boost::program_options;
 
     // Declare the supported options.
-    po::options_description desc("Allowed options");
+    po::options_description desc(
+            "Allowed options\n\n"
+            "Version: " OPENSKYNET_VERSION_STRING "\n\n");
     desc.add_options()
             ("help", "Usage")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
             ("token", po::value<string>(), "API token used for licensing. This is the connectId for the WMTS service or the API key for the Web Maps API.")
             ("credentials", po::value<string>(), "Credentials for the map service. Not required for Web Maps API.")
             ("gpu", "Use GPU for processing.")
+            ("service", po::value<string>(), "[Optional] Service to use for tiles.  Valid values are api, dgcs, and evwhs.  Defaults to dgcs")
             ("api", "Use DigitalGlobe Web API as the source of tiles")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("startCol", po::value<long>(), "Starting tile column.")
@@ -59,8 +64,19 @@ int main(int ac, const char* av[]) {
     }
     OpenSkyNetArgs args;
 
-    if (vm.count("api")) {
-        args.webApi = true;
+    if (vm.count("service")) {
+        string service = vm["service"].as<string>();
+        boost::to_lower(service);
+        if (service == "api"){
+            args.service = TileSource::MAPS_API;
+        } else if (service == "evwhs"){
+            args.service = TileSource::EVWHS;
+        } else if (service == "dgcs"){
+            args.service = TileSource::DGCS;
+        }
+        else {
+            cout << "Invalid service provided. Defaulting to dgcs.\n";
+        }
     }
 
     if (vm.count("image")) {
@@ -72,8 +88,8 @@ int main(int ac, const char* av[]) {
     if (vm.count("token")) {
         args.token = vm["token"].as<string>();
     } else if(args.useTileServer){
-        if (args.webApi){
-            cout << "A token must be supplied to use the Web Maps API.\n";
+        if (args.service != TileSource::DGCS ){
+            cout << "A token must be supplied to use the desired service.\n";
             return 1;
         }
         cout << "token was not set. Using default token.\n";
@@ -84,12 +100,14 @@ int main(int ac, const char* av[]) {
         args.credentials = vm["credentials"].as<string>();
     }
 
+/*
     if (vm.count("server")) {
         args.url = vm["server"].as<string>() + "?connectId=" + args.token;
     } else if(args.useTileServer){
         args.url = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
         args.url += "?connectId=" + args.token;
     }
+*/
 
     if (vm.count("bbox")) {
         args.bbox = vm["bbox"].as<vector<double>>();
@@ -143,7 +161,6 @@ int main(int ac, const char* av[]) {
         cout << "Output format was not set. Forcing to shp.\n";
     }
 
-    //TODO: make this smarter wrt format.  If the output format is ES, then the default doesn't work.
     if (vm.count("output")) {
         args.outputPath = vm["output"].as<string>();
     }
@@ -158,6 +175,10 @@ int main(int ac, const char* av[]) {
 
 
     if (vm.count("credentials")){
+        if (args.service == TileSource::EVWHS){
+            cout << "You must supply credentials to use the requested tile service.\n";
+            return 1;
+        }
         args.credentials = vm["credentials"].as<string>();
     }
 
