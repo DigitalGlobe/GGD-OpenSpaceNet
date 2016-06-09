@@ -68,6 +68,7 @@ struct OpenSkyNetArgs {
     std::map<std::string, float> classThresholds;
     double threshold = 0.0;
     long numThreads = 1;
+    float maxUtitilization = 0.95;
 
     int windowSize = 0;
     int stepSize = 0;
