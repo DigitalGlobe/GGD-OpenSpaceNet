@@ -8,6 +8,23 @@ add_executable(OpenSkyNet ${SOURCE_FILES} ${HEADERS})
 
 add_definitions(-DUSE_OPENCV)
 
+# DeepCore version
+set(OpenSkyNet_VERSION_MAJOR 0)
+set(OpenSkyNet_VERSION_MINOR 1)
+
+# Set the build number
+if(DEFINED ENV{BUILD_NUMBER})
+    set(OpenSkyNet_VERSION_BUILD $ENV{BUILD_NUMBER})
+else()
+    set(OpenSkyNet_VERSION_BUILD 0)
+endif()
+
+# Initialize version.h
+configure_file(version.h.in include/version.h)
+
+# Set up include directory for local builds
+include_directories(${PROJECT_BINARY_DIR}/App/include)
+
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
