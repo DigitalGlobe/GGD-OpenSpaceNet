@@ -1,5 +1,5 @@
 /********************************************************************************
-* Copyright 2015 DigitalGlobe, Inc.
+* Copyright 2016 DigitalGlobe, Inc.
 * Author: Joe White
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,27 +21,12 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
+#ifndef OPENSKYNET_VERSION_H
+#define OPENSKYNET_VERSION_H
 
-#ifndef OPENSKYNET_LIBOPENSKYNET_H
-#define OPENSKYNET_LIBOPENSKYNET_H
+#define OPENSKYNET_VERSION_MAJOR @OpenSkyNet_VERSION_MAJOR@
+#define OPENSKYNET_VERSION_MINOR @OpenSkyNet_VERSION_MINOR@
+#define OPENSKYNET_VERSION_BUILD @OpenSkyNet_VERSION_BUILD@
+#define OPENSKYNET_VERSION_STRING "@OpenSkyNet_VERSION_MAJOR@.@OpenSkyNet_VERSION_MINOR@.@OpenSkyNet_VERSION_BUILD@"
 
-#include "OpenSkyNetArgs.h"
-
-enum ReturnCodes {
-    SUCCESS,
-    INVALID_URL,
-    BAD_CURL_HANDLE,
-    NO_MODEL_FILE,
-    INVALID_MULTIPASS,
-    BAD_OUTPUT_FORMAT
-};
-
-enum GeometryType {
-    POINT,
-    POLYGON
-};
-
-
-int classifyFromFile(OpenSkyNetArgs &args);
-int classifyBroadAreaMultiProcess(OpenSkyNetArgs& args);
-#endif //OPENSKYNET_LIBOPENSKYNET_H
+#endif // OPENSKYNET_VERSION_H

@@ -1,3 +1,26 @@
+/********************************************************************************
+* Copyright 2015 DigitalGlobe, Inc.
+* Author: Joe White
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+********************************************************************************/
+
 #include <iostream>
 #include <boost/program_options.hpp>
 #include "include/libopenskynet.h"
@@ -20,6 +43,8 @@ void outputLogo() {
 
 int main(int ac, const char* av[]) {
     dg::deepcore::log::init();
+    auto tempSink = dg::deepcore::log::addClogSink(dg::deepcore::level_t::error, dg::deepcore::level_t::fatal,
+                                                   dg::deepcore::log::dg_log_format::dg_short_log);
 
     outputLogo();
     namespace po = boost::program_options;
@@ -159,6 +184,7 @@ int main(int ac, const char* av[]) {
         args.outputFormat = vm["format"].as<string>();
     } else {
         cout << "Output format was not set. Forcing to shp.\n";
+        args.outputFormat = "shp";
     }
 
     if (vm.count("output")) {
