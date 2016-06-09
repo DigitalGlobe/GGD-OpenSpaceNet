@@ -40,6 +40,7 @@ int main(int ac, const char* av[]) {
             ("token", po::value<string>(), "API token used for licensing. This is the connectId for the WMTS service or the API key for the Web Maps API.")
             ("credentials", po::value<string>(), "Credentials for the map service. Not required for Web Maps API.")
             ("gpu", "Use GPU for processing.")
+            ("maxUtilization", po::value<double>(), "Maximum GPU utilization %. Default is 95%.")
             ("api", "Use DigitalGlobe Web API as the source of tiles")
             ("bbox", po::value<vector<double>>()->multitoken(), "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("startCol", po::value<long>(), "Starting tile column.")
@@ -147,6 +148,10 @@ int main(int ac, const char* av[]) {
     args.useGPU = false;
     if (vm.count("gpu")) {
         args.useGPU = true;
+    }
+
+    if(vm.count("maxUtilization")) {
+        args.maxUtitilization = (float)vm["maxUtilization"].as<double>() / 100;
     }
 
     // How is this defaulted?
