@@ -390,7 +390,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
             completedUrl = EVWHS_URL;
             break;
         default:
-            completedUrl = WMTS_URL;
+            completedUrl = DGCS_URL;
     }
 
     boost::replace_all(completedUrl, "ccc_connect_id", args.token);
