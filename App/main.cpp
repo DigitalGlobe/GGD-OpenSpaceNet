@@ -201,11 +201,13 @@ int main(int ac, const char* av[]) {
 
 
     if (vm.count("credentials")){
+       args.credentials = vm["credentials"].as<string>();
+    } else {
         if (args.service == TileSource::EVWHS){
             cout << "You must supply credentials to use the requested tile service.\n";
             return 1;
         }
-        args.credentials = vm["credentials"].as<string>();
+
     }
 
     args.multiPass = vm.count("pyramid");
