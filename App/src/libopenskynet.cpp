@@ -24,6 +24,7 @@
 #include "../include/libopenskynet.h"
 #include "../include/WorkItem.h"
 
+#include <chrono>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -52,6 +53,10 @@ using namespace dg::deepcore::imagery;
 using namespace dg::deepcore::vector;
 
 using namespace std;
+
+using chrono::high_resolution_clock;
+using chrono::duration;
+
 boost::lockfree::queue<WorkItem *> downloadQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
 const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
@@ -131,11 +136,10 @@ int classifyTile(WorkItem *item) {
                     persistResults(results, item, &rect);
                 }
             }
+        } else {
+            results = classifier->classify(data_mat, confidence);
+            persistResults(results, item);
         }
-
-        results = classifier->classify(data_mat, confidence);
-        persistResults(results, item);
-
     }
 
     return 0;
@@ -238,7 +242,7 @@ int loadModel(const OpenSkyNetArgs& args) {
     }
 
     cout << "Reading model..." << endl;
-    model = Model::create(*modelPackage, args.useGPU);
+    model = Model::create(*modelPackage, args.useGPU, args.maxUtitilization);
 
     return 0;
 }
@@ -339,7 +343,12 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         }
 
         cout << "Detecting features..." << endl;
+
+        auto startTime = high_resolution_clock::now();
         auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence);
+        duration<double> duration = high_resolution_clock::now() - startTime;
+        cout << "Total detection time " << duration.count() << " s" << endl;
+
         unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
 
         for(const auto& prediction : predictions) {
