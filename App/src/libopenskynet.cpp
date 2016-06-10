@@ -242,7 +242,11 @@ int loadModel(const OpenSkyNetArgs& args) {
     }
 
     cout << "Reading model..." << endl;
-    model = Model::create(*modelPackage, args.useGPU, args.maxUtitilization);
+    if(args.useTileServer) {
+        model = Model::create(*modelPackage, args.useGPU, { BatchSize::BATCH_SIZE, 1 });
+    } else {
+        model = Model::create(*modelPackage, args.useGPU, { BatchSize::MAX_UTILIZATION,  args.maxUtitilization });
+    }
 
     return 0;
 }

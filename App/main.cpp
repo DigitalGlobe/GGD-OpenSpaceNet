@@ -321,10 +321,6 @@ int main(int ac, const char* av[]) {
 
         try {
             if (args.useTileServer) {
-                // Workaround until batching is incorporated into this workflow
-                if (args.useGPU) {
-                    args.maxUtitilization = 0.05;
-                }
                 return classifyBroadAreaMultiProcess(args);
             } else {
                 return classifyFromFile(args);
