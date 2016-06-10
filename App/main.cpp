@@ -227,10 +227,6 @@ int main(int ac, const char* av[]) {
         args.zoom = vm["zoom"].as<long>();
     }
 
-
-    /* Previous method of setting windowing */
-    args.multiPass = vm.count("pyramid");
-
     args.stepSize = 0;
     args.windowSize = 0;
     if (vm.count("stepSize")){
