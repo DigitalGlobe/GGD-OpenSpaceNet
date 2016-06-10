@@ -348,8 +348,14 @@ int classifyFromFile(OpenSkyNetArgs &args) {
 
         cout << "Detecting features..." << endl;
 
+        boost::progress_display progressDisplay(50);
         auto startTime = high_resolution_clock::now();
-        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence);
+        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence, 5, [&progressDisplay](float progress) {
+            size_t curProgress = (size_t)roundf(progress*50);
+            if(progressDisplay.count() < curProgress) {
+                progressDisplay += curProgress - progressDisplay.count();
+            }
+        });
         duration<double> duration = high_resolution_clock::now() - startTime;
         cout << "Total detection time " << duration.count() << " s" << endl;
 
