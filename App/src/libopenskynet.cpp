@@ -135,11 +135,10 @@ int classifyTile(WorkItem *item) {
                     persistResults(results, item, &rect);
                 }
             }
+        } else {
+            results = classifier->classify(data_mat, confidence);
+            persistResults(results, item);
         }
-
-        results = classifier->classify(data_mat, confidence);
-        persistResults(results, item);
-
     }
 
     return 0;
