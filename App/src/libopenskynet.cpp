@@ -286,7 +286,7 @@ int addFeature(VectorFeatureSet& fs, const GdalImage& image, const cv::Rect& win
 }
 
 int classifyFromFile(OpenSkyNetArgs &args) {
-    cout << "Reading image..." << endl;
+    cout << endl << "Reading image...";
     GdalImage gdalImage(args.image);
 
     cv::Rect2d bbox;
@@ -314,7 +314,16 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         return BAD_OUTPUT_FORMAT;
     }
 
-    auto image = gdalImage.readImage();
+    boost::progress_display openProgress(50);
+    auto image = gdalImage.readImage([&openProgress](float progress, const char*) -> bool {
+        size_t curProgress = (size_t)roundf(progress*50);
+        if(openProgress.count() < curProgress) {
+            openProgress += curProgress - openProgress.count();
+        }
+        return true;
+    });
+    cout << endl;
+
     if(loadModel(args)) {
         return -1;
     }
@@ -346,14 +355,14 @@ int classifyFromFile(OpenSkyNetArgs &args) {
             pyramid = Pyramid({ { image.size(), step } });
         }
 
-        cout << "Detecting features..." << endl;
+        cout << endl << "Detecting features...";
 
-        boost::progress_display progressDisplay(50);
+        boost::progress_display detectProgress(50);
         auto startTime = high_resolution_clock::now();
-        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence, 5, [&progressDisplay](float progress) {
+        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence, 5, [&detectProgress](float progress) {
             size_t curProgress = (size_t)roundf(progress*50);
-            if(progressDisplay.count() < curProgress) {
-                progressDisplay += curProgress - progressDisplay.count();
+            if(detectProgress.count() < curProgress) {
+                detectProgress += curProgress - detectProgress.count();
             }
         });
         duration<double> duration = high_resolution_clock::now() - startTime;
