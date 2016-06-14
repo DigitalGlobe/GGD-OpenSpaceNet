@@ -25,6 +25,7 @@
 #include <boost/program_options.hpp>
 #include "include/libopenskynet.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/timer/timer.hpp>
 #include <DeepCore/utility/Logging.h>
@@ -33,10 +34,12 @@
 using namespace std;
 using namespace dg::deepcore;
 
+using boost::algorithm::iequals;
 using boost::algorithm::is_any_of;
 using boost::algorithm::split;
 using boost::algorithm::trim;
 using boost::algorithm::to_lower;
+using boost::filesystem::path;
 
 void setupLogging(const boost::shared_ptr<log::sinks::sink>& clogSink, const string& logLevel, const string& logFile);
 
@@ -226,13 +229,20 @@ int main(int ac, const char* av[]) {
             args.outputPath = vm["output"].as<string>();
         }
 
-        if (vm.count("outputLayerName")) {
-            args.layerName = vm["outputLayerName"].as<string>();
-        }
-        else {
-            args.layerName = "skynetdetects";
-        }
+        if(iequals(args.outputFormat, "shp")) {
+            if (vm.count("outputLayerName")) {
+                DG_LOG(OpenSkyNet, warning) << "outputLayerName argument is ignored for Shapefile output.";
+            }
 
+            args.layerName = path(args.outputPath).stem().filename().string();
+        } else {
+            if (vm.count("outputLayerName")) {
+                args.layerName = vm["outputLayerName"].as<string>();
+            }
+            else {
+                args.layerName = "skynetdetects";
+            }
+        }
 
         if (vm.count("credentials")) {
             args.credentials = vm["credentials"].as<string>();
