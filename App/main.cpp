@@ -96,6 +96,7 @@ int main(int ac, const char* av[]) {
              "Used with windowSize to determine how much the sliding window moves on each step.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process. ")
             ("numConcurrentDownloads", po::value<long>(),
              "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
+            ("producerInfo", "Add user name, application name, and application version to the output feature set")
             ("log", po::value<string>(),
              "Log level. Permitted values are: trace, debug, info, warning, error, fatal. Default level: error.")
             ("logFile", po::value<string>(), "Name of the file to save the log to. Default logs to console.");
@@ -325,6 +326,10 @@ int main(int ac, const char* av[]) {
 
         if (vm.count("numConcurrentDownloads")) {
             args.numThreads = vm["numConcurrentDownloads"].as<long>();
+        }
+
+        if(vm.count("producerInfo")) {
+            args.producerInfo = true;
         }
 
         boost::timer::auto_cpu_timer t;

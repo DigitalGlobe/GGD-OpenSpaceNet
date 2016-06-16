@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include <opencv2/core/mat.hpp>
-#include <DeepCore/vector/VectorFeatureSet.h>
+#include <DeepCore/vector/FeatureSet.h>
 
 // This class holds the work items that will be processed as a part of the queue.  It contains members for the url,
 // tile coordinates, images, and result geometry.
@@ -45,8 +45,8 @@ public:
     void addImage(cv::Mat &stream);
     cv::Mat& getImage(int index);
 
-    dg::deepcore::vector::VectorFeatureSet*& geometry();
-    void setGeometry(dg::deepcore::vector::VectorFeatureSet*& geometry);
+    dg::deepcore::vector::FeatureSet*& geometry();
+    void setGeometry(dg::deepcore::vector::FeatureSet*& geometry);
 
     int retryCount();
     void incrementRetryCount();
@@ -63,7 +63,7 @@ private:
     std::vector<cv::Mat> _images;
 
     //Do not delete this!
-    dg::deepcore::vector::VectorFeatureSet* _geometry;
+    dg::deepcore::vector::FeatureSet* _geometry;
     long _zoom = 0;
     int _downloadAttempt = 0;
 };
