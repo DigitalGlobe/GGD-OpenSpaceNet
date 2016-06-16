@@ -66,11 +66,11 @@ cv::Mat& WorkItem::getImage(int index){
     }
 }
 
-VectorFeatureSet*& WorkItem::geometry() {
+FeatureSet*& WorkItem::geometry() {
     return _geometry;
 }
 
-void WorkItem::setGeometry(VectorFeatureSet*& set){
+void WorkItem::setGeometry(FeatureSet*& set){
     _geometry = set;
 }
 

@@ -75,6 +75,7 @@ struct OpenSkyNetArgs {
     double threshold = 0.0;
     long numThreads = 1;
     float maxUtitilization = 0.95;
+    bool producerInfo = false;
 
     int windowSize = 0;
     int stepSize = 0;

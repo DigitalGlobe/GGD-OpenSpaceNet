@@ -33,6 +33,9 @@
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/progress.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 
 #include <fstream>
 #include <opencv2/imgcodecs.hpp>
@@ -47,6 +50,9 @@
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
 #include <curlpp/Exception.hpp>
+#include <utility/Error.h>
+#include <utility/User.h>
+#include <version.h>
 
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::imagery;
@@ -54,11 +60,15 @@ using namespace dg::deepcore::vector;
 
 using namespace std;
 
+using boost::property_tree::json_parser::write_json;
+using boost::property_tree::ptree;
 using chrono::high_resolution_clock;
 using chrono::duration;
+using dg::deepcore::loginUser;
 
 boost::lockfree::queue<WorkItem *> downloadQueue(50000);
 boost::lockfree::queue<WorkItem *> classificationQueue(50000);
+
 const int consumer_thread_count = boost::thread::hardware_concurrency() - 1;
 
 std::string credentials;
@@ -73,6 +83,7 @@ int windowSize = 0;
 double scale = 2.0;
 double confidence = 0.0;
 long failures = 0;
+bool producerInfo = true;
 
 unique_ptr<boost::progress_display> show_progress;
 
@@ -80,20 +91,50 @@ static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmm
 static const string DGCS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 static const string EVWHS_URL = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 
+Fields createFeatureFields(const std::vector<Prediction> &predictions, const cv::Point& tile, int zoom, int modelId)
+{
+    Fields fields = {
+            { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
+            { "top_score", { FieldType ::REAL, predictions[0].confidence } },
+            { "x_tile", { FieldType ::INTEGER, tile.x } },
+            { "y_tile", { FieldType ::INTEGER, tile.y } },
+            { "zoom_level", { FieldType ::INTEGER, zoom } },
+            { "date", { FieldType ::DATE, time(nullptr) } },
+            { "model_id", { FieldType ::INTEGER, modelId } }
+    };
+
+    ptree top5;
+    for(const auto& prediction : predictions) {
+        top5.put(prediction.label, prediction.confidence);
+    }
+
+    ostringstream oss;
+    write_json(oss, top5);
+
+    fields["top_five"] = Field(FieldType::STRING, oss.str());
+
+    if(producerInfo) {
+        fields["username"] = { FieldType ::STRING, loginUser() };
+        fields["app"] = { FieldType::STRING, "OpenSkyNet"};
+        fields["app_ver"] =  { FieldType::STRING, OPENSKYNET_VERSION_STRING };
+    }
+
+    return std::move(fields);
+}
+
 void persistResults(std::vector<Prediction> &predictions, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (predictions.size() > 0) {
-        if (outputType == GeometryType::POINT) {
-            if (rect == nullptr) {
-                //flip the result because the converter helper takes row then column
-                item->geometry()->addPoint(predictions,
-                                           coordinateHelper::num2deg(item->tile().y, item->tile().x,
-                                                                     item->zoom()),
-                                           item->tile(), item->zoom(), 0);
+        Fields fields = createFeatureFields(predictions, item->tile(), item->zoom(), 0);
 
+        if (outputType == GeometryType::POINT) {
+            cv::Point2d point;
+            if (rect == nullptr) {
+                point = coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom());
             } else {
-                item->geometry()->addPoint(predictions, coordinateHelper::num2deg(rect->y, rect->x, item->zoom()),
-                                           item->tile(), item->zoom(), 0);
+                point = coordinateHelper::num2deg(rect->y, rect->x, item->zoom());
             }
+
+            item->geometry()->addFeature(PointFeature(point, fields));
          }
         else {
             std::vector<cv::Point2d> geometry;
@@ -109,17 +150,12 @@ void persistResults(std::vector<Prediction> &predictions, WorkItem *item, const 
                 geometry.push_back(
                         coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom()));
              } else {
-                geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().y,
-                                                             item->tile().x,
-                                                             item->zoom());
+                geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().y, item->tile().x, item->zoom());
 
             }
-            item->geometry()->addPolygon(predictions, geometry, item->tile(), item->zoom(), 0);
-
+            item->geometry()->addFeature(PolygonFeature(geometry, fields));
         }
-
     }
-
 }
 
 int classifyTile(WorkItem *item) {
@@ -224,8 +260,26 @@ void downloadAndProcessRow(int numThreads){
     }
 }
 
-VectorFeatureSet* createFeatureSet(const OpenSkyNetArgs& args) {
-    unique_ptr<VectorFeatureSet> fs(new VectorFeatureSet(args.outputPath, args.outputFormat, args.layerName));
+FeatureSet* createFeatureSet(const OpenSkyNetArgs& args) {
+    FieldDefinitions definitions = {
+        { FieldType::STRING, "top_cat", 50 },
+        { FieldType::REAL, "top_score" },
+        { FieldType::INTEGER, "zoom_level" },
+        { FieldType::INTEGER, "x_tile" },
+        { FieldType::INTEGER, "y_tile" },
+        { FieldType::INTEGER, "model_id" },
+        { FieldType::DATE, "date" },
+        { FieldType::STRING, "top_five", 254 }
+    };
+
+    producerInfo = args.producerInfo;
+    if(producerInfo) {
+        definitions.push_back({ FieldType::STRING, "username", 50 });
+        definitions.push_back({ FieldType::STRING, "app", 50 });
+        definitions.push_back({ FieldType::STRING, "app_ver", 50 });
+    }
+
+    unique_ptr<FeatureSet> fs(new FeatureSet(args.outputPath, args.outputFormat, args.layerName, definitions));
     outputType = args.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
 
     return fs.release();
@@ -251,16 +305,18 @@ int loadModel(const OpenSkyNetArgs& args) {
     return 0;
 }
 
-int addFeature(VectorFeatureSet& fs, const GdalImage& image, const cv::Rect& window, const vector<Prediction>& predictions)
+int addFeature(FeatureSet& fs, const GdalImage& image, const cv::Rect& window, const vector<Prediction>& predictions)
 {
     if(predictions.empty()) {
         return SUCCESS;
     }
 
+    auto fields = createFeatureFields(predictions, {-1, -1}, 0, 0);
+
     if(outputType == GeometryType::POINT) {
         cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
         auto point = image.imageToLL(center);
-        fs.addPoint(predictions, point, {-1, -1}, 0, 0);
+        fs.addFeature(PointFeature(point, fields));
     } else if(outputType == GeometryType::POLYGON){
         vector<cv::Point> points = {
                 window.tl(),
@@ -276,7 +332,7 @@ int addFeature(VectorFeatureSet& fs, const GdalImage& image, const cv::Rect& win
             llPoints.push_back(llPoint);
         }
 
-        fs.addPolygon(predictions, llPoints, {0, 0}, 0, 0);
+        fs.addFeature(PolygonFeature(llPoints, fields));
     } else {
         cerr << "Invalid output type." << endl;
         return -1;
@@ -335,7 +391,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         cout << "Classifying..." << endl;
         auto predictions = classifier->classify(image, args.confidence);
 
-        unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
+        unique_ptr<FeatureSet> fs(createFeatureSet(args));
         addFeature(*fs, gdalImage, cv::Rect({ 0, 0 } , image.size()), predictions);
     } else {
         step = { args.stepSize, args.stepSize };
@@ -368,7 +424,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         duration<double> duration = high_resolution_clock::now() - startTime;
         cout << "Total detection time " << duration.count() << " s" << endl;
 
-        unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
+        unique_ptr<FeatureSet> fs(createFeatureSet(args));
 
         for(const auto& prediction : predictions) {
             addFeature(*fs, gdalImage, prediction.window, prediction.predictions);
@@ -393,6 +449,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     stepSize = args.stepSize;
     windowSize = args.windowSize;
     confidence = args.confidence;
+    producerInfo = args.producerInfo;
 
     //if the bbox is specified, it takes precedence!
     if (args.bbox.size() != 0) {
@@ -431,7 +488,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
 
     classifier = &(model->classifer());
 
-    unique_ptr<VectorFeatureSet> fs(createFeatureSet(args));
+    unique_ptr<FeatureSet> fs(createFeatureSet(args));
     credentials = args.credentials;
 
     int numThreads = consumer_thread_count * args.numThreads;

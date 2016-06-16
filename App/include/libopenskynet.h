@@ -36,11 +36,6 @@ enum ReturnCodes {
     BAD_OUTPUT_FORMAT
 };
 
-enum GeometryType {
-    POINT,
-    POLYGON
-};
-
 
 int classifyFromFile(OpenSkyNetArgs &args);
 int classifyBroadAreaMultiProcess(OpenSkyNetArgs& args);
