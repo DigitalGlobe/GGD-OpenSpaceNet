@@ -347,7 +347,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
 
     cv::Rect2d bbox;
     if(args.bbox.size() == 4) {
-        bbox = cv::Rect(cv::Point2d(args.bbox[1], args.bbox[0]), cv::Point2d(args.bbox[4], args.bbox[3]));
+        bbox = cv::Rect(cv::Point2d(args.bbox[0], args.bbox[1]), cv::Point2d(args.bbox[2], args.bbox[3]));
     }
 
     if(!gdalImage.projection().empty()) {
