@@ -38,16 +38,12 @@ void WorkItem::setUrl(const std::string& url){
     _url = url;
 }
 
-const cv::Point2d& WorkItem::tile(){
+const cv::Point3i& WorkItem::tile(){
     return _tile;
 };
 
-void WorkItem::setTile(const cv::Point2d& tile){
+void WorkItem::setTile(const cv::Point3i& tile){
     _tile = tile;
-}
-
-void WorkItem::setTile(double x, double y){
-    setTile({x, y});
 }
 
 const std::vector<cv::Mat>& WorkItem::images(){
@@ -72,14 +68,6 @@ FeatureSet*& WorkItem::geometry() {
 
 void WorkItem::setGeometry(FeatureSet*& set){
     _geometry = set;
-}
-
-int WorkItem::zoom() {
-    return _zoom;
-}
-
-void WorkItem::setZoom(long val){
-    _zoom = val;
 }
 
 WorkItem::~WorkItem() {

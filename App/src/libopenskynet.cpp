@@ -44,9 +44,10 @@
 #include <DeepCore/classification/GbdxModelReader.h>
 #include <DeepCore/classification/Model.h>
 #include <DeepCore/classification/SlidingWindowDetector.h>
-#include <DeepCore/imagery/GdalImage.h>
-#include <DeepCore/utility/coordinateHelper.h>
-#include <DeepCore/network/HttpDownloader.h>
+#include <DeepCore/imagery/GeoImage.h>
+#include <DeepCore/imagery/ImageDownloader.h>
+#include <DeepCore/imagery/XyzCoords.h>
+#include <DeepCore/utility/Math.h>
 #include <curlpp/cURLpp.hpp>
 #include <caffe/caffe.hpp>
 #include <curlpp/Exception.hpp>
@@ -54,6 +55,7 @@
 #include <utility/User.h>
 #include <version.h>
 
+using namespace dg::deepcore;
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::imagery;
 using namespace dg::deepcore::vector;
@@ -91,14 +93,14 @@ static const string WEB_API_URL = "http://a.tiles.mapbox.com/v4/digitalglobe.nmm
 static const string DGCS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 static const string EVWHS_URL = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess?connectId=ccc_connect_id&version=1.0.0&request=GetTile&service=WMTS&Layer=DigitalGlobe:ImageryTileService&tileMatrixSet=EPSG:3857&tileMatrix=EPSG:3857:18&format=image/jpeg&FEATUREPROFILE=Global_Currency_Profile&USECLOUDLESSGEOMETRY=false";
 
-Fields createFeatureFields(const std::vector<Prediction> &predictions, const cv::Point& tile, int zoom, int modelId)
+Fields createFeatureFields(const std::vector<Prediction> &predictions, const cv::Point3i& tile, int modelId)
 {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
             { "top_score", { FieldType ::REAL, predictions[0].confidence } },
             { "x_tile", { FieldType ::INTEGER, tile.x } },
             { "y_tile", { FieldType ::INTEGER, tile.y } },
-            { "zoom_level", { FieldType ::INTEGER, zoom } },
+            { "zoom_level", { FieldType ::INTEGER, tile.z } },
             { "date", { FieldType ::DATE, time(nullptr) } },
             { "model_id", { FieldType ::INTEGER, modelId } }
     };
@@ -124,34 +126,36 @@ Fields createFeatureFields(const std::vector<Prediction> &predictions, const cv:
 
 void persistResults(std::vector<Prediction> &predictions, WorkItem *item, const cv::Rect *rect = nullptr) {
     if (predictions.size() > 0) {
-        Fields fields = createFeatureFields(predictions, item->tile(), item->zoom(), 0);
+        Fields fields = createFeatureFields(predictions, item->tile(), 0);
 
         if (outputType == GeometryType::POINT) {
-            cv::Point2d point;
+            cv::Point2d pointLL;
+            cv::Point center;
             if (rect == nullptr) {
-                point = coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom());
+                center = { 128, 128 };
             } else {
-                point = coordinateHelper::num2deg(rect->y, rect->x, item->zoom());
+                center = { rect->x + rect->width / 2, rect->y + rect->height / 2 };
             }
 
-            item->geometry()->addFeature(PointFeature(point, fields));
+            pointLL = degrees(xyz::tileToLL(item->tile(), center));
+            item->geometry()->addFeature(PointFeature(pointLL, fields));
          }
         else {
             std::vector<cv::Point2d> geometry;
             if (rect == nullptr) {
-                geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom()));
-                geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().y + 1, item->tile().x, item->zoom()));
-                geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().y + 1, item->tile().x + 1, item->zoom()));
-                geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().y, item->tile().x + 1, item->zoom()));
-                geometry.push_back(
-                        coordinateHelper::num2deg(item->tile().y, item->tile().x, item->zoom()));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), {0, 0})));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), {255, 0})));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), {255, 255})));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), {0, 255})));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), {0, 0})));
              } else {
-                geometry = coordinateHelper::detectionWindow(rect->x, rect->y, rect->height, item->tile().y, item->tile().x, item->zoom());
-
+                auto tl = rect->tl();
+                auto br = rect->br();
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), tl)));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), { br.x, tl.y })));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), br)));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), { tl.x, br.y })));
+                geometry.push_back(degrees(xyz::tileToLL(item->tile(), tl)));
             }
             item->geometry()->addFeature(PolygonFeature(geometry, fields));
         }
@@ -186,26 +190,15 @@ int processTile(WorkItem *item) {
         return -1;
     }
 
-    HttpDownloader downloader;
-    cv::Mat image;
-
     if (item->retryCount() < 5){
 
-        bool retVal = false;
         try {
-            retVal = downloader.download(item->url(), image, credentials);
-            if (retVal){
-                item->addImage(image);
-                if (pyramid) { //downscale the images
-                    item->pyramid(scale, 30);
-                }
-                classificationQueue.push(item);
+            auto image = ImageDownloader::download(item->url(), credentials);
+            item->addImage(image);
+            if (pyramid) { //downscale the images
+                item->pyramid(scale, 30);
             }
-            else {
-                item->incrementRetryCount();
-                downloadQueue.push(item);
-                return -1;
-            }
+            classificationQueue.push(item);
         } catch (curlpp::RuntimeError){
             item->incrementRetryCount();
             downloadQueue.push(item);
@@ -305,20 +298,20 @@ int loadModel(const OpenSkyNetArgs& args) {
     return 0;
 }
 
-int addFeature(FeatureSet& fs, const GdalImage& image, const cv::Rect& window, const vector<Prediction>& predictions)
+int addFeature(FeatureSet& fs, const GeoImage& image, const cv::Rect& window, const std::vector<Prediction>& predictions)
 {
     if(predictions.empty()) {
         return SUCCESS;
     }
 
-    auto fields = createFeatureFields(predictions, {-1, -1}, 0, 0);
+    auto fields = createFeatureFields(predictions, {-1, -1, 0}, 0);
 
     if(outputType == GeometryType::POINT) {
         cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
         auto point = image.imageToLL(center);
         fs.addFeature(PointFeature(point, fields));
     } else if(outputType == GeometryType::POLYGON){
-        vector<cv::Point> points = {
+        std::vector<cv::Point> points = {
                 window.tl(),
                 { window.x + window.width, window.y },
                 window.br(),
@@ -326,7 +319,7 @@ int addFeature(FeatureSet& fs, const GdalImage& image, const cv::Rect& window, c
                 window.tl()
         };
 
-        vector<cv::Point2d> llPoints;
+        std::vector<cv::Point2d> llPoints;
         for(const auto& point : points) {
             auto llPoint = image.imageToLL(point);
             llPoints.push_back(llPoint);
@@ -343,16 +336,16 @@ int addFeature(FeatureSet& fs, const GdalImage& image, const cv::Rect& window, c
 
 int classifyFromFile(OpenSkyNetArgs &args) {
     cout << endl << "Reading image...";
-    GdalImage gdalImage(args.image);
+    GeoImage geoImage(args.image);
 
     cv::Rect2d bbox;
     if(args.bbox.size() == 4) {
         bbox = cv::Rect(cv::Point2d(args.bbox[0], args.bbox[1]), cv::Point2d(args.bbox[2], args.bbox[3]));
     }
 
-    if(!gdalImage.projection().empty()) {
-        auto ul = gdalImage.imageToLL({0, 0});
-        auto lr = gdalImage.imageToLL(gdalImage.size());
+    if(!geoImage.projection().empty()) {
+        auto ul = geoImage.imageToLL({0, 0});
+        auto lr = geoImage.imageToLL(geoImage.size());
         cv::Rect2d imageBbox(ul, lr);
 
         if(bbox.area() == 0) {
@@ -371,7 +364,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
     }
 
     boost::progress_display openProgress(50);
-    auto image = gdalImage.readImage([&openProgress](float progress, const char*) -> bool {
+    auto image = geoImage.readImage([&openProgress](float progress, const char*) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress.count() < curProgress) {
             openProgress += curProgress - openProgress.count();
@@ -392,7 +385,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         auto predictions = classifier->classify(image, args.confidence);
 
         unique_ptr<FeatureSet> fs(createFeatureSet(args));
-        addFeature(*fs, gdalImage, cv::Rect({ 0, 0 } , image.size()), predictions);
+        addFeature(*fs, geoImage, cv::Rect({ 0, 0 } , image.size()), predictions);
     } else {
         step = { args.stepSize, args.stepSize };
 
@@ -427,7 +420,7 @@ int classifyFromFile(OpenSkyNetArgs &args) {
         unique_ptr<FeatureSet> fs(createFeatureSet(args));
 
         for(const auto& prediction : predictions) {
-            addFeature(*fs, gdalImage, prediction.window, prediction.predictions);
+            addFeature(*fs, geoImage, prediction.window, prediction.predictions);
         }
     }
 
@@ -456,11 +449,11 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
         std::vector<double> aoi = args.bbox;
         int zoomLevel = args.zoom;
 
-        auto llCorner = coordinateHelper::deg2num(aoi[1], aoi[0], zoomLevel);
-        auto urCorner = coordinateHelper::deg2num(aoi[3], aoi[2], zoomLevel);
+        auto llCorner = xyz::lltoTile(radians(cv::Point2d { aoi[0], aoi[1] }), zoomLevel);
+        auto urCorner = xyz::lltoTile(radians(cv::Point2d { aoi[2], aoi[3] }), zoomLevel);
 
-        numCols = (int) (urCorner.x - llCorner.x);
-        numRows = (int) (llCorner.y - urCorner.y);
+        numCols = urCorner.x - llCorner.x;
+        numRows = llCorner.y - urCorner.y;
 
         rowStart = (int) (llCorner.y - numRows);
         colStart = (int) (urCorner.x - numCols);
@@ -512,8 +505,7 @@ int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
                 finalUrl += (boost::format("&tilecol=%ld") % j).str();
             }
             item->setUrl(finalUrl);
-            item->setTile(j, i);
-            item->setZoom(args.zoom);
+            item->setTile({ (int)j, (int)i, args.zoom});
             item->geometry() = fs.get();
             downloadQueue.push(item);
         }

@@ -37,9 +37,8 @@ public:
     const std::string& url();
     void setUrl(const std::string& url);
 
-    const cv::Point2d& tile();
-    void setTile(const cv::Point2d& tile);
-    void setTile(double x, double y);
+    const cv::Point3i& tile();
+    void setTile(const cv::Point3i& tile);
 
     const std::vector<cv::Mat>& images();
     void addImage(cv::Mat &stream);
@@ -51,20 +50,16 @@ public:
     int retryCount();
     void incrementRetryCount();
 
-    int zoom();
-    void setZoom(long val);
-
-
     void pyramid(double scale, long minSize = 30);
     std::vector<cv::Rect> get_sliding_windows(const cv::Mat &image, long winWidth, long winHeight, long step);
+
 private:
     std::string _url;
-    cv::Point2d _tile;
+    cv::Point3i _tile;
     std::vector<cv::Mat> _images;
 
     //Do not delete this!
     dg::deepcore::vector::FeatureSet* _geometry;
-    long _zoom = 0;
     int _downloadAttempt = 0;
 };
 
