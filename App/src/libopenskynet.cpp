@@ -25,11 +25,14 @@
 #include "../include/WorkItem.h"
 
 #include <chrono>
+#include <thread>
+#include <condition_variable>
+
 #include <iostream>
+#include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/lockfree/queue.hpp>
-#include <boost/thread.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/progress.hpp>
@@ -46,6 +49,7 @@
 #include <DeepCore/classification/SlidingWindowDetector.h>
 #include <DeepCore/imagery/GeoImage.h>
 #include <DeepCore/imagery/ImageDownloader.h>
+#include <DeepCore/imagery/MapBoxClient.h>
 #include <DeepCore/imagery/XyzCoords.h>
 #include <DeepCore/utility/Math.h>
 #include <curlpp/cURLpp.hpp>
@@ -54,6 +58,7 @@
 #include <utility/Error.h>
 #include <utility/User.h>
 #include <version.h>
+#include <future>
 
 using namespace dg::deepcore;
 using namespace dg::deepcore::classification;
@@ -427,9 +432,217 @@ int classifyFromFile(OpenSkyNetArgs &args) {
     return SUCCESS;
 }
 
+int classifyFromMapsApi(OpenSkyNetArgs &args) {
+    cout << "Connecting to MapsAPI..." << endl;
+    MapBoxClient client("digitalglobe.nmmhkk79", args.token);
+    client.connect();
+
+    GbdxModelReader modelReader(args.modelPath);
+
+    cout << "Reading model package..." << endl;
+    unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
+    if (modelPackage == nullptr){
+        cerr << "Unable to generate model from the provided package." << endl;
+        return -1;
+    }
+
+    cout << "Reading model..." << endl;
+    const auto& metadata = modelPackage->metadata();
+
+    unique_ptr<FeatureSet> fs(createFeatureSet(args));
+
+    if(args.stepSize && !args.multiPass &&
+        metadata.windowSize().width == metadata.windowSize().height &&
+        metadata.windowSize().width == args.stepSize && 256 % args.stepSize == 0)
+    {
+
+        double prog1 = 0, prog2 = 0;
+        cout << "Downloaded Processed" << endl;
+        cout << fixed << setprecision(1);
+        cout << '\r' << prog1*100 << "%     " << prog2*100 << "%     ";
+
+        // Landcover
+        model = Model::create(*modelPackage, args.useGPU, { BatchSize::BATCH_SIZE, 256 * 256 / metadata.windowSize().area() });
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model->detector());
+        Pyramid pyramid({ { cv::Size {256, 256}, cv::Point { args.stepSize, args.stepSize } } });
+
+        cv::Rect tiles;
+        if(args.bbox.size()) {
+            std::vector<double> aoi = args.bbox;
+            auto bl = xyz::lltoTile(radians(cv::Point2d { aoi[0], aoi[1] }), args.zoom);
+            auto tr = xyz::lltoTile(radians(cv::Point2d { aoi[2], aoi[3] }), args.zoom);
+            tiles = { cv::Point { bl.x, bl.y }, cv::Point { tr.x, tr.y } };
+        } else if (args.columnSpan != 0 && args.rowSpan != 0) {
+            tiles = { (int)args.startColumn, (int)args.startRow, (int)args.columnSpan, (int)args.rowSpan };
+        } else {
+            cerr << "Bounding box was not specified" << endl;
+            return -1;
+        }
+
+        auto downloader = client.downloadAsync(tiles, args.zoom, 0);
+
+        mutex queueMutex;
+        condition_variable cv;
+        deque<pair<cv::Point3i, cv::Mat>> tileQueue;
+        auto maxConnections = (int)args.numThreads;
+        auto producer = thread([&downloader, &tileQueue, &maxConnections, &cv, &queueMutex, &prog1, &prog2]() {
+            downloader.downloadAsync([&tileQueue, &queueMutex, &cv, &prog1, &prog2](cv::Mat&& image, const cv::Point3i& tile) {
+                unique_lock<mutex> lock(queueMutex);
+                tileQueue.push_front(make_pair(tile, std::move(image)));
+                queueMutex.unlock();
+                cv.notify_all();
+            }, [&prog1, &prog2](double progress) {
+                prog1 = progress;
+                cout << fixed << setprecision(1);
+                cout << '\r' << prog1*100 << "%     " << prog2*100 << "%     ";
+            }, maxConnections);
+        });
+
+        producer.detach();
+
+        int cur = 0, of = (tiles.width + 1) * (tiles.height + 1);
+        while(cur < of) {
+            pair<cv::Point3i, cv::Mat> item;
+
+            {
+                unique_lock<mutex> lock(queueMutex);
+                if(!tileQueue.empty()) {
+                    item = tileQueue.back();
+                    tileQueue.pop_back();
+                } else {
+                    queueMutex.unlock();
+                    cv.wait(lock);
+                    continue;
+                }
+            }
+
+            auto predictions = slidingWindowDetector.detect(item.second, pyramid, args.confidence);
+            for(const auto& prediction : predictions) {
+                auto fields = createFeatureFields(prediction.predictions, {-1, -1, 0}, 0);
+
+                const auto& window = prediction.window;
+                if(outputType == GeometryType::POINT) {
+                    cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+                    auto point = xyz::tileToLL(item.first, center, {256, 256});
+                    fs->addFeature(PointFeature(point, fields));
+                } else if(outputType == GeometryType::POLYGON) {
+                    std::vector<cv::Point> points = {
+                            window.tl(),
+                            {window.x + window.width, window.y},
+                            window.br(),
+                            {window.x, window.y + window.height},
+                            window.tl()
+                    };
+
+                    std::vector<cv::Point2d> llPoints;
+                    for (const auto &point : points) {
+                        auto llPoint = xyz::tileToLL(item.first, point, {256, 256});
+                        llPoints.push_back(degrees(llPoint));
+                    }
+
+                    fs->addFeature(PolygonFeature(llPoints, fields));
+                }
+            }
+
+            cur++;
+            prog2 = (double)cur / of;
+            cout << fixed << setprecision(1);
+            cout << '\r' << prog1*100 << "%     " << prog2*100 << "%     ";
+        }
+        cout << endl;
+    } else {
+        // Detection
+        model = Model::create(*modelPackage, args.useGPU, { BatchSize::MAX_UTILIZATION,  args.maxUtitilization });
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model->detector());
+        cv::Point step;
+        if(args.stepSize) {
+            step = { args.stepSize, args.stepSize };
+        } else {
+            step = slidingWindowDetector.defaultStep();
+        }
+
+        cv::Rect2d area;
+        if(args.bbox.size()) {
+            std::vector<double> aoi = args.bbox;
+            area = {cv::Point2d(aoi[0], aoi[1]), cv::Point2d {aoi[2], aoi[3]}};
+        }
+
+        cout << endl << "Downloading image...";
+        boost::progress_display openProgress(50);
+        auto image = client.downloadArea(area, args.zoom, 0, true, [&openProgress](float progress) {
+            size_t curProgress = (size_t)roundf(progress*50);
+            if(openProgress.count() < curProgress) {
+                openProgress += curProgress - openProgress.count();
+            }
+        }, (int)args.numThreads);
+        cout << endl;
+
+        Pyramid pyramid;
+        if(args.multiPass) {
+            pyramid = Pyramid(image.size(), model->metadata().windowSize(), step, 2.0);
+        } else {
+            pyramid = Pyramid({ { image.size(), step } });
+        }
+
+        cout << endl << "Detecting features...";
+
+        boost::progress_display detectProgress(50);
+        auto startTime = high_resolution_clock::now();
+        auto predictions = slidingWindowDetector.detect(image, pyramid, args.confidence, 5, [&detectProgress](float progress) {
+            size_t curProgress = (size_t)roundf(progress*50);
+            if(detectProgress.count() < curProgress) {
+                detectProgress += curProgress - detectProgress.count();
+            }
+        });
+        duration<double> duration = high_resolution_clock::now() - startTime;
+        cout << "Total detection time " << duration.count() << " s" << endl;
+
+        auto tl = radians( cv::Point2d {area.x, area.br().y} );
+        auto tlTile = xyz::lltoTile(tl, args.zoom);
+        auto tlOffset = xyz::llToPixel(tl, tlTile, {256, 256});
+
+        for(const auto& prediction : predictions) {
+            auto fields = createFeatureFields(prediction.predictions, {-1, -1, 0}, 0);
+
+            const auto& window = prediction.window;
+            if(outputType == GeometryType::POINT) {
+                cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+                auto point = xyz::pixelToLL(center, tlTile, tlOffset, { 256, 256 });
+                fs->addFeature(PointFeature(point, fields));
+            } else if(outputType == GeometryType::POLYGON){
+                std::vector<cv::Point> points = {
+                        window.tl(),
+                        { window.x + window.width, window.y },
+                        window.br(),
+                        { window.x, window.y + window.height },
+                        window.tl()
+                };
+
+                std::vector<cv::Point2d> llPoints;
+                for(const auto& point : points) {
+                    auto llPoint = xyz::pixelToLL(point, tlTile, tlOffset, { 256, 256 });
+                    llPoints.push_back(degrees(llPoint));
+                }
+
+                fs->addFeature(PolygonFeature(llPoints, fields));
+            } else {
+                cerr << "Invalid output type." << endl;
+                return -1;
+            }
+        }
+    }
+
+    return SUCCESS;
+}
+
 int classifyBroadAreaMultiProcess(OpenSkyNetArgs &args) {
     curlpp::Cleanup cleaner;
     long numCols = 0, numRows = 0, rowStart = 0, colStart = 0;
+
+    if(args.service == TileSource::MAPS_API && !args.old) {
+        return classifyFromMapsApi(args);
+    }
 
     if (args.columnSpan != 0 && args.rowSpan != 0) {
         rowStart = args.startRow;

@@ -61,10 +61,10 @@ int main(int ac, const char* av[]) {
     namespace po = boost::program_options;
 
     // Declare the supported options.
-    po::options_description desc(
+    po::options_description visible(
             "Allowed options\n\n"
                     "Version: " OPENSKYNET_VERSION_STRING "\n\n");
-    desc.add_options()
+    visible.add_options()
             ("help", "Usage")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
             ("token", po::value<string>(),
@@ -101,6 +101,13 @@ int main(int ac, const char* av[]) {
              "Log level. Permitted values are: trace, debug, info, warning, error, fatal. Default level: error.")
             ("logFile", po::value<string>(), "Name of the file to save the log to. Default logs to console.");
 
+    po::options_description hidden;
+    hidden.add_options()("old", "Run old MapsAPI code.");
+
+    po::options_description desc;
+    desc.add(visible);
+    desc.add(hidden);
+
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc,
                                      po::command_line_style::unix_style ^ po::command_line_style::allow_short), vm);
@@ -109,10 +116,14 @@ int main(int ac, const char* av[]) {
     dg::deepcore::log::init();
 
     if (vm.count("help")) {
-        cout << desc << "\n";
+        cout << visible << "\n";
         return 0;
     }
     OpenSkyNetArgs args;
+
+    if(vm.count("old")) {
+        args.old = true;
+    }
 
     if (vm.count("service")) {
         string service = vm["service"].as<string>();
@@ -277,7 +288,7 @@ int main(int ac, const char* av[]) {
             args.windowSize = vm["windowSize"].as<long>();
         }
 
-        if (args.useTileServer &&
+        if (args.useTileServer && !(args.service == TileSource::MAPS_API && !args.old) &&
             ((args.stepSize == 0 && args.windowSize > 0) || (args.stepSize > 0 && args.windowSize == 0))) {
             cout <<
             "Unable to continue as configured.  Sliding window processing must have a step size and window size.\n";
