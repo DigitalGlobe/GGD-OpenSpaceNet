@@ -1,8 +1,8 @@
 cmake_policy(SET CMP0015 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
 
-set(SOURCE_FILES main.cpp src/WorkItem.cpp src/libopenskynet.cpp )
-set(HEADERS include/WorkItem.h include/libopenskynet.h include/OpenSkyNetArgs.h)
+set(SOURCE_FILES main.cpp src/OpenSkyNet.cpp)
+set(HEADERS include/OpenSkyNet.h include/OpenSkyNetArgs.h)
 include_directories(include)
 add_executable(OpenSkyNet ${SOURCE_FILES} ${HEADERS})
 

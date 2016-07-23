@@ -49,10 +49,8 @@ enum TileSource {
 };
 
 struct OpenSkyNetArgs {
-    const static int CURRENT_VERSION = 1;
     std::string token = "";
     std::string credentials = "";
-    std::string url = "";
     std::string image = "";
     TileSource service = TileSource::DGCS;
     bool useTileServer = true;
@@ -63,25 +61,14 @@ struct OpenSkyNetArgs {
     std::string outputFormat = "";
     std::string outputPath = "";
     std::string layerName = "";
-    int zoom = 0;
-    long startColumn = 0;
-    long startRow = 0;
-    long columnSpan = 0;
-    long rowSpan = 0;
+    int zoom = 18;
     bool multiPass = false;
     double confidence = 0.0;
-    const int version = CURRENT_VERSION;
-    std::map<std::string, float> classThresholds;
-    double threshold = 0.0;
-    long numThreads = 1;
+    int maxConnections = 10;
     float maxUtitilization = 0.95;
     bool producerInfo = false;
-    bool old = false;
-
     int windowSize = 0;
     int stepSize = 0;
-    std::vector<long> pyramidWindowSizes;
-    std::vector<long> pyramidWindowSteps;
 };
 
 #endif //OPENSKYNET_OPENSKYNETARGS_H

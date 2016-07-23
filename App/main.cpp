@@ -23,7 +23,7 @@
 
 #include <fstream>
 #include <boost/program_options.hpp>
-#include "include/libopenskynet.h"
+#include "OpenSkyNet.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/make_shared.hpp>
@@ -61,10 +61,10 @@ int main(int ac, const char* av[]) {
     namespace po = boost::program_options;
 
     // Declare the supported options.
-    po::options_description visible(
+    po::options_description desc(
             "Allowed options\n\n"
                     "Version: " OPENSKYNET_VERSION_STRING "\n\n");
-    visible.add_options()
+    desc.add_options()
             ("help", "Usage")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
             ("token", po::value<string>(),
@@ -74,11 +74,8 @@ int main(int ac, const char* av[]) {
             ("maxUtilization", po::value<double>(),
              "Maximum GPU utilization %. Default is 95, minimum is 5, and maximum is 100. Not used if processing on CPU")
             ("service", po::value<string>(), "The service that will be the source of tiles. Valid values are dgcs, evwhs, and web_api.  Default is dgcs.")
-            ("bbox", po::value<vector<double>>()->multitoken(),
+            ("bbox", po::value<std::vector<double>>()->multitoken(),
              "Bounding box for determining tiles. This must be in longitude-latitude order.")
-            ("startCol", po::value<long>(), "Starting tile column.")
-            ("startRow", po::value<long>(), "Starting tile row.")
-            ("columnSpan", po::value<long>(), "Number of columns.")
             ("zoom", po::value<long>(), "Zoom level to request tiles at. Defaults to zoom level 18.")
             ("rowSpan", po::value<long>(), "Number of rows.")
             ("model", po::value<string>(), "Folder location of the trained model.")
@@ -101,13 +98,6 @@ int main(int ac, const char* av[]) {
              "Log level. Permitted values are: trace, debug, info, warning, error, fatal. Default level: error.")
             ("logFile", po::value<string>(), "Name of the file to save the log to. Default logs to console.");
 
-    po::options_description hidden;
-    hidden.add_options()("old", "Run old MapsAPI code.");
-
-    po::options_description desc;
-    desc.add(visible);
-    desc.add(hidden);
-
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc,
                                      po::command_line_style::unix_style ^ po::command_line_style::allow_short), vm);
@@ -116,14 +106,10 @@ int main(int ac, const char* av[]) {
     dg::deepcore::log::init();
 
     if (vm.count("help")) {
-        cout << visible << "\n";
+        cout << desc << "\n";
         return 0;
     }
     OpenSkyNetArgs args;
-
-    if(vm.count("old")) {
-        args.old = true;
-    }
 
     if (vm.count("service")) {
         string service = vm["service"].as<string>();
@@ -172,40 +158,14 @@ int main(int ac, const char* av[]) {
             args.credentials = vm["credentials"].as<string>();
         }
 
-/*
-    if (vm.count("server")) {
-        args.url = vm["server"].as<string>() + "?connectId=" + args.token;
-    } else if(args.useTileServer){
-        args.url = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
-        args.url += "?connectId=" + args.token;
-    }
-*/
-
         if (vm.count("bbox")) {
-            args.bbox = vm["bbox"].as<vector<double>>();
+            args.bbox = vm["bbox"].as<std::vector<double>>();
             if (args.bbox.size() != 4) {
                 cout << "Invalid  number of parameters for bounding box." << endl;
             }
-        }
-        else {
-            if (vm.count("rowSpan") && vm.count("columnSpan")) {
-                if (vm.count("startRow")) {
-                    args.startRow = vm["startRow"].as<long>();
-                }
-                if (vm.count("startCol")) {
-                    args.startColumn = vm["startCol"].as<long>();
-                }
-                if (vm.count("rowSpan")) {
-                    args.rowSpan = vm["rowSpan"].as<long>();
-                }
-                if (vm.count("columnSpan")) {
-                    args.columnSpan = vm["columnSpan"].as<long>();
-                }
-            }
-            else if (args.useTileServer) {
-                cout << "Bounding box not set. Unable to continue.\n";
-                return 1;
-            }
+        } else {
+            cerr << "Bounding box not set. Unable to continue.\n";
+            exit(1);
         }
 
         args.useGPU = false;
@@ -273,7 +233,6 @@ int main(int ac, const char* av[]) {
             args.confidence = vm["confidence"].as<double>();
         }
 
-        args.zoom = 18;
         if (vm.count("zoom")) {
             args.zoom = vm["zoom"].as<long>();
         }
@@ -288,55 +247,8 @@ int main(int ac, const char* av[]) {
             args.windowSize = vm["windowSize"].as<long>();
         }
 
-        if (args.useTileServer && !(args.service == TileSource::MAPS_API && !args.old) &&
-            ((args.stepSize == 0 && args.windowSize > 0) || (args.stepSize > 0 && args.windowSize == 0))) {
-            cout <<
-            "Unable to continue as configured.  Sliding window processing must have a step size and window size.\n";
-            return INVALID_MULTIPASS;
-        }
-
-        /* New multiresolution pyramiding */
-        if (vm.count("pyramidWindowSizes")) {
-
-            vector<long> winSizes = vm["pyramidWindowSizes"].as<vector<long>>();
-            for (auto it = winSizes.begin(); it != winSizes.end(); it++) {
-                args.pyramidWindowSizes.push_back(*it);
-            }
-        }
-        else {
-            args.pyramidWindowSizes.push_back(args.windowSize);
-        }
-        if (vm.count("pyramidStepSizes")) {
-            vector<long> winSteps = vm["pyramidStepSizes"].as<vector<long>>();
-            for (auto it = winSteps.begin(); it != winSteps.end(); it++) {
-                args.pyramidWindowSteps.push_back(*it);
-            }
-        }
-        else {
-            args.pyramidWindowSteps.push_back(args.stepSize);
-        }
-
-
-        /* Class-specific thresholds */
-        if (vm.count("classThresholds")) {
-            cout << "Class-specific thresholds" << endl;
-            cout << "Number of thresholds specified: " << vm.count("classThresholds") << endl;
-            vector<pair<string, float>> cT = vm["classThresholds"].as<vector<pair<string, float>>>();
-            /* From command line options into std::map for faster searching */
-            for (auto it = cT.begin(); it != cT.end(); it++) {
-                args.classThresholds[it->first] = it->second;
-                cout << it->first << ": " << it->second << endl;
-            }
-        }
-
-        /* Class-specific thresholds */
-        args.threshold = 0.0;
-        if (vm.count("threshold")) {
-            args.threshold = vm["threshold"].as<double>();
-        }
-
         if (vm.count("numConcurrentDownloads")) {
-            args.numThreads = vm["numConcurrentDownloads"].as<long>();
+            args.maxConnections = vm["numConcurrentDownloads"].as<long>();
         }
 
         if(vm.count("producerInfo")) {
@@ -346,11 +258,11 @@ int main(int ac, const char* av[]) {
         boost::timer::auto_cpu_timer t;
 
         try {
-            if (args.useTileServer) {
-                return classifyBroadAreaMultiProcess(args);
-            } else {
-                return classifyFromFile(args);
-            }
+            OpenSkyNet osn(args);
+            osn.process();
+        } catch (const Error &e) {
+            cerr << e.message() << endl;
+            exit(1);
         } catch (const std::exception &e) {
             cerr << e.what() << endl;
             exit(1);
@@ -359,11 +271,9 @@ int main(int ac, const char* av[]) {
         }
     }
 
-
-
 void setupLogging(const boost::shared_ptr<log::sinks::sink> &clogSink, const string &logLevel, const string &logFile) {
     // Split the log level into level:channel and normalize
-    vector<string> parts;
+    std::vector<string> parts;
     split(parts, logLevel, is_any_of(":"));
     for(auto& part : parts) {
         trim(part);
