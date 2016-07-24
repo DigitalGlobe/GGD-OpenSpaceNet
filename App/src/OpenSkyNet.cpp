@@ -74,7 +74,7 @@ using std::unique_ptr;
 using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
-static const string MAPSAPI_MAPID = "digitalglobe.nmmhkk79";
+static const string MAPSAPI_MAPID = "digitalglobe.nal0g75k";
 
 static const string DGCS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess";
 static const string EVWHS_URL = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
