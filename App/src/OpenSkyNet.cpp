@@ -38,6 +38,7 @@
 #include <opencv2/core/mat.hpp>
 #include <sstream>
 #include <utility/User.h>
+#include <utility/MultiProgressDisplay.h>
 #include <version.h>
 
 using namespace dg::deepcore::classification;
@@ -71,6 +72,7 @@ using std::vector;
 using std::unique_lock;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::MultiProgressDisplay;
 
 static const string MAPSAPI_MAPID = "digitalglobe.nmmhkk79";
 
@@ -167,7 +169,7 @@ void OpenSkyNet::initLocalImage()
 void OpenSkyNet::initMapService()
 {
     DG_CHECK(haveBbox(), "Bounding box must be specified");
-dis
+
     bool wmts = true;
     string url;
     switch(args_.service) {
@@ -248,15 +250,25 @@ void OpenSkyNet::processConcurrent()
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     bool done = false;
 
+    MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
+    progressDisplay.start();
+
     auto producerFuture = image_->readImageAsync([&blockQueue, &queueMutex, &cv](const cv::Point& origin, cv::Mat&& block) -> bool {
         unique_lock<mutex> lock(queueMutex);
         blockQueue.push_front(make_pair(origin, std::move(block)));
         queueMutex.unlock();
         cv.notify_all();
         return true;
+    }, [&progressDisplay](float progress) -> bool {
+        progressDisplay.update(0, progress);
+        return true;
     });
 
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &cv, &done, &slidingWindowDetector]() {
+    auto numBlocks = (size_t)ceilf((float)image_->size().width / image_->blockSize().width) *
+                     (size_t)ceilf((float)image_->size().height / image_->blockSize().height);
+    size_t curBlock = 0;
+
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &cv, &done, &slidingWindowDetector, &progressDisplay, numBlocks, &curBlock]() {
         while(true) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -280,6 +292,9 @@ void OpenSkyNet::processConcurrent()
                 prediction.window.y += item.first.y;
                 addFeature(prediction.window, prediction.predictions);
             }
+
+            progressDisplay.update(1, (float)curBlock / numBlocks);
+            curBlock++;
         }
     });
 
@@ -287,6 +302,7 @@ void OpenSkyNet::processConcurrent()
     if(!status.success) {
         throw status.error;
     }
+    progressDisplay.update(0, 1.0F);
 
     {
         unique_lock<mutex> lock(queueMutex);
@@ -296,6 +312,8 @@ void OpenSkyNet::processConcurrent()
     }
 
     consumerFuture.wait();
+    progressDisplay.update(1, 1.0F);
+    progressDisplay.stop();
 }
 
 void OpenSkyNet::processSerial()
