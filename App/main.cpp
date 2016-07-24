@@ -163,7 +163,7 @@ int main(int ac, const char* av[]) {
             if (args.bbox.size() != 4) {
                 cout << "Invalid  number of parameters for bounding box." << endl;
             }
-        } else {
+        } else if(args.useTileServer){
             cerr << "Bounding box not set. Unable to continue.\n";
             exit(1);
         }
