@@ -10,7 +10,7 @@ add_definitions(-DUSE_OPENCV)
 
 # DeepCore version
 set(OpenSkyNet_VERSION_MAJOR 0)
-set(OpenSkyNet_VERSION_MINOR 1)
+set(OpenSkyNet_VERSION_MINOR 2)
 
 # Set the build number
 if(DEFINED ENV{BUILD_NUMBER})
