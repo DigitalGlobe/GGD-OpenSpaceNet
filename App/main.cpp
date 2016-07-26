@@ -76,7 +76,6 @@ int main(int ac, const char* av[]) {
             ("bbox", po::value<std::vector<double>>()->multitoken(),
              "Bounding box for determining tiles. This must be in longitude-latitude order.")
             ("zoom", po::value<long>(), "Zoom level to request tiles at. Defaults to zoom level 18.")
-            ("rowSpan", po::value<long>(), "Number of rows.")
             ("model", po::value<string>(), "Folder location of the trained model.")
             ("type", po::value<string>(), "Output geometry type.  Currently only POINT and POLYGON are valid.")
             ("format", po::value<string>(),
