@@ -62,7 +62,7 @@ int main(int ac, const char* av[]) {
     namespace po = boost::program_options;
 
     // Declare the supported options.
-    po::options_description desc("Allowed options\n\n");
+    po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "Usage")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
