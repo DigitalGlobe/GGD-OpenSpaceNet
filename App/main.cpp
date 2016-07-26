@@ -51,6 +51,7 @@ void outputLogo() {
     cout << " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n";
     cout << "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n";
     cout << "       |_|                          |___/                                     " << endl;
+    cout << endl << "Version: " << OPENSKYNET_VERSION_STRING << endl << endl;
 }
 
 int main(int ac, const char* av[]) {
@@ -61,9 +62,7 @@ int main(int ac, const char* av[]) {
     namespace po = boost::program_options;
 
     // Declare the supported options.
-    po::options_description desc(
-            "Allowed options\n\n"
-                    "Version: " OPENSKYNET_VERSION_STRING "\n\n");
+    po::options_description desc("Allowed options\n\n");
     desc.add_options()
             ("help", "Usage")
             ("image", po::value<string>(), "Local image (filetype .tif) rather than using tile service")
