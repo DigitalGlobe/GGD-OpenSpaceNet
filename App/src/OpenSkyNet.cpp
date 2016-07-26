@@ -326,6 +326,7 @@ void OpenSkyNet::processSerial()
     cout << endl << "Reading image...";
 
     boost::progress_display openProgress(50);
+    auto startTime = high_resolution_clock::now();
     auto mat = image_->readImage([&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress.count() < curProgress) {
@@ -333,7 +334,9 @@ void OpenSkyNet::processSerial()
         }
         return true;
     });
-    cout << endl;
+
+    duration<double> duration = high_resolution_clock::now() - startTime;
+    cout << "Reading time " << duration.count() << " s" << endl << endl;
 
     Pyramid pyramid;
     if(args_.multiPass) {
@@ -345,7 +348,7 @@ void OpenSkyNet::processSerial()
     cout << endl << "Detecting features...";
 
     boost::progress_display detectProgress(50);
-    auto startTime = high_resolution_clock::now();
+    startTime = high_resolution_clock::now();
     auto predictions = slidingWindowDetector.detect(mat, pyramid, args_.confidence, 5, [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(detectProgress.count() < curProgress) {
@@ -353,8 +356,9 @@ void OpenSkyNet::processSerial()
         }
         return true;
     });
-    duration<double> duration = high_resolution_clock::now() - startTime;
-    cout << "Total detection time " << duration.count() << " s" << endl;
+
+    duration = high_resolution_clock::now() - startTime;
+    cout << "Detection time " << duration.count() << " s" << endl;
 
     for(const auto& prediction : predictions) {
         addFeature(prediction.window, prediction.predictions);
