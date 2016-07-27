@@ -16,7 +16,7 @@ set(OpenSkyNet_VERSION_MINOR 2)
 if(DEFINED ENV{BUILD_NUMBER})
     set(OpenSkyNet_VERSION_BUILD $ENV{BUILD_NUMBER})
 else()
-    set(OpenSkyNet_VERSION_BUILD 0)
+    set(OpenSkyNet_VERSION_BUILD "SNAPSHOT")
 endif()
 
 # Initialize version.h
