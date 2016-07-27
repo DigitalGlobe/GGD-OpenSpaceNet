@@ -94,10 +94,6 @@ OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
 
 void OpenSkyNet::process()
 {
-    if(args_.windowSize) {
-        cerr << "WARNING: windowSize is not currently implemented." << endl;
-    }
-
     if(args_.useTileServer) {
         initMapService();
         initModel();
@@ -128,26 +124,37 @@ void OpenSkyNet::initModel()
     DG_CHECK(modelPackage, "Unable to open the model package");
 
     cout << "Reading model..." << endl;
-    const auto& windowSize = modelPackage->metadata().windowSize();
+
+    if(args_.windowSize > 0) {
+        windowSize_ = { args_.windowSize, args_.windowSize };
+    } else {
+        windowSize_ = modelPackage->metadata().windowSize();
+    }
+
     concurrent_ = !args_.multiPass &&
-             windowSize.width == windowSize.height &&
-             windowSize.width == args_.stepSize &&
+             windowSize_.width == windowSize_.height &&
+             windowSize_.width == args_.stepSize &&
              blockSize_.width == blockSize_.height &&
              blockSize_.width % args_.stepSize == 0;
 
     if(concurrent_) {
-        model_.reset(Model::create(*modelPackage, args_.useGPU, { BatchSize::BATCH_SIZE, blockSize_.area() / windowSize.area() }));
+        model_.reset(Model::create(*modelPackage, args_.useGPU, { BatchSize::BATCH_SIZE, blockSize_.area() / windowSize_.area() }));
         stepSize_ = { args_.stepSize, args_.stepSize };
     } else {
         model_.reset(Model::create(*modelPackage, args_.useGPU, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization }));
-        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-
-        if(args_.stepSize) {
-            stepSize_ = { args_.stepSize, args_.stepSize };
-        } else {
-            stepSize_ = slidingWindowDetector.defaultStep();
-        }
     }
+
+    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+
+    if(args_.stepSize) {
+        stepSize_ = { args_.stepSize, args_.stepSize };
+    } else {
+        stepSize_ = slidingWindowDetector.defaultStep();
+    }
+
+    slidingWindowDetector.setOverrideSize(windowSize_);
+    slidingWindowDetector.setConfidence(args_.confidence);
+    slidingWindowDetector.setMaxResults(5);
 }
 
 void OpenSkyNet::initLocalImage()
@@ -286,7 +293,7 @@ void OpenSkyNet::processConcurrent()
             }
 
             Pyramid pyramid({ { item.second.size(), stepSize_ } });
-            auto predictions = slidingWindowDetector.detect(item.second, pyramid, args_.confidence, 5);
+            auto predictions = slidingWindowDetector.detect(item.second, pyramid);
             for(auto& prediction : predictions) {
                 prediction.window.x += item.first.x;
                 prediction.window.y += item.first.y;
@@ -340,7 +347,7 @@ void OpenSkyNet::processSerial()
 
     Pyramid pyramid;
     if(args_.multiPass) {
-        pyramid = Pyramid(mat.size(), model_->metadata().windowSize(), stepSize_, 2.0);
+        pyramid = Pyramid(mat.size(), windowSize_, stepSize_, 2.0);
     } else {
         pyramid = Pyramid({ { mat.size(), stepSize_ } });
     }
@@ -349,7 +356,7 @@ void OpenSkyNet::processSerial()
 
     boost::progress_display detectProgress(50);
     startTime = high_resolution_clock::now();
-    auto predictions = slidingWindowDetector.detect(mat, pyramid, args_.confidence, 5, [&detectProgress](float progress) -> bool {
+    auto predictions = slidingWindowDetector.detect(mat, pyramid, [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(detectProgress.count() < curProgress) {
             detectProgress += curProgress - detectProgress.count();

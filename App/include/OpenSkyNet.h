@@ -61,6 +61,7 @@ private:
     std::unique_ptr<dg::deepcore::vector::FeatureSet> featureSet_;
     cv::Size blockSize_;
     cv::Point stepSize_;
+    cv::Size windowSize_;
     dg::deepcore::vector::GeometryType outputType_ = dg::deepcore::vector::GeometryType::UNKNOWN;
     bool concurrent_ = false;
 };
