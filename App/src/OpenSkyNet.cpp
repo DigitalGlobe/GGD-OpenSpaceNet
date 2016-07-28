@@ -29,6 +29,7 @@
 #include <boost/progress.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <classification/GbdxModelReader.h>
+#include <classification/NonMaxSuppression.h>
 #include <classification/SlidingWindowDetector.h>
 #include <deque>
 #include <imagery/GdalImage.h>
@@ -366,6 +367,12 @@ void OpenSkyNet::processSerial()
 
     duration = high_resolution_clock::now() - startTime;
     cout << "Detection time " << duration.count() << " s" << endl;
+
+    if(args_.nms) {
+        cout << "Performing non-maximum suppression..." << endl;
+        auto filtered = nonMaxSuppression(predictions, args_.overlap);
+        predictions = move(filtered);
+    }
 
     for(const auto& prediction : predictions) {
         addFeature(prediction.window, prediction.predictions);
