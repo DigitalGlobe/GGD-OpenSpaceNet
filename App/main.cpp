@@ -89,8 +89,7 @@ int main(int ac, const char* av[]) {
              "Used with stepSize to determine the height and width of the sliding window. \n WARNING: This will result in much longer run times, but may result in additional results from the classification process.")
             ("stepSize", po::value<long>(),
              "Used with windowSize to determine how much the sliding window moves on each step.\n WARNING: This will result in much longer run times, but may result in additional results from the classification process. ")
-            ("nms", "Perform non-maximum suppression on the output")
-            ("nmsThreshold", po::value<double>(), "Overlap threshold for non-maximum suppression calculation")
+            ("nms", po::value<std::vector<float>>()->multitoken()->zero_tokens(), "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold for non-maximum suppression calculation, the default value is 0.3.")
             ("numConcurrentDownloads", po::value<long>(),
              "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
             ("producerInfo", "Add user name, application name, and application version to the output feature set")
@@ -257,10 +256,10 @@ int main(int ac, const char* av[]) {
 
         if(vm.count("nms")) {
             args.nms = true;
-        }
-
-        if(vm.count("nmsThreshold")) {
-            args.overlap = (float)vm["nmsThreshold"].as<double>();
+            auto overlap = vm["nms"].as<std::vector<float>>();
+            if(overlap.size()) {
+                args.overlap = overlap[0];
+            }
         }
 
         boost::timer::auto_cpu_timer t;
