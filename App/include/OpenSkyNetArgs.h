@@ -69,6 +69,8 @@ struct OpenSkyNetArgs {
     bool producerInfo = false;
     int windowSize = 0;
     int stepSize = 0;
+    bool nms = false;
+    float overlap = 0.3;
 };
 
 #endif //OPENSKYNET_OPENSKYNETARGS_H
