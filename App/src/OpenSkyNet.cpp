@@ -34,7 +34,8 @@
 #include <deque>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
-#include <imagery/WmtsClient.h>
+#include <imagery/DgcsClient.h>
+#include <imagery/EvwhsClient.h>
 #include <mutex>
 #include <opencv2/core/mat.hpp>
 #include <sstream>
@@ -76,14 +77,6 @@ using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
 static const string MAPSAPI_MAPID = "digitalglobe.nal0g75k";
-
-static const string DGCS_URL = "https://services.digitalglobe.com/earthservice/wmtsaccess";
-static const string EVWHS_URL = "https://evwhs.digitalglobe.com/earthservice/wmtsaccess";
-
-static const map<string, string> DG_WMTS_ARGS = {
-        { "FEATUREPROFILE", "Global_Currency_Profile" },
-        { "USECLOUDLESSGEOMETRY", "false" }
-};
 
 OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
     args_(args)
@@ -183,35 +176,29 @@ void OpenSkyNet::initMapService()
     switch(args_.service) {
         case TileSource::MAPS_API:
             cout << "Connecting to MapsAPI..." << endl;
+            client_ = make_unique<MapBoxClient>(MAPSAPI_MAPID, args_.token);
             wmts = false;
             break;
 
         case TileSource ::EVWHS:
             cout << "Connecting to EVWHS..." << endl;
-            url = EVWHS_URL;
+            client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
             break;
 
         default:
             cout << "Connecting to DGCS..." << endl;
-            url = DGCS_URL;
+            client_ = make_unique<DgcsClient>(args_.token, args_.credentials);
             break;
     }
 
-    if(wmts) {
-        client_ = make_unique<WmtsClient>(url, args_.credentials);
-        auto args = DG_WMTS_ARGS;
-        args["connectId"] = args_.token;
-        client_->setAdditionalArguments(args);
-        client_->connect();
+    client_->connect();
 
+    if(wmts) {
         client_->setImageFormat("image/jpeg");
         client_->setLayer("DigitalGlobe:ImageryTileService");
         client_->setTileMatrixSet("EPSG:3857");
         client_->setTileMatrixId((format("EPSG:3857:%1d") % args_.zoom).str());
     } else {
-        client_ = make_unique<MapBoxClient>(MAPSAPI_MAPID, args_.token);
-        client_->connect();
-
         client_->setTileMatrixId(lexical_cast<string>(args_.zoom));
     }
 
