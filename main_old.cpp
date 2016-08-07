@@ -54,7 +54,7 @@ void outputLogo() {
     cout << endl << "Version: " << OPENSKYNET_VERSION_STRING << endl << endl;
 }
 
-int main(int ac, const char* av[]) {
+int main_old(int ac, const char* av[]) {
     auto clogSink = log::addClogSink(dg::deepcore::level_t::error, dg::deepcore::level_t::fatal,
                                      dg::deepcore::log::dg_log_format::dg_short_log);
 

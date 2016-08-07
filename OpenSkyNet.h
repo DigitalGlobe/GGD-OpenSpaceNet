@@ -33,6 +33,9 @@
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
+#include <utility/Logging.h>
+
+namespace dg { namespace osn {
 
 class OpenSkyNet
 {
@@ -50,10 +53,8 @@ private:
     void processSerial();
     void addFeature(const cv::Rect& window, const std::vector<dg::deepcore::classification::Prediction>& predictions);
     dg::deepcore::vector::Fields createFeatureFields(const std::vector<dg::deepcore::classification::Prediction> &predictions);
-    bool haveBbox();
-    cv::Rect2d bbox();
 
-    OpenSkyNetArgs args_;
+    const OpenSkyNetArgs& args_;
     std::shared_ptr<dg::deepcore::network::HttpCleanup> cleanup_;
     std::unique_ptr<dg::deepcore::classification::Model> model_;
     std::unique_ptr<dg::deepcore::imagery::GeoImage> image_;
@@ -62,8 +63,9 @@ private:
     cv::Size blockSize_;
     cv::Point stepSize_;
     cv::Size windowSize_;
-    dg::deepcore::vector::GeometryType outputType_ = dg::deepcore::vector::GeometryType::UNKNOWN;
     bool concurrent_ = false;
 };
+
+} } // namespace dg { namespace osn {
 
 #endif //OPENSKYNET_LIBOPENSKYNET_H
