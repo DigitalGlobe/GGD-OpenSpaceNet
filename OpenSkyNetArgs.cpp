@@ -377,6 +377,8 @@ void OpenSkyNetArgs::printUsage(Action action) const
             cout << OSN_USAGE << visibleOptions_;
             break;
     }
+
+    cout << endl;
 }
 
 void OpenSkyNetArgs::readArgs()
