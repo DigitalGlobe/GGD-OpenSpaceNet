@@ -26,6 +26,7 @@
 #include "OpenSkyNet.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
 #include <fstream>
@@ -40,6 +41,7 @@ namespace po = boost::program_options;
 
 using namespace deepcore;
 
+using boost::format;
 using boost::iequals;
 using boost::join;
 using boost::make_unique;
@@ -104,9 +106,9 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
          "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
              "specified in the following order: west longitude, south latitude, east longitude, and north latitude.")
-        ("zoom", po::value<int>()->default_value(18)->value_name("ZOOM"), "Zoom level.")
+        ("zoom", po::value<int>()->default_value(zoom)->value_name("ZOOM"), "Zoom level.")
         ("mapId", po::value<string>()->default_value(MAPSAPI_MAPID), "MapsAPI map id to use.")
-        ("num-downloads", po::value<int>()->default_value(10)->value_name("NUM"),
+        ("num-downloads", po::value<int>()->default_value(maxConnections)->value_name("NUM"),
          "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
         ;
 
@@ -131,7 +133,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
 
     processingOptions_.add_options()
         ("cpu", "Use the CPU for processing, the default it to use the GPU.")
-        ("max-utilization", po::value<float>()->default_value(95)->value_name("PERCENT"),
+        ("max-utilization", po::value<float>()->default_value(maxUtitilization)->value_name("PERCENT"),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
         ("window-size", po::bounded_value<std::vector<int>>()->min_tokens(1)->max_tokens(2)->value_name("WIDTH [HEIGHT]"),
@@ -140,7 +142,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ;
 
     detectOptions_.add_options()
-        ("confidence", po::value<float>()->default_value(95)->value_name("PERCENT"),
+        ("confidence", po::value<float>()->default_value(confidence)->value_name("PERCENT"),
          "Minimum percent score for results to be included in the output.")
         ("step-size", po::bounded_value<std::vector<int>>()->min_tokens(1)->max_tokens(2)->value_name("WIDTH [HEIGHT]"),
          "Sliding window step size. Default value is log2 of the model window size. Step size can be specified in "
@@ -148,7 +150,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("pyramid",
          "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
              "in additional features being detected.")
-        ("nms", po::bounded_value<float>()->min_tokens(0)->max_tokens(1)->value_name("[PERCENT (=30)]"),
+        ("nms", po::bounded_value<float>()->min_tokens(0)->max_tokens(1)->value_name((format("[PERCENT (=%g)]") % overlap).str().c_str()),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
         ;

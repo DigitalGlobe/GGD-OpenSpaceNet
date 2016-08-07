@@ -82,7 +82,7 @@ public:
     std::unique_ptr<cv::Size> windowSize;
 
     // Feature detection options
-    double confidence = 95;
+    float confidence = 95;
     std::unique_ptr<cv::Point> stepSize;
     bool pyramid = false;
     bool nms = false;
