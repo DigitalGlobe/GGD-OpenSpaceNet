@@ -137,7 +137,7 @@ void OpenSkyNet::initModel()
         model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
         stepSize_ = windowSize_;
     } else {
-        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization }));
+        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization / 100 }));
     }
 
     auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
@@ -149,7 +149,7 @@ void OpenSkyNet::initModel()
     }
 
     slidingWindowDetector.setOverrideSize(windowSize_);
-    slidingWindowDetector.setConfidence(args_.confidence);
+    slidingWindowDetector.setConfidence(args_.confidence / 100);
     slidingWindowDetector.setMaxResults(5);
 }
 
@@ -358,7 +358,7 @@ void OpenSkyNet::processSerial()
 
     if(args_.nms) {
         OSN_LOG(info) << "Performing non-maximum suppression..." << endl;
-        auto filtered = nonMaxSuppression(predictions, args_.overlap);
+        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
         predictions = move(filtered);
     }
 
