@@ -128,10 +128,14 @@ void OpenSkyNet::initModel()
 
     if(args_.action == Action::LANDCOVER) {
         int batchSize;
-        if(blockSize_.area() % windowSize_.area() == 0) {
+        if(blockSize_.width % windowSize_.width == 0 && blockSize_.height % windowSize_.height == 0) {
             batchSize = blockSize_.area() / windowSize_.area();
+            concurrent_ = true;
         } else {
-
+            cv::Size xySize;
+            xySize.width = (int)ceilf((float)blockSize_.width / windowSize_.width);
+            xySize.height = (int)ceilf((float)blockSize_.height / windowSize_.height);
+            batchSize = xySize.area();
         }
 
         model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
