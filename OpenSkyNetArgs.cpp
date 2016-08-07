@@ -209,6 +209,7 @@ bool OpenSkyNetArgs::readOptional(const char* param, T& ret)
     auto it = vm_.find(param);
     if(it != end(vm_)) {
         ret = it->second.as<T>();
+        return true;
     }
 
     return false;
