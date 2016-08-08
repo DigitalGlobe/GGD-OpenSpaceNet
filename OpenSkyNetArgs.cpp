@@ -158,7 +158,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     loggingOptions_.add_options()
         ("log", po::bounded_value<std::vector<string>>()->min_tokens(1)->max_tokens(2)->value_name("[LEVEL (=info)] PATH"),
          "Log to a file, a file name preceded by an optional log level must be specified. Permitted values for log "
-         "level are: trace, debug, info, warning, error, fatal. Default level: info.")
+         "level are: trace, debug, info, warning, error, fatal.")
         ("quiet", "If set, no output will be sent to console, only a log file, if specified.")
         ;
 
