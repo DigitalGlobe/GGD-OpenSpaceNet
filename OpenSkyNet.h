@@ -53,6 +53,8 @@ private:
     void addFeature(const cv::Rect& window, const std::vector<dg::deepcore::classification::Prediction>& predictions);
     dg::deepcore::vector::Fields createFeatureFields(const std::vector<dg::deepcore::classification::Prediction> &predictions);
 
+    void skipLine() const;
+
     const OpenSkyNetArgs& args_;
     std::shared_ptr<dg::deepcore::network::HttpCleanup> cleanup_;
     std::unique_ptr<dg::deepcore::classification::Model> model_;

@@ -26,6 +26,7 @@
 #include "OpenSkyNet.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
@@ -41,6 +42,7 @@ namespace po = boost::program_options;
 
 using namespace deepcore;
 
+using boost::filesystem::path;
 using boost::format;
 using boost::iequals;
 using boost::join;
@@ -90,9 +92,6 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     localOptions_.add_options()
         ("image", po::value<string>()->value_name("PATH"),
          "If this is specified, the input will be taken from a local image.")
-        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
-         "Optional bounding box for image subset, optional for local images. Coordinates are specified in the "
-         "following order: west longitude, south latitude, east longitude, and north latitude.")
         ;
 
     webOptions_.add_options()
@@ -103,9 +102,6 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
          "Credentials for the map service. Not required for Web Maps API. If password is not specified, you will be "
          "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
-        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
-         "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
-             "specified in the following order: west longitude, south latitude, east longitude, and north latitude.")
         ("zoom", po::value<int>()->default_value(zoom)->value_name("ZOOM"), "Zoom level.")
         ("mapId", po::value<string>()->default_value(MAPSAPI_MAPID), "MapsAPI map id to use.")
         ("num-downloads", po::value<int>()->default_value(maxConnections)->value_name("NUM"),
@@ -125,7 +121,8 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
          outputDescription.c_str())
         ("output", po::value<string>()->value_name("PATH"),
          "Output location with file name and path or URL.")
-        ("output-layer", po::value<string>()->value_name("NAME"), "The output layer name, index name, or table name.")
+        ("output-layer", po::value<string>()->value_name("NAME (=skynetdetects)"),
+         "The output layer name, index name, or table name.")
         ("type", po::value<string>()->default_value("polygon")->value_name("TYPE"),
          "Output geometry type.  Currently only point and polygon are valid.")
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
@@ -150,7 +147,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("pyramid",
          "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
              "in additional features being detected.")
-        ("nms", po::bounded_value<float>()->min_tokens(0)->max_tokens(1)->value_name((format("[PERCENT (=%g)]") % overlap).str().c_str()),
+        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name((format("[PERCENT (=%g)]") % overlap).str().c_str()),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
         ;
@@ -168,6 +165,36 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("help", "Show this help message")
         ;
 
+    // Build the options used for processing
+    optionsDescription_.add(localOptions_);
+    optionsDescription_.add(webOptions_);
+    optionsDescription_.add(outputOptions_);
+    optionsDescription_.add(processingOptions_);
+    optionsDescription_.add(detectOptions_);
+    optionsDescription_.add(loggingOptions_);
+    optionsDescription_.add(generalOptions_);
+
+    optionsDescription_.add_options()
+        ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
+        ("help-topic", po::value<string>()->value_name("TOPIC"), "Help topic.")
+        ("debug", "Switch console output to \"debug\" log level.")
+        ("trace", "Switch console output to \"trace\" log level.")
+        // This bbox argument works for both local and web options, but we have duplicated bbox argument
+        // description in the usage display
+        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4))
+        ;
+
+    // Add the bbox argumet to both local and web options (duplication is not allowed when parsing the arguments)
+    localOptions_.add_options()
+        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
+         "Optional bounding box for image subset, optional for local images. Coordinates are specified in the "
+         "following order: west longitude, south latitude, east longitude, and north latitude.");
+
+    webOptions_.add_options()
+        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
+         "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
+         "specified in the following order: west longitude, south latitude, east longitude, and north latitude.");
+
     visibleOptions_.add(localOptions_);
     visibleOptions_.add(webOptions_);
     visibleOptions_.add(outputOptions_);
@@ -175,13 +202,6 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     visibleOptions_.add(detectOptions_);
     visibleOptions_.add(loggingOptions_);
     visibleOptions_.add(generalOptions_);
-
-    optionsDescription_.add_options()
-        ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
-        ("help-topic", po::value<string>()->value_name("TOPIC"), "Help topic.")
-        ("debug", "Switch console output to \"debug\" log level.")
-        ("trace", "Switch console output to \"trace\" log level.")
-        ;
 }
 
 void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
@@ -198,6 +218,8 @@ void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
 
 void OpenSkyNetArgs::setupConsoleLogging()
 {
+    log::init();
+
     cerrSink_ = log::addCerrSink(dg::deepcore::level_t::warning, dg::deepcore::level_t::fatal,
                                      dg::deepcore::log::dg_log_format::dg_short_log);
 
@@ -259,10 +281,6 @@ void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
         DG_ERROR_THROW("Must have at least 1 argument.");
     }
 
-    po::options_description desc;
-    desc.add(visibleOptions_);
-    desc.add(optionsDescription_);
-
     po::positional_options_description pd;
     pd.add("action", 1)
       .add("help-topic", 1);
@@ -270,19 +288,19 @@ void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
     // parse regular and positional options
     po::store(po::command_line_parser(argc, argv)
                   .extra_style_parser(&po::ignore_numbers)
-                  .options(desc)
+                  .options(optionsDescription_)
                   .positional(pd)
                   .run(), vm_);
     po::notify(vm_);
 
     // parse environment variable options
-    po::store(po::parse_environment(desc, "OSN_"), vm_);
+    po::store(po::parse_environment(optionsDescription_, "OSN_"), vm_);
 
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if(readOptional("config", configFiles)) {
         for(const auto& configFile : configFiles) {
-            po::store(po::parse_config_file<char>(configFile.c_str(), desc), vm_);
+            po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), vm_);
             po::notify(vm_);
         }
     }
@@ -291,7 +309,7 @@ void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
     auto actionStr = readRequired<string>("action", "Action or a configuration file must be specified.", true);
     action = parseAction(actionStr);
     if(action == Action::UNKNOWN) {
-        po::store(po::parse_config_file<char>(actionStr.c_str(), desc), vm_);
+        po::store(po::parse_config_file<char>(actionStr.c_str(), optionsDescription_), vm_);
         po::notify(vm_);
 
         action = parseAction(readRequired<string>("action", "Action must be specified.", true));
@@ -410,6 +428,7 @@ void OpenSkyNetArgs::readArgs()
         if(vm_.find("log") != end(vm_)) {
             log::removeSink(cerrSink_);
         }
+        quiet = true;
     }
 
     OpenSkyNet osn(*this);
@@ -434,8 +453,7 @@ void OpenSkyNetArgs::readWebServiceArgs()
     }
 
     token = readRequired<string>("token");
-    readOptional("credentials", credentials);
-    if(credentials.find(':') == string::npos) {
+    if(readOptional("credentials", credentials) && credentials.find(':') == string::npos) {
         promptForPassword();
     }
 
@@ -455,8 +473,20 @@ void OpenSkyNetArgs::promptForPassword()
 void OpenSkyNetArgs::readOutputArgs()
 {
     readOptional("format", outputFormat);
+    to_lower(outputFormat);
+
     outputPath = readRequired<string>("output");
-    readOptional("output-layer", layerName);
+
+    auto layerSpecified = readOptional("output-layer", layerName);
+
+    if(outputFormat  == "shp") {
+        if(layerSpecified) {
+            OSN_LOG(warning) << "output-layer argument is ignored for Shapefile output.";
+        }
+        layerName = path(outputPath).stem().filename().string();
+    } else if(!layerSpecified) {
+        layerName = "skynetdetects";
+    }
 
     string typeStr = "polygon";
     readOptional("type", typeStr);
@@ -497,7 +527,11 @@ void OpenSkyNetArgs::readFeatureDetectionArgs()
 
     if(vm_.find("nms") != end(vm_)) {
         nms = true;
-        readOptional("nms", overlap);
+        std::vector<float> args;
+        readOptional("nms", args);
+        if(args.size()) {
+            overlap = args[0];
+        }
     }
 }
 

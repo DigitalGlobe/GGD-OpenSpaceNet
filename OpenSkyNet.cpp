@@ -104,7 +104,7 @@ void OpenSkyNet::process()
         processSerial();
     }
 
-    OSN_LOG(info) << "Saving feature set..." << endl;
+    OSN_LOG(info) << "Saving feature set..." ;
     featureSet_.reset();
 }
 
@@ -112,11 +112,11 @@ void OpenSkyNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
 
-    OSN_LOG(info) << "Reading model package..." << endl;
+    OSN_LOG(info) << "Reading model package..." ;
     unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
     DG_CHECK(modelPackage, "Unable to open the model package");
 
-    OSN_LOG(info) << "Reading model..." << endl;
+    OSN_LOG(info) << "Reading model..." ;
 
     if(args_.windowSize) {
         windowSize_ = *args_.windowSize;
@@ -138,26 +138,32 @@ void OpenSkyNet::initModel()
 
         model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
         stepSize_ = windowSize_;
-    } else {
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+        slidingWindowDetector.setOverrideSize(windowSize_);
+        slidingWindowDetector.setConfidence(0);
+
+    } else if(args_.action == Action::DETECT) {
         model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization / 100 }));
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+
+        if(args_.action == Action::DETECT) {
+            if(args_.stepSize) {
+                stepSize_ = *args_.stepSize;
+            } else {
+                stepSize_ = slidingWindowDetector.defaultStep();
+            }
+        }
+
+        slidingWindowDetector.setOverrideSize(windowSize_);
+        slidingWindowDetector.setConfidence(args_.confidence / 100);
     }
-
-    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-
-    if(args_.stepSize) {
-        stepSize_ = *args_.stepSize;
-    } else {
-        stepSize_ = slidingWindowDetector.defaultStep();
-    }
-
-    slidingWindowDetector.setOverrideSize(windowSize_);
-    slidingWindowDetector.setConfidence(args_.confidence / 100);
-    slidingWindowDetector.setMaxResults(5);
 }
 
 void OpenSkyNet::initLocalImage()
 {
-    OSN_LOG(info) << "Opening image..." << endl;
+    OSN_LOG(info) << "Opening image..." ;
     auto image = make_unique<GdalImage>(args_.image);
     DG_CHECK(!image->spatialReference().isLocal(), "Input image is not geo-registered");
 
@@ -179,18 +185,18 @@ void OpenSkyNet::initMapServiceImage()
     string url;
     switch(args_.source) {
         case Source::MAPS_API:
-            OSN_LOG(info) << "Connecting to MapsAPI..." << endl;
+            OSN_LOG(info) << "Connecting to MapsAPI..." ;
             client_ = make_unique<MapBoxClient>(args_.mapId, args_.token);
             wmts = false;
             break;
 
         case Source ::EVWHS:
-            OSN_LOG(info) << "Connecting to EVWHS..." << endl;
+            OSN_LOG(info) << "Connecting to EVWHS..." ;
             client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
             break;
 
         default:
-            OSN_LOG(info) << "Connecting to DGCS..." << endl;
+            OSN_LOG(info) << "Connecting to DGCS..." ;
             client_ = make_unique<DgcsClient>(args_.token, args_.credentials);
             break;
     }
@@ -215,7 +221,7 @@ void OpenSkyNet::initMapServiceImage()
 
 void OpenSkyNet::initFeatureSet()
 {
-    OSN_LOG(info) << "Initializing the output feature set..." << endl;
+    OSN_LOG(info) << "Initializing the output feature set..." ;
 
     FieldDefinitions definitions = {
             { FieldType::STRING, "top_cat", 50 },
@@ -246,7 +252,9 @@ void OpenSkyNet::processConcurrent()
     bool done = false;
 
     MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
-    progressDisplay.start();
+    if(!args_.quiet) {
+        progressDisplay.start();
+    }
 
     auto producerFuture = image_->readImageAsync([&blockQueue, &queueMutex, &cv](const cv::Point& origin, cv::Mat&& block) -> bool {
         unique_lock<mutex> lock(queueMutex);
@@ -309,6 +317,8 @@ void OpenSkyNet::processConcurrent()
     consumerFuture.wait();
     progressDisplay.update(1, 1.0F);
     progressDisplay.stop();
+
+    skipLine();
 }
 
 void OpenSkyNet::processSerial()
@@ -318,20 +328,25 @@ void OpenSkyNet::processSerial()
 
     auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
 
-    OSN_LOG(info) << endl << "Reading image...";
+    skipLine();
+    OSN_LOG(info)  << "Reading image...";
 
-    boost::progress_display openProgress(50);
+    unique_ptr<boost::progress_display> openProgress;
+    if(!args_.quiet) {
+        openProgress = make_unique<boost::progress_display>(50);
+    }
+
     auto startTime = high_resolution_clock::now();
     auto mat = image_->readImage([&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
-        if(openProgress.count() < curProgress) {
-            openProgress += curProgress - openProgress.count();
+        if(openProgress && openProgress->count() < curProgress) {
+            *openProgress += curProgress - openProgress->count();
         }
         return true;
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
-    OSN_LOG(info) << "Reading time " << duration.count() << " s" << endl << endl;
+    OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
     Pyramid pyramid;
     if(args_.pyramid) {
@@ -340,23 +355,29 @@ void OpenSkyNet::processSerial()
         pyramid = Pyramid({ { mat.size(), stepSize_ } });
     }
 
-    OSN_LOG(info) << endl << "Detecting features...";
+    skipLine();
+    OSN_LOG(info) << "Detecting features...";
 
-    boost::progress_display detectProgress(50);
+    unique_ptr<boost::progress_display> detectProgress;
+    if(!args_.quiet) {
+        detectProgress = make_unique<boost::progress_display>(50);
+    }
+
     startTime = high_resolution_clock::now();
     auto predictions = slidingWindowDetector.detect(mat, pyramid, [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
-        if(detectProgress.count() < curProgress) {
-            detectProgress += curProgress - detectProgress.count();
+        if(detectProgress && detectProgress->count() < curProgress) {
+            *detectProgress += curProgress - detectProgress->count();
         }
         return true;
     });
 
     duration = high_resolution_clock::now() - startTime;
-    OSN_LOG(info) << "Detection time " << duration.count() << " s" << endl;
+    OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
 
     if(args_.nms) {
-        OSN_LOG(info) << "Performing non-maximum suppression..." << endl;
+        skipLine();
+        OSN_LOG(info) << "Performing non-maximum suppression..." ;
         auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
         predictions = move(filtered);
     }
@@ -432,6 +453,13 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
     }
 
     return std::move(fields);
+}
+
+void OpenSkyNet::skipLine() const
+{
+    if(!args_.quiet) {
+        cout << endl;
+    }
 }
 
 } } // namespace dg { namespace osn {

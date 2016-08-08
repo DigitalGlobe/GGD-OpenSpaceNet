@@ -88,6 +88,8 @@ public:
     bool nms = false;
     float overlap = 30;
 
+    bool quiet = false;
+
     OpenSkyNetArgs();
     void parseArgsAndProcess(int argc, const char* const* argv);
 
@@ -121,6 +123,7 @@ private:
     boost::program_options::options_description loggingOptions_;
     boost::program_options::options_description generalOptions_;
 
+    boost::program_options::options_description allOptions_;
     boost::program_options::options_description visibleOptions_;
     boost::program_options::options_description optionsDescription_;
 
