@@ -46,7 +46,6 @@ public:
 private:
     void initModel();
     void initLocalImage();
-    void initMapService();
     void initMapServiceImage();
     void initFeatureSet();
     void processConcurrent();

@@ -88,16 +88,14 @@ OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
 void OpenSkyNet::process()
 {
     if(args_.source > Source::LOCAL) {
-        initMapService();
-        initModel();
         initMapServiceImage();
     } else if(args_.source == Source::LOCAL) {
         initLocalImage();
-        initModel();
     } else {
         DG_ERROR_THROW("Input source not specified");
     }
 
+    initModel();
     initFeatureSet();
 
     if(concurrent_) {
@@ -173,7 +171,7 @@ void OpenSkyNet::initLocalImage()
     image_.reset(image.release());
 }
 
-void OpenSkyNet::initMapService()
+void OpenSkyNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
@@ -210,6 +208,9 @@ void OpenSkyNet::initMapService()
 
     client_->setMaxConnections(args_.maxConnections);
     blockSize_ = client_->tileMatrix().tileSize;
+
+    auto projBbox = client_->spatialReference().fromLatLon(*args_.bbox);
+    image_.reset(client_->imageFromArea(projBbox, args_.action != Action::LANDCOVER));
 }
 
 void OpenSkyNet::initFeatureSet()
@@ -230,12 +231,6 @@ void OpenSkyNet::initFeatureSet()
     }
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
-}
-
-void OpenSkyNet::initMapServiceImage()
-{
-    auto projBbox = client_->spatialReference().fromLatLon(*args_.bbox);
-    image_.reset(client_->imageFromArea(projBbox, !concurrent_));
 }
 
 void OpenSkyNet::processConcurrent()
