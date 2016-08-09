@@ -43,6 +43,8 @@
 #include <utility/MultiProgressDisplay.h>
 #include <version.h>
 
+namespace dg { namespace osn {
+
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::imagery;
 using namespace dg::deepcore::network;
@@ -58,7 +60,6 @@ using std::async;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::condition_variable;
-using std::cerr;
 using std::cout;
 using std::deque;
 using std::endl;
@@ -76,27 +77,25 @@ using std::unique_ptr;
 using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
-static const string MAPSAPI_MAPID = "digitalglobe.nal0g75k";
-
 OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
     args_(args)
 {
-    if(args.useTileServer) {
+    if(args_.source > Source::LOCAL) {
         cleanup_ = HttpCleanup::get();
     }
 }
 
 void OpenSkyNet::process()
 {
-    if(args_.useTileServer) {
-        initMapService();
-        initModel();
+    if(args_.source > Source::LOCAL) {
         initMapServiceImage();
-    } else {
+    } else if(args_.source == Source::LOCAL) {
         initLocalImage();
-        initModel();
+    } else {
+        DG_ERROR_THROW("Input source not specified");
     }
 
+    initModel();
     initFeatureSet();
 
     if(concurrent_) {
@@ -105,7 +104,7 @@ void OpenSkyNet::process()
         processSerial();
     }
 
-    cout << "Saving feature set..." << endl;
+    OSN_LOG(info) << "Saving feature set..." ;
     featureSet_.reset();
 }
 
@@ -113,52 +112,63 @@ void OpenSkyNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
 
-    cout << "Reading model package..." << endl;
+    OSN_LOG(info) << "Reading model package..." ;
     unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
     DG_CHECK(modelPackage, "Unable to open the model package");
 
-    cout << "Reading model..." << endl;
+    OSN_LOG(info) << "Reading model..." ;
 
-    if(args_.windowSize > 0) {
-        windowSize_ = { args_.windowSize, args_.windowSize };
+    if(args_.windowSize) {
+        windowSize_ = *args_.windowSize;
     } else {
         windowSize_ = modelPackage->metadata().windowSize();
     }
 
-    concurrent_ = !args_.multiPass &&
-             windowSize_.width == windowSize_.height &&
-             windowSize_.width == args_.stepSize &&
-             blockSize_.width == blockSize_.height &&
-             blockSize_.width % args_.stepSize == 0;
+    if(args_.action == Action::LANDCOVER) {
+        int batchSize;
+        if(blockSize_.width % windowSize_.width == 0 && blockSize_.height % windowSize_.height == 0) {
+            batchSize = blockSize_.area() / windowSize_.area();
+            concurrent_ = true;
+        } else {
+            cv::Size xySize;
+            xySize.width = (int)ceilf((float)blockSize_.width / windowSize_.width);
+            xySize.height = (int)ceilf((float)blockSize_.height / windowSize_.height);
+            batchSize = xySize.area();
+        }
 
-    if(concurrent_) {
-        model_.reset(Model::create(*modelPackage, args_.useGPU, { BatchSize::BATCH_SIZE, blockSize_.area() / windowSize_.area() }));
-        stepSize_ = { args_.stepSize, args_.stepSize };
-    } else {
-        model_.reset(Model::create(*modelPackage, args_.useGPU, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization }));
+        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
+        stepSize_ = windowSize_;
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+        slidingWindowDetector.setOverrideSize(windowSize_);
+        slidingWindowDetector.setConfidence(0);
+
+    } else if(args_.action == Action::DETECT) {
+        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization / 100 }));
+
+        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+
+        if(args_.action == Action::DETECT) {
+            if(args_.stepSize) {
+                stepSize_ = *args_.stepSize;
+            } else {
+                stepSize_ = slidingWindowDetector.defaultStep();
+            }
+        }
+
+        slidingWindowDetector.setOverrideSize(windowSize_);
+        slidingWindowDetector.setConfidence(args_.confidence / 100);
     }
-
-    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-
-    if(args_.stepSize) {
-        stepSize_ = { args_.stepSize, args_.stepSize };
-    } else {
-        stepSize_ = slidingWindowDetector.defaultStep();
-    }
-
-    slidingWindowDetector.setOverrideSize(windowSize_);
-    slidingWindowDetector.setConfidence(args_.confidence);
-    slidingWindowDetector.setMaxResults(5);
 }
 
 void OpenSkyNet::initLocalImage()
 {
-    cout << "Opening image..." << endl;
+    OSN_LOG(info) << "Opening image..." ;
     auto image = make_unique<GdalImage>(args_.image);
     DG_CHECK(!image->spatialReference().isLocal(), "Input image is not geo-registered");
 
-    if(haveBbox()) {
-        auto projBbox = image->spatialReference().fromLatLon(bbox());
+    if(args_.bbox) {
+        auto projBbox = image->spatialReference().fromLatLon(*args_.bbox);
         auto pixelBbox = cv::Rect { image->projToPixel(projBbox.tl()), image->projToPixel(projBbox.br()) };
         image->setBbox(pixelBbox);
         blockSize_ = image->blockSize();
@@ -167,26 +177,26 @@ void OpenSkyNet::initLocalImage()
     image_.reset(image.release());
 }
 
-void OpenSkyNet::initMapService()
+void OpenSkyNet::initMapServiceImage()
 {
-    DG_CHECK(haveBbox(), "Bounding box must be specified");
+    DG_CHECK(args_.bbox, "Bounding box must be specified");
 
     bool wmts = true;
     string url;
-    switch(args_.service) {
-        case TileSource::MAPS_API:
-            cout << "Connecting to MapsAPI..." << endl;
-            client_ = make_unique<MapBoxClient>(MAPSAPI_MAPID, args_.token);
+    switch(args_.source) {
+        case Source::MAPS_API:
+            OSN_LOG(info) << "Connecting to MapsAPI..." ;
+            client_ = make_unique<MapBoxClient>(args_.mapId, args_.token);
             wmts = false;
             break;
 
-        case TileSource ::EVWHS:
-            cout << "Connecting to EVWHS..." << endl;
+        case Source ::EVWHS:
+            OSN_LOG(info) << "Connecting to EVWHS..." ;
             client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
             break;
 
         default:
-            cout << "Connecting to DGCS..." << endl;
+            OSN_LOG(info) << "Connecting to DGCS..." ;
             client_ = make_unique<DgcsClient>(args_.token, args_.credentials);
             break;
     }
@@ -204,11 +214,14 @@ void OpenSkyNet::initMapService()
 
     client_->setMaxConnections(args_.maxConnections);
     blockSize_ = client_->tileMatrix().tileSize;
+
+    auto projBbox = client_->spatialReference().fromLatLon(*args_.bbox);
+    image_.reset(client_->imageFromArea(projBbox, args_.action != Action::LANDCOVER));
 }
 
 void OpenSkyNet::initFeatureSet()
 {
-    cout << "Initializing the output feature set..." << endl;
+    OSN_LOG(info) << "Initializing the output feature set..." ;
 
     FieldDefinitions definitions = {
             { FieldType::STRING, "top_cat", 50 },
@@ -224,13 +237,6 @@ void OpenSkyNet::initFeatureSet()
     }
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
-    outputType_ = args_.geometryType == "POINT" ? GeometryType::POINT : GeometryType::POLYGON;
-}
-
-void OpenSkyNet::initMapServiceImage()
-{
-    auto projBbox = client_->spatialReference().fromLatLon(bbox());
-    image_.reset(client_->imageFromArea(projBbox, !concurrent_));
 }
 
 void OpenSkyNet::processConcurrent()
@@ -246,7 +252,9 @@ void OpenSkyNet::processConcurrent()
     bool done = false;
 
     MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
-    progressDisplay.start();
+    if(!args_.quiet) {
+        progressDisplay.start();
+    }
 
     auto producerFuture = image_->readImageAsync([&blockQueue, &queueMutex, &cv](const cv::Point& origin, cv::Mat&& block) -> bool {
         unique_lock<mutex> lock(queueMutex);
@@ -309,6 +317,8 @@ void OpenSkyNet::processConcurrent()
     consumerFuture.wait();
     progressDisplay.update(1, 1.0F);
     progressDisplay.stop();
+
+    skipLine();
 }
 
 void OpenSkyNet::processSerial()
@@ -318,46 +328,57 @@ void OpenSkyNet::processSerial()
 
     auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
 
-    cout << endl << "Reading image...";
+    skipLine();
+    OSN_LOG(info)  << "Reading image...";
 
-    boost::progress_display openProgress(50);
+    unique_ptr<boost::progress_display> openProgress;
+    if(!args_.quiet) {
+        openProgress = make_unique<boost::progress_display>(50);
+    }
+
     auto startTime = high_resolution_clock::now();
     auto mat = image_->readImage([&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
-        if(openProgress.count() < curProgress) {
-            openProgress += curProgress - openProgress.count();
+        if(openProgress && openProgress->count() < curProgress) {
+            *openProgress += curProgress - openProgress->count();
         }
         return true;
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
-    cout << "Reading time " << duration.count() << " s" << endl << endl;
+    OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
     Pyramid pyramid;
-    if(args_.multiPass) {
+    if(args_.pyramid) {
         pyramid = Pyramid(mat.size(), windowSize_, stepSize_, 2.0);
     } else {
         pyramid = Pyramid({ { mat.size(), stepSize_ } });
     }
 
-    cout << endl << "Detecting features...";
+    skipLine();
+    OSN_LOG(info) << "Detecting features...";
 
-    boost::progress_display detectProgress(50);
+    unique_ptr<boost::progress_display> detectProgress;
+    if(!args_.quiet) {
+        detectProgress = make_unique<boost::progress_display>(50);
+    }
+
     startTime = high_resolution_clock::now();
     auto predictions = slidingWindowDetector.detect(mat, pyramid, [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
-        if(detectProgress.count() < curProgress) {
-            detectProgress += curProgress - detectProgress.count();
+        if(detectProgress && detectProgress->count() < curProgress) {
+            *detectProgress += curProgress - detectProgress->count();
         }
         return true;
     });
 
     duration = high_resolution_clock::now() - startTime;
-    cout << "Detection time " << duration.count() << " s" << endl;
+    OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
 
     if(args_.nms) {
-        cout << "Performing non-maximum suppression..." << endl;
-        auto filtered = nonMaxSuppression(predictions, args_.overlap);
+        skipLine();
+        OSN_LOG(info) << "Performing non-maximum suppression..." ;
+        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
         predictions = move(filtered);
     }
 
@@ -374,7 +395,7 @@ void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &pr
 
     auto fields = createFeatureFields(predictions);
 
-    switch (outputType_) {
+    switch (args_.geometryType) {
         case GeometryType::POINT:
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
@@ -434,12 +455,11 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
     return std::move(fields);
 }
 
-bool OpenSkyNet::haveBbox()
+void OpenSkyNet::skipLine() const
 {
-    return !args_.bbox.empty();
+    if(!args_.quiet) {
+        cout << endl;
+    }
 }
 
-cv::Rect2d OpenSkyNet::bbox() {
-    DG_CHECK(haveBbox(), "Bounding box was not specified");
-    return { cv::Point2d { args_.bbox[0], args_.bbox[1] }, cv::Point2d { args_.bbox[2], args_.bbox[3] } };
-}
+} } // namespace dg { namespace osn {
