@@ -25,7 +25,6 @@
 #define OPENSKYNET_OPENSKYNETARGS_H
 
 #include <boost/program_options.hpp>
-#include <opencv2/core/types.hpp>
 #include <utility/Logging.h>
 #include <vector/Feature.h>
 
@@ -97,10 +96,11 @@ private:
     void setupConsoleLogging();
     template<class T>
     bool readOptional(const char* param, T& ret);
+    template <typename T>
+    std::unique_ptr<T> readOptional(const char* param);
+    bool readOptional(const char* param, std::vector<std::string>& ret, bool splitArgs=true);
     template<class T>
     T readRequired(const char* param, const char* errorMsg = nullptr, bool showUsage=false);
-    template<class T>
-    bool readCoord(const char* param, T& x, T& y);
     void parseArgs(int argc, const char* const* argv);
     Action parseAction(std::string str) const;
     Source parseService(std::string service) const;
@@ -112,7 +112,6 @@ private:
     void readOutputArgs();
     void readProcessingArgs();
     void readFeatureDetectionArgs();
-    void readBoundingBoxArgs();
     void readLoggingArgs();
 
     boost::program_options::options_description localOptions_;

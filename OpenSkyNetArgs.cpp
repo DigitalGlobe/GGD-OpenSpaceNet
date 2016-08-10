@@ -30,10 +30,11 @@
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <fstream>
+#include <imagery/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
-#include <utility/program_options.hpp>
 #include <vector/FeatureSet.h>
 
 namespace dg { namespace osn {
@@ -42,27 +43,33 @@ namespace po = boost::program_options;
 
 using namespace deepcore;
 
+using boost::adaptors::reverse;
 using boost::filesystem::path;
 using boost::format;
 using boost::iequals;
+using boost::is_any_of;
 using boost::join;
 using boost::make_unique;
+using boost::split;
 using boost::to_lower;
 using boost::to_lower_copy;
+using boost::token_compress_on;
 using std::cout;
 using std::find;
 using std::function;
 using std::end;
 using std::endl;
+using std::move;
 using std::ofstream;
 using std::string;
+using std::unique_ptr;
 using vector::FeatureSet;
 using vector::GeometryType;
 
 static const string OSN_USAGE =
     "Usage:\n"
         "  OpenSkyNet <action> <input options> <output options> <processing options>\n"
-        "  OpenSkyNet <configuration file>\n\n"
+        "  OpenSkyNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
         "  help     \t\t\t Show this help message\n"
         "  detect   \t\t\t Perform feature detection\n"
@@ -111,13 +118,13 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     string outputDescription = "Output file format for the results. Valid values are: ";
     outputDescription += join(supportedFormats_, ", ") + ".";
 
-    auto notifier = function<void(const string&)>([this](const string& format) {
+    auto formatNotifier = function<void(const string&)>([this](const string& format) {
         DG_CHECK(find(supportedFormats_.begin(), supportedFormats_.end(), to_lower_copy(format)) != end(supportedFormats_),
             "Invalid output format: %s.", format.c_str());
     });
 
     outputOptions_.add_options()
-        ("format", po::value<string>()->default_value("shp")->value_name("FORMAT")->notifier(notifier),
+        ("format", po::value<string>()->default_value("shp")->value_name("FORMAT")->notifier(formatNotifier),
          outputDescription.c_str())
         ("output", po::value<string>()->value_name("PATH"),
          "Output location with file name and path or URL.")
@@ -133,7 +140,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("max-utilization", po::value<float>()->default_value(maxUtitilization)->value_name("PERCENT"),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
-        ("window-size", po::bounded_value<std::vector<int>>()->min_tokens(1)->max_tokens(2)->value_name("WIDTH [HEIGHT]"),
+        ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
          "Overrides the original model's window size. Window size can be specified in either one or two dimensions. If "
          "only one dimension is specified, the window will be square. This parameter is optional and not recommended.")
         ;
@@ -141,7 +148,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     detectOptions_.add_options()
         ("confidence", po::value<float>()->default_value(confidence)->value_name("PERCENT"),
          "Minimum percent score for results to be included in the output.")
-        ("step-size", po::bounded_value<std::vector<int>>()->min_tokens(1)->max_tokens(2)->value_name("WIDTH [HEIGHT]"),
+        ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
          "Sliding window step size. Default value is log2 of the model window size. Step size can be specified in "
          "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
         ("pyramid",
@@ -181,17 +188,17 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("trace", "Switch console output to \"trace\" log level.")
         // This bbox argument works for both local and web options, but we have duplicated bbox argument
         // description in the usage display
-        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4))
+        ("bbox", po::cvRect2d_value())
         ;
 
     // Add the bbox argumet to both local and web options (duplication is not allowed when parsing the arguments)
     localOptions_.add_options()
-        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
+        ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
          "Optional bounding box for image subset, optional for local images. Coordinates are specified in the "
          "following order: west longitude, south latitude, east longitude, and north latitude.");
 
     webOptions_.add_options()
-        ("bbox", po::bounded_value<std::vector<double>>()->fixed_tokens(4)->value_name("WEST SOUTH EAST NORTH"),
+        ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
          "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
          "specified in the following order: west longitude, south latitude, east longitude, and north latitude.");
 
@@ -239,6 +246,39 @@ bool OpenSkyNetArgs::readOptional(const char* param, T& ret)
     return false;
 }
 
+template <typename T>
+unique_ptr<T> OpenSkyNetArgs::readOptional(const char* param)
+{
+    auto it = vm_.find(param);
+    if(it != end(vm_)) {
+        return make_unique<T>(it->second.as<T>());
+    } else {
+        return unique_ptr<T>();
+    }
+}
+
+bool OpenSkyNetArgs::readOptional(const char* param, std::vector<std::string>& ret, bool splitArgs)
+{
+    auto it = vm_.find(param);
+    if(it != end(vm_)) {
+        auto args = it->second.as<std::vector<string>>();
+        if(splitArgs) {
+            ret.clear();
+            for(const auto& arg : args) {
+                std::vector<string> subArgs;
+                split(subArgs, arg, is_any_of(" "), token_compress_on);
+                ret.insert(end(ret), begin(subArgs), end(subArgs));
+            }
+        } else {
+            ret = move(args);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 template<class T>
 T OpenSkyNetArgs::readRequired(const char* param, const char* errorMsg, bool showUsage)
 {
@@ -256,22 +296,6 @@ T OpenSkyNetArgs::readRequired(const char* param, const char* errorMsg, bool sho
     }
 
     return it->second.as<T>();
-}
-
-template<class T>
-bool OpenSkyNetArgs::readCoord(const char* param, T& x, T& y)
-{
-    std::vector<T> vec;
-    if(!readOptional(param, vec)) {
-        return false;
-    }
-
-    DG_CHECK(!vec.empty(), "%s must contain at least one parameter", param);
-
-    x = vec[0];
-    y = vec.size() > 1 ? vec[1] : x;
-
-    return true;
 }
 
 void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
@@ -299,21 +323,15 @@ void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if(readOptional("config", configFiles)) {
-        for(const auto& configFile : configFiles) {
+        // Parse config files in reverse order because parse_config_file will not override existing options. This way
+        // options apply as "last one wins". The arguments specified on the command line always win.
+        for(const auto& configFile : reverse(configFiles)) {
             po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), vm_);
             po::notify(vm_);
         }
     }
 
-    // See what the action argument is, if we couldn't make anything of it, see if it's a config file
-    auto actionStr = readRequired<string>("action", "Action or a configuration file must be specified.", true);
-    action = parseAction(actionStr);
-    if(action == Action::UNKNOWN) {
-        po::store(po::parse_config_file<char>(actionStr.c_str(), optionsDescription_), vm_);
-        po::notify(vm_);
-
-        action = parseAction(readRequired<string>("action", "Action must be specified.", true));
-    }
+    action = parseAction(readRequired<string>("action", "Action must be specified.", true));
 
     if(action == Action::UNKNOWN) {
         printUsage();
@@ -402,9 +420,10 @@ void OpenSkyNetArgs::printUsage(Action action) const
     cout << endl;
 }
 
+
 void OpenSkyNetArgs::readArgs()
 {
-    readBoundingBoxArgs();
+    bbox = readOptional<cv::Rect2d>("bbox");
 
     string service;
     if(readOptional("service", service)) {
@@ -435,15 +454,6 @@ void OpenSkyNetArgs::readArgs()
     osn.process();
 }
 
-void OpenSkyNetArgs::readBoundingBoxArgs()
-{
-    std::vector<double> bboxVec;
-    if(readOptional("bbox", bboxVec)) {
-        DG_CHECK(bboxVec.size() == 4, "Bounding box must contain 4 values");
-        bbox = make_unique<cv::Rect2d>(cv::Point2d { bboxVec[0], bboxVec[1] }, cv::Point2d { bboxVec[2], bboxVec[3] });
-    }
-}
-
 void OpenSkyNetArgs::readWebServiceArgs()
 {
     DG_CHECK(bbox, "The --bbox argument is required for web services.");
@@ -460,7 +470,6 @@ void OpenSkyNetArgs::readWebServiceArgs()
     readOptional("zoom", zoom);
     readOptional("num-downloads", maxConnections);
 }
-
 
 void OpenSkyNetArgs::promptForPassword()
 {
@@ -507,22 +516,13 @@ void OpenSkyNetArgs::readProcessingArgs()
     useCpu = vm_.find("cpu") != end(vm_);
     readOptional("max-utilization", maxUtitilization);
     modelPath = readRequired<string>("model");
-
-    cv::Size size;
-    if(readCoord("window-size", size.width, size.height)) {
-        windowSize = make_unique<cv::Size>(size);
-    }
+    windowSize = readOptional<cv::Size>("window-size");
 }
 
 void OpenSkyNetArgs::readFeatureDetectionArgs()
 {
     readOptional("confidence", confidence);
-
-    cv::Point size;
-    if(readCoord("step-size", size.x, size.y)) {
-        stepSize = make_unique<cv::Point>(size);
-    }
-
+    stepSize = readOptional<cv::Point>("step-size");
     pyramid = vm_.find("pyramid") != end(vm_);
 
     if(vm_.find("nms") != end(vm_)) {
