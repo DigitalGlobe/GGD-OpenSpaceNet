@@ -11,14 +11,14 @@ cmake_policy(SET CMP0015 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
 
 set(SOURCE_FILES
-        main.cpp
-        OpenSkyNet.cpp
-        OpenSkyNetArgs.cpp
+        src/main.cpp
+        src/OpenSkyNet.cpp
+        src/OpenSkyNetArgs.cpp
         )
 
 set(HEADERS
-        OpenSkyNet.h
-        OpenSkyNetArgs.h
+        src/OpenSkyNet.h
+        src/OpenSkyNetArgs.h
         )
 
 add_executable(OpenSkyNet ${SOURCE_FILES} ${HEADERS})
@@ -33,7 +33,7 @@ else()
 endif()
 
 # Initialize version.h
-configure_file(version.h.in version.h)
+configure_file(src/version.h.in version.h)
 
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
