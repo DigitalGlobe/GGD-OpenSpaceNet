@@ -50,17 +50,17 @@ private:
     void initFeatureSet();
     void processConcurrent();
     void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<dg::deepcore::classification::Prediction>& predictions);
-    dg::deepcore::vector::Fields createFeatureFields(const std::vector<dg::deepcore::classification::Prediction> &predictions);
-
+    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions);
+    deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
+    void printModel();
     void skipLine() const;
 
     const OpenSkyNetArgs& args_;
-    std::shared_ptr<dg::deepcore::network::HttpCleanup> cleanup_;
-    std::unique_ptr<dg::deepcore::classification::Model> model_;
-    std::unique_ptr<dg::deepcore::imagery::GeoImage> image_;
-    std::unique_ptr<dg::deepcore::imagery::MapServiceClient> client_;
-    std::unique_ptr<dg::deepcore::vector::FeatureSet> featureSet_;
+    std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
+    std::unique_ptr<deepcore::classification::Model> model_;
+    std::unique_ptr<deepcore::imagery::GeoImage> image_;
+    std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
+    std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
     cv::Size blockSize_;
     cv::Point stepSize_;
     cv::Size windowSize_;

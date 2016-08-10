@@ -23,6 +23,8 @@
 
 #include "OpenSkyNet.h"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/make_unique.hpp>
@@ -32,6 +34,7 @@
 #include <classification/NonMaxSuppression.h>
 #include <classification/SlidingWindowDetector.h>
 #include <deque>
+#include <imagery/CvToLog.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
@@ -51,8 +54,11 @@ using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;
 
 using boost::format;
+using boost::join;
 using boost::lexical_cast;
 using boost::make_unique;
+using boost::posix_time::from_time_t;
+using boost::posix_time::to_simple_string;
 using boost::progress_display;
 using boost::property_tree::json_parser::write_json;
 using boost::property_tree::ptree;
@@ -96,6 +102,7 @@ void OpenSkyNet::process()
     }
 
     initModel();
+    printModel();
     initFeatureSet();
 
     if(concurrent_) {
@@ -453,6 +460,26 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
     }
 
     return std::move(fields);
+}
+
+void OpenSkyNet::printModel()
+{
+    skipLine();
+
+    const auto& metadata = model_->metadata();
+
+
+    OSN_LOG(info) << "Model Name: " << metadata.name()
+                  << "; Version: " << metadata.version()
+                  << "; Created: " << to_simple_string(from_time_t(metadata.timeCreated()));
+    OSN_LOG(info) << "Description: " << metadata.description();
+    OSN_LOG(info) << "Dimensions (pixels): " << metadata.windowSize()
+                  << "; Color Mode: " << metadata.colorMode()
+                  << "; Image Type: " << metadata.imageType();
+    OSN_LOG(info) << "Bounding box (lat/lon): " << metadata.boundingBox();
+    OSN_LOG(info) << "Labels: " << join(metadata.labels(), ", ");
+
+    skipLine();
 }
 
 void OpenSkyNet::skipLine() const
