@@ -308,10 +308,7 @@ void OpenSkyNet::processConcurrent()
         }
     });
 
-    auto status = producerFuture.get();
-    if(!status.success) {
-        throw status.error;
-    }
+    producerFuture.get();
     progressDisplay.update(0, 1.0F);
 
     {
