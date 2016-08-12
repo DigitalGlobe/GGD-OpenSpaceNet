@@ -49,6 +49,7 @@ int main (int argc, const char* const* argv)
         OpenSkyNetArgs osnArgs;
         osnArgs.parseArgsAndProcess(argc, argv);
     } catch (const Error& e) {
+        OSN_LOG(error) << e.message();
         return 1;
     } catch (const exception &e) {
         OSN_LOG(error) << e.what();
