@@ -22,6 +22,7 @@
 ********************************************************************************/
 
 #include "OpenSkyNet.h"
+#include <OpenSkyNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
@@ -44,7 +45,6 @@
 #include <sstream>
 #include <utility/User.h>
 #include <utility/MultiProgressDisplay.h>
-#include <version.h>
 
 namespace dg { namespace osn {
 

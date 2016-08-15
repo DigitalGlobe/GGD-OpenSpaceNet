@@ -33,7 +33,7 @@ else()
 endif()
 
 # Initialize version.h
-configure_file(src/version.h.in version.h)
+configure_file(src/version.h.in OpenSkyNetVersion.h)
 
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})

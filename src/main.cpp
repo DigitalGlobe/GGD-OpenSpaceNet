@@ -22,8 +22,7 @@
 ********************************************************************************/
 
 #include "OpenSkyNetArgs.h"
-
-#include <version.h>
+#include <OpenSkyNetVersion.h>
 
 using namespace dg::osn;
 using namespace dg::deepcore;
