@@ -131,28 +131,19 @@ void OpenSkyNet::initModel()
         windowSize_ = modelPackage->metadata().windowSize();
     }
 
+    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtitilization / 100));
+
+    float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
-        int batchSize;
         if(blockSize_.width % windowSize_.width == 0 && blockSize_.height % windowSize_.height == 0) {
-            batchSize = blockSize_.area() / windowSize_.area();
             concurrent_ = true;
         } else {
             cv::Size xySize;
             xySize.width = (int)ceilf((float)blockSize_.width / windowSize_.width);
             xySize.height = (int)ceilf((float)blockSize_.height / windowSize_.height);
-            batchSize = xySize.area();
         }
-
-        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
         stepSize_ = windowSize_;
-
-        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-        slidingWindowDetector.setOverrideSize(windowSize_);
-        slidingWindowDetector.setConfidence(0);
-
     } else if(args_.action == Action::DETECT) {
-        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization / 100 }));
-
         auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
 
         if(args_.action == Action::DETECT) {
@@ -163,9 +154,12 @@ void OpenSkyNet::initModel()
             }
         }
 
-        slidingWindowDetector.setOverrideSize(windowSize_);
-        slidingWindowDetector.setConfidence(args_.confidence / 100);
+        confidence = args_.confidence / 100;
     }
+
+    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+    slidingWindowDetector.setOverrideSize(windowSize_);
+    slidingWindowDetector.setConfidence(confidence);
 }
 
 void OpenSkyNet::initLocalImage()
