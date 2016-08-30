@@ -177,12 +177,13 @@ void OpenSkyNet::initLocalImage()
         DG_CHECK(!almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
 
         if(!almostEq(intersect, imageBbox)) {
-            auto llIntersect = image->spatialReference().toLatLon(intersect);
-            OSN_LOG(info) << "Provided bounding box is not fully within the image, the bounding box is adjusted to "
-                    << llIntersect.tl() << " : " << llIntersect.br();
-
             auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
             image->setBbox(pixelBbox);
+        }
+
+        if(!almostEq(imageBbox, projBbox)) {
+            auto llIntersect = image->spatialReference().toLatLon(intersect);
+            OSN_LOG(info) << "Bounding box adjusted to " << llIntersect.tl() << " : " << llIntersect.br();
         }
     }
 
