@@ -43,8 +43,9 @@
 #include <mutex>
 #include <opencv2/core/mat.hpp>
 #include <sstream>
-#include <utility/User.h>
+#include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
+#include <utility/User.h>
 
 namespace dg { namespace osn {
 
@@ -80,6 +81,7 @@ using std::string;
 using std::vector;
 using std::unique_lock;
 using std::unique_ptr;
+using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
@@ -170,11 +172,21 @@ void OpenSkyNet::initLocalImage()
 
     if(args_.bbox) {
         auto projBbox = image->spatialReference().fromLatLon(*args_.bbox);
-        auto pixelBbox = cv::Rect { image->projToPixel(projBbox.tl()), image->projToPixel(projBbox.br()) };
-        image->setBbox(pixelBbox);
-        blockSize_ = image->blockSize();
+        auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
+        auto intersect = projBbox & imageBbox;
+        DG_CHECK(!almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+
+        if(!almostEq(intersect, imageBbox)) {
+            auto llIntersect = image->spatialReference().toLatLon(intersect);
+            OSN_LOG(info) << "Provided bounding box is not fully within the image, the bounding box is adjusted to "
+                    << llIntersect.tl() << " : " << llIntersect.br();
+
+            auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
+            image->setBbox(pixelBbox);
+        }
     }
 
+    blockSize_ = image->blockSize();
     image_.reset(image.release());
 }
 
