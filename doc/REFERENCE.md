@@ -71,6 +71,10 @@ The default overlap is 30%.
 i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--nms 20` will result in non-maximum 
 suppression with 20% overlap.
 
+##### --include-labels / --exclude-labels
+This option will cause _OpenSkyNet_ to retain or remove labels in the in the output.  It is invalid to include both an
+inclusion and an exclusion list at the same time.
+
 <a name="landcover" />
 ### landcover
 
@@ -475,6 +479,10 @@ Feature Detection Options:
                                         output. You can optionally specify the 
                                         overlap threshold percentage for 
                                         non-maximum suppression calculation.
+  --include-labels LABEL [LABEL...]     Filter results to only include
+                                        specified labels.
+  --exclude-labels LABEL [LABEL...]     Filter results to exclude specified
+                                        labels.
 
 Logging Options:
   --log [LEVEL (=info)] PATH            Log to a file, a file name preceded by 
