@@ -231,9 +231,10 @@ void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
         parseArgs(argc, argv);
         validateArgs();
     } catch (...) {
-        if (!displayHelp) {
-            throw;
+        if (displayHelp) {
+            printUsage(action);
         }
+        throw;
     }
 
     if (displayHelp) {
