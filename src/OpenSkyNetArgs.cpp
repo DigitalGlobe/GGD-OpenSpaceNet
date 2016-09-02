@@ -31,6 +31,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/tokenizer.hpp>
 #include <fstream>
 #include <imagery/cv_program_options.hpp>
 #include <iomanip>
@@ -47,13 +48,12 @@ using boost::adaptors::reverse;
 using boost::filesystem::path;
 using boost::format;
 using boost::iequals;
-using boost::is_any_of;
 using boost::join;
 using boost::make_unique;
-using boost::split;
+using boost::tokenizer;
+using boost::escaped_list_separator;
 using boost::to_lower;
 using boost::to_lower_copy;
-using boost::token_compress_on;
 using std::cout;
 using std::find;
 using std::function;
@@ -157,6 +157,10 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name((format("[PERCENT (=%g)]") % overlap).str().c_str()),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
+         ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+          "Filter results to only include specified labels.")
+         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+          "Filter results to exclude specified labels.")
         ;
 
     loggingOptions_.add_options()
@@ -265,9 +269,9 @@ bool OpenSkyNetArgs::readOptional(const char* param, std::vector<std::string>& r
         if(splitArgs) {
             ret.clear();
             for(const auto& arg : args) {
-                std::vector<string> subArgs;
-                split(subArgs, arg, is_any_of(" "), token_compress_on);
-                ret.insert(end(ret), begin(subArgs), end(subArgs));
+                using so_tokenizer = tokenizer<escaped_list_separator<char> >;
+                so_tokenizer tok(arg, escaped_list_separator<char>('\\', ' ', '\"'));
+                ret.insert(end(ret), begin(tok), end(tok));
             }
         } else {
             ret = move(args);
@@ -521,6 +525,12 @@ void OpenSkyNetArgs::readProcessingArgs()
 
 void OpenSkyNetArgs::readFeatureDetectionArgs()
 {
+    readOptional("include-labels", includeLabels);
+    readOptional("exclude-labels", excludeLabels);
+    if (!includeLabels.empty() && !excludeLabels.empty()) {
+        DG_ERROR_THROW("Include and exclude labels may not be specified at the same time.");
+    }
+
     readOptional("confidence", confidence);
     stepSize = readOptional<cv::Point>("step-size");
     pyramid = vm_.find("pyramid") != end(vm_);

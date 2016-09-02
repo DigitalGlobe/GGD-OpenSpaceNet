@@ -86,6 +86,8 @@ public:
     bool pyramid = false;
     bool nms = false;
     float overlap = 30;
+    std::vector<std::string> includeLabels;
+    std::vector<std::string> excludeLabels;
 
     bool quiet = false;
 

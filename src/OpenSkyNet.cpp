@@ -34,6 +34,7 @@
 #include <classification/GbdxModelReader.h>
 #include <classification/NonMaxSuppression.h>
 #include <classification/SlidingWindowDetector.h>
+#include <classification/FilterLabels.h>
 #include <deque>
 #include <imagery/CvToLog.h>
 #include <imagery/GdalImage.h>
@@ -304,6 +305,19 @@ void OpenSkyNet::processConcurrent()
 
             Pyramid pyramid({ { item.second.size(), stepSize_ } });
             auto predictions = slidingWindowDetector.detect(item.second, pyramid);
+
+            if(!args_.excludeLabels.empty()) {
+                std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+                auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+                predictions = move(filtered);
+            }
+
+            if(!args_.includeLabels.empty()) {
+                std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+                auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+                predictions = move(filtered);
+            }
+
             for(auto& prediction : predictions) {
                 prediction.window.x += item.first.x;
                 prediction.window.y += item.first.y;
@@ -385,6 +399,22 @@ void OpenSkyNet::processSerial()
 
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
+
+    if(!args_.excludeLabels.empty()) {
+        skipLine();
+        OSN_LOG(info) << "Performing category filtering..." ;
+        std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+        auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+        predictions = move(filtered);
+    }
+
+    if(!args_.includeLabels.empty()) {
+        skipLine();
+        OSN_LOG(info) << "Performing category filtering..." ;
+        std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+        auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+        predictions = move(filtered);
+    }
 
     if(args_.nms) {
         skipLine();
