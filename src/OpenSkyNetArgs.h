@@ -102,6 +102,8 @@ public:
     void parseArgsAndProcess(int argc, const char* const* argv);
 
 private:
+    bool confidenceSet = false;
+    bool mapIdSet = false;
     bool displayHelp = false;
 
     void setupInitialLogging();

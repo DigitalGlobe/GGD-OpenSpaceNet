@@ -327,7 +327,7 @@ static bool readVariable(const char* param, variables_map vm, std::vector<std::s
     return false;
 }
 
-// Order of precidence: config files from env, env, config files from cli, cli.
+// Order of precedence: config files from env, env, config files from cli, cli.
 void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
@@ -379,25 +379,6 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
-{
-    // If "action" is "help", see if there's a topic. Display all help if there isn't
-    string topicStr;
-    if(action == Action::HELP) {
-        if(readVariable("help-topic", vm, topicStr)) {
-            action = parseAction(topicStr);
-            displayHelp = true;
-        } else {
-            printUsage();
-        }
-        displayHelp = true;
-    } else if(readVariable("help-topic", vm, topicStr)) {
-        // If we have "help" listed after the "action", we display help for that action
-        DG_CHECK(iequals(topicStr, "help"), "Invalid argument: %s", topicStr.c_str());
-        displayHelp = true;
-    }
-}
-
 void OpenSkyNetArgs::printUsage(Action action) const
 {
     switch(action) {
@@ -428,47 +409,45 @@ void OpenSkyNetArgs::printUsage(Action action) const
 }
 
 
-void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
-    // See if we have --config option(s), parse it if we do
-    std::vector<string> configFiles;
-    if (readVariable("config", vm, configFiles, splitArgs)) {
-        // Parse config files in reverse order because parse_config_file will not override existing options. This way
-        // options apply as "last one wins". The arguments specified on the command line always win.
-        for (const auto &configFile : reverse(configFiles)) {
-            variables_map config_vm;
-            po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), config_vm);
-            po::notify(config_vm);
-            readArgs(config_vm, true);
-        }
-    }
-
-    bbox = readVariable<cv::Rect2d>("bbox", vm);
-
-    string service;
-    if (readVariable("service", vm, service)) {
-        source = parseService(service);
-        readWebServiceArgs(vm);
-    } else if (readVariable("image", vm, image)) {
-        source = Source::LOCAL;
-    }
-
-    string actionString;
-    readVariable("action", vm, actionString);
-    action = parseAction(actionString);
-    maybeDisplayHelp(vm);
-
-    readWebServiceArgs(vm);
-    readProcessingArgs(vm);
-    readOutputArgs(vm);
-    readFeatureDetectionArgs(vm);
-    readLoggingArgs(vm);
-}
-
 void OpenSkyNetArgs::validateArgs()
 {
-    // Validate action args
-    if (action == Action::UNKNOWN) {
-        DG_ERROR_THROW("Invalid action.");
+    // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    bool unusedStepSize = false;
+    bool unusedNms= false;
+    bool unusedPyramid = false;
+    bool unusedConfidence = false;
+    switch (action) {
+        case Action::DETECT:
+            break;
+
+        case Action::LANDCOVER:
+            unusedStepSize = true;
+            unusedNms= true;
+            unusedPyramid = true;
+            unusedConfidence = true;
+            break;
+
+        case Action::HELP:
+            return;
+
+        default:
+            DG_ERROR_THROW("Invalid action.");
+    }
+
+    if (unusedStepSize && (stepSize.get() != nullptr)) {
+        OSN_LOG(warning) << "Argument --step-size is unused for LANDCOVER.";
+    }
+
+    if (unusedNms && nms) {
+        OSN_LOG(warning) << "Argument --nms is unused for LANDCOVER.";
+    }
+
+    if (unusedPyramid && pyramid) {
+        OSN_LOG(warning) << "Argument --pyramid is unused for LANDCOVER.";
+    }
+
+    if (unusedConfidence && confidenceSet) {
+        OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
     }
 
 
@@ -521,7 +500,7 @@ void OpenSkyNetArgs::validateArgs()
         OSN_LOG(warning) << "Argument --credentials is unused for " << sourceName << '.';
     }
 
-    if (unusedMapId && (mapId != MAPSAPI_MAPID)) {
+    if (unusedMapId && mapIdSet) {
         OSN_LOG(warning) << "Argument --mapId is unused for " << sourceName << '.';
     }
 
@@ -561,15 +540,6 @@ void OpenSkyNetArgs::validateArgs()
     }
 }
 
-void OpenSkyNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
-{
-    readVariable("mapId", vm, mapId);
-    readVariable("token", vm, token);
-    readVariable("credentials", vm, credentials);
-    readVariable("zoom", vm, zoom);
-    readVariable("num-downloads", vm, maxConnections);
-}
-
 void OpenSkyNetArgs::promptForPassword()
 {
     cout << "Enter your web service password: ";
@@ -577,6 +547,72 @@ void OpenSkyNetArgs::promptForPassword()
     credentials += ":";
     credentials += password;
 }
+
+
+void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
+    // See if we have --config option(s), parse it if we do
+    std::vector<string> configFiles;
+    if (readVariable("config", vm, configFiles, splitArgs)) {
+        // Parse config files in reverse order because parse_config_file will not override existing options. This way
+        // options apply as "last one wins". The arguments specified on the command line always win.
+        for (const auto &configFile : reverse(configFiles)) {
+            variables_map config_vm;
+            po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), config_vm);
+            po::notify(config_vm);
+            readArgs(config_vm, true);
+        }
+    }
+
+    bbox = readVariable<cv::Rect2d>("bbox", vm);
+
+    string service;
+    if (readVariable("service", vm, service)) {
+        source = parseService(service);
+        readWebServiceArgs(vm);
+    } else if (readVariable("image", vm, image)) {
+        source = Source::LOCAL;
+    }
+
+    string actionString;
+    readVariable("action", vm, actionString);
+    action = parseAction(actionString);
+    maybeDisplayHelp(vm);
+
+    readWebServiceArgs(vm);
+    readProcessingArgs(vm);
+    readOutputArgs(vm);
+    readFeatureDetectionArgs(vm);
+    readLoggingArgs(vm);
+}
+
+void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
+{
+    // If "action" is "help", see if there's a topic. Display all help if there isn't
+    string topicStr;
+    if(action == Action::HELP) {
+        if(readVariable("help-topic", vm, topicStr)) {
+            action = parseAction(topicStr);
+            displayHelp = true;
+        } else {
+            printUsage();
+        }
+        displayHelp = true;
+    } else if(readVariable("help-topic", vm, topicStr)) {
+        // If we have "help" listed after the "action", we display help for that action
+        DG_CHECK(iequals(topicStr, "help"), "Invalid argument: %s", topicStr.c_str());
+        displayHelp = true;
+    }
+}
+
+void OpenSkyNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
+{
+    mapIdSet |= readVariable("mapId", vm, mapId);
+    readVariable("token", vm, token);
+    readVariable("credentials", vm, credentials);
+    readVariable("zoom", vm, zoom);
+    readVariable("num-downloads", vm, maxConnections);
+}
+
 
 void OpenSkyNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
 {
@@ -613,7 +649,7 @@ void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
     readVariable("include-labels", vm, includeLabels, splitArgs);
     readVariable("exclude-labels", vm, excludeLabels, splitArgs);
 
-    readVariable("confidence", vm, confidence);
+    confidenceSet |= readVariable("confidence", vm, confidence);
     stepSize = readVariable<cv::Point>("step-size", vm);
     pyramid = vm.find("pyramid") != end(vm);
 
