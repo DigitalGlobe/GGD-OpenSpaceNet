@@ -72,7 +72,7 @@ i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--n
 suppression with 20% overlap.
 
 ##### --include-labels / --exclude-labels
-This option will cause _OpenSkyNet_ to retain or remove labels in the in the output.  It is invalid to include both an
+This option will cause _OpenSkyNet_ to retain or remove labels in the output.  It is invalid to include both an
 inclusion and an exclusion list at the same time.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
