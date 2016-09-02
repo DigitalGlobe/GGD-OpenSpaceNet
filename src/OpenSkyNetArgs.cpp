@@ -27,7 +27,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -36,6 +35,7 @@
 #include <imagery/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
+#include <utility/program_options.hpp>
 #include <vector/FeatureSet.h>
 
 namespace dg { namespace osn {
@@ -45,10 +45,10 @@ namespace po = boost::program_options;
 using namespace deepcore;
 
 using boost::program_options::variables_map;
+using boost::program_options::name_with_default;
 using dg::deepcore::level_t;
 using boost::adaptors::reverse;
 using boost::filesystem::path;
-using boost::format;
 using boost::iequals;
 using boost::join;
 using boost::make_unique;
@@ -87,7 +87,6 @@ static const string OSN_LANDCOVER_USAGE =
         "Usage:\n"
         "  OpenSkyNet landcover <input options> <output options> <processing options>\n\n";
 
-
 OpenSkyNetArgs::OpenSkyNetArgs() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
@@ -111,9 +110,9 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
          "Credentials for the map service. Not required for Web Maps API. If password is not specified, you will be "
          "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
-        ("zoom", po::value<int>()->default_value(zoom)->value_name("ZOOM"), "Zoom level.")
-        ("mapId", po::value<string>()->default_value(MAPSAPI_MAPID), "MapsAPI map id to use.")
-        ("num-downloads", po::value<int>()->default_value(maxConnections)->value_name("NUM"),
+        ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", zoom)), "Zoom level.")
+        ("mapId", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
+        ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
          "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
         ;
 
@@ -126,20 +125,20 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     });
 
     outputOptions_.add_options()
-        ("format", po::value<string>()->default_value("shp")->value_name("FORMAT")->notifier(formatNotifier),
+        ("format", po::value<string>()->value_name(name_with_default("FORMAT", outputFormat))->notifier(formatNotifier),
          outputDescription.c_str())
         ("output", po::value<string>()->value_name("PATH"),
          "Output location with file name and path or URL.")
-        ("output-layer", po::value<string>()->value_name("NAME (=skynetdetects)"),
+        ("output-layer", po::value<string>()->value_name(name_with_default("NAME", "skynetdetects")),
          "The output layer name, index name, or table name.")
-        ("type", po::value<string>()->default_value("polygon")->value_name("TYPE"),
+        ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
          "Output geometry type.  Currently only point and polygon are valid.")
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
         ;
 
     processingOptions_.add_options()
         ("cpu", "Use the CPU for processing, the default it to use the GPU.")
-        ("max-utilization", po::value<float>()->default_value(maxUtitilization)->value_name("PERCENT"),
+        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtitilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
         ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
@@ -148,7 +147,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ;
 
     detectOptions_.add_options()
-        ("confidence", po::value<float>()->default_value(confidence)->value_name("PERCENT"),
+        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", confidence)),
          "Minimum percent score for results to be included in the output.")
         ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
          "Sliding window step size. Default value is log2 of the model window size. Step size can be specified in "
@@ -156,7 +155,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("pyramid",
          "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
              "in additional features being detected.")
-        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name((format("[PERCENT (=%g)]") % overlap).str().c_str()),
+        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
          ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),

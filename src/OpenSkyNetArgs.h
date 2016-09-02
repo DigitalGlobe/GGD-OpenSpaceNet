@@ -69,8 +69,8 @@ public:
     std::string mapId = MAPSAPI_MAPID;
 
     // Output options
-    deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::UNKNOWN;
-    std::string outputFormat;
+    deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::POLYGON;
+    std::string outputFormat = "shp";
     std::string outputPath;
     std::string layerName;
     bool producerInfo = false;
