@@ -385,8 +385,7 @@ void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
     string topicStr;
     if(action == Action::HELP) {
         if(readVariable("help-topic", vm, topicStr)) {
-            auto topic = parseAction(topicStr);
-            action = topic;
+            action = parseAction(topicStr);
             displayHelp = true;
         } else {
             printUsage();
@@ -480,18 +479,21 @@ void OpenSkyNetArgs::validateArgs()
     bool requireToken = false;
     bool unusedCredentials = false;
     bool requireCredentials = false;
+    string sourceName;
 
     switch (source) {
         case Source::LOCAL:
             unusedMapId = true;
             unusedToken = true;
             unusedCredentials = true;
+            sourceName = "a local image";
             break;
 
         case Source::MAPS_API:
             requireBbox = true;
             requireToken = true;
             unusedCredentials = true;
+            sourceName = "maps-api";
             break;
 
         case Source::DGCS:
@@ -500,6 +502,7 @@ void OpenSkyNetArgs::validateArgs()
             requireToken = true;
             requireCredentials = true;
             unusedMapId = true;
+            sourceName = "dgcs or evwhs";
             break;
 
         default:
@@ -507,50 +510,54 @@ void OpenSkyNetArgs::validateArgs()
     }
 
     if (requireToken && token.empty()) {
-        DG_ERROR_THROW("The --token argument is required if the source is a web service.");
+        DG_ERROR_THROW("Argument --token is required for %s.", sourceName.c_str());
     } else if (unusedToken && !token.empty()) {
-        OSN_LOG(warning) << "The --token argument is unused for local images.";
+        OSN_LOG(warning) << "Argument --token is unused for " << sourceName << '.';
     }
 
     if (requireCredentials && credentials.empty()) {
-        DG_ERROR_THROW("The --credentials argument is required for dgcs and maps-api.");
-    } else if (requireCredentials && credentials.find(':') == string::npos) {
-        promptForPassword();
+        DG_ERROR_THROW("Argument --credentials argument is required for %s.", sourceName.c_str());
     } else if (unusedCredentials && !credentials.empty()) {
-        OSN_LOG(warning) << "The --credentials argument is unused for local images and maps_api.";
+        OSN_LOG(warning) << "Argument --credentials is unused for " << sourceName << '.';
     }
 
-    if (unusedMapId && !mapId.empty()) {
-        DG_ERROR_THROW("The --mapId argument is not used unless the source is maps-api.");
+    if (unusedMapId && (mapId != MAPSAPI_MAPID)) {
+        OSN_LOG(warning) << "Argument --mapId is unused for " << sourceName << '.';
     }
 
-    if (requireBbox && (bbox.get()!=nullptr)) {
-        DG_ERROR_THROW("The --bbox argument is required for web services.");
+    if (requireBbox && (bbox.get() == nullptr)) {
+        DG_ERROR_THROW("Argument --bbox is required for %s.", sourceName.c_str());
     }
 
 
     // validate model and detection
     if (modelPath.empty()) {
-        DG_ERROR_THROW("The --model argument is required.");
+        DG_ERROR_THROW("Argument --model is required.");
     }
 
     if (!includeLabels.empty() && !excludeLabels.empty()) {
-        DG_ERROR_THROW("Include and exclude labels may not be specified at the same time.");
+        DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
 
     // validate output
     if (outputPath.empty()) {
-        DG_ERROR_THROW("The --output argument is required.");
+        DG_ERROR_THROW("Argument --output is required.");
     }
 
     if(outputFormat  == "shp") {
         if(!layerName.empty()) {
-            OSN_LOG(warning) << "The --output-layer argument is ignored for Shapefile output.";
+            OSN_LOG(warning) << "Argument --output-layer is ignored for Shapefile output.";
         }
         layerName = path(outputPath).stem().filename().string();
     } else if(layerName.empty()) {
         layerName = "skynetdetects";
+    }
+
+
+    // Ask for password, if not specified
+    if (requireCredentials && !displayHelp && credentials.find(':') == string::npos) {
+        promptForPassword();
     }
 }
 
