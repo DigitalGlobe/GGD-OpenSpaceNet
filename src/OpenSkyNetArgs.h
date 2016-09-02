@@ -31,8 +31,6 @@
 #define OSN_LOG(sev) DG_LOG(OpenSkyNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
-using boost::program_options::variables_map;
-using dg::deepcore::level_t;
 
 namespace dg { namespace osn {
 
@@ -93,10 +91,10 @@ public:
     std::vector<std::string> excludeLabels;
 
     // Logging options
-    bool quiet;
-    level_t consoleLogLevel = level_t::info;
+    bool quiet = false;
+    dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
-    level_t fileLogLevel = level_t::debug;
+    dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
     OpenSkyNetArgs();
     void parseArgsAndProcess(int argc, const char* const* argv);
@@ -109,15 +107,15 @@ private:
     void setupInitialLogging();
     void setupLogging();
     void parseArgs(int argc, const char* const* argv);
-    void maybeDisplayHelp(variables_map vm);
+    void maybeDisplayHelp(boost::program_options::variables_map vm);
     void printUsage(Action action=Action::UNKNOWN) const;
-    void readArgs(variables_map vm, bool splitArgs=false);
-    void readWebServiceArgs(variables_map vm, bool splitArgs=false);
+    void readArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void promptForPassword();
-    void readOutputArgs(variables_map vm, bool splitArgs=false);
-    void readProcessingArgs(variables_map vm, bool splitArgs=false);
-    void readFeatureDetectionArgs(variables_map vm, bool splitArgs=false);
-    void readLoggingArgs(variables_map vm, bool splitArgs=false);
+    void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
 
     void validateArgs();
 

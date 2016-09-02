@@ -44,6 +44,8 @@ namespace po = boost::program_options;
 
 using namespace deepcore;
 
+using boost::program_options::variables_map;
+using dg::deepcore::level_t;
 using boost::adaptors::reverse;
 using boost::filesystem::path;
 using boost::format;
