@@ -594,9 +594,6 @@ void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
     if(action == Action::HELP) {
         if(readVariable("help-topic", vm, topicStr)) {
             action = parseAction(topicStr);
-            displayHelp = true;
-        } else {
-            printUsage();
         }
         displayHelp = true;
     } else if(readVariable("help-topic", vm, topicStr)) {
