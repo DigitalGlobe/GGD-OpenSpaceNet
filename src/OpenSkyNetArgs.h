@@ -31,6 +31,7 @@
 #define OSN_LOG(sev) DG_LOG(OpenSkyNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
+
 namespace dg { namespace osn {
 
 enum class Source
@@ -89,32 +90,34 @@ public:
     std::vector<std::string> includeLabels;
     std::vector<std::string> excludeLabels;
 
+    // Logging options
     bool quiet = false;
+    dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
+    std::string fileLogPath;
+    dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
     OpenSkyNetArgs();
     void parseArgsAndProcess(int argc, const char* const* argv);
 
 private:
-    void setupConsoleLogging();
-    template<class T>
-    bool readOptional(const char* param, T& ret);
-    template <typename T>
-    std::unique_ptr<T> readOptional(const char* param);
-    bool readOptional(const char* param, std::vector<std::string>& ret, bool splitArgs=true);
-    template<class T>
-    T readRequired(const char* param, const char* errorMsg = nullptr, bool showUsage=false);
+    bool confidenceSet = false;
+    bool mapIdSet = false;
+    bool displayHelp = false;
+
+    void setupInitialLogging();
+    void setupLogging();
     void parseArgs(int argc, const char* const* argv);
-    Action parseAction(std::string str) const;
-    Source parseService(std::string service) const;
-    bool maybeDisplayHelp();
+    void maybeDisplayHelp(boost::program_options::variables_map vm);
     void printUsage(Action action=Action::UNKNOWN) const;
-    void readArgs();
-    void readWebServiceArgs();
+    void readArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void promptForPassword();
-    void readOutputArgs();
-    void readProcessingArgs();
-    void readFeatureDetectionArgs();
-    void readLoggingArgs();
+    void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+
+    void validateArgs();
 
     boost::program_options::options_description localOptions_;
     boost::program_options::options_description webOptions_;
@@ -129,8 +132,6 @@ private:
     boost::program_options::options_description optionsDescription_;
 
     std::vector<std::string> supportedFormats_;
-
-    boost::program_options::variables_map vm_;
 
     boost::shared_ptr<deepcore::log::sinks::sink> cerrSink_;
     boost::shared_ptr<deepcore::log::sinks::sink> coutSink_;

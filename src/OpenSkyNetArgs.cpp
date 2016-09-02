@@ -44,6 +44,8 @@ namespace po = boost::program_options;
 
 using namespace deepcore;
 
+using boost::program_options::variables_map;
+using dg::deepcore::level_t;
 using boost::adaptors::reverse;
 using boost::filesystem::path;
 using boost::format;
@@ -217,17 +219,36 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
 
 void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
 {
-    setupConsoleLogging();
-    parseArgs(argc, argv);
+    setupInitialLogging();
 
-    if(maybeDisplayHelp()) {
+    for (int i = 1; i < argc;  ++i) {
+        if(strcmp(argv[i], "--help") == 0) {
+            displayHelp = true;
+        }
+    }
+
+    try {
+        parseArgs(argc, argv);
+        validateArgs();
+    } catch (...) {
+        if (displayHelp) {
+            printUsage(action);
+        }
+        throw;
+    }
+
+    if (displayHelp) {
+        printUsage(action);
         return;
     }
 
-    readArgs();
+    setupLogging();
+
+    OpenSkyNet osn(*this);
+    osn.process();
 }
 
-void OpenSkyNetArgs::setupConsoleLogging()
+void OpenSkyNetArgs::setupInitialLogging()
 {
     log::init();
 
@@ -238,11 +259,37 @@ void OpenSkyNetArgs::setupConsoleLogging()
                                 dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
+void OpenSkyNetArgs::setupLogging() {
+    quiet = consoleLogLevel < level_t::warning;
+
+    // If no file is specified, assert that warning and above goes to the console
+    if (fileLogPath.empty() && consoleLogLevel > level_t::warning) {
+        consoleLogLevel = level_t::warning;
+    }
+
+    // If we have all the arguments parsed correctly, now is the time to turn off console logging
+    if(consoleLogLevel > level_t::info) {
+        log::removeSink(coutSink_);
+        log::removeSink(cerrSink_);
+        cerrSink_ = log::addCerrSink(consoleLogLevel, level_t::fatal, log::dg_log_format::dg_short_log);
+    } else if(consoleLogLevel < level_t::info) {
+        log::removeSink(coutSink_);
+        coutSink_ = log::addCoutSink(consoleLogLevel, level_t::info, log::dg_log_format::dg_short_log);
+    }
+
+    // Setup a file logger
+    if (!fileLogPath.empty()) {
+        auto ofs = boost::make_shared<ofstream>(fileLogPath);
+        DG_CHECK(!ofs->fail(), "Error opening log file %s for writing.", fileLogPath.c_str());
+        log::addStreamSink(ofs, fileLogLevel, level_t::fatal, log::dg_log_format::dg_long_log);
+    }
+}
+
 template<class T>
-bool OpenSkyNetArgs::readOptional(const char* param, T& ret)
+static bool readVariable(const char* param, variables_map vm, T& ret)
 {
-    auto it = vm_.find(param);
-    if(it != end(vm_)) {
+    auto it = vm.find(param);
+    if(it != end(vm)) {
         ret = it->second.as<T>();
         return true;
     }
@@ -251,20 +298,20 @@ bool OpenSkyNetArgs::readOptional(const char* param, T& ret)
 }
 
 template <typename T>
-unique_ptr<T> OpenSkyNetArgs::readOptional(const char* param)
+static unique_ptr<T> readVariable(const char* param, variables_map vm)
 {
-    auto it = vm_.find(param);
-    if(it != end(vm_)) {
+    auto it = vm.find(param);
+    if(it != end(vm)) {
         return make_unique<T>(it->second.as<T>());
     } else {
         return unique_ptr<T>();
     }
 }
 
-bool OpenSkyNetArgs::readOptional(const char* param, std::vector<std::string>& ret, bool splitArgs)
+static bool readVariable(const char* param, variables_map vm, std::vector<std::string>& ret, bool splitArgs)
 {
-    auto it = vm_.find(param);
-    if(it != end(vm_)) {
+    auto it = vm.find(param);
+    if(it != end(vm)) {
         auto args = it->second.as<std::vector<string>>();
         if(splitArgs) {
             ret.clear();
@@ -283,67 +330,31 @@ bool OpenSkyNetArgs::readOptional(const char* param, std::vector<std::string>& r
     return false;
 }
 
-template<class T>
-T OpenSkyNetArgs::readRequired(const char* param, const char* errorMsg, bool showUsage)
-{
-    auto it = vm_.find(param);
-    if(it == end(vm_)) {
-        if(showUsage) {
-            printUsage();
-        }
-
-        if(errorMsg) {
-            DG_ERROR_THROW(errorMsg);
-        } else {
-            DG_ERROR_THROW("Missing required parameter --%s.", param);
-        }
-    }
-
-    return it->second.as<T>();
-}
-
+// Order of precedence: config files from env, env, config files from cli, cli.
 void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
 {
-    if(argc < 2) {
-        printUsage();
-        DG_ERROR_THROW("Must have at least 1 argument.");
-    }
-
     po::positional_options_description pd;
     pd.add("action", 1)
       .add("help-topic", 1);
 
+    // parse environment variable options
+    variables_map environment_vm;
+    po::store(po::parse_environment(optionsDescription_, "OSN_"), environment_vm);
+    po::notify(environment_vm);
+    readArgs(environment_vm, true);
+
     // parse regular and positional options
+    variables_map command_line_vm;
     po::store(po::command_line_parser(argc, argv)
                   .extra_style_parser(&po::ignore_numbers)
                   .options(optionsDescription_)
                   .positional(pd)
-                  .run(), vm_);
-    po::notify(vm_);
-
-    // parse environment variable options
-    po::store(po::parse_environment(optionsDescription_, "OSN_"), vm_);
-
-    // See if we have --config option(s), parse it if we do
-    std::vector<string> configFiles;
-    if(readOptional("config", configFiles)) {
-        // Parse config files in reverse order because parse_config_file will not override existing options. This way
-        // options apply as "last one wins". The arguments specified on the command line always win.
-        for(const auto& configFile : reverse(configFiles)) {
-            po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), vm_);
-            po::notify(vm_);
-        }
-    }
-
-    action = parseAction(readRequired<string>("action", "Action must be specified.", true));
-
-    if(action == Action::UNKNOWN) {
-        printUsage();
-        DG_ERROR_THROW("Invalid action.");
-    }
+                  .run(), command_line_vm);
+    po::notify(command_line_vm);
+    readArgs(command_line_vm);
 }
 
-Action OpenSkyNetArgs::parseAction(string str) const
+static Action parseAction(string str)
 {
     to_lower(str);
     if(str == "help") {
@@ -357,7 +368,7 @@ Action OpenSkyNetArgs::parseAction(string str) const
     return Action::UNKNOWN;
 }
 
-Source OpenSkyNetArgs::parseService(string service) const
+static Source parseService(string service)
 {
     to_lower(service);
     if(service == "dgcs") {
@@ -369,30 +380,6 @@ Source OpenSkyNetArgs::parseService(string service) const
     }
 
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
-}
-
-bool OpenSkyNetArgs::maybeDisplayHelp()
-{
-    // If "action" is "help", see if there's a topic. Display all help if there isn't
-    string topicStr;
-    if(action == Action::HELP) {
-        if(readOptional("help-topic", topicStr)) {
-            auto topic = parseAction(topicStr);
-            printUsage(topic);
-            DG_CHECK(topic != Action::UNKNOWN, "Invalid help topic specified.");
-        } else {
-            printUsage();
-        }
-        return true;
-    } else if(readOptional("help-topic", topicStr)){
-        // If we have "help" listed after the "action", we display help for that action
-        DG_CHECK(iequals(topicStr, "help"), "Invalid argument: %s", topicStr.c_str());
-
-        printUsage(action);
-        return true;
-    }
-
-    return false;
 }
 
 void OpenSkyNetArgs::printUsage(Action action) const
@@ -425,54 +412,135 @@ void OpenSkyNetArgs::printUsage(Action action) const
 }
 
 
-void OpenSkyNetArgs::readArgs()
+void OpenSkyNetArgs::validateArgs()
 {
-    bbox = readOptional<cv::Rect2d>("bbox");
+    // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    bool unusedStepSize = false;
+    bool unusedNms= false;
+    bool unusedPyramid = false;
+    bool unusedConfidence = false;
+    switch (action) {
+        case Action::DETECT:
+            break;
 
-    string service;
-    if(readOptional("service", service)) {
-        source = parseService(service);
-        readWebServiceArgs();
-    } else {
-        image = readRequired<string>("image", "No input specified, either --service or --image argument must be present.");
-        source = Source::LOCAL;
+        case Action::LANDCOVER:
+            unusedStepSize = true;
+            unusedNms= true;
+            unusedPyramid = true;
+            unusedConfidence = true;
+            break;
+
+        case Action::HELP:
+            return;
+
+        default:
+            DG_ERROR_THROW("Invalid action.");
     }
 
-    readProcessingArgs();
-    readOutputArgs();
-    readFeatureDetectionArgs();
-    readLoggingArgs();
+    if (unusedStepSize && (stepSize.get() != nullptr)) {
+        OSN_LOG(warning) << "Argument --step-size is unused for LANDCOVER.";
+    }
 
-    // If we have all the arguments parsed correctly, now is the time to turn off console logging
-    if(vm_.find("quiet") != end(vm_)) {
-        log::removeSink(coutSink_);
+    if (unusedNms && nms) {
+        OSN_LOG(warning) << "Argument --nms is unused for LANDCOVER.";
+    }
 
-        // Turn off error logging as well, but only if we are writing a log file
-        if(vm_.find("log") != end(vm_)) {
-            log::removeSink(cerrSink_);
+    if (unusedPyramid && pyramid) {
+        OSN_LOG(warning) << "Argument --pyramid is unused for LANDCOVER.";
+    }
+
+    if (unusedConfidence && confidenceSet) {
+        OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
+    }
+
+
+    // Validate source args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    bool unusedMapId = false;
+    bool requireBbox = false;
+    bool unusedToken = false;
+    bool requireToken = false;
+    bool unusedCredentials = false;
+    bool requireCredentials = false;
+    string sourceName;
+
+    switch (source) {
+        case Source::LOCAL:
+            unusedMapId = true;
+            unusedToken = true;
+            unusedCredentials = true;
+            sourceName = "a local image";
+            break;
+
+        case Source::MAPS_API:
+            requireBbox = true;
+            requireToken = true;
+            unusedCredentials = true;
+            sourceName = "maps-api";
+            break;
+
+        case Source::DGCS:
+        case Source::EVWHS:
+            requireBbox = true;
+            requireToken = true;
+            requireCredentials = true;
+            unusedMapId = true;
+            sourceName = "dgcs or evwhs";
+            break;
+
+        default:
+            DG_ERROR_THROW("Source is unknown or unspecified");
+    }
+
+    if (requireToken && token.empty()) {
+        DG_ERROR_THROW("Argument --token is required for %s.", sourceName.c_str());
+    } else if (unusedToken && !token.empty()) {
+        OSN_LOG(warning) << "Argument --token is unused for " << sourceName << '.';
+    }
+
+    if (requireCredentials && credentials.empty()) {
+        DG_ERROR_THROW("Argument --credentials argument is required for %s.", sourceName.c_str());
+    } else if (unusedCredentials && !credentials.empty()) {
+        OSN_LOG(warning) << "Argument --credentials is unused for " << sourceName << '.';
+    }
+
+    if (unusedMapId && mapIdSet) {
+        OSN_LOG(warning) << "Argument --mapId is unused for " << sourceName << '.';
+    }
+
+    if (requireBbox && (bbox.get() == nullptr)) {
+        DG_ERROR_THROW("Argument --bbox is required for %s.", sourceName.c_str());
+    }
+
+
+    // validate model and detection
+    if (modelPath.empty()) {
+        DG_ERROR_THROW("Argument --model is required.");
+    }
+
+    if (!includeLabels.empty() && !excludeLabels.empty()) {
+        DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
+    }
+
+
+    // validate output
+    if (outputPath.empty()) {
+        DG_ERROR_THROW("Argument --output is required.");
+    }
+
+    if(outputFormat  == "shp") {
+        if(!layerName.empty()) {
+            OSN_LOG(warning) << "Argument --output-layer is ignored for Shapefile output.";
         }
-        quiet = true;
+        layerName = path(outputPath).stem().filename().string();
+    } else if(layerName.empty()) {
+        layerName = "skynetdetects";
     }
 
-    OpenSkyNet osn(*this);
-    osn.process();
-}
 
-void OpenSkyNetArgs::readWebServiceArgs()
-{
-    DG_CHECK(bbox, "The --bbox argument is required for web services.");
-
-    if(source == Source::MAPS_API) {
-        readOptional("mapId", mapId);
-    }
-
-    token = readRequired<string>("token");
-    if(readOptional("credentials", credentials) && credentials.find(':') == string::npos) {
+    // Ask for password, if not specified
+    if (requireCredentials && !displayHelp && credentials.find(':') == string::npos) {
         promptForPassword();
     }
-
-    readOptional("zoom", zoom);
-    readOptional("num-downloads", maxConnections);
 }
 
 void OpenSkyNetArgs::promptForPassword()
@@ -483,26 +551,79 @@ void OpenSkyNetArgs::promptForPassword()
     credentials += password;
 }
 
-void OpenSkyNetArgs::readOutputArgs()
-{
-    readOptional("format", outputFormat);
-    to_lower(outputFormat);
 
-    outputPath = readRequired<string>("output");
-
-    auto layerSpecified = readOptional("output-layer", layerName);
-
-    if(outputFormat  == "shp") {
-        if(layerSpecified) {
-            OSN_LOG(warning) << "output-layer argument is ignored for Shapefile output.";
+void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
+    // See if we have --config option(s), parse it if we do
+    std::vector<string> configFiles;
+    if (readVariable("config", vm, configFiles, splitArgs)) {
+        // Parse config files in reverse order because parse_config_file will not override existing options. This way
+        // options apply as "last one wins". The arguments specified on the command line always win.
+        for (const auto &configFile : reverse(configFiles)) {
+            variables_map config_vm;
+            po::store(po::parse_config_file<char>(configFile.c_str(), optionsDescription_), config_vm);
+            po::notify(config_vm);
+            readArgs(config_vm, true);
         }
-        layerName = path(outputPath).stem().filename().string();
-    } else if(!layerSpecified) {
-        layerName = "skynetdetects";
     }
 
+    bbox = readVariable<cv::Rect2d>("bbox", vm);
+
+    string service;
+    if (readVariable("service", vm, service)) {
+        source = parseService(service);
+        readWebServiceArgs(vm);
+    } else if (readVariable("image", vm, image)) {
+        source = Source::LOCAL;
+    }
+
+    string actionString;
+    readVariable("action", vm, actionString);
+    action = parseAction(actionString);
+    maybeDisplayHelp(vm);
+
+    readWebServiceArgs(vm);
+    readProcessingArgs(vm);
+    readOutputArgs(vm);
+    readFeatureDetectionArgs(vm);
+    readLoggingArgs(vm);
+}
+
+void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
+{
+    // If "action" is "help", see if there's a topic. Display all help if there isn't
+    string topicStr;
+    if(action == Action::HELP) {
+        if(readVariable("help-topic", vm, topicStr)) {
+            action = parseAction(topicStr);
+        }
+        displayHelp = true;
+    } else if(readVariable("help-topic", vm, topicStr)) {
+        // If we have "help" listed after the "action", we display help for that action
+        DG_CHECK(iequals(topicStr, "help"), "Invalid argument: %s", topicStr.c_str());
+        displayHelp = true;
+    }
+}
+
+void OpenSkyNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
+{
+    mapIdSet |= readVariable("mapId", vm, mapId);
+    readVariable("token", vm, token);
+    readVariable("credentials", vm, credentials);
+    readVariable("zoom", vm, zoom);
+    readVariable("num-downloads", vm, maxConnections);
+}
+
+
+void OpenSkyNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
+{
+    readVariable("format", vm, outputFormat);
+    to_lower(outputFormat);
+
+    readVariable("output", vm, outputPath);
+    readVariable("output-layer", vm, layerName);
+
     string typeStr = "polygon";
-    readOptional("type", typeStr);
+    readVariable("type", vm, typeStr);
     to_lower(typeStr);
     if(typeStr == "polygon") {
         geometryType = GeometryType::POLYGON;
@@ -512,66 +633,57 @@ void OpenSkyNetArgs::readOutputArgs()
         DG_ERROR_THROW("Invalid geometry type: %s", typeStr.c_str());
     }
 
-    producerInfo = vm_.find("producer-info") != end(vm_);
+    producerInfo = vm.find("producer-info") != end(vm);
 }
 
-void OpenSkyNetArgs::readProcessingArgs()
+void OpenSkyNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
 {
-    useCpu = vm_.find("cpu") != end(vm_);
-    readOptional("max-utilization", maxUtitilization);
-    modelPath = readRequired<string>("model");
-    windowSize = readOptional<cv::Size>("window-size");
+    useCpu = vm.find("cpu") != end(vm);
+    readVariable("max-utilization", vm, maxUtitilization);
+    readVariable("model", vm, modelPath);
+    windowSize = readVariable<cv::Size>("window-size", vm);
 }
 
-void OpenSkyNetArgs::readFeatureDetectionArgs()
+void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
-    readOptional("include-labels", includeLabels);
-    readOptional("exclude-labels", excludeLabels);
-    if (!includeLabels.empty() && !excludeLabels.empty()) {
-        DG_ERROR_THROW("Include and exclude labels may not be specified at the same time.");
-    }
+    readVariable("include-labels", vm, includeLabels, splitArgs);
+    readVariable("exclude-labels", vm, excludeLabels, splitArgs);
 
-    readOptional("confidence", confidence);
-    stepSize = readOptional<cv::Point>("step-size");
-    pyramid = vm_.find("pyramid") != end(vm_);
+    confidenceSet |= readVariable("confidence", vm, confidence);
+    stepSize = readVariable<cv::Point>("step-size", vm);
+    pyramid = vm.find("pyramid") != end(vm);
 
-    if(vm_.find("nms") != end(vm_)) {
+    if(vm.find("nms") != end(vm)) {
         nms = true;
         std::vector<float> args;
-        readOptional("nms", args);
+        readVariable("nms", vm, args);
         if(args.size()) {
             overlap = args[0];
         }
     }
 }
 
-void OpenSkyNetArgs::readLoggingArgs()
+void OpenSkyNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
 {
-    if(vm_.find("trace") != end(vm_)) {
-        log::removeSink(coutSink_);
-        coutSink_ = log::addCoutSink(level_t::trace, level_t::info, log::dg_log_format::dg_short_log);
-    } else if(vm_.find("debug") != end(vm_)) {
-        log::removeSink(coutSink_);
-        coutSink_ = log::addCoutSink(level_t::debug, level_t::info, dg::deepcore::log::dg_log_format::dg_short_log);
+    if(vm.find("quiet") != end(vm)) {
+        consoleLogLevel = level_t::fatal;
+    } if(vm.find("trace") != end(vm)) {
+        consoleLogLevel = level_t::trace;
+    } else if(vm.find("debug") != end(vm)) {
+        consoleLogLevel = level_t::debug;
     }
 
     std::vector<string> logArgs;
-    if(readOptional("log", logArgs)) {
+    if(readVariable("log", vm, logArgs, splitArgs)) {
         DG_CHECK(!logArgs.empty(), "Log path must be specified");
-        auto level = level_t::debug;
-        string path;
+        fileLogLevel = level_t::debug;
 
         if(logArgs.size() == 1) {
-            path = logArgs[0];
+            fileLogPath = logArgs[0];
         } else {
-            level = log::stringToLevel(logArgs[0]);
-            path = logArgs[1];
+            fileLogLevel = log::stringToLevel(logArgs[0]);
+            fileLogPath = logArgs[1];
         }
-
-        auto ofs = boost::make_shared<ofstream>(path);
-        DG_CHECK(!ofs->fail(), "Error opening log file %s for writing.", path.c_str());
-
-        log::addStreamSink(ofs, level, level_t::fatal, log::dg_long_log);
     }
 }
 

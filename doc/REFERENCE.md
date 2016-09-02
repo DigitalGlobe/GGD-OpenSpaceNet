@@ -72,8 +72,13 @@ i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--n
 suppression with 20% overlap.
 
 ##### --include-labels / --exclude-labels
-This option will cause _OpenSkyNet_ to retain or remove labels in the in the output.  It is invalid to include both an
+This option will cause _OpenSkyNet_ to retain or remove labels in the output.  It is invalid to include both an
 inclusion and an exclusion list at the same time.
+
+When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
+required to keep inputs together.
+
+Arguments specified here are additive between the environment, configuration files, and command line.
 
 <a name="landcover" />
 ### landcover
@@ -274,6 +279,11 @@ filling the edges with random noise. Override window size must be equal or small
 This option specifies a log file that _OpenSkyNet_ writes to. Optionally a log level can be specified. Permitted log level values are
 `trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `info`.
 
+When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
+required to keep inputs together.
+
+Only one log file may only be specified.
+
 i.e. 
 `--log log.txt` will create a log file with the log level of `info`
 `--log debug log.txt` will create a log file with the log level of `debug`
@@ -313,6 +323,13 @@ If you try to specify ~~`nms`~~ or ~~`nms=`~~ an error will be displayed.
 
 If a configuration file contains an option that is also specified through a command line parameter, the command line parameter takes
 precedence. If multiple configuration files contain the same option, the option in the file specified last will be used.
+
+When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
+required to keep inputs together.
+
+Configuration files may be included in the command line, environment, and other configuration files (and multiple times
+within each).  The arguments have precedence immediately below the method which brought in the file.
+
 
 ### Example Using a Configuration File for All Options
 
