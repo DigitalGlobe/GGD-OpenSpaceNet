@@ -282,7 +282,7 @@ This option specifies a log file that _OpenSkyNet_ writes to. Optionally a log l
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
 required to keep inputs together.
 
-Arguments specified here are additive between the environment, configuration files, and command line.
+Only one log file may only be specified.
 
 i.e. 
 `--log log.txt` will create a log file with the log level of `info`
