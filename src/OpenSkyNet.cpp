@@ -134,7 +134,7 @@ void OpenSkyNet::initModel()
         windowSize_ = modelPackage->metadata().windowSize();
     }
 
-    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtitilization / 100));
+    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100));
 
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
