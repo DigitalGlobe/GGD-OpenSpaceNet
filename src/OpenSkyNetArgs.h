@@ -77,7 +77,7 @@ public:
 
     // Processing options
     bool useCpu = false;
-    float maxUtitilization = 95;
+    float maxUtilization = 95;
     std::string modelPath;
     std::unique_ptr<cv::Size> windowSize;
 

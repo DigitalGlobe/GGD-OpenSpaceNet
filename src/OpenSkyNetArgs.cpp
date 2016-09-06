@@ -138,7 +138,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
 
     processingOptions_.add_options()
         ("cpu", "Use the CPU for processing, the default it to use the GPU.")
-        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtitilization)),
+        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
         ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
@@ -165,7 +165,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ;
 
     loggingOptions_.add_options()
-        ("log", po::bounded_value<std::vector<string>>()->min_tokens(1)->max_tokens(2)->value_name("[LEVEL (=info)] PATH"),
+        ("log", po::bounded_value<std::vector<string>>()->min_tokens(1)->max_tokens(2)->value_name("[LEVEL (=debug)] PATH"),
          "Log to a file, a file name preceded by an optional log level must be specified. Permitted values for log "
          "level are: trace, debug, info, warning, error, fatal.")
         ("quiet", "If set, no output will be sent to console, only a log file, if specified.")
@@ -259,7 +259,7 @@ void OpenSkyNetArgs::setupInitialLogging()
 }
 
 void OpenSkyNetArgs::setupLogging() {
-    quiet = consoleLogLevel < level_t::warning;
+    quiet = consoleLogLevel < level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
     if (fileLogPath.empty() && consoleLogLevel > level_t::warning) {
@@ -638,7 +638,7 @@ void OpenSkyNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
 void OpenSkyNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
 {
     useCpu = vm.find("cpu") != end(vm);
-    readVariable("max-utilization", vm, maxUtitilization);
+    readVariable("max-utilization", vm, maxUtilization);
     readVariable("model", vm, modelPath);
     windowSize = readVariable<cv::Size>("window-size", vm);
 }
