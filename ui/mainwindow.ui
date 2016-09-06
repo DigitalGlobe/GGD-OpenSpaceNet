@@ -26,7 +26,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="2" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_8">
+     <widget class="QGroupBox" name="modelGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -41,31 +41,31 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
-        <widget class="QLabel" name="label_12">
+        <widget class="QLabel" name="modelFileLabel">
          <property name="text">
           <string>Model File:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLineEdit" name="lineEdit_10"/>
+        <widget class="QLineEdit" name="modelFileLineEdit"/>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_5">
+        <widget class="QPushButton" name="viewMetadataButton">
          <property name="text">
           <string>View Metadata</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="modelFileBrowseButton">
          <property name="text">
           <string>Browse...</string>
          </property>
         </widget>
        </item>
        <item row="1" column="3">
-        <spacer name="horizontalSpacer_10">
+        <spacer name="modelSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -81,7 +81,7 @@
      </widget>
     </item>
     <item row="6" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_11">
+     <widget class="QGroupBox" name="processingOptionsGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -96,7 +96,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="4">
-        <spacer name="horizontalSpacer_3">
+        <spacer name="processingOptionsSpacer2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -109,28 +109,28 @@
         </spacer>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="processingModeLabel">
          <property name="text">
           <string>Mode:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2" rowspan="2">
-        <widget class="QLabel" name="label_14">
+        <widget class="QLabel" name="maxUtilizationLabel">
          <property name="text">
           <string>Max Utilization:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="3" rowspan="2">
-        <widget class="QSpinBox" name="spinBox_4">
+        <widget class="QSpinBox" name="maxUtilizationSpinBox">
          <property name="value">
           <number>95</number>
          </property>
         </widget>
        </item>
        <item row="0" column="7" rowspan="2" alignment="Qt::AlignHCenter">
-        <widget class="QLabel" name="label_16">
+        <widget class="QLabel" name="windowSizeXLabel">
          <property name="text">
           <string>x</string>
          </property>
@@ -140,14 +140,14 @@
         </widget>
        </item>
        <item row="0" column="5" rowspan="2" alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_15">
+        <widget class="QLabel" name="windowSizeLabel">
          <property name="text">
           <string>Window Size:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="6" rowspan="2">
-        <widget class="QSpinBox" name="spinBox_5">
+        <widget class="QSpinBox" name="windowSizeSpinBox1">
          <property name="maximum">
           <number>150</number>
          </property>
@@ -157,7 +157,7 @@
         </widget>
        </item>
        <item row="0" column="8" rowspan="2" alignment="Qt::AlignHCenter">
-        <widget class="QSpinBox" name="spinBox_6">
+        <widget class="QSpinBox" name="windowSizeSpinBox2">
          <property name="maximum">
           <number>150</number>
          </property>
@@ -167,7 +167,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QComboBox" name="comboBox_5">
+        <widget class="QComboBox" name="processingModeComboBox">
          <item>
           <property name="text">
            <string>GPU</string>
@@ -181,7 +181,7 @@
         </widget>
        </item>
        <item row="0" column="9">
-        <spacer name="horizontalSpacer_4">
+        <spacer name="processingOptionsGroupBox_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -194,7 +194,7 @@
         </spacer>
        </item>
        <item row="0" column="1">
-        <spacer name="horizontalSpacer_5">
+        <spacer name="processingOptionsSpacer1">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -210,7 +210,7 @@
      </widget>
     </item>
     <item row="0" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="actionGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -225,7 +225,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="modeLabel">
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
@@ -241,7 +241,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="modeComboBox">
          <item>
           <property name="text">
            <string>Detect</string>
@@ -258,7 +258,7 @@
      </widget>
     </item>
     <item row="4" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_3">
+     <widget class="QGroupBox" name="outputOptionsGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -266,85 +266,25 @@
        </size>
       </property>
       <property name="title">
-       <string/>
+       <string>Bounding Box:</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Bounding Box:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" alignment="Qt::AlignHCenter">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>N</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QCheckBox" name="checkBox_3">
-         <property name="text">
-          <string>Override</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="lineEdit_5">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>38.881</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_18">
-         <property name="text">
-          <string>W</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_6">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>125.541</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QLineEdit" name="lineEdit_7">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>125.562</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="4">
-        <widget class="QLabel" name="label_19">
+        <widget class="QLabel" name="bboxELabel">
          <property name="text">
           <string>E</string>
          </property>
         </widget>
        </item>
+       <item row="0" column="4">
+        <widget class="QCheckBox" name="bboxOverrideCheckBox">
+         <property name="text">
+          <string>Override</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="2">
-        <widget class="QLineEdit" name="lineEdit_4">
+        <widget class="QLineEdit" name="bboxSouthLineEdit">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -356,28 +296,80 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="bboxWestLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>125.541</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="4" column="2" alignment="Qt::AlignHCenter">
-        <widget class="QLabel" name="label_20">
+        <widget class="QLabel" name="bboxSLabel">
          <property name="text">
           <string>S</string>
          </property>
         </widget>
        </item>
+       <item row="0" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="bboxNLabel">
+         <property name="text">
+          <string>N</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" alignment="Qt::AlignRight">
+        <widget class="QLabel" name="bboxWLabel">
+         <property name="text">
+          <string>W</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="bboxNorthLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>38.881</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLineEdit" name="bboxEastLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>125.562</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
       </layout>
-      <zorder>lineEdit_7</zorder>
-      <zorder>lineEdit_6</zorder>
-      <zorder>lineEdit_4</zorder>
-      <zorder>label_6</zorder>
-      <zorder>checkBox_3</zorder>
-      <zorder>label_7</zorder>
-      <zorder>label_18</zorder>
-      <zorder>label_19</zorder>
-      <zorder>label_20</zorder>
-      <zorder>lineEdit_5</zorder>
+      <zorder>bboxEastLineEdit</zorder>
+      <zorder>bboxWestLineEdit</zorder>
+      <zorder>bboxSouthLineEdit</zorder>
+      <zorder>bboxOverrideCheckBox</zorder>
+      <zorder>bboxNLabel</zorder>
+      <zorder>bboxWLabel</zorder>
+      <zorder>bboxELabel</zorder>
+      <zorder>bboxSLabel</zorder>
+      <zorder>bboxNorthLineEdit</zorder>
      </widget>
     </item>
     <item row="7" column="2">
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="runPushButton">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -390,7 +382,7 @@
      </widget>
     </item>
     <item row="3" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_9">
+     <widget class="QGroupBox" name="featureDetectionOptionsGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -405,49 +397,49 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="1" column="1">
-        <widget class="QSpinBox" name="spinBox_2">
+        <widget class="QSpinBox" name="stepSizeSpinBox">
          <property name="value">
           <number>30</number>
          </property>
         </widget>
        </item>
        <item row="1" column="3" alignment="Qt::AlignLeft">
-        <widget class="QCheckBox" name="checkBox_2">
+        <widget class="QCheckBox" name="nmsCheckBox">
          <property name="text">
           <string>NMS:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="3" colspan="2" alignment="Qt::AlignLeft">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="pyramidCheckBox">
          <property name="text">
           <string>Pyramid</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QSpinBox" name="spinBox">
+        <widget class="QSpinBox" name="confidenceSpinBox">
          <property name="value">
           <number>95</number>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="confidenceLabel">
          <property name="text">
           <string>Confidence:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="stepSizeLabel">
          <property name="text">
           <string>Step Size:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="4" alignment="Qt::AlignLeft">
-        <widget class="QSpinBox" name="spinBox_3">
+        <widget class="QSpinBox" name="nmsSpinBox">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -457,7 +449,7 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <spacer name="horizontalSpacer_8">
+        <spacer name="featureDetectionOptionsSpacer1">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -470,7 +462,7 @@
         </spacer>
        </item>
        <item row="1" column="5">
-        <spacer name="horizontalSpacer_9">
+        <spacer name="featuredetectionOptionSpacer2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -486,7 +478,7 @@
      </widget>
     </item>
     <item row="1" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_7">
+     <widget class="QGroupBox" name="sourceGroupBox">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -501,7 +493,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="0">
-        <widget class="QComboBox" name="comboBox_2">
+        <widget class="QComboBox" name="imageSourceComboBox">
          <item>
           <property name="text">
            <string>Local Image File</string>
@@ -525,28 +517,28 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QLineEdit" name="lineEdit_3">
+        <widget class="QLineEdit" name="localImageFileLineEdit">
          <property name="text">
           <string>/user/Documents/test.tiff</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="localImageFileLabel">
          <property name="text">
           <string>Local Image File:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="3">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="localImageFileBrowseButton">
          <property name="text">
           <string>Browse...</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="imageSourceLabel">
          <property name="text">
           <string>Image Source:</string>
          </property>
@@ -556,7 +548,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <spacer name="horizontalSpacer">
+        <spacer name="imageSourceImageFileSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -572,7 +564,7 @@
      </widget>
     </item>
     <item row="7" column="0">
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="helpPushButton">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -585,7 +577,7 @@
      </widget>
     </item>
     <item row="7" column="1">
-     <spacer name="horizontalSpacer_12">
+     <spacer name="helpRunSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -598,7 +590,7 @@
      </spacer>
     </item>
     <item row="5" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox_10">
+     <widget class="QGroupBox" name="outputOptionsGroupBox_2">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -613,21 +605,21 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_7">
        <item row="1" column="3">
-        <widget class="QLineEdit" name="lineEdit_9">
+        <widget class="QLineEdit" name="outputLayerLineEdit">
          <property name="enabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item row="3" column="3">
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="geometryTypeLabel">
          <property name="text">
           <string>Geometry Type:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="6">
-        <spacer name="horizontalSpacer_6">
+        <spacer name="outputOptionsSpacer3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -640,7 +632,7 @@
         </spacer>
        </item>
        <item row="1" column="5" rowspan="3">
-        <widget class="QCheckBox" name="checkBox_4">
+        <widget class="QCheckBox" name="producerInfoCheckBox">
          <property name="text">
           <string>Producer Info</string>
          </property>
@@ -650,7 +642,7 @@
         </widget>
        </item>
        <item row="4" column="3">
-        <widget class="QComboBox" name="comboBox_4">
+        <widget class="QComboBox" name="geometryTypeComboBox">
          <item>
           <property name="text">
            <string>Polygon</string>
@@ -664,14 +656,14 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QPushButton" name="pushButton_6">
+        <widget class="QPushButton" name="outputLocationBrowseButton">
          <property name="text">
           <string>Browse...</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QComboBox" name="comboBox_3">
+        <widget class="QComboBox" name="outputFormatComboBox">
          <item>
           <property name="text">
            <string>Shapefile</string>
@@ -700,17 +692,17 @@
         </widget>
        </item>
        <item row="4" column="0">
-        <widget class="QLineEdit" name="lineEdit_8"/>
+        <widget class="QLineEdit" name="outputLocationLineEdit"/>
        </item>
        <item row="0" column="3">
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="outputLayerLabel">
          <property name="text">
           <string>Output Layer:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="4">
-        <spacer name="horizontalSpacer_2">
+        <spacer name="outputOptionsSpacer2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -723,21 +715,21 @@
         </spacer>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="outputFormatLabel">
          <property name="text">
           <string>Output Format:</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="outputLocationLabel">
          <property name="text">
           <string>Output Location:</string>
          </property>
         </widget>
        </item>
        <item row="4" column="2">
-        <spacer name="horizontalSpacer_7">
+        <spacer name="outputOptionsSpacer1">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
