@@ -423,6 +423,8 @@ void OpenSkyNet::processSerial()
         predictions = move(filtered);
     }
 
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
     for(const auto& prediction : predictions) {
         addFeature(prediction.window, prediction.predictions);
     }
