@@ -259,7 +259,7 @@ void OpenSkyNetArgs::setupInitialLogging()
 }
 
 void OpenSkyNetArgs::setupLogging() {
-    quiet = consoleLogLevel < level_t::info;
+    quiet = consoleLogLevel > level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
     if (fileLogPath.empty() && consoleLogLevel > level_t::warning) {
