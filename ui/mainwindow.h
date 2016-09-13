@@ -40,6 +40,35 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    std::string action;
+
+    std::string imageSource;
+    std::string localImageFilePath;
+
+    std::string modelFilePath;
+
+    int confidence;
+    int stepSize;
+    bool pyramid;
+    bool NMS;
+    int nmsThreshold;
+
+    std::string  bboxNorth;
+    std::string  bboxSouth;
+    std::string  bboxEast;
+    std::string  bboxWest;
+
+    std::string outputFormat;
+    std::string geometryType;
+    std::string outputLocation;
+    std::string outputLayer;
+    bool producerInfo;
+
+    std::string processingMode;
+    int maxUtilization;
+    int windowSize1;
+    int windowSize2;
+
 };
 
 #endif // MAINWINDOW_H

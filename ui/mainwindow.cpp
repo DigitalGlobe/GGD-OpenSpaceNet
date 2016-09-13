@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){    
@@ -67,36 +68,37 @@ void MainWindow::on_helpPushButton_clicked(){
 }
 
 void MainWindow::on_runPushButton_clicked(){
-    std::string mode = ui->modeComboBox->currentText().toStdString();
 
-    std::string imageSource = ui->imageSourceComboBox->currentText().toStdString();
-    std::string localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
+    action = ui->modeComboBox->currentText().toStdString();
 
-    std::string modelFilePath = ui->modelFileLineEdit->text().toStdString();
+    imageSource = ui->imageSourceComboBox->currentText().toStdString();
+    localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
 
-    int confidence = ui->confidenceSpinBox->value();
-    int stepSize = ui->stepSizeSpinBox->value();
-    bool pyramid = ui->pyramidCheckBox->isChecked();
-    bool NMS = ui->nmsCheckBox->isChecked();
-    int nmsThreshold = ui->nmsSpinBox->value();
+    modelFilePath = ui->modelFileLineEdit->text().toStdString();
 
-    std::string  bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
-    std::string  bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
-    std::string  bboxEast = ui->bboxEastLineEdit->text().toStdString();
-    std::string  bboxWest = ui->bboxWestLineEdit->text().toStdString();
+    confidence = ui->confidenceSpinBox->value();
+    stepSize = ui->stepSizeSpinBox->value();
+    pyramid = ui->pyramidCheckBox->isChecked();
+    NMS = ui->nmsCheckBox->isChecked();
+    nmsThreshold = ui->nmsSpinBox->value();
 
-    std::string outputFormat = ui->outputFormatComboBox->currentText().toStdString();
-    std::string geometryType = ui->geometryTypeComboBox->currentText().toStdString();
-    std::string outputLocation = ui->outputLocationLineEdit->text().toStdString();
-    std::string outputLayer = ui->outputLayerLineEdit->text().toStdString();
-    bool producerInfo = ui->producerInfoCheckBox->isChecked();
+    bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
+    bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
+    bboxEast = ui->bboxEastLineEdit->text().toStdString();
+    bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
-    std::string processingMode = ui->processingModeComboBox->currentText().toStdString();
-    int maxUtilization = ui->maxUtilizationSpinBox->value();
-    int windowSize1 = ui->windowSizeSpinBox1->value();
-    int windowSize2 = ui->windowSizeSpinBox2->value();
+    outputFormat = ui->outputFormatComboBox->currentText().toStdString();
+    geometryType = ui->geometryTypeComboBox->currentText().toStdString();
+    outputLocation = ui->outputLocationLineEdit->text().toStdString();
+    outputLayer = ui->outputLayerLineEdit->text().toStdString();
+    producerInfo = ui->producerInfoCheckBox->isChecked();
 
-    std::cout << "Mode: " << mode << std::endl;
+    processingMode = ui->processingModeComboBox->currentText().toStdString();
+    maxUtilization = ui->maxUtilizationSpinBox->value();
+    windowSize1 = ui->windowSizeSpinBox1->value();
+    windowSize2 = ui->windowSizeSpinBox2->value();
+
+    std::cout << "Mode: " << action << std::endl;
 
     std::cout << "Image Source: " << imageSource << std::endl;
     std::cout << "Local Image File Path: " << localImageFilePath << std::endl;
