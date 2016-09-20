@@ -373,13 +373,6 @@ void OpenSkyNet::processSerial()
     duration<double> duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
-    Pyramid pyramid;
-    if(args_.pyramid) {
-        pyramid = Pyramid(mat.size(), windowSize_, stepSize_, 2.0);
-    } else {
-        pyramid = Pyramid({ { mat.size(), stepSize_ } });
-    }
-
     skipLine();
     OSN_LOG(info) << "Detecting features...";
 
@@ -389,7 +382,7 @@ void OpenSkyNet::processSerial()
     }
 
     startTime = high_resolution_clock::now();
-    auto predictions = slidingWindowDetector.detect(mat, pyramid, [&detectProgress](float progress) -> bool {
+    auto predictions = slidingWindowDetector.detect(mat, calcPyramid(), [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(detectProgress && detectProgress->count() < curProgress) {
             *detectProgress += curProgress - detectProgress->count();
@@ -523,6 +516,35 @@ void OpenSkyNet::skipLine() const
     if(!args_.quiet) {
         cout << endl;
     }
+}
+
+Pyramid OpenSkyNet::calcPyramid() const
+{
+    Pyramid pyramid;
+    if(args_.pyramidWindowSizes.empty()) {
+        if(args_.pyramid) {
+            pyramid = Pyramid(image_->size(), windowSize_, stepSize_, 2.0);
+        } else {
+            pyramid = Pyramid({ { image_->size(), stepSize_ } });
+        }
+    } else {
+        // Sanity check, should've been caught before
+        DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
+
+        auto imageSize = image_->size();
+        const auto& metadata = model_->metadata();
+
+        for(size_t i = 0; i < args_.pyramidWindowSizes.size(); ++i) {
+            const auto& windowSize = args_.pyramidWindowSizes[i];
+            const auto& stepSize = args_.pyramidStepSizes[i];
+            const auto& modelSize = std::max(metadata.windowSize().width, metadata.windowSize().height);
+            auto scale = (double) windowSize / modelSize;
+
+            pyramid.levels().push_back({ (int)round(imageSize.width * scale), (int)round(imageSize.height * scale), stepSize, stepSize });
+        }
+    }
+
+    return std::move(pyramid);
 }
 
 } } // namespace dg { namespace osn {

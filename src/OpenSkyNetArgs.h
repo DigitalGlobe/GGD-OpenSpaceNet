@@ -89,6 +89,8 @@ public:
     float overlap = 30;
     std::vector<std::string> includeLabels;
     std::vector<std::string> excludeLabels;
+    std::vector<int> pyramidWindowSizes;
+    std::vector<int> pyramidStepSizes;
 
     // Logging options
     bool quiet = false;

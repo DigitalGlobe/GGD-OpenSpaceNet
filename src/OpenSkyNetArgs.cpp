@@ -27,6 +27,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -46,16 +47,18 @@ using namespace deepcore;
 
 using boost::program_options::variables_map;
 using boost::program_options::name_with_default;
-using dg::deepcore::level_t;
 using boost::adaptors::reverse;
+using boost::bad_lexical_cast;
 using boost::filesystem::path;
 using boost::iequals;
 using boost::join;
+using boost::lexical_cast;
 using boost::make_unique;
 using boost::tokenizer;
 using boost::escaped_list_separator;
 using boost::to_lower;
 using boost::to_lower_copy;
+using dg::deepcore::level_t;
 using std::cout;
 using std::find;
 using std::function;
@@ -158,10 +161,14 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
         ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
-         ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
-          "Filter results to only include specified labels.")
-         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
-          "Filter results to exclude specified labels.")
+        ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+         "Filter results to only include specified labels.")
+        ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+         "Filter results to exclude specified labels.")
+        ("pyramid-window-sizes", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
+        ("pyramid-step-sizes", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
         ;
 
     loggingOptions_.add_options()
@@ -285,7 +292,7 @@ void OpenSkyNetArgs::setupLogging() {
 }
 
 template<class T>
-static bool readVariable(const char* param, variables_map vm, T& ret)
+static bool readVariable(const char* param, const variables_map& vm, T& ret)
 {
     auto it = vm.find(param);
     if(it != end(vm)) {
@@ -297,7 +304,7 @@ static bool readVariable(const char* param, variables_map vm, T& ret)
 }
 
 template <typename T>
-static unique_ptr<T> readVariable(const char* param, variables_map vm)
+static unique_ptr<T> readVariable(const char* param, const variables_map& vm)
 {
     auto it = vm.find(param);
     if(it != end(vm)) {
@@ -307,20 +314,27 @@ static unique_ptr<T> readVariable(const char* param, variables_map vm)
     }
 }
 
-static bool readVariable(const char* param, variables_map vm, std::vector<std::string>& ret, bool splitArgs)
+template<typename T>
+static bool readVariable(const char* param, variables_map& vm, std::vector<T>& ret, bool splitArgs)
 {
     auto it = vm.find(param);
     if(it != end(vm)) {
-        auto args = it->second.as<std::vector<string>>();
         if(splitArgs) {
+            auto args = it->second.as<std::vector<string>>();
             ret.clear();
             for(const auto& arg : args) {
                 using so_tokenizer = tokenizer<escaped_list_separator<char> >;
                 so_tokenizer tok(arg, escaped_list_separator<char>('\\', ' ', '\"'));
-                ret.insert(end(ret), begin(tok), end(tok));
+                for(const auto& a : tok) {
+                    try {
+                        ret.push_back(lexical_cast<T>(a));
+                    } catch(bad_lexical_cast&) {
+                        DG_ERROR_THROW("Invalid --%s parameter: %s", param, arg.c_str());
+                    }
+                }
             }
         } else {
-            ret = move(args);
+            ret = it->second.as<std::vector<T>>();
         }
 
         return true;
@@ -520,7 +534,6 @@ void OpenSkyNetArgs::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-
     // validate output
     if (outputPath.empty()) {
         DG_ERROR_THROW("Argument --output is required.");
@@ -535,6 +548,16 @@ void OpenSkyNetArgs::validateArgs()
         layerName = "skynetdetects";
     }
 
+    DG_CHECK(pyramidWindowSizes.size() == pyramidStepSizes.size(),
+             "Number of arguments in --pyramid-window-sizes and --pyramid-step-sizes must match.");
+
+    if(pyramidWindowSizes.size() && pyramid) {
+        OSN_LOG(warning) << "Argument --pyramid is ignored because pyramid levels are specified manually.";
+    }
+
+    if(pyramidWindowSizes.size() && stepSize) {
+        OSN_LOG(warning) << "Argument --step-size is ignored because pyramid levels are specified manually.";
+    }
 
     // Ask for password, if not specified
     if (requireCredentials && !displayHelp && credentials.find(':') == string::npos) {
@@ -649,6 +672,10 @@ void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
     readVariable("exclude-labels", vm, excludeLabels, splitArgs);
 
     confidenceSet |= readVariable("confidence", vm, confidence);
+
+    readVariable("pyramid-window-sizes", vm, pyramidWindowSizes, splitArgs);
+    readVariable("pyramid-step-sizes", vm, pyramidStepSizes, splitArgs);
+
     stepSize = readVariable<cv::Point>("step-size", vm);
     pyramid = vm.find("pyramid") != end(vm);
 
