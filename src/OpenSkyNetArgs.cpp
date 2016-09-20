@@ -165,9 +165,9 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
          "Filter results to only include specified labels.")
         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to exclude specified labels.")
-        ("pyramid-window-sizes", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+        ("pyramid-window-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
-        ("pyramid-step-sizes", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+        ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
         ;
 
@@ -593,7 +593,7 @@ void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
     string service;
     if (readVariable("service", vm, service)) {
         source = parseService(service);
-        readWebServiceArgs(vm);
+        readWebServiceArgs(vm, splitArgs);
     } else if (readVariable("image", vm, image)) {
         source = Source::LOCAL;
     }
@@ -603,11 +603,11 @@ void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
     action = parseAction(actionString);
     maybeDisplayHelp(vm);
 
-    readWebServiceArgs(vm);
-    readProcessingArgs(vm);
-    readOutputArgs(vm);
-    readFeatureDetectionArgs(vm);
-    readLoggingArgs(vm);
+    readWebServiceArgs(vm, splitArgs);
+    readProcessingArgs(vm, splitArgs);
+    readOutputArgs(vm, splitArgs);
+    readFeatureDetectionArgs(vm, splitArgs);
+    readLoggingArgs(vm, splitArgs);
 }
 
 void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
@@ -673,8 +673,8 @@ void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 
     confidenceSet |= readVariable("confidence", vm, confidence);
 
-    readVariable("pyramid-window-sizes", vm, pyramidWindowSizes, splitArgs);
-    readVariable("pyramid-step-sizes", vm, pyramidStepSizes, splitArgs);
+    readVariable("pyramid-window-sizes", vm, pyramidWindowSizes, true);
+    readVariable("pyramid-step-sizes", vm, pyramidStepSizes, true);
 
     stepSize = readVariable<cv::Point>("step-size", vm);
     pyramid = vm.find("pyramid") != end(vm);
