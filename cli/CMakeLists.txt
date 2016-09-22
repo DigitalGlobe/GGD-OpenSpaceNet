@@ -59,6 +59,12 @@ if (Caffe_FOUND)
     target_link_libraries(OpenSkyNetCLI ${Caffe_LINK})
 endif()
 
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNetCLI ${OpenCV_LIBS})
+endif()
+
 link_directories(libopenskynet)
 target_link_libraries(OpenSkyNetCLI pthread libopenskynet)
 
