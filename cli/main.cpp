@@ -21,7 +21,7 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNetArgs.h"
+#include "ParseCLIArgs.h"
 #include <OpenSkyNetVersion.h>
 
 using namespace dg::osn;
@@ -45,8 +45,8 @@ int main (int argc, const char* const* argv)
 {
     cout << OSN_LOGO;
     try {
-        OpenSkyNetArgs osnArgs;
-        osnArgs.parseArgsAndProcess(argc, argv);
+        ParseCLIArgs osnCLIArgs;
+        osnCLIArgs.parseArgsAndProcess(argc, argv);
     } catch (const Error& e) {
         DG_ERROR_LOG(OpenSkyNet, e);
         return 1;

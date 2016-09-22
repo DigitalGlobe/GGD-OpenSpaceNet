@@ -21,98 +21,46 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#ifndef OPENSKYNET_OPENSKYNETARGS_H
-#define OPENSKYNET_OPENSKYNETARGS_H
 
+#ifndef OPENSKYNET_PARSECLIARGS_H
+#define OPENSKYNET_PARSECLIARGS_H
+
+#include "OpenSkyNetArgs.h"
+#include "OpenSkyNet.h"
 #include <boost/program_options.hpp>
-#include <utility/Logging.h>
-#include <vector/Feature.h>
-
-#define OSN_LOG(sev) DG_LOG(OpenSkyNet, sev)
-#define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
 namespace dg { namespace osn {
 
-enum class Source
-{
-    UNKNOWN,
-    LOCAL,
-    DGCS,
-    EVWHS,
-    MAPS_API
-};
-
-enum class Action
-{
-    UNKNOWN,
-    HELP,
-    DETECT,
-    LANDCOVER
-};
-
-class OpenSkyNetArgs
+class ParseCLIArgs
 {
 public:
-    // Input options
-    Action action = Action::UNKNOWN;
-    Source source = Source::UNKNOWN;
-
-    std::string image;
-    std::unique_ptr<cv::Rect2d> bbox;
-
-    // Web service input options
-    std::string token;
-    std::string credentials;
-    int zoom = 18;
-    int maxConnections = 10;
-    std::string mapId = MAPSAPI_MAPID;
-
-    // Output options
-    deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::UNKNOWN;
-    std::string outputFormat;
-    std::string outputPath;
-    std::string layerName;
-    bool producerInfo = false;
-
-    // Processing options
-    bool useCpu = false;
-    float maxUtitilization = 95;
-    std::string modelPath;
-    std::unique_ptr<cv::Size> windowSize;
-
-    // Feature detection options
-    float confidence = 95;
-    std::unique_ptr<cv::Point> stepSize;
-    bool pyramid = false;
-    bool nms = false;
-    float overlap = 30;
-
-    bool quiet = false;
-
-    OpenSkyNetArgs();
+    ParseCLIArgs(const OpenSkyNetArgs& args);
+    ParseCLIArgs();
     void parseArgsAndProcess(int argc, const char* const* argv);
+    dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
+    std::string fileLogPath;
+    dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
 private:
-    void setupConsoleLogging();
-    template<class T>
-    bool readOptional(const char* param, T& ret);
-    template <typename T>
-    std::unique_ptr<T> readOptional(const char* param);
-    bool readOptional(const char* param, std::vector<std::string>& ret, bool splitArgs=true);
-    template<class T>
-    T readRequired(const char* param, const char* errorMsg = nullptr, bool showUsage=false);
+    OpenSkyNetArgs osnArgs;
+    bool confidenceSet = false;
+    bool mapIdSet = false;
+    bool displayHelp = false;
+
+    void setupInitialLogging();
+    void setupLogging();
     void parseArgs(int argc, const char* const* argv);
-    Action parseAction(std::string str) const;
-    Source parseService(std::string service) const;
-    bool maybeDisplayHelp();
+    void maybeDisplayHelp(boost::program_options::variables_map vm);
     void printUsage(Action action=Action::UNKNOWN) const;
-    void readArgs();
-    void readWebServiceArgs();
+    void readArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void promptForPassword();
-    void readOutputArgs();
-    void readProcessingArgs();
-    void readFeatureDetectionArgs();
-    void readLoggingArgs();
+    void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+
+    void validateArgs();
 
     boost::program_options::options_description localOptions_;
     boost::program_options::options_description webOptions_;
@@ -132,8 +80,9 @@ private:
 
     boost::shared_ptr<deepcore::log::sinks::sink> cerrSink_;
     boost::shared_ptr<deepcore::log::sinks::sink> coutSink_;
+
 };
 
 } } // namespace dg { namespace osn {
 
-#endif //OPENSKYNET_OPENSKYNETARGS_H
+#endif //OPENSKYNET_PARSECLIARGS_H

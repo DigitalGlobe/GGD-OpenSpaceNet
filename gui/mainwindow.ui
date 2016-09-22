@@ -509,7 +509,7 @@
        <item row="1" column="1">
         <widget class="QLineEdit" name="localImageFileLineEdit">
          <property name="text">
-          <string>/user/Documents/test.tiff</string>
+          <string/>
          </property>
         </widget>
        </item>

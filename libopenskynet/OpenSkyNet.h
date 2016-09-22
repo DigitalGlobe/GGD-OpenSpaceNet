@@ -34,6 +34,7 @@
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
 #include <utility/Logging.h>
+#include <utility/Console.h>
 
 namespace dg { namespace osn {
 
