@@ -65,8 +65,18 @@ if (OpenCV_FOUND)
     target_link_libraries(OpenSkyNetCLI ${OpenCV_LIBS})
 endif()
 
-link_directories(libopenskynet)
-target_link_libraries(OpenSkyNetCLI pthread libopenskynet)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.59.0 COMPONENTS regex system filesystem timer coroutine context filesystem date_time program_options chrono thread REQUIRED)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    target_link_libraries(OpenSkyNetCLI ${Boost_LIBRARIES})
+endif()
+
+link_directories(openskynet)
+target_link_libraries(OpenSkyNetCLI pthread openskynet)
 
 INSTALL(TARGETS OpenSkyNetCLI
         RUNTIME DESTINATION bin
