@@ -35,10 +35,10 @@ set(INSTALL_INCLUDE_DIR include CACHE PATH
 include_directories(${PROJECT_BINARY_DIR})
 
 include_directories()
-add_subdirectory(libopenskynet)
+add_subdirectory(openskynet)
 add_subdirectory(cli)
 add_subdirectory(gui)
 
 # Add all targets to the build-tree export set
-export(TARGETS libopenskynet OpenSkyNetCLI
+export(TARGETS openskynet OpenSkyNetCLI
         FILE "${PROJECT_BINARY_DIR}/OpenSkyNetTargets.cmake")
