@@ -539,8 +539,10 @@ Pyramid OpenSkyNet::calcPyramid() const
             const auto& modelSize = std::max(metadata.windowSize().width, metadata.windowSize().height);
             auto scale = (double) modelSize / windowSize;
             auto stepSize = (int)round(args_.pyramidStepSizes[i] * scale);
+            auto width = (int)round(imageSize.width * scale);
+            auto height = (int)round(imageSize.height * scale);
 
-            pyramid.levels().push_back({ (int)round(imageSize.width * scale), (int)round(imageSize.height * scale), stepSize, stepSize });
+            pyramid.levels().push_back({width, height, stepSize, stepSize });
         }
     }
 
