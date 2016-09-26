@@ -36,9 +36,10 @@ include_directories(${PROJECT_BINARY_DIR})
 
 include_directories()
 add_subdirectory(openskynet)
-add_subdirectory(cli)
 add_subdirectory(gui)
+add_subdirectory(cli)
+
 
 # Add all targets to the build-tree export set
-export(TARGETS openskynet OpenSkyNetCLI
+export(TARGETS openskynet OpenSkyNetCLI gui
         FILE "${PROJECT_BINARY_DIR}/OpenSkyNetTargets.cmake")
