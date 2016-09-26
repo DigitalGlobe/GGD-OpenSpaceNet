@@ -8,6 +8,8 @@
 #include <iostream>
 #include <QTextStream>
 #include <QMessageBox>
+#include <OpenSkyNetArgs.h>
+#include <OpenSkyNet.h>
 
 namespace Ui {
 class MainWindow;
