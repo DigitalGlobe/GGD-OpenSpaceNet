@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(gui)
+cmake_policy(SET CMP0015 NEW)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run uic automatically when needed
