@@ -36,7 +36,7 @@
 #include <vector/FeatureSet.h>
 #include <utility/Logging.h>
 
-namespace dg { namespace osn {
+namespace dg { namespace openskynet {
 
 class OpenSkyNet
 {
@@ -69,6 +69,6 @@ private:
     bool concurrent_ = false;
 };
 
-} } // namespace dg { namespace osn {
+} } // namespace dg { namespace openskynet {
 
 #endif //OPENSKYNET_LIBOPENSKYNET_H

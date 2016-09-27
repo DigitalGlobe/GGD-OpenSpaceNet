@@ -21,9 +21,9 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNetArgs.h"
+#include "../include/OpenSkyNetArgs.h"
 
-#include "OpenSkyNet.h"
+#include "../include/OpenSkyNet.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
@@ -39,7 +39,7 @@
 #include <utility/program_options.hpp>
 #include <vector/FeatureSet.h>
 
-namespace dg { namespace osn {
+namespace dg { namespace openskynet {
 
 namespace po = boost::program_options;
 

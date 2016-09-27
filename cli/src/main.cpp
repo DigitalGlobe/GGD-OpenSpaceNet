@@ -21,10 +21,10 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNetArgs.h"
+#include <OpenSkyNetArgs.h>
 #include <OpenSkyNetVersion.h>
 
-using namespace dg::osn;
+using namespace dg::openskynet;
 using namespace dg::deepcore;
 
 using std::cout;

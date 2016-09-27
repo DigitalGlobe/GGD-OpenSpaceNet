@@ -32,7 +32,7 @@
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
 
-namespace dg { namespace osn {
+namespace dg { namespace openskynet {
 
 enum class Source
 {

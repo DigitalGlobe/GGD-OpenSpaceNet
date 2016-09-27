@@ -48,7 +48,7 @@
 #include <utility/MultiProgressDisplay.h>
 #include <utility/User.h>
 
-namespace dg { namespace osn {
+namespace dg { namespace openskynet {
 
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::imagery;
