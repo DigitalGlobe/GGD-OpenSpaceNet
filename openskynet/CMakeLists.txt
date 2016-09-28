@@ -9,10 +9,12 @@ set(HEADERS
 
 set(SOURCES
         src/OpenSkyNet.cpp
-        src/OpenSkyNetArgs.cpp
         )
 
 add_library(openskynet ${SOURCES} ${HEADERS})
+
+# Initialize version.h
+configure_file(src/version.h.in OpenSkyNetVersion.h)
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
@@ -33,12 +35,9 @@ endif()
 
 target_link_libraries(openskynet hdf5_hl hdf5 glog gflags ippicv IlmImf cublas_static curand_static culibos libwebp openblas z pthread)
 
-# Initialize version.h
-configure_file(src/version.h.in OpenSkyNetVersion.h)
 
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
-
 
 INSTALL(TARGETS openskynet
         RUNTIME DESTINATION bin
