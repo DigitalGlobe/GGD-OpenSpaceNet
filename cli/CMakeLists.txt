@@ -12,10 +12,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstd
 
 set(SOURCE_FILES
         src/main.cpp
+        src/ParseCLIArgs.cpp
+        )
+
+set(HEADERS
+        include/ParseCLIArgs.h
         )
 
 
-add_executable(openskynet-cli ${SOURCE_FILES})
+add_executable(openskynet-cli ${SOURCE_FILES} ${HEADERS})
 
 add_definitions(-DUSE_OPENCV)
 
@@ -25,6 +30,9 @@ if(DEFINED ENV{BUILD_NUMBER})
 else()
     set(OpenSkyNet_VERSION_BUILD "SNAPSHOT")
 endif()
+
+# Initialize version.h
+configure_file(src/version.h.in OpenSkyNetVersion.h)
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
@@ -56,6 +64,7 @@ INSTALL(TARGETS openskynet-cli
         )
 
 include_directories(../openskynet/include)
+include_directories(include)
 link_directories(openskynet)
 target_link_libraries(openskynet-cli openskynet)
 # Set up include directory for local builds
