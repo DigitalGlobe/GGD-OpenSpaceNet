@@ -32,6 +32,21 @@ if (DeepCore_FOUND)
     target_link_libraries(openskynet-cli ${DEEPCORE_LIBRARIES})
 endif()
 
+find_package(Caffe REQUIRED)
+if (Caffe_FOUND)
+    if (DEEPCORE_STATIC)
+        if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+            set(Caffe_LINK -Wl,-force_load caffe)
+        elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+            set(Caffe_LINK -Wl,--whole-archive caffe -Wl,--no-whole-archive)
+        endif()
+    else()
+        set(Caffe_LINK caffe)
+    endif()
+    include_directories(${Caffe_INCLUDE_DIRS})
+    target_link_libraries(openskynet-cli ${Caffe_LINK})
+endif()
+
 target_link_libraries(openskynet-cli hdf5_hl hdf5 glog gflags ippicv IlmImf cublas_static curand_static culibos libwebp openblas z pthread)
 
 INSTALL(TARGETS openskynet-cli

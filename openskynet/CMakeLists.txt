@@ -29,7 +29,10 @@ if(Boost_FOUND)
     target_link_libraries(openskynet ${Boost_PROGRAM_OPTIONS_LIBRARY})
 endif()
 
+
+
 target_link_libraries(openskynet hdf5_hl hdf5 glog gflags ippicv IlmImf cublas_static curand_static culibos libwebp openblas z pthread)
+
 # Initialize version.h
 configure_file(src/version.h.in OpenSkyNetVersion.h)
 
