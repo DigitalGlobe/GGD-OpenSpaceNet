@@ -22,7 +22,7 @@
 ********************************************************************************/
 
 #include "OpenSkyNet.h"
-#include <OpenSkyNetVersion.h>
+#include <../OpenSkyNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
