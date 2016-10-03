@@ -64,14 +64,16 @@ private:
     bool NMS;
     int nmsThreshold;
 
-    std::string  bboxNorth;
-    std::string  bboxSouth;
-    std::string  bboxEast;
-    std::string  bboxWest;
+    std::string bboxNorth;
+    std::string bboxSouth;
+    std::string bboxEast;
+    std::string bboxWest;
 
+    std::string outputFilename; //Name of file, including extension
+    std::string outputFilepath; //Absolute path of file, including extension
     std::string outputFormat;
     std::string geometryType;
-    std::string outputLocation;
+    std::string outputLocation; //Path to output directory
     std::string outputLayer;
     bool producerInfo;
 

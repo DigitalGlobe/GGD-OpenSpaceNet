@@ -133,10 +133,20 @@ void MainWindow::on_runPushButton_clicked(){
 
     osnArgs.bbox = unique_ptr<cv::Rect2d>();
 
+    //Output filename parsing and setting
+    outputFilename = ui->outputFilenameLineEdit->text().toStdString();
+
+    //Output path setting
+    outputLocation = ui->outputLocationLineEdit->text().toStdString();
+
     //Output format parsing and setting
     outputFormat = ui->outputFormatComboBox->currentText().toStdString();
     if(outputFormat == "Shapefile"){
         osnArgs.outputFormat == "shp";
+        //Append file extension
+        outputFilename += "." + osnArgs.outputFormat;
+        outputFilepath = outputLocation + "/" + outputFilename;
+        osnArgs.outputPath = outputFilepath;
     }
 
     //Geometry type parsing and setting
@@ -147,10 +157,6 @@ void MainWindow::on_runPushButton_clicked(){
     else{
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POINT;
     }
-
-    //output path setting
-    outputLocation = ui->outputLocationLineEdit->text().toStdString();
-    osnArgs.outputPath = outputLocation;
 
     //layer name parsing and setting
     outputLayer = ui->outputLayerLineEdit->text().toStdString();
@@ -199,6 +205,8 @@ void MainWindow::on_runPushButton_clicked(){
     std::cout << "BBOX East: " << bboxEast << std::endl;
     std::cout << "BBOX West: " << bboxWest << std::endl;
 
+    std::cout << "Output Filename: " << outputFilename << std::endl;
+    std::cout << "Output Filepath: " << outputFilepath << std::endl;
     std::cout << "Output Format: " << outputFormat << std::endl;
     std::cout << "Geometry Type: " << geometryType << std::endl;
     std::cout << "Output Location: " << outputLocation << std::endl;

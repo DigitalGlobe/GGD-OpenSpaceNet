@@ -581,7 +581,55 @@
        <bool>true</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_7">
-       <item row="2" column="0">
+       <item row="4" column="2">
+        <widget class="QLabel" name="outputLocationLabel">
+         <property name="text">
+          <string>Output Location:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QLineEdit" name="outputLocationLineEdit"/>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="geometryTypeLabel">
+         <property name="text">
+          <string>Geometry Type:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="5">
+        <widget class="QCheckBox" name="producerInfoCheckBox">
+         <property name="text">
+          <string>Producer Info</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QComboBox" name="geometryTypeComboBox">
+         <item>
+          <property name="text">
+           <string>Polygon</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Point</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="5">
+        <widget class="QPushButton" name="outputLocationBrowseButton">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
         <widget class="QComboBox" name="outputFormatComboBox">
          <item>
           <property name="text">
@@ -610,72 +658,41 @@
          </item>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QComboBox" name="geometryTypeComboBox">
-         <item>
-          <property name="text">
-           <string>Polygon</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Point</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="outputLocationLineEdit"/>
-       </item>
        <item row="4" column="0">
-        <widget class="QLabel" name="geometryTypeLabel">
-         <property name="text">
-          <string>Geometry Type:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
         <widget class="QLabel" name="outputFormatLabel">
          <property name="text">
           <string>Output Format:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="outputLayerLabel">
-         <property name="text">
-          <string>Output Layer:</string>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="outputFilenameLineEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="outputLocationLabel">
-         <property name="text">
-          <string>Output Location:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
+       <item row="11" column="1" colspan="2">
         <widget class="QLineEdit" name="outputLayerLineEdit">
          <property name="enabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="2" column="4">
-        <widget class="QPushButton" name="outputLocationBrowseButton">
+       <item row="10" column="1">
+        <widget class="QLabel" name="outputLayerLabel">
          <property name="text">
-          <string>Browse...</string>
+          <string>Output Layer:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="4">
-        <widget class="QCheckBox" name="producerInfoCheckBox">
+       <item row="4" column="1">
+        <widget class="QLabel" name="outputFilenameLabel">
          <property name="text">
-          <string>Producer Info</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
+          <string>Output Filename:</string>
          </property>
         </widget>
        </item>
@@ -690,7 +707,7 @@
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
