@@ -12,6 +12,7 @@
 #include <OpenSkyNet.h>
 #include <boost/make_unique.hpp>
 #include <processthread.h>
+#include "progresswindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -47,6 +48,8 @@ private slots:
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
+    ProgressWindow progressWindow;
+    Ui::ProgressWindow *progressUi;
     Ui::MainWindow *ui;
     std::string action;
 

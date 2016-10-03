@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "progresswindow.h"
+#include "ui_progresswindow.h"
 
 using std::unique_ptr;
 
@@ -208,6 +210,10 @@ void MainWindow::on_runPushButton_clicked(){
     std::cout << "Window Size 1: " << windowSize1 << std::endl;
     std::cout << "Window Size 2: " << windowSize2 << std::endl;
 
+    progressWindow.setWindowTitle("OpenSkyNet Progress");
+    progressWindow.show();
+    progressWindow.updateProgress("OpenSkyNet is currently running...");
+
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     thread.setArgs(osnArgs);
     thread.start();
@@ -216,9 +222,14 @@ void MainWindow::on_runPushButton_clicked(){
             this,
             tr("OSN"),
             tr("OSN is running"));
+
+
 }
 
 void MainWindow::enableRunButton() {
     std::cout << "Slot called" << endl;
     ui->runPushButton->setEnabled(true);
+    progressWindow.updateProgress("OpenSkyNet is complete.");
+    QFile::link(QString::fromStdString(outputLocation), "/tmp/Output");
+
 }
