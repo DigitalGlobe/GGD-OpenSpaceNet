@@ -11,6 +11,7 @@
 #include <OpenSkyNetArgs.h>
 #include <OpenSkyNet.h>
 #include <boost/make_unique.hpp>
+#include <processthread.h>
 
 namespace Ui {
 class MainWindow;
@@ -41,8 +42,11 @@ private slots:
 
     void on_bboxOverrideCheckBox_toggled(bool checked);
 
+    void enableRunButton();
+
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
+    ProcessThread thread;
     Ui::MainWindow *ui;
     std::string action;
 

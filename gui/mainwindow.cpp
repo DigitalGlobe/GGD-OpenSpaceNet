@@ -68,7 +68,7 @@ void MainWindow::on_helpPushButton_clicked(){
 }
 
 void MainWindow::on_runPushButton_clicked(){
-
+    ui->runPushButton->setEnabled(false);
     //Parse and set the Action
     action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect"){
@@ -208,11 +208,17 @@ void MainWindow::on_runPushButton_clicked(){
     std::cout << "Window Size 1: " << windowSize1 << std::endl;
     std::cout << "Window Size 2: " << windowSize2 << std::endl;
 
-    dg::openskynet::OpenSkyNet osn(osnArgs);
-    osn.process();
+    connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
+    thread.setArgs(osnArgs);
+    thread.start();
 
     QMessageBox::information(
             this,
-            tr("Success"),
-            tr("Detect on local image has run sucessfully"));
+            tr("OSN"),
+            tr("OSN is running"));
+}
+
+void MainWindow::enableRunButton() {
+    std::cout << "Slot called" << endl;
+    ui->runPushButton->setEnabled(true);
 }
