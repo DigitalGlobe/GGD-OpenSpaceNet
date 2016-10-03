@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow){    
     ui->setupUi(this);
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
+    connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
 }
 
 MainWindow::~MainWindow(){
@@ -222,22 +223,12 @@ void MainWindow::on_runPushButton_clicked(){
     progressWindow.show();
     progressWindow.updateProgress("OpenSkyNet is currently running...");
 
-    connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     thread.setArgs(osnArgs);
     thread.start();
-
-    QMessageBox::information(
-            this,
-            tr("OSN"),
-            tr("OSN is running"));
-
-
 }
 
 void MainWindow::enableRunButton() {
-    std::cout << "Slot called" << endl;
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgress("OpenSkyNet is complete.");
-    QFile::link(QString::fromStdString(outputLocation), "/tmp/Output");
 
 }
