@@ -2,8 +2,10 @@
 #include "ui_mainwindow.h"
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
+#include <boost/filesystem/path.hpp>
 
 using std::unique_ptr;
+using boost::filesystem::path;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -81,7 +83,7 @@ void MainWindow::on_runPushButton_clicked(){
         osnArgs.action = dg::openskynet::Action::LANDCOVER;
     }
     else{
-        osnArgs.action = dg::openskynet::Action ::UNKNOWN;
+        osnArgs.action = dg::openskynet::Action::UNKNOWN;
     }
 
     //Parse and set the image source
@@ -143,7 +145,7 @@ void MainWindow::on_runPushButton_clicked(){
     //Output format parsing and setting
     outputFormat = ui->outputFormatComboBox->currentText().toStdString();
     if(outputFormat == "Shapefile"){
-        osnArgs.outputFormat == "shp";
+        osnArgs.outputFormat = "shp";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
@@ -161,7 +163,7 @@ void MainWindow::on_runPushButton_clicked(){
 
     //layer name parsing and setting
     outputLayer = ui->outputLayerLineEdit->text().toStdString();
-    osnArgs.layerName = outputLayer;
+    osnArgs.layerName = path(osnArgs.outputPath).stem().filename().string();
 
     //producer info parsing
     producerInfo = ui->producerInfoCheckBox->isChecked();
