@@ -16,7 +16,7 @@ endif()
 
 
 # Tell CMake to create the helloworld executable
-add_executable(gui main.cpp mainwindow.cpp processthread.cpp progresswindow.cpp)
+add_executable(gui main.cpp mainwindow.cpp processthread.cpp progresswindow.cpp qdebugstream.h)
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
