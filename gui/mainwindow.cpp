@@ -3,6 +3,8 @@
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
 #include <boost/filesystem/path.hpp>
+#include <boost/core/null_deleter.hpp>
+#include "qdebugstream.h"
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -13,10 +15,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
+    setUpLogging();
 }
 
 MainWindow::~MainWindow(){
     delete ui;
+}
+
+void MainWindow::setUpLogging(){
+    boost::shared_ptr<std::ostream> stringStream(&buffer_, boost::null_deleter());
+    stringSink_ = dg::deepcore::log::addStreamSink(stringStream, dg::deepcore::level_t::info);
+
+    stringStreamUI = stringStream;
+    qout.setOptions(*stringStreamUI, progressWindow.getUI().progressDisplay);
+
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
@@ -223,7 +235,8 @@ void MainWindow::on_runPushButton_clicked(){
 
     progressWindow.setWindowTitle("OpenSkyNet Progress");
     progressWindow.show();
-    progressWindow.updateProgress("OpenSkyNet is currently running...");
+    progressWindow.updateProgressBar(33);
+    progressWindow.updateProgressText("Running OpenSkyNet...");
 
     thread.setArgs(osnArgs);
     thread.start();
@@ -231,6 +244,6 @@ void MainWindow::on_runPushButton_clicked(){
 
 void MainWindow::enableRunButton() {
     ui->runPushButton->setEnabled(true);
-    progressWindow.updateProgress("OpenSkyNet is complete.");
-
+    progressWindow.updateProgressText("OpenSkyNet is complete.");
+    progressWindow.updateProgressBar(100);
 }
