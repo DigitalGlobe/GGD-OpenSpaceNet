@@ -13,6 +13,8 @@
 #include <boost/make_unique.hpp>
 #include <processthread.h>
 #include "progresswindow.h"
+#include <sstream>
+#include "qdebugstream.h"
 
 namespace Ui {
 class MainWindow;
@@ -81,6 +83,13 @@ private:
     int maxUtilization;
     int windowSize1;
     int windowSize2;
+
+    void setUpLogging();
+
+    boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
+    std::stringstream buffer_;
+    boost::shared_ptr<std::ostream> stringStreamUI;
+    QDebugStream qout;
 
 };
 
