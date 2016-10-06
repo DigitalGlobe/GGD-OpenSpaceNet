@@ -485,7 +485,7 @@ Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) 
     if(args_.producerInfo) {
         fields["username"] = { FieldType ::STRING, loginUser() };
         fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
-        fields["app_ver"] =  { FieldType::STRING, OPENSKYNET_VERSION_STRING };
+        fields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
 
     return std::move(fields);
