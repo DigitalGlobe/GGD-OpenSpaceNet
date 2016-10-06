@@ -21,8 +21,8 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNet.h"
-#include <OpenSkyNetVersion.h>
+#include "OpenSpaceNet.h"
+#include <OpenSpaceNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
@@ -86,7 +86,7 @@ using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
-OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
+OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
 {
     if(args_.source > Source::LOCAL) {
@@ -94,7 +94,7 @@ OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
     }
 }
 
-void OpenSkyNet::process()
+void OpenSpaceNet::process()
 {
     if(args_.source > Source::LOCAL) {
         initMapServiceImage();
@@ -118,7 +118,7 @@ void OpenSkyNet::process()
     featureSet_.reset();
 }
 
-void OpenSkyNet::initModel()
+void OpenSpaceNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
 
@@ -165,7 +165,7 @@ void OpenSkyNet::initModel()
     slidingWindowDetector.setConfidence(confidence);
 }
 
-void OpenSkyNet::initLocalImage()
+void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     auto image = make_unique<GdalImage>(args_.image);
@@ -192,7 +192,7 @@ void OpenSkyNet::initLocalImage()
     image_.reset(image.release());
 }
 
-void OpenSkyNet::initMapServiceImage()
+void OpenSpaceNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
@@ -234,7 +234,7 @@ void OpenSkyNet::initMapServiceImage()
     image_.reset(client_->imageFromArea(projBbox, args_.action != Action::LANDCOVER));
 }
 
-void OpenSkyNet::initFeatureSet()
+void OpenSpaceNet::initFeatureSet()
 {
     OSN_LOG(info) << "Initializing the output feature set..." ;
 
@@ -254,7 +254,7 @@ void OpenSkyNet::initFeatureSet()
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
 }
 
-void OpenSkyNet::processConcurrent()
+void OpenSpaceNet::processConcurrent()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
@@ -346,7 +346,7 @@ void OpenSkyNet::processConcurrent()
     skipLine();
 }
 
-void OpenSkyNet::processSerial()
+void OpenSpaceNet::processSerial()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
@@ -423,7 +423,7 @@ void OpenSkyNet::processSerial()
     }
 }
 
-void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
 {
     if(predictions.empty()) {
         return;
@@ -465,7 +465,7 @@ void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &pr
     }
 }
 
-Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
+Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
             { "top_score", { FieldType ::REAL, predictions[0].confidence } },
@@ -484,14 +484,14 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
 
     if(args_.producerInfo) {
         fields["username"] = { FieldType ::STRING, loginUser() };
-        fields["app"] = { FieldType::STRING, "OpenSkyNet"};
+        fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
         fields["app_ver"] =  { FieldType::STRING, OPENSKYNET_VERSION_STRING };
     }
 
     return std::move(fields);
 }
 
-void OpenSkyNet::printModel()
+void OpenSpaceNet::printModel()
 {
     skipLine();
 
@@ -511,14 +511,14 @@ void OpenSkyNet::printModel()
     skipLine();
 }
 
-void OpenSkyNet::skipLine() const
+void OpenSpaceNet::skipLine() const
 {
     if(!args_.quiet) {
         cout << endl;
     }
 }
 
-Pyramid OpenSkyNet::calcPyramid() const
+Pyramid OpenSpaceNet::calcPyramid() const
 {
     Pyramid pyramid;
     if(args_.pyramidWindowSizes.empty()) {

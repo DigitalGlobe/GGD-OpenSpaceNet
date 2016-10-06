@@ -21,9 +21,9 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNetArgs.h"
+#include "OpenSpaceNetArgs.h"
 
-#include "OpenSkyNet.h"
+#include "OpenSpaceNet.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
@@ -73,24 +73,24 @@ using vector::GeometryType;
 
 static const string OSN_USAGE =
     "Usage:\n"
-        "  OpenSkyNet <action> <input options> <output options> <processing options>\n"
-        "  OpenSkyNet --config <configuration file> [other options]\n\n"
+        "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
+        "  OpenSpaceNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
         "  help     \t\t\t Show this help message\n"
         "  detect   \t\t\t Perform feature detection\n"
         "  landcover\t\t\t Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
-    "Run OpenSkyNet in feature detection mode.\n\n"
+    "Run OpenSpaceNet in feature detection mode.\n\n"
     "Usage:\n"
-        "  OpenSkyNet detect <input options> <output options> <processing options>\n\n";
+        "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
 
 static const string OSN_LANDCOVER_USAGE =
-    "Run OpenSkyNet in landcover classification mode.\n\n"
+    "Run OpenSpaceNet in landcover classification mode.\n\n"
         "Usage:\n"
-        "  OpenSkyNet landcover <input options> <output options> <processing options>\n\n";
+        "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
-OpenSkyNetArgs::OpenSkyNetArgs() :
+OpenSpaceNetArgs::OpenSpaceNetArgs() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
     outputOptions_("Output Options"),
@@ -223,7 +223,7 @@ OpenSkyNetArgs::OpenSkyNetArgs() :
     visibleOptions_.add(generalOptions_);
 }
 
-void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
+void OpenSpaceNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
@@ -250,11 +250,11 @@ void OpenSkyNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
 
     setupLogging();
 
-    OpenSkyNet osn(*this);
+    OpenSpaceNet osn(*this);
     osn.process();
 }
 
-void OpenSkyNetArgs::setupInitialLogging()
+void OpenSpaceNetArgs::setupInitialLogging()
 {
     log::init();
 
@@ -265,7 +265,7 @@ void OpenSkyNetArgs::setupInitialLogging()
                                 dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
-void OpenSkyNetArgs::setupLogging() {
+void OpenSpaceNetArgs::setupLogging() {
     quiet = consoleLogLevel > level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
@@ -344,7 +344,7 @@ static bool readVariable(const char* param, variables_map& vm, std::vector<T>& r
 }
 
 // Order of precedence: config files from env, env, config files from cli, cli.
-void OpenSkyNetArgs::parseArgs(int argc, const char* const* argv)
+void OpenSpaceNetArgs::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
     pd.add("action", 1)
@@ -395,7 +395,7 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void OpenSkyNetArgs::printUsage(Action action) const
+void OpenSpaceNetArgs::printUsage(Action action) const
 {
     switch(action) {
         case Action::LANDCOVER:
@@ -425,7 +425,7 @@ void OpenSkyNetArgs::printUsage(Action action) const
 }
 
 
-void OpenSkyNetArgs::validateArgs()
+void OpenSpaceNetArgs::validateArgs()
 {
     // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
     bool unusedStepSize = false;
@@ -565,7 +565,7 @@ void OpenSkyNetArgs::validateArgs()
     }
 }
 
-void OpenSkyNetArgs::promptForPassword()
+void OpenSpaceNetArgs::promptForPassword()
 {
     cout << "Enter your web service password: ";
     auto password = readMaskedInputFromConsole();
@@ -574,7 +574,7 @@ void OpenSkyNetArgs::promptForPassword()
 }
 
 
-void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
+void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if (readVariable("config", vm, configFiles, splitArgs)) {
@@ -610,7 +610,7 @@ void OpenSkyNetArgs::readArgs(variables_map vm, bool splitArgs) {
     readLoggingArgs(vm, splitArgs);
 }
 
-void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
+void OpenSpaceNetArgs::maybeDisplayHelp(variables_map vm)
 {
     // If "action" is "help", see if there's a topic. Display all help if there isn't
     string topicStr;
@@ -626,7 +626,7 @@ void OpenSkyNetArgs::maybeDisplayHelp(variables_map vm)
     }
 }
 
-void OpenSkyNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
+void OpenSpaceNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
     mapIdSet |= readVariable("mapId", vm, mapId);
     readVariable("token", vm, token);
@@ -636,7 +636,7 @@ void OpenSkyNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
 }
 
 
-void OpenSkyNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
+void OpenSpaceNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
 {
     readVariable("format", vm, outputFormat);
     to_lower(outputFormat);
@@ -658,7 +658,7 @@ void OpenSkyNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
     producerInfo = vm.find("producer-info") != end(vm);
 }
 
-void OpenSkyNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
+void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
 {
     useCpu = vm.find("cpu") != end(vm);
     readVariable("max-utilization", vm, maxUtilization);
@@ -666,7 +666,7 @@ void OpenSkyNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
     windowSize = readVariable<cv::Size>("window-size", vm);
 }
 
-void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
+void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
     readVariable("include-labels", vm, includeLabels, splitArgs);
     readVariable("exclude-labels", vm, excludeLabels, splitArgs);
@@ -689,7 +689,7 @@ void OpenSkyNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void OpenSkyNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
+void OpenSpaceNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
 {
     if(vm.find("quiet") != end(vm)) {
         consoleLogLevel = level_t::fatal;

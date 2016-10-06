@@ -21,8 +21,8 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNetArgs.h"
-#include <OpenSkyNetVersion.h>
+#include "OpenSpaceNetArgs.h"
+#include <OpenSpaceNetVersion.h>
 
 using namespace dg::osn;
 using namespace dg::deepcore;
@@ -45,10 +45,10 @@ int main (int argc, const char* const* argv)
 {
     cout << OSN_LOGO;
     try {
-        OpenSkyNetArgs osnArgs;
+        OpenSpaceNetArgs osnArgs;
         osnArgs.parseArgsAndProcess(argc, argv);
     } catch (const Error& e) {
-        DG_ERROR_LOG(OpenSkyNet, e);
+        DG_ERROR_LOG(OpenSpaceNet, e);
         return 1;
     } catch (const exception &e) {
         OSN_LOG(error) << e.what();
