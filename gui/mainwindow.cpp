@@ -192,7 +192,18 @@ void MainWindow::on_runPushButton_clicked(){
     	osnArgs.source = dg::openskynet::Source::UNKNOWN;
     }
 
-    //Parse and set web service input options
+    //Parse and set web service token
+    osnArgs.token = ui->tokenLineEdit->text().toStdString();
+    //Parse and set the credentials, format is username:password
+    osnArgs.credentials = ui->usernameLineEdit->text().toStdString() 
+    					  + ":" 
+    					  + ui->passwordLineEdit->text().toStdString();
+    //Parse and set the zoom level
+    osnArgs.zoom = ui->zoomSpinBox->value();
+    //Parse and set the max downloads
+    osnArgs.maxConnections = ui->downloadsSpinBox->value();
+    //Parse and set the map id
+    osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
 
 
     //Parse and set the image path
@@ -237,7 +248,11 @@ void MainWindow::on_runPushButton_clicked(){
     bboxEast = ui->bboxEastLineEdit->text().toStdString();
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
-    osnArgs.bbox = unique_ptr<cv::Rect2d>();
+    osnArgs.bbox = unique_ptr<cv::Rect2d>(new cv::Rect2d());
+    osnArgs.bbox->x = stod(bboxWest);
+    osnArgs.bbox->y = stod(bboxSouth);
+    osnArgs.bbox->width = stod(bboxEast);
+    osnArgs.bbox->height = stod(bboxNorth);
 
     //Output filename parsing and setting
     outputFilename = ui->outputFilenameLineEdit->text().toStdString();
@@ -298,6 +313,12 @@ void MainWindow::on_runPushButton_clicked(){
 
     std::cout << "Image Source: " << imageSource << std::endl;
     std::cout << "Local Image File Path: " << localImageFilePath << std::endl;
+
+    std::cout << "Web Service Token: " << osnArgs.token << std::endl;
+    std::cout << "Web Service Credontials: " << osnArgs.credentials << std::endl;
+    std::cout << "Zoom Level: " << osnArgs.zoom << std::endl;
+    std::cout << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
+    std::cout << "Map Id: " << osnArgs.mapId << std::endl;
 
     std::cout << "Model File Path: " << modelFilePath << std::endl;
 

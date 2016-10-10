@@ -18,7 +18,8 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../Downloads/openskynet_icon.png</normaloff>../Downloads/openskynet_icon.png</iconset>
+    <normaloff>../../../../Downloads/openskynet_icon.png</normaloff>
+    <normalon>../../../../Downloads/openskynet_icon.png</normalon>../../../../Downloads/openskynet_icon.png</iconset>
   </property>
   <property name="windowOpacity">
    <double>100.000000000000000</double>
@@ -308,6 +309,12 @@
            <height>22</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
          <item>
           <property name="text">
            <string>Detect</string>
@@ -359,6 +366,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
+         </property>
          <property name="text">
           <string>38.866</string>
          </property>
@@ -371,6 +381,9 @@
         <widget class="QLineEdit" name="bboxWestLineEdit">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
          </property>
          <property name="text">
           <string>125.541</string>
@@ -406,6 +419,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly|Qt::ImhPreferNumbers</set>
+         </property>
          <property name="text">
           <string>38.881</string>
          </property>
@@ -418,6 +434,9 @@
         <widget class="QLineEdit" name="bboxEastLineEdit">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
          </property>
          <property name="text">
           <string>125.562</string>
@@ -821,6 +840,12 @@
            <height>0</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="toolTipDuration">
+          <number>-1</number>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -1008,6 +1033,12 @@
            <height>23</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
         </widget>
        </item>
        <item row="2" column="1">
@@ -1036,6 +1067,12 @@
            <width>0</width>
            <height>23</height>
           </size>
+         </property>
+         <property name="maximum">
+          <number>22</number>
+         </property>
+         <property name="value">
+          <number>18</number>
          </property>
         </widget>
        </item>
