@@ -21,14 +21,14 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#ifndef OPENSKYNET_OPENSKYNETARGS_H
-#define OPENSKYNET_OPENSKYNETARGS_H
+#ifndef OPENSPACENET_OPENSPACENETARGS_H
+#define OPENSPACENET_OPENSPACENETARGS_H
 
 #include <boost/program_options.hpp>
 #include <utility/Logging.h>
 #include <vector/Feature.h>
 
-#define OSN_LOG(sev) DG_LOG(OpenSkyNet, sev)
+#define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
 
@@ -51,7 +51,7 @@ enum class Action
     LANDCOVER
 };
 
-class OpenSkyNetArgs
+class OpenSpaceNetArgs
 {
 public:
     // Input options
@@ -98,7 +98,7 @@ public:
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
-    OpenSkyNetArgs();
+    OpenSpaceNetArgs();
     void parseArgsAndProcess(int argc, const char* const* argv);
 
 private:
@@ -141,4 +141,4 @@ private:
 
 } } // namespace dg { namespace osn {
 
-#endif //OPENSKYNET_OPENSKYNETARGS_H
+#endif //OPENSPACENET_OPENSPACENETARGS_H
