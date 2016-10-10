@@ -1,11 +1,11 @@
-# OpenSkyNet User Reference Guide
+# OpenSpaceNet User Reference Guide
 
-_OpenSkyNet_ application to perform object or terrain detection against orthorectified imagery using the DeepCore libraries.
+_OpenSpaceNet_ application to perform object or terrain detection against orthorectified imagery using the DeepCore libraries.
 This application includes and is based on CUDA 7.5 and requires NVIDIA driver version 352 or higher to run using the GPU.
 
 ## Table Of Contents
 
-* [OpenSkyNet Actions](#actions)
+* [OpenSpaceNet Actions](#actions)
  * [detect](#detect)
  * [landcover](#landcover)
 * [Image Input](#input)
@@ -17,25 +17,25 @@ This application includes and is based on CUDA 7.5 and requires NVIDIA driver ve
 * [Using Configuration Files](#config)
 
 <a name="actions" />
-## OpenSkyNet Actions
-_OpenSkyNet_ can be called in 3 different ways:
+## OpenSpaceNet Actions
+_OpenSpaceNet_ can be called in 3 different ways:
 
 ```
-OpenSkyNet help [topic]
-OpenSkyNet detect <addtional options>
-OpenSkyNet landcover <addtional options>
+OpenSpaceNet help [topic]
+OpenSpaceNet detect <addtional options>
+OpenSpaceNet landcover <addtional options>
 ```
 
 ### help
-The `help` mode shows the _OpenSkyNet_ usage. The amount of information can be reduced by specifying the action for
+The `help` mode shows the _OpenSpaceNet_ usage. The amount of information can be reduced by specifying the action for
 which to show the help.
 
 The following are the ways you can call help:
 ```
-OpenSkyNet help
-OpenSkyNet help landcover
-OpenSkyNet help detect
-OpenSkyNet <other arguments> --help
+OpenSpaceNet help
+OpenSpaceNet help landcover
+OpenSpaceNet help detect
+OpenSpaceNet <other arguments> --help
 ```
 
 <a name="detect" />
@@ -60,10 +60,10 @@ i.e. `--step-size 30` will result in the sliding window step size being 30 in th
 ##### --pyramid
 This option will enable using pyramids in feature detection. This means that the image will be repeatedly resampled down
 by a factor of 2 with sliding window detection run on each reduced image. This option will result in much longer run time
-and is not recommended. Most _OpenSkyNet_ models are designed to work at a certain resolution and do not require pyramidding.
+and is not recommended. Most _OpenSpaceNet_ models are designed to work at a certain resolution and do not require pyramidding.
 
 ##### --nms
-This option will cause _OpenSkyNet_ to perform non-maximum suppression on the output. This that adjacent detection boxes
+This option will cause _OpenSpaceNet_ to perform non-maximum suppression on the output. This that adjacent detection boxes
 will be removed for each feature detected and only one detecton box per object will be output. This option results in much
 better quality output. You can optionally specify the overlap threshold percentage for non-maximum suppression calculation.
 The default overlap is 30%.
@@ -72,7 +72,7 @@ i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--n
 suppression with 20% overlap.
 
 ##### --include-labels / --exclude-labels
-This option will cause _OpenSkyNet_ to retain or remove labels in the output.  It is invalid to include both an
+This option will cause _OpenSpaceNet_ to retain or remove labels in the output.  It is invalid to include both an
 inclusion and an exclusion list at the same time.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
@@ -95,7 +95,7 @@ as follows:
 <a name="input" />
 ## Image Input
 
-_OpenSkyNet_ is able use either a geo-registered local image, or a MapBox or WMTS web server as its input. Depending on
+_OpenSpaceNet_ is able use either a geo-registered local image, or a MapBox or WMTS web server as its input. Depending on
 the input source, different command line arguments apply. To select which source to use, one of two options must be present:
 
 * `--service <service name>` To load imagery from a web service.
@@ -146,7 +146,7 @@ This argument specifies the API token for the desired web service. This is requi
 
 This argument specifies the user name and password for the WMTS services, that is `dgcs` and `evwhs`. The format is
 `--credentials username:password`. If only the user name is specified like `--credentials username`, the user fill be
-prompted for the password before _OpenSkyNet_ will proceed. In addition, credentials can be specified by setting the
+prompted for the password before _OpenSpaceNet_ will proceed. In addition, credentials can be specified by setting the
 `OSN_CREDENTIALS` environment variable.
 
 ##### --mapId
@@ -168,7 +168,7 @@ is 10.
 <a name="image" />
 ### Local Image Input
 
-Local image input means that _OpenSkyNet_ will load a single image a local drive or a network drive accessible through
+Local image input means that _OpenSpaceNet_ will load a single image a local drive or a network drive accessible through
 the file system.
 
 ### Command Line Options for Local Image Input
@@ -187,14 +187,14 @@ box does not intersect the image, an error will be displayed.
 
 ### Files on S3 (a variant of local files)
 
-Since _OpenSkyNet_ uses GDAL to load local imagery, VSI sources are supported out of the box.  Of 
+Since _OpenSpaceNet_ uses GDAL to load local imagery, VSI sources are supported out of the box.  Of 
 particular interest is imagery stored on S-3.
 
 i.e.
 
 ```
 AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_KEY] \
-   ./OpenSkyNet --image /vsis3/bucket/path/to/image.tif --model /path/to/model.gbdxm \
+   ./OpenSpaceNet --image /vsis3/bucket/path/to/image.tif --model /path/to/model.gbdxm \
    --output foo.shp --confidence 99 --step-size 30
 ```
 
@@ -241,9 +241,9 @@ This option specifies the output geometry type. The supported types are:
 
 This option add additional attributes to each vector feature, the attributes are:
 
-* `username` is the login user name on the machine that ran that _OpenSkyNet_ job.
-* `app` is the name of the application, this is set to "OpenSkyNet".
-* `version` is the application version, which is the _OpenSkyNet_ version.
+* `username` is the login user name on the machine that ran that _OpenSpaceNet_ job.
+* `app` is the name of the application, this is set to "OpenSpaceNet".
+* `version` is the application version, which is the _OpenSpaceNet_ version.
 
 <a name="processing" />
 ## Processing Options
@@ -252,14 +252,14 @@ Processing options contain the classifier configuration options that are common 
 
 ##### --cpu
 
-Specifying this option causes _OpenSkyNet_ to use the fall-back CPU mode. This can be used on machines that don't have the
+Specifying this option causes _OpenSpaceNet_ to use the fall-back CPU mode. This can be used on machines that don't have the
 supported GPU, but it is dramitically slower, so it's not recommended. You really need a GPU to do CNN feature detection efficiently.
 
 ##### --max-utilization
 
-This option specifies how much GPU memory _OpenSkyNet_ will use at most. The default value is 95%, which seems to yield best performance.
+This option specifies how much GPU memory _OpenSpaceNet_ will use at most. The default value is 95%, which seems to yield best performance.
 As utilization approaches 100%, it slows down drastically, so 95% is the recommended maximum. The valid values are between 5% and 100%. If
-a value lower than 5% is specified, _OpenSkyNet_ will still use about 5% of the GPU's capacity.
+a value lower than 5% is specified, _OpenSpaceNet_ will still use about 5% of the GPU's capacity.
 
 ##### --model
 
@@ -268,7 +268,7 @@ This option specifies the path to a package GBDXM model file to use in classific
 ##### --window-size
 
 This option override's the model's default window size. You can specify either one or two arguments. If only one argument is specified,
-the window will be square. This option is generally not recommended. It causes _OpenSkyNet_ to pass a smaller window to the classifier,
+the window will be square. This option is generally not recommended. It causes _OpenSpaceNet_ to pass a smaller window to the classifier,
 filling the edges with random noise. Override window size must be equal or smaller than the model's window size.
 
 <a name="logging" />
@@ -276,7 +276,7 @@ filling the edges with random noise. Override window size must be equal or small
 
 ##### --log
 
-This option specifies a log file that _OpenSkyNet_ writes to. Optionally a log level can be specified. Permitted log level values are
+This option specifies a log file that _OpenSpaceNet_ writes to. Optionally a log level can be specified. Permitted log level values are
 `trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `info`.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
@@ -290,13 +290,13 @@ i.e.
 
 ##### --quiet
 
-Normally `_OpenSkyNet_` will output its status to the console, even if a log file is specified. If this is not desired, console output
+Normally `_OpenSpaceNet_` will output its status to the console, even if a log file is specified. If this is not desired, console output
 can be suppressed by specifying this option.
 
 <a name="config" />
 ## Using Configuration Files
 
-When using _OpenSkyNet_, some or all command line arguments can be put in configuration file(s) and passed through the `--config` command
+When using _OpenSpaceNet_, some or all command line arguments can be put in configuration file(s) and passed through the `--config` command
 line option. Multiple files each containing a different option can be used as well.
 
 ### Configuration File Syntax
@@ -350,18 +350,18 @@ num-downloads=200
 nms=30
 ```
 
-Running _OpenSkyNet_ with this file
+Running _OpenSpaceNet_ with this file
 ```
-./OpenSkyNet --config dgcs_detect_atl.cfg
+./OpenSpaceNet --config dgcs_detect_atl.cfg
 ```
 
-is the same as running _OpenSkyNet_ with these options:
+is the same as running _OpenSpaceNet_ with these options:
 ```
-./OpenSkyNet detect --service dgcs --token=abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox=-84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence=99 --step-size=15 --num-downloads=200 --nms
+./OpenSpaceNet detect --service dgcs --token=abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox=-84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence=99 --step-size=15 --num-downloads=200 --nms
 ```
 ### Example Using Multiple Configuration Files
 
-As a use case for using multiple files, we'll use the fact that because _OpenSkyNet_ can use different input sources for its input, it can be cumbersome to enter that particular service's token and credentials every time.
+As a use case for using multiple files, we'll use the fact that because _OpenSpaceNet_ can use different input sources for its input, it can be cumbersome to enter that particular service's token and credentials every time.
 We can create a configuration file with that service's credentials and use it with another configuration file that configures detection parameters.
 
 Let's use this file for configuring our DGCS credentials:
@@ -393,7 +393,7 @@ nms=30
 We can now combine the two files and get the same result as our previous example, but with the flexibility of reusing our credentials file for other jobs:
 
 ```
-./OpenSkyNet --config dgcs.cfg detect_atl.cfg
+./OpenSpaceNet --config dgcs.cfg detect_atl.cfg
 ```
 
 ### Example Using a Configuration File Combined with Command Line Options
@@ -401,7 +401,7 @@ We can now combine the two files and get the same result as our previous example
 Alternatively, we can use the configuration file from previous example to run a landcover job agains the same DGCS account:
 
 ```
-./OpenSkyNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model=landcover.gbdxm --output atl_detected.shp
+./OpenSpaceNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model=landcover.gbdxm --output atl_detected.shp
 ```
 
 <a name="usage" />
@@ -409,8 +409,8 @@ Alternatively, we can use the configuration file from previous example to run a 
 
 ```
 Usage:
-  OpenSkyNet <action> <input options> <output options> <processing options>
-  OpenSkyNet <configuration file>
+  OpenSpaceNet <action> <input options> <output options> <processing options>
+  OpenSpaceNet <configuration file>
 
 Actions:
   help     			 Show this help message
