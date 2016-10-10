@@ -51,10 +51,22 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         if(source == "MapsAPI"){
         	ui->mapIdLabel->setEnabled(true);
         	ui->mapIdLineEdit->setEnabled(true);
+
+        	//user credentials
+        	ui->usernameLabel->setEnabled(false);
+        	ui->usernameLineEdit->setEnabled(false);
+        	ui->passwordLabel->setEnabled(false);
+        	ui->passwordLineEdit->setEnabled(false);
         }
         else{
         	ui->mapIdLabel->setEnabled(false);
         	ui->mapIdLineEdit->setEnabled(false);
+
+        	//user credentials
+        	ui->usernameLabel->setEnabled(true);
+        	ui->usernameLineEdit->setEnabled(true);
+        	ui->passwordLabel->setEnabled(true);
+        	ui->passwordLineEdit->setEnabled(true);
         }
 
         //zoom
@@ -65,11 +77,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->downloadsLabel->setEnabled(true);
         ui->downloadsSpinBox->setEnabled(true);
 
-        //user credentials
-        ui->usernameLabel->setEnabled(true);
-        ui->usernameLineEdit->setEnabled(true);
-        ui->passwordLabel->setEnabled(true);
-        ui->passwordLineEdit->setEnabled(true);
+        
     }
     else{
     	//bbox
@@ -183,6 +191,9 @@ void MainWindow::on_runPushButton_clicked(){
     else{
     	osnArgs.source = dg::openskynet::Source::UNKNOWN;
     }
+
+    //Parse and set web service input options
+
 
     //Parse and set the image path
     localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
