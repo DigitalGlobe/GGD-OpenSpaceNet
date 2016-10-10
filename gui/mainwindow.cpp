@@ -29,6 +29,86 @@ void MainWindow::on_modelFileBrowseButton_clicked(){
     ui->modelFileLineEdit->setText(directory);
 }
 
+void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source){
+    if(source != "Local Image File"){
+        //bbox
+        ui->bboxOverrideCheckBox->hide();
+        ui->bboxNorthLineEdit->setEnabled(true);
+        ui->bboxSouthLineEdit->setEnabled(true);
+        ui->bboxEastLineEdit->setEnabled(true);
+        ui->bboxWestLineEdit->setEnabled(true);
+
+        //local image selection
+        ui->localImageFileLabel->setEnabled(false);
+        ui->localImageFileLineEdit->setEnabled(false);
+        ui->localImageFileBrowseButton->setEnabled(false);
+
+        //token
+        ui->tokenLabel->setEnabled(true);
+        ui->tokenLineEdit->setEnabled(true);
+
+        //map id
+        if(source == "MapsAPI"){
+        	ui->mapIdLabel->setEnabled(true);
+        	ui->mapIdLineEdit->setEnabled(true);
+        }
+        else{
+        	ui->mapIdLabel->setEnabled(false);
+        	ui->mapIdLineEdit->setEnabled(false);
+        }
+
+        //zoom
+        ui->zoomLabel->setEnabled(true);
+        ui->zoomSpinBox->setEnabled(true);
+
+        //downloads
+        ui->downloadsLabel->setEnabled(true);
+        ui->downloadsSpinBox->setEnabled(true);
+
+        //user credentials
+        ui->usernameLabel->setEnabled(true);
+        ui->usernameLineEdit->setEnabled(true);
+        ui->passwordLabel->setEnabled(true);
+        ui->passwordLineEdit->setEnabled(true);
+    }
+    else{
+    	//bbox
+        ui->bboxOverrideCheckBox->show();
+        ui->bboxNorthLineEdit->setEnabled(false);
+        ui->bboxSouthLineEdit->setEnabled(false);
+        ui->bboxEastLineEdit->setEnabled(false);
+        ui->bboxWestLineEdit->setEnabled(false);
+
+        //local image selection
+        ui->localImageFileLabel->setEnabled(true);
+        ui->localImageFileLineEdit->setEnabled(true);
+        ui->localImageFileBrowseButton->setEnabled(true);
+
+        //token
+        ui->tokenLabel->setEnabled(false);
+        ui->tokenLineEdit->setEnabled(false);
+
+        //map id
+        ui->mapIdLabel->setEnabled(false);
+        ui->mapIdLineEdit->setEnabled(false);
+
+        //zoom
+        ui->zoomLabel->setEnabled(false);
+        ui->zoomSpinBox->setEnabled(false);
+
+        //downloads
+        ui->downloadsLabel->setEnabled(false);
+        ui->downloadsSpinBox->setEnabled(false);
+
+        //user credentials
+        ui->usernameLabel->setEnabled(false);
+        ui->usernameLineEdit->setEnabled(false);
+        ui->passwordLabel->setEnabled(false);
+        ui->passwordLineEdit->setEnabled(false);
+    }
+
+}
+
 void MainWindow::on_viewMetadataButton_clicked(){
     QMessageBox::information(
         this,
@@ -90,6 +170,18 @@ void MainWindow::on_runPushButton_clicked(){
     imageSource = ui->imageSourceComboBox->currentText().toStdString();
     if(imageSource == "Local Image File"){
         osnArgs.source = dg::openskynet::Source::LOCAL;
+    }
+    else if(imageSource == "DGCS"){
+    	osnArgs.source = dg::openskynet::Source::DGCS;
+    }
+    else if(imageSource == "EVWHS"){
+    	osnArgs.source = dg::openskynet::Source::EVWHS;
+    }
+    else if(imageSource == "MapsAPI"){
+    	osnArgs.source = dg::openskynet::Source::MAPS_API;
+    }
+    else{
+    	osnArgs.source = dg::openskynet::Source::UNKNOWN;
     }
 
     //Parse and set the image path

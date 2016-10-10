@@ -45,6 +45,8 @@ private slots:
 
     void enableRunButton();
 
+    void on_imageSourceComboBox_currentIndexChanged(const QString &source);
+
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
