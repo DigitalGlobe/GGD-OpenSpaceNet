@@ -261,11 +261,13 @@ void MainWindow::on_runPushButton_clicked(){
     bboxEast = ui->bboxEastLineEdit->text().toStdString();
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
-    osnArgs.bbox = unique_ptr<cv::Rect2d>(new cv::Rect2d());
-    osnArgs.bbox->x = stod(bboxWest);
-    osnArgs.bbox->y = stod(bboxSouth);
-    osnArgs.bbox->width = stod(bboxEast);
-    osnArgs.bbox->height = stod(bboxNorth);
+    if(imageSource != "Local Image File") {
+        osnArgs.bbox = unique_ptr<cv::Rect2d>(new cv::Rect2d());
+        osnArgs.bbox->x = stod(bboxWest);
+        osnArgs.bbox->y = stod(bboxSouth);
+        osnArgs.bbox->width = stod(bboxEast);
+        osnArgs.bbox->height = stod(bboxNorth);
+    }
 
     //Output filename parsing and setting
     outputFilename = ui->outputFilenameLineEdit->text().toStdString();
