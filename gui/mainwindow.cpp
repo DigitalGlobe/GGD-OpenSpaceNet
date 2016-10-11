@@ -207,17 +207,22 @@ void MainWindow::on_runPushButton_clicked(){
 
     //Parse and set web service token
     osnArgs.token = ui->tokenLineEdit->text().toStdString();
+
     //Parse and set the credentials, format is username:password
     osnArgs.credentials = ui->usernameLineEdit->text().toStdString() 
-    					  + ":" 
-    					  + ui->passwordLineEdit->text().toStdString();
+                          + ":"
+                          + ui->passwordLineEdit->text().toStdString();
+
     //Parse and set the zoom level
     osnArgs.zoom = ui->zoomSpinBox->value();
+
     //Parse and set the max downloads
     osnArgs.maxConnections = ui->downloadsSpinBox->value();
-    //Parse and set the map id
-    osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
 
+    //Parse and set the map id
+    if(ui->mapIdLineEdit->text() != ""){
+        osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
+    }
 
     //Parse and set the image path
     localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
@@ -262,11 +267,8 @@ void MainWindow::on_runPushButton_clicked(){
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
     if(imageSource != "Local Image File") {
-        osnArgs.bbox = unique_ptr<cv::Rect2d>(new cv::Rect2d());
-        osnArgs.bbox->x = stod(bboxWest);
-        osnArgs.bbox->y = stod(bboxSouth);
-        osnArgs.bbox->width = stod(bboxEast);
-        osnArgs.bbox->height = stod(bboxNorth);
+        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
     }
 
     //Output filename parsing and setting
@@ -330,7 +332,7 @@ void MainWindow::on_runPushButton_clicked(){
     std::cout << "Local Image File Path: " << localImageFilePath << std::endl;
 
     std::cout << "Web Service Token: " << osnArgs.token << std::endl;
-    std::cout << "Web Service Credontials: " << osnArgs.credentials << std::endl;
+    std::cout << "Web Service Credentials: " << osnArgs.credentials << std::endl;
     std::cout << "Zoom Level: " << osnArgs.zoom << std::endl;
     std::cout << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
     std::cout << "Map Id: " << osnArgs.mapId << std::endl;
@@ -364,7 +366,6 @@ void MainWindow::on_runPushButton_clicked(){
     progressWindow.show();
     progressWindow.updateProgressBar(33);
     progressWindow.updateProgressText("Running OpenSkyNet...");
-
     thread.setArgs(osnArgs);
     thread.start();
 }
