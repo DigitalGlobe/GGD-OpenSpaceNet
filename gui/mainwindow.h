@@ -48,7 +48,6 @@ private slots:
     void enableRunButton();
 
     void updateProgressBox(QString updateText);
-    
     void on_imageSourceComboBox_currentIndexChanged(const QString &source);
 
 private:
