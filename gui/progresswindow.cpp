@@ -13,7 +13,20 @@ void ProgressWindow::updateProgress(std::string updateMessage){
     ui->progressDisplay->append(QString::fromStdString(updateMessage));
 }
 
+void ProgressWindow::updateProgressBar(int progressNumber){
+    ui->progressBar->setValue(progressNumber);
+}
+
+void ProgressWindow::updateProgressText(std::string progressText){
+    ui->progressBarText->setText(QString::fromStdString(progressText));
+}
+
 ProgressWindow::~ProgressWindow()
 {
     delete ui;
+}
+
+Ui::ProgressWindow ProgressWindow::getUI()
+{
+    return *ui;
 }

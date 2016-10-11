@@ -25,177 +25,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="0" colspan="3">
-     <widget class="QGroupBox" name="modelGroupBox">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>81</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Model</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="modelFileLabel">
-         <property name="text">
-          <string>Model File:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="modelFileLineEdit"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="viewMetadataButton">
-         <property name="text">
-          <string>View Metadata</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="modelFileBrowseButton">
-         <property name="text">
-          <string>Browse...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="3">
-     <widget class="QGroupBox" name="processingOptionsGroupBox">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>81</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Processing Options</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="7">
-        <spacer name="processingOptionsSpacer2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="processingModeLabel">
-         <property name="text">
-          <string>Mode:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="15">
-        <spacer name="processingOptionsGroupBox_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <spacer name="processingOptionsSpacer1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="maxUtilizationLabel">
-         <property name="text">
-          <string>Max Utilization:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QSpinBox" name="maxUtilizationSpinBox">
-         <property name="value">
-          <number>95</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="9">
-        <widget class="QSpinBox" name="windowSizeSpinBox1">
-         <property name="maximum">
-          <number>150</number>
-         </property>
-         <property name="value">
-          <number>150</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="8">
-        <widget class="QLabel" name="windowSizeLabel">
-         <property name="text">
-          <string>Window Size:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="11">
-        <widget class="QSpinBox" name="windowSizeSpinBox2">
-         <property name="maximum">
-          <number>150</number>
-         </property>
-         <property name="value">
-          <number>150</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="processingModeComboBox">
-         <item>
-          <property name="text">
-           <string>GPU</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>CPU</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="0" column="10">
-        <widget class="QLabel" name="windowSizeXLabel">
-         <property name="text">
-          <string>x</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item row="0" column="0" colspan="3">
      <widget class="QGroupBox" name="actionGroupBox">
       <property name="minimumSize">
@@ -239,6 +68,48 @@
            <string>Landcover</string>
           </property>
          </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <widget class="QGroupBox" name="modelGroupBox">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>81</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Model</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="modelFileLabel">
+         <property name="text">
+          <string>Model File:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="modelFileLineEdit"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="viewMetadataButton">
+         <property name="text">
+          <string>View Metadata</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="modelFileBrowseButton">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -353,19 +224,6 @@
       <zorder>bboxSLabel</zorder>
       <zorder>bboxNorthLineEdit</zorder>
       <zorder>bboxOverrideCheckBox</zorder>
-     </widget>
-    </item>
-    <item row="7" column="2">
-     <widget class="QPushButton" name="runPushButton">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Run</string>
-      </property>
      </widget>
     </item>
     <item row="3" column="0" colspan="3">
@@ -699,6 +557,148 @@
       </layout>
      </widget>
     </item>
+    <item row="6" column="0" colspan="3">
+     <widget class="QGroupBox" name="processingOptionsGroupBox">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>81</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Processing Options</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="7">
+        <spacer name="processingOptionsSpacer2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="processingModeLabel">
+         <property name="text">
+          <string>Mode:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="15">
+        <spacer name="processingOptionsGroupBox_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="2">
+        <spacer name="processingOptionsSpacer1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="maxUtilizationLabel">
+         <property name="text">
+          <string>Max Utilization:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QSpinBox" name="maxUtilizationSpinBox">
+         <property name="value">
+          <number>95</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <widget class="QSpinBox" name="windowSizeSpinBox1">
+         <property name="maximum">
+          <number>150</number>
+         </property>
+         <property name="value">
+          <number>150</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QLabel" name="windowSizeLabel">
+         <property name="text">
+          <string>Window Size:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="11">
+        <widget class="QSpinBox" name="windowSizeSpinBox2">
+         <property name="maximum">
+          <number>150</number>
+         </property>
+         <property name="value">
+          <number>150</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="processingModeComboBox">
+         <item>
+          <property name="text">
+           <string>GPU</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CPU</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="10">
+        <widget class="QLabel" name="windowSizeXLabel">
+         <property name="text">
+          <string>x</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="7" column="2">
+     <widget class="QPushButton" name="runPushButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Run</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -707,7 +707,7 @@
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
+    connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     setUpLogging();
 }
 
@@ -247,3 +248,8 @@ void MainWindow::enableRunButton() {
     progressWindow.updateProgressText("OpenSkyNet is complete.");
     progressWindow.updateProgressBar(100);
 }
+
+void MainWindow::updateProgressBox(QString updateText){
+    progressWindow.getUI().progressDisplay->append(updateText);
+}
+
