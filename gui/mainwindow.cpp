@@ -42,6 +42,94 @@ void MainWindow::on_modelFileBrowseButton_clicked(){
     ui->modelFileLineEdit->setText(directory);
 }
 
+void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source){
+    if(source != "Local Image File"){
+        //bbox
+        ui->bboxOverrideCheckBox->hide();
+        ui->bboxNorthLineEdit->setEnabled(true);
+        ui->bboxSouthLineEdit->setEnabled(true);
+        ui->bboxEastLineEdit->setEnabled(true);
+        ui->bboxWestLineEdit->setEnabled(true);
+
+        //local image selection
+        ui->localImageFileLabel->setEnabled(false);
+        ui->localImageFileLineEdit->setEnabled(false);
+        ui->localImageFileBrowseButton->setEnabled(false);
+
+        //token
+        ui->tokenLabel->setEnabled(true);
+        ui->tokenLineEdit->setEnabled(true);
+
+        //map id
+        if(source == "MapsAPI"){
+        	ui->mapIdLabel->setEnabled(true);
+        	ui->mapIdLineEdit->setEnabled(true);
+
+        	//user credentials
+        	ui->usernameLabel->setEnabled(false);
+        	ui->usernameLineEdit->setEnabled(false);
+        	ui->passwordLabel->setEnabled(false);
+        	ui->passwordLineEdit->setEnabled(false);
+        }
+        else{
+        	ui->mapIdLabel->setEnabled(false);
+        	ui->mapIdLineEdit->setEnabled(false);
+
+        	//user credentials
+        	ui->usernameLabel->setEnabled(true);
+        	ui->usernameLineEdit->setEnabled(true);
+        	ui->passwordLabel->setEnabled(true);
+        	ui->passwordLineEdit->setEnabled(true);
+        }
+
+        //zoom
+        ui->zoomLabel->setEnabled(true);
+        ui->zoomSpinBox->setEnabled(true);
+
+        //downloads
+        ui->downloadsLabel->setEnabled(true);
+        ui->downloadsSpinBox->setEnabled(true);
+
+        
+    }
+    else{
+    	//bbox
+        ui->bboxOverrideCheckBox->show();
+        ui->bboxNorthLineEdit->setEnabled(false);
+        ui->bboxSouthLineEdit->setEnabled(false);
+        ui->bboxEastLineEdit->setEnabled(false);
+        ui->bboxWestLineEdit->setEnabled(false);
+
+        //local image selection
+        ui->localImageFileLabel->setEnabled(true);
+        ui->localImageFileLineEdit->setEnabled(true);
+        ui->localImageFileBrowseButton->setEnabled(true);
+
+        //token
+        ui->tokenLabel->setEnabled(false);
+        ui->tokenLineEdit->setEnabled(false);
+
+        //map id
+        ui->mapIdLabel->setEnabled(false);
+        ui->mapIdLineEdit->setEnabled(false);
+
+        //zoom
+        ui->zoomLabel->setEnabled(false);
+        ui->zoomSpinBox->setEnabled(false);
+
+        //downloads
+        ui->downloadsLabel->setEnabled(false);
+        ui->downloadsSpinBox->setEnabled(false);
+
+        //user credentials
+        ui->usernameLabel->setEnabled(false);
+        ui->usernameLineEdit->setEnabled(false);
+        ui->passwordLabel->setEnabled(false);
+        ui->passwordLineEdit->setEnabled(false);
+    }
+
+}
+
 void MainWindow::on_viewMetadataButton_clicked(){
     QMessageBox::information(
         this,
@@ -104,6 +192,32 @@ void MainWindow::on_runPushButton_clicked(){
     if(imageSource == "Local Image File"){
         osnArgs.source = dg::openskynet::Source::LOCAL;
     }
+    else if(imageSource == "DGCS"){
+    	osnArgs.source = dg::openskynet::Source::DGCS;
+    }
+    else if(imageSource == "EVWHS"){
+    	osnArgs.source = dg::openskynet::Source::EVWHS;
+    }
+    else if(imageSource == "MapsAPI"){
+    	osnArgs.source = dg::openskynet::Source::MAPS_API;
+    }
+    else{
+    	osnArgs.source = dg::openskynet::Source::UNKNOWN;
+    }
+
+    //Parse and set web service token
+    osnArgs.token = ui->tokenLineEdit->text().toStdString();
+    //Parse and set the credentials, format is username:password
+    osnArgs.credentials = ui->usernameLineEdit->text().toStdString() 
+    					  + ":" 
+    					  + ui->passwordLineEdit->text().toStdString();
+    //Parse and set the zoom level
+    osnArgs.zoom = ui->zoomSpinBox->value();
+    //Parse and set the max downloads
+    osnArgs.maxConnections = ui->downloadsSpinBox->value();
+    //Parse and set the map id
+    osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
+
 
     //Parse and set the image path
     localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
@@ -147,7 +261,11 @@ void MainWindow::on_runPushButton_clicked(){
     bboxEast = ui->bboxEastLineEdit->text().toStdString();
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
-    osnArgs.bbox = unique_ptr<cv::Rect2d>();
+    osnArgs.bbox = unique_ptr<cv::Rect2d>(new cv::Rect2d());
+    osnArgs.bbox->x = stod(bboxWest);
+    osnArgs.bbox->y = stod(bboxSouth);
+    osnArgs.bbox->width = stod(bboxEast);
+    osnArgs.bbox->height = stod(bboxNorth);
 
     //Output filename parsing and setting
     outputFilename = ui->outputFilenameLineEdit->text().toStdString();
@@ -208,6 +326,12 @@ void MainWindow::on_runPushButton_clicked(){
 
     std::cout << "Image Source: " << imageSource << std::endl;
     std::cout << "Local Image File Path: " << localImageFilePath << std::endl;
+
+    std::cout << "Web Service Token: " << osnArgs.token << std::endl;
+    std::cout << "Web Service Credontials: " << osnArgs.credentials << std::endl;
+    std::cout << "Zoom Level: " << osnArgs.zoom << std::endl;
+    std::cout << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
+    std::cout << "Map Id: " << osnArgs.mapId << std::endl;
 
     std::cout << "Model File Path: " << modelFilePath << std::endl;
 
