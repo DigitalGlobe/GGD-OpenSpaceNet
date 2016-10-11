@@ -26,10 +26,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-<<<<<<< HEAD
-    <item row="0" column="0" colspan="3">
-     <widget class="QGroupBox" name="actionGroupBox">
-=======
     <item row="5" column="0" colspan="4">
      <widget class="QGroupBox" name="modelGroupBox">
       <property name="sizePolicy">
@@ -38,7 +34,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -52,7 +47,7 @@
        </size>
       </property>
       <property name="title">
-       <string>Action</string>
+       <string>Model</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -60,13 +55,6 @@
       <property name="flat">
        <bool>true</bool>
       </property>
-<<<<<<< HEAD
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="modeLabel">
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-=======
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="1" column="1">
         <widget class="QPushButton" name="modelFileBrowseButton">
@@ -160,43 +148,118 @@
         <spacer name="processingOptionsSpacer2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
          </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="processingModeLabel">
          <property name="text">
           <string>Mode:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="15">
+        <spacer name="processingOptionsGroupBox_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="2">
+        <spacer name="processingOptionsSpacer1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="maxUtilizationLabel">
+         <property name="text">
+          <string>Max Utilization:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QSpinBox" name="maxUtilizationSpinBox">
+         <property name="value">
+          <number>95</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <widget class="QSpinBox" name="windowSizeSpinBox1">
+         <property name="maximum">
+          <number>150</number>
+         </property>
+         <property name="value">
+          <number>150</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QLabel" name="windowSizeLabel">
+         <property name="text">
+          <string>Window Size:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="11">
+        <widget class="QSpinBox" name="windowSizeSpinBox2">
+         <property name="maximum">
+          <number>150</number>
+         </property>
+         <property name="value">
+          <number>150</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="processingModeComboBox">
+         <item>
+          <property name="text">
+           <string>GPU</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CPU</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="10">
+        <widget class="QLabel" name="windowSizeXLabel">
+         <property name="text">
+          <string>x</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QComboBox" name="modeComboBox">
-         <item>
-          <property name="text">
-           <string>Detect</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Landcover</string>
-          </property>
-         </item>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
-<<<<<<< HEAD
-    <item row="2" column="0" colspan="3">
-     <widget class="QGroupBox" name="modelGroupBox">
-=======
     <item row="0" column="0" colspan="4">
      <widget class="QGroupBox" name="actionGroupBox">
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
       <property name="minimumSize">
        <size>
         <width>619</width>
@@ -210,16 +273,13 @@
        </size>
       </property>
       <property name="title">
-       <string>Model</string>
+       <string>Action</string>
       </property>
       <property name="flat">
        <bool>true</bool>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4">
+      <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-<<<<<<< HEAD
-        <widget class="QLabel" name="modelFileLabel">
-=======
         <widget class="QLabel" name="modeLabel">
          <property name="minimumSize">
           <size>
@@ -233,29 +293,15 @@
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
          </property>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
          <property name="text">
-          <string>Model File:</string>
+          <string>Mode:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
-<<<<<<< HEAD
-        <widget class="QLineEdit" name="modelFileLineEdit"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="viewMetadataButton">
-         <property name="text">
-          <string>View Metadata</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="modelFileBrowseButton">
-         <property name="text">
-          <string>Browse...</string>
-         </property>
-=======
         <widget class="QComboBox" name="modeComboBox">
          <property name="minimumSize">
           <size>
@@ -279,7 +325,6 @@
            <string>Landcover</string>
           </property>
          </item>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
         </widget>
        </item>
       </layout>
@@ -438,9 +483,6 @@
       <zorder>bboxOverrideCheckBox</zorder>
      </widget>
     </item>
-<<<<<<< HEAD
-    <item row="3" column="0" colspan="3">
-=======
     <item row="10" column="3">
      <widget class="QPushButton" name="runPushButton">
       <property name="minimumSize">
@@ -455,7 +497,6 @@
      </widget>
     </item>
     <item row="6" column="0" colspan="4">
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
      <widget class="QGroupBox" name="featureDetectionOptionsGroupBox">
       <property name="minimumSize">
        <size>
@@ -749,18 +790,6 @@
       </layout>
      </widget>
     </item>
-<<<<<<< HEAD
-    <item row="6" column="0" colspan="3">
-     <widget class="QGroupBox" name="processingOptionsGroupBox">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>81</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Processing Options</string>
-=======
     <item row="4" column="0" colspan="4">
      <widget class="QGroupBox" name="sourceOptionsGroupBox">
       <property name="sizePolicy">
@@ -786,106 +815,10 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
       </property>
       <property name="flat">
        <bool>true</bool>
       </property>
-<<<<<<< HEAD
-      <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="7">
-        <spacer name="processingOptionsSpacer2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="processingModeLabel">
-         <property name="text">
-          <string>Mode:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="15">
-        <spacer name="processingOptionsGroupBox_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <spacer name="processingOptionsSpacer1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="maxUtilizationLabel">
-         <property name="text">
-          <string>Max Utilization:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QSpinBox" name="maxUtilizationSpinBox">
-         <property name="value">
-          <number>95</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="9">
-        <widget class="QSpinBox" name="windowSizeSpinBox1">
-         <property name="maximum">
-          <number>150</number>
-         </property>
-         <property name="value">
-          <number>150</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="8">
-        <widget class="QLabel" name="windowSizeLabel">
-         <property name="text">
-          <string>Window Size:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="11">
-        <widget class="QSpinBox" name="windowSizeSpinBox2">
-         <property name="maximum">
-          <number>150</number>
-         </property>
-         <property name="value">
-          <number>150</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="processingModeComboBox">
-         <item>
-          <property name="text">
-           <string>GPU</string>
-=======
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="1" colspan="5">
         <widget class="QLineEdit" name="localImageFileLineEdit">
@@ -1074,29 +1007,15 @@
          <item>
           <property name="text">
            <string>EVWHS</string>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
           </property>
          </item>
          <item>
           <property name="text">
-<<<<<<< HEAD
-           <string>CPU</string>
-=======
            <string>MapsAPI</string>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
           </property>
          </item>
         </widget>
        </item>
-<<<<<<< HEAD
-       <item row="0" column="10">
-        <widget class="QLabel" name="windowSizeXLabel">
-         <property name="text">
-          <string>x</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-=======
        <item row="3" column="6">
         <widget class="QSpinBox" name="downloadsSpinBox">
          <property name="enabled">
@@ -1193,29 +1112,12 @@
          </property>
          <property name="text">
           <string>Downloads:</string>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
-<<<<<<< HEAD
-    <item row="7" column="2">
-     <widget class="QPushButton" name="runPushButton">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Run</string>
-      </property>
-     </widget>
-    </item>
-=======
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -1223,13 +1125,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-<<<<<<< HEAD
-     <width>635</width>
-     <height>20</height>
-=======
      <width>637</width>
      <height>19</height>
->>>>>>> a89d88d291df90ac98265395fefc98ebf1ac719d
     </rect>
    </property>
   </widget>
