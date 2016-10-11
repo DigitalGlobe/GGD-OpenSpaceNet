@@ -6,14 +6,16 @@
 #include <string>
 
 #include "qtextedit.h"
-#include "processthread.h"
 
-class QDebugStream : public std::basic_streambuf<char>
+
+
+class QDebugStream :  public QObject , public std::basic_streambuf<char>
 {
+    Q_OBJECT
 public:
-    QDebugStream(std::ostream &stream, QTextEdit* text_edit) : m_stream(stream)
+    QDebugStream(std::ostream &stream) : m_stream(stream)
     {
-        log_window = text_edit;
+        //log_window = text_edit;
         m_old_buf = stream.rdbuf();
         stream.rdbuf(this);
     }
@@ -23,20 +25,19 @@ public:
 
     }
 
-    void setOptions(std::ostream &stream, QTextEdit* text_edit, ProcessThread *thread)
+    void setOptions(std::ostream &stream, QTextEdit* text_edit)
     {
-        log_window = text_edit;
+        //log_window = text_edit;
         m_old_buf = stream.rdbuf();
         stream.rdbuf(this);
-        threadp = thread;
     }
 
     ~QDebugStream()
     {
         // output anything that is left
         if (!m_string.empty()) {
-            threadp.updateProgressInThread(m_string.c_str());
             //log_window->append(m_string.c_str());
+            emit updateProgressText(QString::fromStdString(m_string.c_str()));
         }
 
         m_stream.rdbuf(m_old_buf);
@@ -47,8 +48,8 @@ protected:
     {
         if (v == '\n')
         {
-            threadp.updateProgressInThread(m_string.c_str());
             //log_window->append(m_string.c_str());
+            emit updateProgressText(QString::fromStdString(m_string.c_str()));
             m_string.erase(m_string.begin(), m_string.end());
         }
         else
@@ -68,8 +69,8 @@ protected:
             if (pos != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + pos);
-                threadp.updateProgressInThread(m_string.c_str());
                 //log_window->append(tmp.c_str());
+                emit updateProgressText(QString::fromStdString(m_string.c_str()));
                 m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
             }
         }
@@ -81,9 +82,12 @@ private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
     std::string m_string;
-    ProcessThread threadp;
 
     QTextEdit* log_window;
+
+signals:
+    void updateProgressText(QString);
+
 
 };
 
