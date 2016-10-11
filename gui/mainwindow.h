@@ -47,7 +47,7 @@ private slots:
 
     void enableRunButton();
 
-    void updateProgressBox(std::string updateText);
+    void updateProgressBox(QString updateText);
 
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
