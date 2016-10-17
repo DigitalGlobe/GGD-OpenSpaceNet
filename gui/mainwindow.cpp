@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/core/null_deleter.hpp>
 #include "qdebugstream.h"
 
@@ -17,6 +17,25 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     setUpLogging();
+
+    //bbox double validator
+    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+");
+    doubleValidator = std::unique_ptr<QRegularExpressionValidator>(new QRegularExpressionValidator(doubleRegExp, 0));
+
+    ui->bboxWestLineEdit->setValidator(doubleValidator.get());
+    ui->bboxSouthLineEdit->setValidator(doubleValidator.get());
+    ui->bboxEastLineEdit->setValidator(doubleValidator.get());
+    ui->bboxNorthLineEdit->setValidator(doubleValidator.get());
+
+    //Connections that change the color of the filepath line edits
+    QObject::connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
+    QObject::connect(ui->modelFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_modelpathLineEditLostFocus()));
+    QObject::connect(ui->outputLocationLineEdit, SIGNAL(editingFinished()), this, SLOT(on_outputLocationLineEditLostFocus()));
+
+    QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
+    QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
+    QObject::connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
+
 }
 
 MainWindow::~MainWindow(){
@@ -33,13 +52,22 @@ void MainWindow::setUpLogging(){
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
-    QString directory = QFileDialog::getOpenFileName(this,tr("Select Image File"));
-    ui->localImageFileLineEdit->setText(directory);
+    QString path = QFileDialog::getOpenFileName(this,tr("Select Image File"));
+    if(!path.isEmpty() && !path.isNull()){
+        ui->localImageFileLineEdit->setText(path);
+        //manually invoke the slot to check the new filepath
+        on_imagepathLineEditLostFocus();
+    }
 }
 
 void MainWindow::on_modelFileBrowseButton_clicked(){
-    QString directory = QFileDialog::getOpenFileName(this,tr("Select Model File"));
-    ui->modelFileLineEdit->setText(directory);
+    QString path = QFileDialog::getOpenFileName(this,tr("Select Model File"));
+    //The directory path string will be empty if the user presses cancel in the QFileDialog
+    if(!path.isEmpty() && !path.isNull()){
+        ui->modelFileLineEdit->setText(path);
+        //manually invoke the slot to check the new filepath
+        on_modelpathLineEditLostFocus();
+    }
 }
 
 void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source){
@@ -88,9 +116,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
 
         //downloads
         ui->downloadsLabel->setEnabled(true);
-        ui->downloadsSpinBox->setEnabled(true);
-
-        
+        ui->downloadsSpinBox->setEnabled(true);       
     }
     else{
     	//bbox
@@ -127,7 +153,6 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->passwordLabel->setEnabled(false);
         ui->passwordLineEdit->setEnabled(false);
     }
-
 }
 
 void MainWindow::on_viewMetadataButton_clicked(){
@@ -162,8 +187,12 @@ void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked){
 }
 
 void MainWindow::on_outputLocationBrowseButton_clicked(){
-    QString directory = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
-    ui->outputLocationLineEdit->setText(directory);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
+    if(!path.isEmpty() && !path.isNull()){
+        ui->outputLocationLineEdit->setText(path);
+        //manually invoke the slot to check the new directory path
+        on_outputLocationLineEditLostFocus();
+    }
 }
 
 void MainWindow::on_helpPushButton_clicked(){
@@ -174,7 +203,7 @@ void MainWindow::on_helpPushButton_clicked(){
 }
 
 void MainWindow::on_runPushButton_clicked(){
-    ui->runPushButton->setEnabled(false);
+
     //Parse and set the Action
     action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect"){
@@ -266,7 +295,7 @@ void MainWindow::on_runPushButton_clicked(){
     bboxEast = ui->bboxEastLineEdit->text().toStdString();
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
-    if(imageSource != "Local Image File") {
+    if(imageSource != "Local Image File"){
         osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
                                                       cv::Point2d(stod(bboxEast), stod(bboxNorth)));
     }
@@ -362,6 +391,30 @@ void MainWindow::on_runPushButton_clicked(){
     std::cout << "Window Size 1: " << windowSize1 << std::endl;
     std::cout << "Window Size 2: " << windowSize2 << std::endl;
 
+    //Validation checks
+    if(!hasValidLocalImagePath || !hasValidModel || !hasValidOutputPath){
+        QString error("Cannot run process:\n\n");
+        if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
+            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+        }
+        if(!hasValidModel){
+            error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
+        }
+        if(ui->outputFilenameLineEdit->text() == "") {
+            error += "Missing output filename\n\n";
+        }
+        if(!hasValidOutputPath) {
+            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n";
+        }
+        QMessageBox::critical(
+            this,
+            tr("Error"),
+            error);
+        return;
+    }
+
+    ui->runPushButton->setEnabled(false);
+
     progressWindow.setWindowTitle("OpenSkyNet Progress");
     progressWindow.show();
     progressWindow.updateProgressBar(33);
@@ -370,7 +423,7 @@ void MainWindow::on_runPushButton_clicked(){
     thread.start();
 }
 
-void MainWindow::enableRunButton() {
+void MainWindow::enableRunButton(){
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgressText("OpenSkyNet is complete.");
     progressWindow.updateProgressBar(100);
@@ -380,3 +433,88 @@ void MainWindow::updateProgressBox(QString updateText){
     progressWindow.getUI().progressDisplay->append(updateText);
 }
 
+void MainWindow::on_modelpathLineEditLostFocus(){
+    std::string modelpath = ui->modelFileLineEdit->text().toStdString();
+    bool exists = boost::filesystem::exists(modelpath);
+    bool isDirectory = boost::filesystem::is_directory(modelpath);
+
+    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
+    //but don't register the empty string as valid input
+    if (modelpath == "")
+    {
+        ui->modelFileLineEdit->setStyleSheet("color: default");
+        hasValidModel = false;
+    }
+    //Specified file either doesn't exist or is a directory instead of a file
+    else if(!exists || isDirectory) {
+        std::cerr << "Error: specified model file does not exist." << std::endl;
+        ui->modelFileLineEdit->setStyleSheet("color: red");
+        hasValidModel = false;
+    }
+    //Valid input
+    else {
+        ui->modelFileLineEdit->setStyleSheet("color: default");
+        hasValidModel = true;
+    }
+}
+
+void MainWindow::on_imagepathLineEditLostFocus(){
+    std::string imagepath = ui->localImageFileLineEdit->text().toStdString();
+    bool exists = boost::filesystem::exists(imagepath);
+    bool isDirectory = boost::filesystem::is_directory(imagepath);
+
+    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
+    //but don't register the empty string as valid input
+    if(imagepath == "")
+    {
+        ui->localImageFileLineEdit->setStyleSheet("color: default");
+        hasValidLocalImagePath = false;
+    }
+    //Specified file either doesn't exist or is a directory instead of a file
+    else if(!exists || isDirectory) {
+        std::cerr << "Error: specified image file does not exist." << std::endl;
+        ui->localImageFileLineEdit->setStyleSheet("color: red");
+        hasValidLocalImagePath = false;
+    }
+    //Valid input
+    else {
+        ui->localImageFileLineEdit->setStyleSheet("color: default");
+        hasValidLocalImagePath = true;
+    }
+}
+
+void MainWindow::on_outputLocationLineEditLostFocus(){
+    std::string outputPath = ui->outputLocationLineEdit->text().toStdString();
+    bool exists = boost::filesystem::exists(outputPath);
+    bool isDirectory = boost::filesystem::is_directory(outputPath);
+
+    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
+    //but don't register the empty string as valid input
+    if(outputPath == "")
+    {
+        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        hasValidOutputPath = false;
+    }
+     //Specified file either doesn't exist or isn't a directory
+    else if(!exists || !isDirectory){
+        std::cerr << "Error: specified output directory does not exist." << std::endl;
+        ui->outputLocationLineEdit->setStyleSheet("color: red");
+        hasValidOutputPath = false;
+    }
+    else {
+        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        hasValidOutputPath = true;
+    }
+}
+
+void MainWindow::on_localImagePathLineEditCursorPositionChanged(){
+    ui->localImageFileLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_modelpathLineEditCursorPositionChanged(){
+    ui->modelFileLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_outputPathLineEditCursorPositionChanged(){
+    ui->outputLocationLineEdit->setStyleSheet("color: default");
+}

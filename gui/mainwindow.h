@@ -15,6 +15,7 @@
 #include "progresswindow.h"
 #include <sstream>
 #include "qdebugstream.h"
+#include <QValidator>
 
 namespace Ui {
 class MainWindow;
@@ -48,8 +49,20 @@ private slots:
     void enableRunButton();
 
     void updateProgressBox(QString updateText);
+
     void on_imageSourceComboBox_currentIndexChanged(const QString &source);
 
+    void on_modelpathLineEditLostFocus();
+
+    void on_imagepathLineEditLostFocus();
+
+    void on_outputLocationLineEditLostFocus();
+
+    void on_localImagePathLineEditCursorPositionChanged();
+
+    void on_modelpathLineEditCursorPositionChanged();
+
+    void on_outputPathLineEditCursorPositionChanged();
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
@@ -93,6 +106,14 @@ private:
     std::stringstream buffer_;
     boost::shared_ptr<std::ostream> stringStreamUI;
     QDebugStream qout;
+
+    //bbox input validator
+    std::unique_ptr<QRegularExpressionValidator> doubleValidator;
+
+    //Valid input flags, OSN won't run unless these are all true
+    bool hasValidModel = false;
+    bool hasValidOutputPath = false;
+    bool hasValidLocalImagePath = false;
 
 };
 
