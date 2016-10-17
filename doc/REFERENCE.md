@@ -228,7 +228,7 @@ This option specifies the output path or connection settings on non-file-based o
 
 ##### --output-layer
 
-This option specifies the output layer name, if the output format supports it. This options is ignored for `shp` output.
+This option specifies the output layer name, if the output format supports it. This option is ignored for `shp` output.
 
 ##### --type
 
@@ -244,6 +244,10 @@ This option add additional attributes to each vector feature, the attributes are
 * `username` is the login user name on the machine that ran that _OpenSpaceNet_ job.
 * `app` is the name of the application, this is set to "OpenSpaceNet".
 * `version` is the application version, which is the _OpenSpaceNet_ version.
+
+##### --append
+This option will cause _OpenSpaceNet_ to append to the specified output. If the specified output is not found, one will be created.
+If this option is not specified and the output already exists, it will be overwritten.
 
 <a name="processing" />
 ## Processing Options
