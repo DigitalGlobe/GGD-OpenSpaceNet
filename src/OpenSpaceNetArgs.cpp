@@ -137,6 +137,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
          "Output geometry type.  Currently only point and polygon are valid.")
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
+        ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
         ;
 
     processingOptions_.add_options()
@@ -654,7 +655,7 @@ void OpenSpaceNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
     } else {
         DG_ERROR_THROW("Invalid geometry type: %s", typeStr.c_str());
     }
-
+    append = vm.find("append") != end(vm);
     producerInfo = vm.find("producer-info") != end(vm);
 }
 
