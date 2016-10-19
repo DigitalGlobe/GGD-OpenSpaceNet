@@ -101,11 +101,17 @@ private:
     int windowSize2;
 
     void setUpLogging();
+    void resetProgressWindow();
 
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
     std::stringstream buffer_;
     boost::shared_ptr<std::ostream> stringStreamUI;
+    std::ostream & stringStreamStdout = std::cout;
     QDebugStream qout;
+    QDebugStream sout;
+
+    int progressCount = 0;
+    int whichProgress = 0;
 
     //bbox input validator
     std::unique_ptr<QRegularExpressionValidator> doubleValidator;
