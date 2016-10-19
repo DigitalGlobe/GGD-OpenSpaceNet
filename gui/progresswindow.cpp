@@ -17,6 +17,10 @@ void ProgressWindow::updateProgressBar(int progressNumber){
     ui->progressBar->setValue(progressNumber);
 }
 
+void ProgressWindow::updateProgressBarDetect(int progressNumber){
+    ui->progressBar_2->setValue(progressNumber);
+}
+
 void ProgressWindow::updateProgressText(std::string progressText){
     ui->progressBarText->setText(QString::fromStdString(progressText));
 }
