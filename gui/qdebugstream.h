@@ -5,8 +5,6 @@
 #include <streambuf>
 #include <string>
 
-#include "qtextedit.h"
-
 
 
 class QDebugStream :  public QObject , public std::basic_streambuf<char>
@@ -20,12 +18,12 @@ public:
         stream.rdbuf(this);
     }
 
-    QDebugStream() : m_stream(std::cout)
+    QDebugStream() : m_stream(std::cerr)
     {
 
     }
 
-    void setOptions(std::ostream &stream, QTextEdit* text_edit)
+    void setOptions(std::ostream &stream)
     {
         //log_window = text_edit;
         m_old_buf = stream.rdbuf();
@@ -46,7 +44,7 @@ public:
 protected:
     virtual int_type overflow(int_type v)
     {
-        if (v == '\n')
+        if (v == '\n' || v == '*')
         {
             //log_window->append(m_string.c_str());
             emit updateProgressText(QString::fromStdString(m_string.c_str()));
@@ -63,15 +61,24 @@ protected:
         m_string.append(p, p + n);
 
         int pos = 0;
+        int posStar = 0;
         while (pos != std::string::npos)
         {
             pos = m_string.find('\n');
+            posStar = m_string.find('*');
             if (pos != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + pos);
                 //log_window->append(tmp.c_str());
                 emit updateProgressText(QString::fromStdString(m_string.c_str()));
                 m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
+            }
+            else if(posStar != std::string::npos)
+            {
+                std::string tmp(m_string.begin(), m_string.begin() + posStar);
+                //log_window->append(tmp.c_str());
+                emit updateProgressText(QString::fromStdString(m_string.c_str()));
+                m_string.erase(m_string.begin(), m_string.begin() + posStar + 1);
             }
         }
 
@@ -82,8 +89,6 @@ private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
     std::string m_string;
-
-    QTextEdit* log_window;
 
 signals:
     void updateProgressText(QString);
