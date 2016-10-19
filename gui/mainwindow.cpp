@@ -5,6 +5,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/core/null_deleter.hpp>
 #include "qdebugstream.h"
+#include <boost/algorithm/string.hpp>
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -16,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
+    connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     setUpLogging();
 
     //bbox double validator
@@ -47,8 +49,8 @@ void MainWindow::setUpLogging(){
     stringSink_ = dg::deepcore::log::addStreamSink(stringStream, dg::deepcore::level_t::info);
 
     stringStreamUI = stringStream;
-    qout.setOptions(*stringStreamUI, progressWindow.getUI().progressDisplay);
-
+    qout.setOptions(*stringStreamUI);
+    sout.setOptions(stringStreamStdout);
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
@@ -355,41 +357,41 @@ void MainWindow::on_runPushButton_clicked(){
     windowSize2 = ui->windowSizeSpinBox2->value();
     osnArgs.windowSize = unique_ptr<cv::Size>();
 
-    std::cout << "Mode: " << action << std::endl;
+    std::clog << "Mode: " << action << std::endl;
 
-    std::cout << "Image Source: " << imageSource << std::endl;
-    std::cout << "Local Image File Path: " << localImageFilePath << std::endl;
+    std::clog << "Image Source: " << imageSource << std::endl;
+    std::clog << "Local Image File Path: " << localImageFilePath << std::endl;
 
-    std::cout << "Web Service Token: " << osnArgs.token << std::endl;
-    std::cout << "Web Service Credentials: " << osnArgs.credentials << std::endl;
-    std::cout << "Zoom Level: " << osnArgs.zoom << std::endl;
-    std::cout << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
-    std::cout << "Map Id: " << osnArgs.mapId << std::endl;
+    std::clog << "Web Service Token: " << osnArgs.token << std::endl;
+    std::clog << "Web Service Credentials: " << osnArgs.credentials << std::endl;
+    std::clog << "Zoom Level: " << osnArgs.zoom << std::endl;
+    std::clog << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
+    std::clog << "Map Id: " << osnArgs.mapId << std::endl;
 
-    std::cout << "Model File Path: " << modelFilePath << std::endl;
+    std::clog << "Model File Path: " << modelFilePath << std::endl;
 
-    std::cout << "Confidence: " << confidence << std::endl;
-    std::cout << "Step Size: " << stepSize << std::endl;
-    std::cout << "Pyramid: " << pyramid << std::endl;
-    std::cout << "NMS: " << NMS << " Threshold: " << nmsThreshold << std::endl;
+    std::clog << "Confidence: " << confidence << std::endl;
+    std::clog << "Step Size: " << stepSize << std::endl;
+    std::clog << "Pyramid: " << pyramid << std::endl;
+    std::clog << "NMS: " << NMS << " Threshold: " << nmsThreshold << std::endl;
 
-    std::cout << "BBOX North: " << bboxNorth << std::endl;
-    std::cout << "BBOX South: " << bboxSouth << std::endl;
-    std::cout << "BBOX East: " << bboxEast << std::endl;
-    std::cout << "BBOX West: " << bboxWest << std::endl;
+    std::clog << "BBOX North: " << bboxNorth << std::endl;
+    std::clog << "BBOX South: " << bboxSouth << std::endl;
+    std::clog << "BBOX East: " << bboxEast << std::endl;
+    std::clog << "BBOX West: " << bboxWest << std::endl;
 
-    std::cout << "Output Filename: " << outputFilename << std::endl;
-    std::cout << "Output Filepath: " << outputFilepath << std::endl;
-    std::cout << "Output Format: " << outputFormat << std::endl;
-    std::cout << "Geometry Type: " << geometryType << std::endl;
-    std::cout << "Output Location: " << outputLocation << std::endl;
-    std::cout << "Output Layer: " << outputLayer << std::endl;
-    std::cout << "Producer Info:  " << producerInfo << std::endl;
+    std::clog << "Output Filename: " << outputFilename << std::endl;
+    std::clog << "Output Filepath: " << outputFilepath << std::endl;
+    std::clog << "Output Format: " << outputFormat << std::endl;
+    std::clog << "Geometry Type: " << geometryType << std::endl;
+    std::clog << "Output Location: " << outputLocation << std::endl;
+    std::clog << "Output Layer: " << outputLayer << std::endl;
+    std::clog << "Producer Info:  " << producerInfo << std::endl;
 
-    std::cout << "Processing Mode: " << processingMode << std::endl;
-    std::cout << "Max Utilization: " << maxUtilization << std::endl;
-    std::cout << "Window Size 1: " << windowSize1 << std::endl;
-    std::cout << "Window Size 2: " << windowSize2 << std::endl;
+    std::clog << "Processing Mode: " << processingMode << std::endl;
+    std::clog << "Max Utilization: " << maxUtilization << std::endl;
+    std::clog << "Window Size 1: " << windowSize1 << std::endl;
+    std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
     //Validation checks
     if(!hasValidLocalImagePath || !hasValidModel || !hasValidOutputPath){
@@ -415,10 +417,10 @@ void MainWindow::on_runPushButton_clicked(){
 
     ui->runPushButton->setEnabled(false);
 
-    progressWindow.setWindowTitle("OpenSkyNet Progress");
+    resetProgressWindow();
+
     progressWindow.show();
-    progressWindow.updateProgressBar(33);
-    progressWindow.updateProgressText("Running OpenSkyNet...");
+
     thread.setArgs(osnArgs);
     thread.start();
 }
@@ -430,7 +432,22 @@ void MainWindow::enableRunButton(){
 }
 
 void MainWindow::updateProgressBox(QString updateText){
-    progressWindow.getUI().progressDisplay->append(updateText);
+    if(boost::contains(updateText.toStdString(), "0%")){
+        whichProgress++;
+        progressCount = 0;
+    }
+    if(boost::contains(updateText.toStdString(), "*")){
+        progressCount += 2;
+        if(whichProgress == 1) {
+            progressWindow.updateProgressBar(progressCount);
+        }
+        else if(whichProgress == 2){
+            progressWindow.updateProgressBarDetect(progressCount);
+        }
+    }
+    else if(!boost::contains(updateText.toStdString(), "0%") && !boost::contains(updateText.toStdString(), "|----")) {
+        progressWindow.getUI().progressDisplay->append(updateText);
+    }
 }
 
 void MainWindow::on_modelpathLineEditLostFocus(){
@@ -517,4 +534,15 @@ void MainWindow::on_modelpathLineEditCursorPositionChanged(){
 
 void MainWindow::on_outputPathLineEditCursorPositionChanged(){
     ui->outputLocationLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::resetProgressWindow(){
+    progressCount = 0;
+    whichProgress = 0;
+    progressWindow.setWindowTitle("OpenSkyNet Progress");
+    progressWindow.updateProgressText("Running OpenSkyNet...");
+    progressWindow.getUI().progressDisplay->clear();
+    progressWindow.updateProgressBar(0);
+    progressWindow.updateProgressBarDetect(0);
+
 }
