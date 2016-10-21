@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
+    connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
     setUpLogging();
 
     //bbox double validator
@@ -225,12 +226,15 @@ void MainWindow::on_runPushButton_clicked(){
     }
     else if(imageSource == "DGCS"){
     	osnArgs.source = dg::openskynet::Source::DGCS;
+    	hasValidLocalImagePath = true;
     }
     else if(imageSource == "EVWHS"){
     	osnArgs.source = dg::openskynet::Source::EVWHS;
+        hasValidLocalImagePath = true;
     }
     else if(imageSource == "MapsAPI"){
     	osnArgs.source = dg::openskynet::Source::MAPS_API;
+        hasValidLocalImagePath = true;
     }
     else{
     	osnArgs.source = dg::openskynet::Source::UNKNOWN;
@@ -317,6 +321,28 @@ void MainWindow::on_runPushButton_clicked(){
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }
+    else if(outputFormat == "Elastic Search"){
+        osnArgs.outputFormat = "elasticsearch";
+        osnArgs.outputPath = outputLocation;
+    }
+    else if(outputFormat == "GeoJSON"){
+        osnArgs.outputFormat = "geojson";
+        //Append file extension
+        outputFilename += "." + osnArgs.outputFormat;
+        outputFilepath = outputLocation + "/" + outputFilename;
+        osnArgs.outputPath = outputFilepath;
+    }
+    else if(outputFormat == "KML"){
+        osnArgs.outputFormat = "kml";
+        //Append file extension
+        outputFilename += "." + osnArgs.outputFormat;
+        outputFilepath = outputLocation + "/" + outputFilename;
+        osnArgs.outputPath = outputFilepath;
+    }
+    else if(outputFormat == "PostGIS"){
+        osnArgs.outputFormat = "postgis";
+        osnArgs.outputPath = outputLocation;
+    }
 
     //Geometry type parsing and setting
     geometryType = ui->geometryTypeComboBox->currentText().toStdString();
@@ -394,8 +420,11 @@ void MainWindow::on_runPushButton_clicked(){
     std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
     //Validation checks
-    if(!hasValidLocalImagePath || !hasValidModel || !hasValidOutputPath){
+    if(!hasValidLocalImagePath || !hasValidModel){
         QString error("Cannot run process:\n\n");
+        std::clog << "valid local " << hasValidLocalImagePath << std::endl;
+        std::clog << "valid model " << hasValidModel << std::endl;
+        std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
         }
@@ -428,7 +457,6 @@ void MainWindow::on_runPushButton_clicked(){
 void MainWindow::enableRunButton(){
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgressText("OpenSkyNet is complete.");
-    progressWindow.updateProgressBar(100);
 }
 
 void MainWindow::updateProgressBox(QString updateText){
@@ -544,5 +572,17 @@ void MainWindow::resetProgressWindow(){
     progressWindow.getUI().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
     progressWindow.updateProgressBarDetect(0);
+    progressWindow.getUI().cancelPushButton->setVisible(false);
 
+}
+
+void MainWindow::cancelThread() {
+    ui->runPushButton->setEnabled(true);
+    progressWindow.close();
+    qout.eraseString();
+    sout.eraseString();
+
+    if(!thread.isFinished()) {
+        thread.terminate();
+    }
 }
