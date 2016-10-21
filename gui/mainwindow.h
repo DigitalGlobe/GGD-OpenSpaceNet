@@ -63,6 +63,8 @@ private slots:
     void on_modelpathLineEditCursorPositionChanged();
 
     void on_outputPathLineEditCursorPositionChanged();
+
+    void cancelThread();
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
