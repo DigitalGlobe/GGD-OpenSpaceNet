@@ -34,3 +34,8 @@ Ui::ProgressWindow ProgressWindow::getUI()
 {
     return *ui;
 }
+
+void ProgressWindow::on_cancelPushButton_clicked()
+{
+    emit cancelPushed();
+}
