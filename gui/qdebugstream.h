@@ -41,6 +41,10 @@ public:
         m_stream.rdbuf(m_old_buf);
     }
 
+    void eraseString(){
+        m_string.erase(m_string.begin(), m_string.end());
+    }
+
 protected:
     virtual int_type overflow(int_type v)
     {
