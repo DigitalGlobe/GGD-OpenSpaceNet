@@ -20,8 +20,13 @@ public:
     ~ProgressWindow();
     Ui::ProgressWindow getUI();
 
+private slots:
+    void on_cancelPushButton_clicked();
+
 private:
     Ui::ProgressWindow *ui;
+signals:
+    void cancelPushed();
 };
 
 #endif // PROGRESSWINDOW_H
