@@ -62,7 +62,11 @@ void MainWindow::on_localImageFileBrowseButton_clicked(){
 }
 
 void MainWindow::on_modelFileBrowseButton_clicked(){
-    QString path = QFileDialog::getOpenFileName(this,tr("Select Model File"));
+    QString path = QFileDialog::getOpenFileName(
+                this,
+                tr("Select Model File"),
+                QDir::currentPath(),
+                tr("GBDXM files (*.gbdxm);;All files (*.*)") );
     //The directory path string will be empty if the user presses cancel in the QFileDialog
     if(!path.isEmpty() && !path.isNull()){
         ui->modelFileLineEdit->setText(path);
@@ -430,7 +434,7 @@ void MainWindow::on_runPushButton_clicked(){
     }
 
     //Image source agnostic validation
-    if(!hasValidOutputFilename || hasValidOutputPath || !hasValidModel){
+    if(!hasValidOutputFilename || !hasValidOutputPath || !hasValidModel){
         validJob = false;
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
