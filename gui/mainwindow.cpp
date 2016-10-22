@@ -37,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
-    QObject::connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
-
 }
 
 MainWindow::~MainWindow(){
@@ -193,8 +191,6 @@ void MainWindow::on_outputLocationBrowseButton_clicked(){
     QString path = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
     if(!path.isEmpty() && !path.isNull()){
         ui->outputLocationLineEdit->setText(path);
-        //manually invoke the slot to check the new directory path
-        on_outputLocationLineEditLostFocus();
     }
 }
 
@@ -420,9 +416,22 @@ void MainWindow::on_runPushButton_clicked(){
     std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
     //Validation checks
-    if(!hasValidLocalImagePath || !hasValidModel){
-        QString error("Cannot run process:\n\n");
+    bool validJob = true;
+
+    hasValidOutputFilename = ui->outputFilenameLineEdit->text() != "";
+    hasValidOutputPath = ui->outputLocationLineEdit->text() != "";
+    QString error("Cannot run process:\n\n");
+
+    //Local image specific validation
+    if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
+        validJob = false;
         std::clog << "valid local " << hasValidLocalImagePath << std::endl;
+
+    }
+
+    //Image source agnostic validation
+    if(!hasValidOutputFilename || hasValidOutputPath || !hasValidModel){
+        validJob = false;
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
@@ -437,6 +446,9 @@ void MainWindow::on_runPushButton_clicked(){
         if(!hasValidOutputPath) {
             error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n";
         }
+    }
+
+    if(!validJob){
         QMessageBox::critical(
             this,
             tr("Error"),
@@ -525,30 +537,6 @@ void MainWindow::on_imagepathLineEditLostFocus(){
     else {
         ui->localImageFileLineEdit->setStyleSheet("color: default");
         hasValidLocalImagePath = true;
-    }
-}
-
-void MainWindow::on_outputLocationLineEditLostFocus(){
-    std::string outputPath = ui->outputLocationLineEdit->text().toStdString();
-    bool exists = boost::filesystem::exists(outputPath);
-    bool isDirectory = boost::filesystem::is_directory(outputPath);
-
-    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
-    //but don't register the empty string as valid input
-    if(outputPath == "")
-    {
-        ui->outputLocationLineEdit->setStyleSheet("color: default");
-        hasValidOutputPath = false;
-    }
-     //Specified file either doesn't exist or isn't a directory
-    else if(!exists || !isDirectory){
-        std::cerr << "Error: specified output directory does not exist." << std::endl;
-        ui->outputLocationLineEdit->setStyleSheet("color: red");
-        hasValidOutputPath = false;
-    }
-    else {
-        ui->outputLocationLineEdit->setStyleSheet("color: default");
-        hasValidOutputPath = true;
     }
 }
 

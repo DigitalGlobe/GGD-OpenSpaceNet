@@ -56,8 +56,6 @@ private slots:
 
     void on_imagepathLineEditLostFocus();
 
-    void on_outputLocationLineEditLostFocus();
-
     void on_localImagePathLineEditCursorPositionChanged();
 
     void on_modelpathLineEditCursorPositionChanged();
@@ -120,6 +118,7 @@ private:
 
     //Valid input flags, OSN won't run unless these are all true
     bool hasValidModel = false;
+    bool hasValidOutputFilename = false;
     bool hasValidOutputPath = false;
     bool hasValidLocalImagePath = false;
 
