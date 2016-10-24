@@ -76,7 +76,7 @@ private:
 
     std::string modelFilePath;
 
-    int confidence;
+    double confidence;
     int stepSize;
     bool pyramid;
     bool NMS;
