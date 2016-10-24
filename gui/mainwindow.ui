@@ -547,19 +547,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="confidenceSpinBox">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>23</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>95</number>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="confidenceLabel">
          <property name="text">
@@ -618,6 +605,22 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QDoubleSpinBox" name="confidenceSpinBox">
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>95.000000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
