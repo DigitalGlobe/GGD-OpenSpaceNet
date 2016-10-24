@@ -402,6 +402,18 @@
        </item>
        <item row="0" column="2" alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="bboxNLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
          <property name="text">
           <string>N</string>
          </property>
@@ -1188,7 +1200,7 @@
      <x>0</x>
      <y>0</y>
      <width>637</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
