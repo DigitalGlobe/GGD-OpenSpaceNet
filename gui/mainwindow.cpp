@@ -16,35 +16,33 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow){    
     ui->setupUi(this);
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
-    connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
-    connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
-    connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
-    connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
+
+    connectSignalsAndSlots();
     setUpLogging();
-
-    //bbox double validator
-    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+");
-    doubleValidator = std::unique_ptr<QRegularExpressionValidator>(new QRegularExpressionValidator(doubleRegExp, 0));
-
-    ui->bboxWestLineEdit->setValidator(doubleValidator.get());
-    ui->bboxSouthLineEdit->setValidator(doubleValidator.get());
-    ui->bboxEastLineEdit->setValidator(doubleValidator.get());
-    ui->bboxNorthLineEdit->setValidator(doubleValidator.get());
-
-    //Connections that change the color of the filepath line edits
-    QObject::connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
-    QObject::connect(ui->modelFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_modelpathLineEditLostFocus()));
-    QObject::connect(ui->outputLocationLineEdit, SIGNAL(editingFinished()), this, SLOT(on_outputLocationLineEditLostFocus()));
-
-    QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
-    QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
-    QObject::connect(ui->outputFilenameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputFilenameLineEditCursorPositionChanged()));
-    QObject::connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
-
+    initValidation();
 }
 
 MainWindow::~MainWindow(){
     delete ui;
+}
+
+void MainWindow::connectSignalsAndSlots()
+{
+    connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
+    connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
+    connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
+    connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
+
+    //Connections that change the color of the filepath line edits
+    connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
+    connect(ui->modelFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_modelpathLineEditLostFocus()));
+    connect(ui->outputLocationLineEdit, SIGNAL(editingFinished()), this, SLOT(on_outputLocationLineEditLostFocus()));
+
+    //Connections that change the error color of widgets back to the default when the user begins editing the contents
+    connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
+    connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
+    connect(ui->outputFilenameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputFilenameLineEditCursorPositionChanged()));
+    connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
 }
 
 void MainWindow::setUpLogging(){
@@ -54,6 +52,18 @@ void MainWindow::setUpLogging(){
     stringStreamUI = stringStream;
     qout.setOptions(*stringStreamUI);
     sout.setOptions(stringStreamStdout);
+}
+
+void MainWindow::initValidation()
+{
+    //bbox double validator
+    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+");
+    doubleValidator = std::unique_ptr<QRegularExpressionValidator>(new QRegularExpressionValidator(doubleRegExp, 0));
+
+    ui->bboxWestLineEdit->setValidator(doubleValidator.get());
+    ui->bboxSouthLineEdit->setValidator(doubleValidator.get());
+    ui->bboxEastLineEdit->setValidator(doubleValidator.get());
+    ui->bboxNorthLineEdit->setValidator(doubleValidator.get());
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){

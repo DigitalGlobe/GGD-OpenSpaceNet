@@ -69,6 +69,7 @@ private slots:
     void on_closePushButton_clicked();
 
     void cancelThread();
+
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
@@ -106,7 +107,9 @@ private:
     int windowSize1;
     int windowSize2;
 
+    void connectSignalsAndSlots();
     void setUpLogging();
+    void initValidation();
     void resetProgressWindow();
 
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
