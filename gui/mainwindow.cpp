@@ -6,6 +6,7 @@
 #include <boost/core/null_deleter.hpp>
 #include "qdebugstream.h"
 #include <boost/algorithm/string.hpp>
+#include <QStandardPaths>
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -33,9 +34,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connections that change the color of the filepath line edits
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_modelpathLineEditLostFocus()));
+    QObject::connect(ui->outputLocationLineEdit, SIGNAL(editingFinished()), this, SLOT(on_outputLocationLineEditLostFocus()));
 
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
+    QObject::connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
 }
 
 MainWindow::~MainWindow(){
@@ -64,7 +67,7 @@ void MainWindow::on_modelFileBrowseButton_clicked(){
     QString path = QFileDialog::getOpenFileName(
                 this,
                 tr("Select Model File"),
-                QDir::currentPath(),
+                QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory),
                 tr("GBDXM files (*.gbdxm);;All files (*.*)") );
     //The directory path string will be empty if the user presses cancel in the QFileDialog
     if(!path.isEmpty() && !path.isNull()){
@@ -195,6 +198,8 @@ void MainWindow::on_outputLocationBrowseButton_clicked(){
     QString path = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
     if(!path.isEmpty() && !path.isNull()){
         ui->outputLocationLineEdit->setText(path);
+        //manually invoke the slot to check the new directory path
+        on_outputLocationLineEditLostFocus();
     }
 }
 
@@ -422,8 +427,7 @@ void MainWindow::on_runPushButton_clicked(){
     //Validation checks
     bool validJob = true;
 
-    hasValidOutputFilename = ui->outputFilenameLineEdit->text() != "";
-    hasValidOutputPath = ui->outputLocationLineEdit->text() != "";
+    hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
     QString error("Cannot run process:\n\n");
 
     //Local image specific validation
@@ -541,6 +545,30 @@ void MainWindow::on_imagepathLineEditLostFocus(){
     else {
         ui->localImageFileLineEdit->setStyleSheet("color: default");
         hasValidLocalImagePath = true;
+    }
+}
+
+void MainWindow::on_outputLocationLineEditLostFocus(){
+    std::string outputPath = ui->outputLocationLineEdit->text().toStdString();
+    bool exists = boost::filesystem::exists(outputPath);
+    bool isDirectory = boost::filesystem::is_directory(outputPath);
+
+    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
+    //but don't register the empty string as valid input
+    if(outputPath == "")
+    {
+        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        hasValidOutputPath = false;
+    }
+    //Specified file either doesn't exist or isn't a directory
+    else if(!exists || !isDirectory){
+        std::cerr << "Error: specified output directory does not exist." << std::endl;
+        ui->outputLocationLineEdit->setStyleSheet("color: red");
+        hasValidOutputPath = false;
+    }
+    else {
+        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        hasValidOutputPath = true;
     }
 }
 

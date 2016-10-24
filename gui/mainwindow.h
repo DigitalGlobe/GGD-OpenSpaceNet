@@ -56,6 +56,8 @@ private slots:
 
     void on_imagepathLineEditLostFocus();
 
+    void on_outputLocationLineEditLostFocus();
+
     void on_localImagePathLineEditCursorPositionChanged();
 
     void on_modelpathLineEditCursorPositionChanged();
