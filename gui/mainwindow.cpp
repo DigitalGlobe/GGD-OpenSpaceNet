@@ -33,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connections that change the color of the filepath line edits
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_modelpathLineEditLostFocus()));
-    QObject::connect(ui->outputLocationLineEdit, SIGNAL(editingFinished()), this, SLOT(on_outputLocationLineEditLostFocus()));
 
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
@@ -126,10 +125,11 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
     else{
     	//bbox
         ui->bboxOverrideCheckBox->show();
-        ui->bboxNorthLineEdit->setEnabled(false);
-        ui->bboxSouthLineEdit->setEnabled(false);
-        ui->bboxEastLineEdit->setEnabled(false);
-        ui->bboxWestLineEdit->setEnabled(false);
+        bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
+        ui->bboxNorthLineEdit->setEnabled(bboxOverridden);
+        ui->bboxSouthLineEdit->setEnabled(bboxOverridden);
+        ui->bboxEastLineEdit->setEnabled(bboxOverridden);
+        ui->bboxWestLineEdit->setEnabled(bboxOverridden);
 
         //local image selection
         ui->localImageFileLabel->setEnabled(true);
