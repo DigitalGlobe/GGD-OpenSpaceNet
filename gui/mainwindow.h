@@ -64,6 +64,8 @@ private slots:
 
     void on_outputPathLineEditCursorPositionChanged();
 
+    void on_closePushButton_clicked();
+
     void cancelThread();
 private:
     dg::openskynet::OpenSkyNetArgs osnArgs;
