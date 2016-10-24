@@ -603,6 +603,15 @@ void MainWindow::cancelThread() {
     sout.eraseString();
 
     if(!thread.isFinished()) {
-        thread.terminate();
+        thread.quit();
     }
+}
+
+void MainWindow::on_closePushButton_clicked()
+{
+    if(!thread.isFinished()) {
+        thread.quit();
+    }
+    progressWindow.close();
+    QApplication::quit();
 }
