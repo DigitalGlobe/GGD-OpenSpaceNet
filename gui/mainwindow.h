@@ -131,6 +131,9 @@ private:
     bool hasValidOutputPath = false;
     bool hasValidLocalImagePath = false;
 
+    //tracks the last-accessed directory for the image and model file browsers
+    QString lastAccessedDirectory;
+
 };
 
 #endif // MAINWINDOW_H

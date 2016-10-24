@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connectSignalsAndSlots();
     setUpLogging();
     initValidation();
+
+    //Set the file browsers' initial location to the user's home directory
+    lastAccessedDirectory = QDir::homePath();
 }
 
 MainWindow::~MainWindow(){
@@ -67,7 +70,13 @@ void MainWindow::initValidation()
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
-    QString path = QFileDialog::getOpenFileName(this,tr("Select Image File"));
+    QString path = QFileDialog::getOpenFileName(this,
+                                                tr("Select Image File"),
+                                                lastAccessedDirectory,
+                                                tr("Image files (*.tif *.jpg *.JPEG *.png *.bmp);;All files (*.*)"));
+    //Setting the last image directory to an empty string ensures that the browser will open
+    //in the last directory it accessed the last time it was opened
+    lastAccessedDirectory = "";
     if(!path.isEmpty() && !path.isNull()){
         ui->localImageFileLineEdit->setText(path);
         //manually invoke the slot to check the new filepath
@@ -76,11 +85,14 @@ void MainWindow::on_localImageFileBrowseButton_clicked(){
 }
 
 void MainWindow::on_modelFileBrowseButton_clicked(){
-    QString path = QFileDialog::getOpenFileName(
-                this,
-                tr("Select Model File"),
-                QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory),
-                tr("GBDXM files (*.gbdxm);;All files (*.*)") );
+    QString path = QFileDialog::getOpenFileName(this,
+                                                tr("Select Model File"),
+                                                lastAccessedDirectory,
+                                                tr("GBDXM files (*.gbdxm);;All files (*.*)"));
+    //Setting the last model directory to an empty string ensures that the browser will open
+    //in the last directory it accessed the last time it was opened
+    lastAccessedDirectory = "";
+
     //The directory path string will be empty if the user presses cancel in the QFileDialog
     if(!path.isEmpty() && !path.isNull()){
         ui->modelFileLineEdit->setText(path);
