@@ -38,7 +38,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->localImageFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_localImagePathLineEditCursorPositionChanged()));
     QObject::connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
+    QObject::connect(ui->outputFilenameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputFilenameLineEditCursorPositionChanged()));
     QObject::connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
+
 }
 
 MainWindow::~MainWindow(){
@@ -444,15 +446,23 @@ void MainWindow::on_runPushButton_clicked(){
         std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+            ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
         }
         if(!hasValidModel){
             error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
+            ui->modelFileLineEdit->setStyleSheet("color: red;"
+                                                 "border: 1px solid red;");
         }
-        if(ui->outputFilenameLineEdit->text() == "") {
+        if(ui->outputFilenameLineEdit->text().trimmed() == "") {
             error += "Missing output filename\n\n";
+            ui->outputFilenameLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
         }
         if(!hasValidOutputPath) {
             error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n";
+            ui->outputLocationLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
         }
     }
 
@@ -513,7 +523,8 @@ void MainWindow::on_modelpathLineEditLostFocus(){
     //Specified file either doesn't exist or is a directory instead of a file
     else if(!exists || isDirectory) {
         std::cerr << "Error: specified model file does not exist." << std::endl;
-        ui->modelFileLineEdit->setStyleSheet("color: red");
+        ui->modelFileLineEdit->setStyleSheet("color: red;"
+                                             "border: 1px solid red;");
         hasValidModel = false;
     }
     //Valid input
@@ -538,7 +549,8 @@ void MainWindow::on_imagepathLineEditLostFocus(){
     //Specified file either doesn't exist or is a directory instead of a file
     else if(!exists || isDirectory) {
         std::cerr << "Error: specified image file does not exist." << std::endl;
-        ui->localImageFileLineEdit->setStyleSheet("color: red");
+        ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                  "border: 1px solid red;");
         hasValidLocalImagePath = false;
     }
     //Valid input
@@ -563,7 +575,8 @@ void MainWindow::on_outputLocationLineEditLostFocus(){
     //Specified file either doesn't exist or isn't a directory
     else if(!exists || !isDirectory){
         std::cerr << "Error: specified output directory does not exist." << std::endl;
-        ui->outputLocationLineEdit->setStyleSheet("color: red");
+        ui->outputLocationLineEdit->setStyleSheet("color: red;"
+                                                  "border: 1px solid red;");
         hasValidOutputPath = false;
     }
     else {
@@ -578,6 +591,11 @@ void MainWindow::on_localImagePathLineEditCursorPositionChanged(){
 
 void MainWindow::on_modelpathLineEditCursorPositionChanged(){
     ui->modelFileLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_outputFilenameLineEditCursorPositionChanged()
+{
+    ui->outputFilenameLineEdit->setStyleSheet("color: default");
 }
 
 void MainWindow::on_outputPathLineEditCursorPositionChanged(){

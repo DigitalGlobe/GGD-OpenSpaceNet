@@ -62,6 +62,8 @@ private slots:
 
     void on_modelpathLineEditCursorPositionChanged();
 
+    void on_outputFilenameLineEditCursorPositionChanged();
+
     void on_outputPathLineEditCursorPositionChanged();
 
     void on_closePushButton_clicked();
