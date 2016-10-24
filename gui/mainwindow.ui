@@ -70,6 +70,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Browse for a model file</string>
+         </property>
          <property name="text">
           <string>Browse...</string>
          </property>
@@ -96,6 +99,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>The path to the GBDXM model file that the job will use</string>
+         </property>
         </widget>
        </item>
        <item row="1" column="2">
@@ -111,6 +117,9 @@
            <width>80</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Display the model's metadata</string>
          </property>
          <property name="text">
           <string>View Metadata</string>
@@ -199,6 +208,9 @@
        </item>
        <item row="0" column="6">
         <widget class="QSpinBox" name="maxUtilizationSpinBox">
+         <property name="toolTip">
+          <string>The maximum amount of GPU memory OpenSpaceNet will use.</string>
+         </property>
          <property name="value">
           <number>95</number>
          </property>
@@ -206,6 +218,9 @@
        </item>
        <item row="0" column="9">
         <widget class="QSpinBox" name="windowSizeSpinBox1">
+         <property name="toolTip">
+          <string>The width of the model's window</string>
+         </property>
          <property name="maximum">
           <number>150</number>
          </property>
@@ -223,6 +238,9 @@
        </item>
        <item row="0" column="11">
         <widget class="QSpinBox" name="windowSizeSpinBox2">
+         <property name="toolTip">
+          <string>The height of the model's window</string>
+         </property>
          <property name="maximum">
           <number>150</number>
          </property>
@@ -233,6 +251,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="processingModeComboBox">
+         <property name="toolTip">
+          <string>Whether the GPU or CPU will be used for processing the job</string>
+         </property>
          <item>
           <property name="text">
            <string>GPU</string>
@@ -310,7 +331,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string/>
+          <string>The mode the job will use</string>
          </property>
          <property name="statusTip">
           <string/>
@@ -366,6 +387,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="toolTip">
+          <string>South latitude</string>
+         </property>
          <property name="inputMethodHints">
           <set>Qt::ImhDigitsOnly</set>
          </property>
@@ -381,6 +405,9 @@
         <widget class="QLineEdit" name="bboxWestLineEdit">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>West longitude</string>
          </property>
          <property name="inputMethodHints">
           <set>Qt::ImhDigitsOnly</set>
@@ -431,6 +458,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="toolTip">
+          <string>North latitude</string>
+         </property>
          <property name="inputMethodHints">
           <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly|Qt::ImhPreferNumbers</set>
          </property>
@@ -446,6 +476,9 @@
         <widget class="QLineEdit" name="bboxEastLineEdit">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>East longitude</string>
          </property>
          <property name="inputMethodHints">
           <set>Qt::ImhDigitsOnly</set>
@@ -478,6 +511,9 @@
            <height>20</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Whether to enable the bounding box for the local image file</string>
+         </property>
          <property name="text">
           <string>Override</string>
          </property>
@@ -502,6 +538,9 @@
         <width>0</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="toolTip">
+       <string>Run the job</string>
       </property>
       <property name="text">
        <string>Run</string>
@@ -540,6 +579,9 @@
            <height>23</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>The sliding window step size</string>
+         </property>
          <property name="value">
           <number>30</number>
          </property>
@@ -547,6 +589,9 @@
        </item>
        <item row="1" column="3" alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="nmsCheckBox">
+         <property name="toolTip">
+          <string>Whether to perform non-maximum suppression on the job output</string>
+         </property>
          <property name="text">
           <string>NMS:</string>
          </property>
@@ -554,6 +599,9 @@
        </item>
        <item row="0" column="3" colspan="2" alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="pyramidCheckBox">
+         <property name="toolTip">
+          <string>Whether to use pyramids in feature detection</string>
+         </property>
          <property name="text">
           <string>Pyramid</string>
          </property>
@@ -583,6 +631,9 @@
            <width>0</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The level of non-maximum suppression to use on the job output</string>
          </property>
          <property name="readOnly">
           <bool>false</bool>
@@ -620,6 +671,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QDoubleSpinBox" name="confidenceSpinBox">
+         <property name="toolTip">
+          <string>The minimum percent score for results to be included in the job output</string>
+         </property>
          <property name="decimals">
           <number>1</number>
          </property>
@@ -644,6 +698,9 @@
         <width>0</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="toolTip">
+       <string>View OpenSpaceNet documentation</string>
       </property>
       <property name="text">
        <string>Help</string>
@@ -695,7 +752,11 @@
         </widget>
        </item>
        <item row="7" column="2">
-        <widget class="QLineEdit" name="outputLocationLineEdit"/>
+        <widget class="QLineEdit" name="outputLocationLineEdit">
+         <property name="toolTip">
+          <string>The directory where the output files will be placed</string>
+         </property>
+        </widget>
        </item>
        <item row="10" column="0">
         <widget class="QLabel" name="geometryTypeLabel">
@@ -706,6 +767,9 @@
        </item>
        <item row="11" column="5">
         <widget class="QCheckBox" name="producerInfoCheckBox">
+         <property name="toolTip">
+          <string>Whether to add producer information to each vector feature</string>
+         </property>
          <property name="text">
           <string>Producer Info</string>
          </property>
@@ -730,6 +794,9 @@
        </item>
        <item row="7" column="5">
         <widget class="QPushButton" name="outputLocationBrowseButton">
+         <property name="toolTip">
+          <string>Browse for an output location</string>
+         </property>
          <property name="text">
           <string>Browse...</string>
          </property>
@@ -737,6 +804,9 @@
        </item>
        <item row="7" column="0">
         <widget class="QComboBox" name="outputFormatComboBox">
+         <property name="toolTip">
+          <string>The output vector format</string>
+         </property>
          <item>
           <property name="text">
            <string>Shapefile</string>
@@ -785,12 +855,18 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>The name of the output file</string>
+         </property>
         </widget>
        </item>
        <item row="11" column="1" colspan="2">
         <widget class="QLineEdit" name="outputLayerLineEdit">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>The output layer name</string>
          </property>
         </widget>
        </item>
@@ -862,7 +938,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string/>
+          <string>The path to the local image file the job will process</string>
          </property>
          <property name="toolTipDuration">
           <number>-1</number>
@@ -888,6 +964,9 @@
            <width>0</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The API token for the selected web service</string>
          </property>
         </widget>
        </item>
@@ -957,6 +1036,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Your username for the selected web service</string>
+         </property>
         </widget>
        </item>
        <item row="2" column="7">
@@ -992,6 +1074,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Browse for a local image file</string>
+         </property>
          <property name="text">
           <string>Browse...</string>
          </property>
@@ -1020,6 +1105,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Your password for the selected web service</string>
+         </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
@@ -1038,6 +1126,9 @@
            <width>0</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The source of the image processed by the job</string>
          </property>
          <item>
           <property name="text">
@@ -1079,7 +1170,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string/>
+          <string>The number of image tiles that will be downloaded simultaneously</string>
          </property>
          <property name="maximum">
           <number>200</number>
@@ -1116,6 +1207,9 @@
            <height>23</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>The zoom level for the selected web service</string>
+         </property>
          <property name="maximum">
           <number>22</number>
          </property>
@@ -1150,6 +1244,9 @@
            <width>160</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The MapsAPI map Id</string>
          </property>
         </widget>
        </item>
@@ -1187,6 +1284,9 @@
     </item>
     <item row="10" column="3">
      <widget class="QPushButton" name="closePushButton">
+      <property name="toolTip">
+       <string>Close OpenSpaceNet</string>
+      </property>
       <property name="text">
        <string>Close</string>
       </property>
