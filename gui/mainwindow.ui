@@ -780,6 +780,9 @@
        </item>
        <item row="11" column="0">
         <widget class="QComboBox" name="geometryTypeComboBox">
+         <property name="toolTip">
+          <string>The output geometry type</string>
+         </property>
          <item>
           <property name="text">
            <string>Polygon</string>
