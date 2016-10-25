@@ -8,7 +8,11 @@ set(OpenSkyNet_VERSION_MINOR 3)
 
 
 cmake_policy(SET CMP0015 NEW)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+if(UNIX AND NOT APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+endif()
 
 set(SOURCE_FILES
         src/main.cpp
@@ -75,27 +79,16 @@ find_package(CUDA REQUIRED)
 if (CUDA_FOUND)
     include_directories(${CUDA_INCLUDE_DIRS})
     target_link_libraries(OpenSkyNet ${CUDA_LIBRARIES})
+        if(UNIX AND NOT APPLE)
     target_link_libraries(OpenSkyNet libculibos.a)
+            endif()
 endif()
 
 find_package(GDAL REQUIRED)
 if(GDAL_FOUND)
     include_directories(${GDAL_INCLUDE_DIR})
-    target_link_libraries(OpenSkyNet ${GDAL_LIBRARY})
-    target_link_libraries(OpenSkyNet libtiff.a)
-    target_link_libraries(OpenSkyNet libpng.a)
-    target_link_libraries(OpenSkyNet libz.a)
-    target_link_libraries(OpenSkyNet libhdf5.a)
-    target_link_libraries(OpenSkyNet libjpeg.a)
-    target_link_libraries(OpenSkyNet libturbojpeg.a)
-    target_link_libraries(OpenSkyNet /opt/DeepCore/pgsql/lib/libpq.a)
-    target_link_libraries(OpenSkyNet /opt/DeepCore/FileGDB_API-64/lib/libFileGDBAPI.so)
-    target_link_libraries(OpenSkyNet /opt/DeepCore/FileGDB_API-64/lib/libfgdbunixrtl.so)
-    target_link_libraries(OpenSkyNet libcurl.a)
-    target_link_libraries(OpenSkyNet libssl.a)
-    target_link_libraries(OpenSkyNet libcrypto.a)
-    target_link_libraries(OpenSkyNet libproj.a)
-    target_link_libraries(OpenSkyNet liblzma.a)
+    target_link_libraries(OpenSkyNet ${GDAL_LIBRARIES})
+
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
