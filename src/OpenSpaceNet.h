@@ -22,14 +22,15 @@
 ********************************************************************************/
 
 
-#ifndef OPENSKYNET_OPENSKYNET_H
-#define OPENSKYNET_OPENSKYNET_H
+#ifndef OPENSPACENET_OPENSPACENET_H
+#define OPENSPACENET_OPENSPACENET_H
 
-#include "OpenSkyNetArgs.h"
+#include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <classification/Prediction.h>
 #include <imagery/GeoImage.h>
 #include <imagery/MapServiceClient.h>
+#include <imagery/Pyramid.h>
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
@@ -37,10 +38,10 @@
 
 namespace dg { namespace osn {
 
-class OpenSkyNet
+class OpenSpaceNet
 {
 public:
-    OpenSkyNet(const OpenSkyNetArgs& args);
+    OpenSpaceNet(const OpenSpaceNetArgs& args);
     void process();
 
 private:
@@ -54,8 +55,9 @@ private:
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
     void printModel();
     void skipLine() const;
+    deepcore::imagery::Pyramid calcPyramid() const;
 
-    const OpenSkyNetArgs& args_;
+    const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     std::unique_ptr<deepcore::classification::Model> model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
@@ -69,4 +71,4 @@ private:
 
 } } // namespace dg { namespace osn {
 
-#endif //OPENSKYNET_LIBOPENSKYNET_H
+#endif //OPENSPACENET_LIBOPENSPACENET_H

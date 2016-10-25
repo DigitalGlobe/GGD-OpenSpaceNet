@@ -21,7 +21,8 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNet.h"
+#include "OpenSpaceNet.h"
+#include <OpenSpaceNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
@@ -33,6 +34,7 @@
 #include <classification/GbdxModelReader.h>
 #include <classification/NonMaxSuppression.h>
 #include <classification/SlidingWindowDetector.h>
+#include <classification/FilterLabels.h>
 #include <deque>
 #include <imagery/CvToLog.h>
 #include <imagery/GdalImage.h>
@@ -42,9 +44,9 @@
 #include <mutex>
 #include <opencv2/core/mat.hpp>
 #include <sstream>
-#include <utility/User.h>
+#include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
-#include <version.h>
+#include <utility/User.h>
 
 namespace dg { namespace osn {
 
@@ -80,10 +82,11 @@ using std::string;
 using std::vector;
 using std::unique_lock;
 using std::unique_ptr;
+using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::MultiProgressDisplay;
 
-OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
+OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
 {
     if(args_.source > Source::LOCAL) {
@@ -91,7 +94,7 @@ OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
     }
 }
 
-void OpenSkyNet::process()
+void OpenSpaceNet::process()
 {
     if(args_.source > Source::LOCAL) {
         initMapServiceImage();
@@ -115,7 +118,7 @@ void OpenSkyNet::process()
     featureSet_.reset();
 }
 
-void OpenSkyNet::initModel()
+void OpenSpaceNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
 
@@ -131,28 +134,19 @@ void OpenSkyNet::initModel()
         windowSize_ = modelPackage->metadata().windowSize();
     }
 
+    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100));
+
+    float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
-        int batchSize;
         if(blockSize_.width % windowSize_.width == 0 && blockSize_.height % windowSize_.height == 0) {
-            batchSize = blockSize_.area() / windowSize_.area();
             concurrent_ = true;
         } else {
             cv::Size xySize;
             xySize.width = (int)ceilf((float)blockSize_.width / windowSize_.width);
             xySize.height = (int)ceilf((float)blockSize_.height / windowSize_.height);
-            batchSize = xySize.area();
         }
-
-        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::BATCH_SIZE, batchSize }));
         stepSize_ = windowSize_;
-
-        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-        slidingWindowDetector.setOverrideSize(windowSize_);
-        slidingWindowDetector.setConfidence(0);
-
     } else if(args_.action == Action::DETECT) {
-        model_.reset(Model::create(*modelPackage, !args_.useCpu, { BatchSize::MAX_UTILIZATION,  args_.maxUtitilization / 100 }));
-
         auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
 
         if(args_.action == Action::DETECT) {
@@ -163,12 +157,15 @@ void OpenSkyNet::initModel()
             }
         }
 
-        slidingWindowDetector.setOverrideSize(windowSize_);
-        slidingWindowDetector.setConfidence(args_.confidence / 100);
+        confidence = args_.confidence / 100;
     }
+
+    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
+    slidingWindowDetector.setOverrideSize(windowSize_);
+    slidingWindowDetector.setConfidence(confidence);
 }
 
-void OpenSkyNet::initLocalImage()
+void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     auto image = make_unique<GdalImage>(args_.image);
@@ -176,15 +173,26 @@ void OpenSkyNet::initLocalImage()
 
     if(args_.bbox) {
         auto projBbox = image->spatialReference().fromLatLon(*args_.bbox);
-        auto pixelBbox = cv::Rect { image->projToPixel(projBbox.tl()), image->projToPixel(projBbox.br()) };
-        image->setBbox(pixelBbox);
-        blockSize_ = image->blockSize();
+        auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
+        auto intersect = projBbox & imageBbox;
+        DG_CHECK(!almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+
+        if(!almostEq(intersect, imageBbox)) {
+            auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
+            image->setBbox(pixelBbox);
+        }
+
+        if(!almostEq(imageBbox, projBbox)) {
+            auto llIntersect = image->spatialReference().toLatLon(intersect);
+            OSN_LOG(info) << "Bounding box adjusted to " << llIntersect.tl() << " : " << llIntersect.br();
+        }
     }
 
+    blockSize_ = image->blockSize();
     image_.reset(image.release());
 }
 
-void OpenSkyNet::initMapServiceImage()
+void OpenSpaceNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
@@ -226,7 +234,7 @@ void OpenSkyNet::initMapServiceImage()
     image_.reset(client_->imageFromArea(projBbox, args_.action != Action::LANDCOVER));
 }
 
-void OpenSkyNet::initFeatureSet()
+void OpenSpaceNet::initFeatureSet()
 {
     OSN_LOG(info) << "Initializing the output feature set..." ;
 
@@ -243,10 +251,12 @@ void OpenSkyNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
+    VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
+
+    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
 }
 
-void OpenSkyNet::processConcurrent()
+void OpenSpaceNet::processConcurrent()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
@@ -297,6 +307,19 @@ void OpenSkyNet::processConcurrent()
 
             Pyramid pyramid({ { item.second.size(), stepSize_ } });
             auto predictions = slidingWindowDetector.detect(item.second, pyramid);
+
+            if(!args_.excludeLabels.empty()) {
+                std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+                auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+                predictions = move(filtered);
+            }
+
+            if(!args_.includeLabels.empty()) {
+                std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+                auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+                predictions = move(filtered);
+            }
+
             for(auto& prediction : predictions) {
                 prediction.window.x += item.first.x;
                 prediction.window.y += item.first.y;
@@ -325,7 +348,7 @@ void OpenSkyNet::processConcurrent()
     skipLine();
 }
 
-void OpenSkyNet::processSerial()
+void OpenSpaceNet::processSerial()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
@@ -352,13 +375,6 @@ void OpenSkyNet::processSerial()
     duration<double> duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
-    Pyramid pyramid;
-    if(args_.pyramid) {
-        pyramid = Pyramid(mat.size(), windowSize_, stepSize_, 2.0);
-    } else {
-        pyramid = Pyramid({ { mat.size(), stepSize_ } });
-    }
-
     skipLine();
     OSN_LOG(info) << "Detecting features...";
 
@@ -368,7 +384,7 @@ void OpenSkyNet::processSerial()
     }
 
     startTime = high_resolution_clock::now();
-    auto predictions = slidingWindowDetector.detect(mat, pyramid, [&detectProgress](float progress) -> bool {
+    auto predictions = slidingWindowDetector.detect(mat, calcPyramid(), [&detectProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(detectProgress && detectProgress->count() < curProgress) {
             *detectProgress += curProgress - detectProgress->count();
@@ -379,6 +395,22 @@ void OpenSkyNet::processSerial()
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
 
+    if(!args_.excludeLabels.empty()) {
+        skipLine();
+        OSN_LOG(info) << "Performing category filtering..." ;
+        std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+        auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+        predictions = move(filtered);
+    }
+
+    if(!args_.includeLabels.empty()) {
+        skipLine();
+        OSN_LOG(info) << "Performing category filtering..." ;
+        std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+        auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+        predictions = move(filtered);
+    }
+
     if(args_.nms) {
         skipLine();
         OSN_LOG(info) << "Performing non-maximum suppression..." ;
@@ -386,12 +418,14 @@ void OpenSkyNet::processSerial()
         predictions = move(filtered);
     }
 
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
     for(const auto& prediction : predictions) {
         addFeature(prediction.window, prediction.predictions);
     }
 }
 
-void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
 {
     if(predictions.empty()) {
         return;
@@ -433,7 +467,7 @@ void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &pr
     }
 }
 
-Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
+Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
             { "top_score", { FieldType ::REAL, predictions[0].confidence } },
@@ -452,14 +486,14 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
 
     if(args_.producerInfo) {
         fields["username"] = { FieldType ::STRING, loginUser() };
-        fields["app"] = { FieldType::STRING, "OpenSkyNet"};
-        fields["app_ver"] =  { FieldType::STRING, OPENSKYNET_VERSION_STRING };
+        fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
+        fields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
 
     return std::move(fields);
 }
 
-void OpenSkyNet::printModel()
+void OpenSpaceNet::printModel()
 {
     skipLine();
 
@@ -479,11 +513,42 @@ void OpenSkyNet::printModel()
     skipLine();
 }
 
-void OpenSkyNet::skipLine() const
+void OpenSpaceNet::skipLine() const
 {
     if(!args_.quiet) {
         cout << endl;
     }
+}
+
+Pyramid OpenSpaceNet::calcPyramid() const
+{
+    Pyramid pyramid;
+    if(args_.pyramidWindowSizes.empty()) {
+        if(args_.pyramid) {
+            pyramid = Pyramid(image_->size(), windowSize_, stepSize_, 2.0);
+        } else {
+            pyramid = Pyramid({ { image_->size(), stepSize_ } });
+        }
+    } else {
+        // Sanity check, should've been caught before
+        DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
+
+        auto imageSize = image_->size();
+        const auto& metadata = model_->metadata();
+
+        for(size_t i = 0; i < args_.pyramidWindowSizes.size(); ++i) {
+            const auto& windowSize = args_.pyramidWindowSizes[i];
+            const auto& modelSize = std::max(metadata.windowSize().width, metadata.windowSize().height);
+            auto scale = (double) modelSize / windowSize;
+            auto stepSize = (int)round(args_.pyramidStepSizes[i] * scale);
+            auto width = (int)round(imageSize.width * scale);
+            auto height = (int)round(imageSize.height * scale);
+
+            pyramid.levels().push_back({width, height, stepSize, stepSize });
+        }
+    }
+
+    return std::move(pyramid);
 }
 
 } } // namespace dg { namespace osn {
