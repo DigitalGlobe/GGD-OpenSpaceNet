@@ -1,0 +1,68 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid\+Image\+Batch$<$ T $>$ Class Template Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch}\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch$<$ T $>$@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch$<$ T $>$}}
+
+
+Slices an image into windows defined by a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} and groups the results into batches.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Image\+Batch.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}$<$ T $>$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a64329b050ba9864aec3e3532c7a2aad3}{value\+\_\+type}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}$<$ T $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_ac40a046993c4d0ccdc5a44659b130c68}{reference}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator}$<$ T $>$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a4cad1aac53a144da29324e48ea357f78}{iterator}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga5779bf3b610df23758e3f905b03f67ef}{Pyramid\+Image\+Batch} (const cv\+::\+Mat \&image, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \&pyramid\+Sliding\+Window, size\+\_\+t \hyperlink{group___imagery_module_gac5041040cb2396c35286067a6be232bc}{batch\+Size}, \hyperlink{namespacedg_1_1deepcore_1_1imagery_ad59888e5453be057c25213ce51df1439}{Preprocess\+Func} \hyperlink{group___imagery_module_gaf8e7737e6e0119039d2d755781450508}{preprocess\+Func}=nullptr, const cv\+::\+Size \&window\+Size=\{\})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch}{Pyramid\+Image\+Batch} class with the batch data owned by the class. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gab801036420ec3dd50de9d5c5e3ec4024}{Pyramid\+Image\+Batch} (const cv\+::\+Mat \&image, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \&pyramid\+Sliding\+Window, size\+\_\+t \hyperlink{group___imagery_module_gac5041040cb2396c35286067a6be232bc}{batch\+Size}, T $\ast$out\+Data, size\+\_\+t out\+Data\+Size, \hyperlink{namespacedg_1_1deepcore_1_1imagery_ad59888e5453be057c25213ce51df1439}{Preprocess\+Func} \hyperlink{group___imagery_module_gaf8e7737e6e0119039d2d755781450508}{preprocess\+Func}=nullptr, const cv\+::\+Size \&window\+Size=\{\})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch}{Pyramid\+Image\+Batch} class with the batch data buffer provided by the caller. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer}{Pyramid\+Image\+Slicer} \& \hyperlink{group___imagery_module_ga8c11e57a0df4dcfabfd28eab4440b3d9}{slicer} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the slicer. \end{DoxyCompactList}\item 
+T $\ast$ \hyperlink{group___imagery_module_ga5ac82c16d79194885581fc6cb07f7f41}{data} () noexcept
+\begin{DoxyCompactList}\small\item\em Returns the batch data buffer. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{group___imagery_module_gae52827a6e33495ed3b41bc8fa9e956aa}{data\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the size of the batch data buffer. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{group___imagery_module_gac5041040cb2396c35286067a6be232bc}{batch\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the batch size. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{group___imagery_module_gadda0749e3c2b759418c8d148858198a9}{num\+Batches} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the total number of batches. \end{DoxyCompactList}\item 
+const \hyperlink{namespacedg_1_1deepcore_1_1imagery_ad59888e5453be057c25213ce51df1439}{Preprocess\+Func} \hyperlink{group___imagery_module_gaf8e7737e6e0119039d2d755781450508}{preprocess\+Func} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the preprocessing function. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a4cad1aac53a144da29324e48ea357f78}{iterator} \hyperlink{group___imagery_module_ga536737967e4276b646aadc432cce9ca3}{begin} ()
+\begin{DoxyCompactList}\small\item\em Returns the beginning \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a4cad1aac53a144da29324e48ea357f78}{iterator} \hyperlink{group___imagery_module_ga7e2fa7f2608bc1784f52c8f165fcc2f7}{end} ()
+\begin{DoxyCompactList}\small\item\em Returns the ending \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\\*
+class dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch$<$ T $>$}
+
+Slices an image into windows defined by a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} and groups the results into batches. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The output data type. Must be a numeric type supported by Caffe. i.\+e. float or unsigned char. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Member Typedef Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}!iterator@{iterator}}
+\index{iterator@{iterator}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{iterator}{iterator}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ typedef {\bf Pyramid\+Image\+Batch\+Iterator}$<$T$>$ {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}$<$ T $>$\+::{\bf iterator}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a4cad1aac53a144da29324e48ea357f78}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a4cad1aac53a144da29324e48ea357f78}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}!reference@{reference}}
+\index{reference@{reference}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{reference}{reference}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ typedef {\bf Image\+Batch}$<$T$>$\& {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}$<$ T $>$\+::{\bf reference}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_ac40a046993c4d0ccdc5a44659b130c68}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_ac40a046993c4d0ccdc5a44659b130c68}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}!value\+\_\+type@{value\+\_\+type}}
+\index{value\+\_\+type@{value\+\_\+type}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{value\+\_\+type}{value_type}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ typedef {\bf Image\+Batch}$<$T$>$ {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch}$<$ T $>$\+::{\bf value\+\_\+type}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a64329b050ba9864aec3e3532c7a2aad3}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_a64329b050ba9864aec3e3532c7a2aad3}

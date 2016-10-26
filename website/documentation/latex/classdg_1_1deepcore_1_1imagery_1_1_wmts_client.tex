@@ -1,0 +1,449 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Wmts\+Client Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client}\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+
+
+A client for a W\+M\+TS service. Currently only the K\+VP encoding scheme is supported.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Wmts\+Client.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Wmts\+Client\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1imagery_1_1_wmts_client__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a408ab2e9f51053db6d0fbf1074567851}{Wmts\+Client} ()=default
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a7795f68322e43cc9485d541f70caea1c}{Wmts\+Client} (const std\+::string \&\hyperlink{group___imagery_module_gadf279770cec6dc9ac56348bb2e1b29e1}{base\+Url}, const std\+::string \&\hyperlink{group___imagery_module_gac4c03ea635c336ca2fe7de533706c11c}{credentials}=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client}{Wmts\+Client} given a base U\+RL and credentials. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9aa6eb184d4769e1c7b4242ecf4f3d8d}{spatial\+Reference} () override
+\begin{DoxyCompactList}\small\item\em Gets the spatial coordinate reference for the web service. May cause \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{Map\+Service\+Client\+::connect()} to be called. \end{DoxyCompactList}\item 
+const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{wmts\+::\+Tile\+Matrix} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9d4a95bddb0537f61815b3d48a9363af}{tile\+Matrix} () override
+\begin{DoxyCompactList}\small\item\em Gets the current tile matrix parameters. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a89f67fe90aa2275e8a4ea34397e450a5}{image\+Formats} () override
+\begin{DoxyCompactList}\small\item\em Gets the supported image formats for the current layer, tile matrix set, and tile matrix. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a2f01504ae2c8c65783e2878e1525fb65}{num\+Bands} () override
+\begin{DoxyCompactList}\small\item\em Gets the number of raster bands in the image. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a011ce59444a970647066f9edf3a7544b}{mode} () override
+\begin{DoxyCompactList}\small\item\em Gets the image read mode. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aa37e7de3375cc1d6027d11bec347375a}{pixel\+Type} () override
+\begin{DoxyCompactList}\small\item\em Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aadea619994a1fba8c8ed51894381a234}{layers} () override
+\begin{DoxyCompactList}\small\item\em Gets the available layer names. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aaeb1a41ceda072c0f11b33bdd3cf819e}{tile\+Matrix\+Sets} () override
+\begin{DoxyCompactList}\small\item\em Gets the the available tile matrix sets for the current layer. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab71e17f8fd1c50c2aa64171c7e4c5f8a}{tile\+Matrix\+Ids} () override
+\begin{DoxyCompactList}\small\item\em Gets the available tile matrix ids for the current tile matrix set. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab466d3b34f5b8558b4f1a5694b10496d}{layer} () override
+\begin{DoxyCompactList}\small\item\em Gets the current layer. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a61d18f8e719b505c0f0a6d21e4711c6d}{set\+Layer} (const std\+::string \&\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab466d3b34f5b8558b4f1a5694b10496d}{layer}) override
+\begin{DoxyCompactList}\small\item\em Sets the current layer. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a0053f545baed6b247f7e4bdf68af8d5c}{set\+Tile\+Matrix\+Set} (const std\+::string \&\hyperlink{group___imagery_module_gae380a970bc0aa63d34e6f2295ea9c8f4}{tile\+Matrix\+Set}) override
+\begin{DoxyCompactList}\small\item\em Sets the tile matrix set. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_affa4f468e78952de79d3d8a49c5a14ab}{set\+Tile\+Matrix\+Id} (const std\+::string \&\hyperlink{group___imagery_module_gae6a1721e1da9ab60ab4e62240baf304b}{tile\+Matrix\+Id}) override
+\begin{DoxyCompactList}\small\item\em Sets the tile matrix id. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a455a22a51644b4f89a70c163141cc3a1}{connect\+Internal} () override
+\begin{DoxyCompactList}\small\item\em Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aad9106986ebd3f1af5ee9b4f2a756ba4}{set\+Connected} (bool connected) override
+\begin{DoxyCompactList}\small\item\em Sets whether we\textquotesingle{}re connected to the web service. Inheriting classes may override this, but be sure to call the base classe\textquotesingle{}s method as well. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_af896545533026802ea688f59f170aa0f}{layer\+Names\+Restricted} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Gets whether the layer names are restricted. If true, layer name must be in the vector returned by Map\+Service\+Image(), if false, layer names can be arbitrary. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae9ec4a090ea93422dd3beec62c50f5bc}{url\+Template} () override
+\begin{DoxyCompactList}\small\item\em Gets the U\+RL template for the current layer, tile matrix set, and tile matrix. The template must contain \{x\} and \{y\} placeholders for the tile coordinate. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1_error}{Error} $\ast$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae8429816853b38f7bdb29c1a75daebe5}{on\+Http\+Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&e) const noexceptoverride
+\begin{DoxyCompactList}\small\item\em H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A client for a W\+M\+TS service. Currently only the K\+VP encoding scheme is supported. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!Wmts\+Client@{Wmts\+Client}}
+\index{Wmts\+Client@{Wmts\+Client}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{Wmts\+Client()=default}{WmtsClient()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::\+Wmts\+Client (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a408ab2e9f51053db6d0fbf1074567851}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a408ab2e9f51053db6d0fbf1074567851}
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!Wmts\+Client@{Wmts\+Client}}
+\index{Wmts\+Client@{Wmts\+Client}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{Wmts\+Client(const std\+::string \&base\+Url, const std\+::string \&credentials="""")}{WmtsClient(const std::string &baseUrl, const std::string &credentials="")}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::\+Wmts\+Client (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{base\+Url, }
+\item[{const std\+::string \&}]{credentials = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a7795f68322e43cc9485d541f70caea1c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a7795f68322e43cc9485d541f70caea1c}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client}{Wmts\+Client} given a base U\+RL and credentials. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em base\+Url} & The base U\+RL of the W\+M\+TS service. \\
+\hline
+\mbox{\tt in}  & {\em credentials} & The servcie credentials, if required. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!connect\+Internal@{connect\+Internal}}
+\index{connect\+Internal@{connect\+Internal}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{connect\+Internal() override}{connectInternal() override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::connect\+Internal (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a455a22a51644b4f89a70c163141cc3a1}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a455a22a51644b4f89a70c163141cc3a1}
+
+
+Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. 
+
+
+
+Implements \hyperlink{group___imagery_module_gabba13ea72115a1196ed44e35cc17f1b9}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!image\+Formats@{image\+Formats}}
+\index{image\+Formats@{image\+Formats}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{image\+Formats() override}{imageFormats() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::image\+Formats (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a89f67fe90aa2275e8a4ea34397e450a5}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a89f67fe90aa2275e8a4ea34397e450a5}
+
+
+Gets the supported image formats for the current layer, tile matrix set, and tile matrix. 
+
+\begin{DoxyReturn}{Returns}
+The supported image formats in the H\+T\+M\+L-\/style media type format. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga48b6f633e02c44d955b4d4b1b8352b57}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!layer@{layer}}
+\index{layer@{layer}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{layer() override}{layer() override}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::layer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab466d3b34f5b8558b4f1a5694b10496d}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab466d3b34f5b8558b4f1a5694b10496d}
+
+
+Gets the current layer. 
+
+\begin{DoxyReturn}{Returns}
+The current layer. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_gafe3e2d18fb0c9ef72b3c23e97ead241f}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!layer\+Names\+Restricted@{layer\+Names\+Restricted}}
+\index{layer\+Names\+Restricted@{layer\+Names\+Restricted}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{layer\+Names\+Restricted() const noexceptoverride}{layerNamesRestricted() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::layer\+Names\+Restricted (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_af896545533026802ea688f59f170aa0f}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_af896545533026802ea688f59f170aa0f}
+
+
+Gets whether the layer names are restricted. If true, layer name must be in the vector returned by Map\+Service\+Image(), if false, layer names can be arbitrary. 
+
+\begin{DoxyReturn}{Returns}
+Whether the layer names are restricted. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga900665eb2167743cdac5e46ac536c209}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!layers@{layers}}
+\index{layers@{layers}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{layers() override}{layers() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::layers (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aadea619994a1fba8c8ed51894381a234}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aadea619994a1fba8c8ed51894381a234}
+
+
+Gets the available layer names. 
+
+\begin{DoxyReturn}{Returns}
+The available layer names. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga51617c7aeaf00918210d64aaf5712d4e}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!mode@{mode}}
+\index{mode@{mode}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{mode() override}{mode() override}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Image\+Read\+Mode} dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::mode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a011ce59444a970647066f9edf3a7544b}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a011ce59444a970647066f9edf3a7544b}
+
+
+Gets the image read mode. 
+
+\begin{DoxyReturn}{Returns}
+The image read mode; 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae727c872288e3a4219f80b6caa90ff3a}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!num\+Bands@{num\+Bands}}
+\index{num\+Bands@{num\+Bands}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{num\+Bands() override}{numBands() override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::num\+Bands (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a2f01504ae2c8c65783e2878e1525fb65}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a2f01504ae2c8c65783e2878e1525fb65}
+
+
+Gets the number of raster bands in the image. 
+
+\begin{DoxyReturn}{Returns}
+The number of bands. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga7b7d8333be9d5386d8ddca5148b041b5}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!on\+Http\+Error@{on\+Http\+Error}}
+\index{on\+Http\+Error@{on\+Http\+Error}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{on\+Http\+Error(const Error \&e) const noexceptoverride}{onHttpError(const Error &e) const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Error} $\ast$ dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::on\+Http\+Error (
+\begin{DoxyParamCaption}
+\item[{const {\bf Error} \&}]{e}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae8429816853b38f7bdb29c1a75daebe5}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae8429816853b38f7bdb29c1a75daebe5}
+
+
+H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em e} & The input Http\+Error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classdg_1_1deepcore_1_1_error}{Error}, or nullptr if \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was not transformed. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae53b20c2986e1b9898c77b2065cbdd54}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+
+
+Reimplemented in \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_abce47a0dd9861f62a39d135dcf750cd0}{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!pixel\+Type@{pixel\+Type}}
+\index{pixel\+Type@{pixel\+Type}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{pixel\+Type() override}{pixelType() override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::pixel\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aa37e7de3375cc1d6027d11bec347375a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aa37e7de3375cc1d6027d11bec347375a}
+
+
+Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. 
+
+\begin{DoxyReturn}{Returns}
+The pixel type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gaa94fd511ae5e578357ceba16a9039b51}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!set\+Connected@{set\+Connected}}
+\index{set\+Connected@{set\+Connected}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Connected(bool connected) override}{setConnected(bool connected) override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::set\+Connected (
+\begin{DoxyParamCaption}
+\item[{bool}]{connected}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aad9106986ebd3f1af5ee9b4f2a756ba4}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aad9106986ebd3f1af5ee9b4f2a756ba4}
+
+
+Sets whether we\textquotesingle{}re connected to the web service. Inheriting classes may override this, but be sure to call the base classe\textquotesingle{}s method as well. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em connected} & Whether we\textquotesingle{}re connected. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \hyperlink{group___imagery_module_gadf7a167ee936ff1819c8ede7933cc6db}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!set\+Layer@{set\+Layer}}
+\index{set\+Layer@{set\+Layer}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Layer(const std\+::string \&layer) override}{setLayer(const std::string &layer) override}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::set\+Layer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{layer}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a61d18f8e719b505c0f0a6d21e4711c6d}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a61d18f8e719b505c0f0a6d21e4711c6d}
+
+
+Sets the current layer. Does not cause the connection to be terminated, but inheriting classes may do so. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em layer} & The layer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the layer was reset, false if the desired layer is already current. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_ga509f0f787565fafc1618cc0e5fb2399a}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!set\+Tile\+Matrix\+Id@{set\+Tile\+Matrix\+Id}}
+\index{set\+Tile\+Matrix\+Id@{set\+Tile\+Matrix\+Id}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Tile\+Matrix\+Id(const std\+::string \&tile\+Matrix\+Id) override}{setTileMatrixId(const std::string &tileMatrixId) override}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::set\+Tile\+Matrix\+Id (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{tile\+Matrix\+Id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_affa4f468e78952de79d3d8a49c5a14ab}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_affa4f468e78952de79d3d8a49c5a14ab}
+
+
+Sets the tile matrix id. Does not cause the connection to be terminated, but inheriting classes may do so. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tile\+Matrix\+Id} & The tile matrix id. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the tile matrix was reset, false if the desired tile matrix is already current. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_ga5f85c6b91d45f419905321b3752aa70c}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!set\+Tile\+Matrix\+Set@{set\+Tile\+Matrix\+Set}}
+\index{set\+Tile\+Matrix\+Set@{set\+Tile\+Matrix\+Set}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Tile\+Matrix\+Set(const std\+::string \&tile\+Matrix\+Set) override}{setTileMatrixSet(const std::string &tileMatrixSet) override}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::set\+Tile\+Matrix\+Set (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{tile\+Matrix\+Set}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a0053f545baed6b247f7e4bdf68af8d5c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a0053f545baed6b247f7e4bdf68af8d5c}
+
+
+Sets the tile matrix set. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em tile\+Matrix\+Set} & The tile matrix set. Does not cause the connection to be terminated, but inheriting classes may do so. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the tile matrix set was reset, false if the desired tile matrix set is already current. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_ga56c3ba986ce399f2fc6a1d9dcf886b49}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!spatial\+Reference@{spatial\+Reference}}
+\index{spatial\+Reference@{spatial\+Reference}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{spatial\+Reference() override}{spatialReference() override}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf Spatial\+Reference} \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::spatial\+Reference (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9aa6eb184d4769e1c7b4242ecf4f3d8d}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9aa6eb184d4769e1c7b4242ecf4f3d8d}
+
+
+Gets the spatial coordinate reference for the web service. May cause \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{Map\+Service\+Client\+::connect()} to be called. 
+
+\begin{DoxyReturn}{Returns}
+The spatial coordinate reference. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gadfaf375c95456bdf445d774f5dd24bbc}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!tile\+Matrix@{tile\+Matrix}}
+\index{tile\+Matrix@{tile\+Matrix}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix() override}{tileMatrix() override}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf wmts\+::\+Tile\+Matrix} \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::tile\+Matrix (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9d4a95bddb0537f61815b3d48a9363af}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a9d4a95bddb0537f61815b3d48a9363af}
+
+
+Gets the current tile matrix parameters. 
+
+\begin{DoxyReturn}{Returns}
+The tile matrix parameters. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga0f308a2d98dc9f34b8ca651576265449}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!tile\+Matrix\+Ids@{tile\+Matrix\+Ids}}
+\index{tile\+Matrix\+Ids@{tile\+Matrix\+Ids}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix\+Ids() override}{tileMatrixIds() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::tile\+Matrix\+Ids (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab71e17f8fd1c50c2aa64171c7e4c5f8a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ab71e17f8fd1c50c2aa64171c7e4c5f8a}
+
+
+Gets the available tile matrix ids for the current tile matrix set. 
+
+\begin{DoxyReturn}{Returns}
+The available tile matricies 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga2e5ad607fa13ac17e0fcb6b00af7d30e}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!tile\+Matrix\+Sets@{tile\+Matrix\+Sets}}
+\index{tile\+Matrix\+Sets@{tile\+Matrix\+Sets}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix\+Sets() override}{tileMatrixSets() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::tile\+Matrix\+Sets (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aaeb1a41ceda072c0f11b33bdd3cf819e}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_aaeb1a41ceda072c0f11b33bdd3cf819e}
+
+
+Gets the the available tile matrix sets for the current layer. 
+
+\begin{DoxyReturn}{Returns}
+The available tile matrix sets 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga1cf271559e56836cf29176382c934a0c}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}!url\+Template@{url\+Template}}
+\index{url\+Template@{url\+Template}!dg\+::deepcore\+::imagery\+::\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{url\+Template() override}{urlTemplate() override}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::imagery\+::\+Wmts\+Client\+::url\+Template (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae9ec4a090ea93422dd3beec62c50f5bc}{}\label{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae9ec4a090ea93422dd3beec62c50f5bc}
+
+
+Gets the U\+RL template for the current layer, tile matrix set, and tile matrix. The template must contain \{x\} and \{y\} placeholders for the tile coordinate. 
+
+\begin{DoxyReturn}{Returns}
+The U\+RL template. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gaafa4e8cc2a047f6467e227603ccf1a23}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+

@@ -1,0 +1,93 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Model\+Metadata Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_model_metadata}\index{dg\+::deepcore\+::classification\+::\+Model\+Metadata@{dg\+::deepcore\+::classification\+::\+Model\+Metadata}}
+
+
+Contains model metadata.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Model\+Metadata.\+h$>$}
+
+\subsection*{Public Types}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_ga839013c5b7cbf03571fd141fbb0620b4}{Model\+Metadata} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \& \hyperlink{group___classification_module_gac896bd743678834ed3b9fa036030c739}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \&rhs)
+\begin{DoxyCompactList}\small\item\em The copy operator. Can be overridden if additional state needs to be copied. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \& \hyperlink{group___classification_module_ga5f6229dc9ebfe42df3729cfc76d593cf}{operator=} (\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \&\&rhs)
+\begin{DoxyCompactList}\small\item\em The move operator. Can be overridden if additional state needs to be copied. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata_a958d757e0031ca02105806c51268c9c3}{$\sim$\+Model\+Metadata} ()
+\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $\ast$ \hyperlink{group___classification_module_ga851d179b56e5c32b25512df0141f3ca2}{copy} () const =0
+\begin{DoxyCompactList}\small\item\em Creates a copy of this object. \end{DoxyCompactList}\item 
+virtual const char $\ast$ \hyperlink{group___classification_module_ga5d7ed12ccbf9bda3bd29b6d59648db76}{type} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Get the identifier for the model type. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___classification_module_ga496e4c5294b5438ff17456c9e9ab2c05}{version} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model version. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga0ad36321b38d014d2d2202cb6e4b3605}{set\+Version} (const std\+::string \&\hyperlink{group___classification_module_ga496e4c5294b5438ff17456c9e9ab2c05}{version}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model version. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___classification_module_gaf7bb3eef7e80ac756645647def2ee78c}{name} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model name. \end{DoxyCompactList}\item 
+const void \hyperlink{group___classification_module_ga6cc776b17392c651dfab8be4f72cf06e}{set\+Name} (const std\+::string \&\hyperlink{group___classification_module_gaf7bb3eef7e80ac756645647def2ee78c}{name}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model name. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___classification_module_ga495686b513e020bf0c809a5db7bfcf9c}{description} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model descriptions. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gab541e1fec910b0073658b992b70fec23}{set\+Description} (const std\+::string \&\hyperlink{group___classification_module_ga495686b513e020bf0c809a5db7bfcf9c}{description}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model description. \end{DoxyCompactList}\item 
+time\+\_\+t \hyperlink{group___classification_module_ga8e19bae617a659a8999b50a72720228f}{time\+Created} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model creation date/time. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga1a02e568a297cb23eac8ce73e5e5af41}{set\+Time\+Created} (time\+\_\+t \hyperlink{group___classification_module_ga8e19bae617a659a8999b50a72720228f}{time\+Created}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model creation date/time. \end{DoxyCompactList}\item 
+const \hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels} \& \hyperlink{group___classification_module_ga123240dad792cb90b049e23cebabf178}{labels} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model labels. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels} \& \hyperlink{group___classification_module_ga1f12a576a1db3447388f9a5660fa435a}{labels} () noexcept
+\begin{DoxyCompactList}\small\item\em Gets the model labels. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gaa1e25ad45522aa213111143f91655bd6}{set\+Labels} (const \hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels} \&\hyperlink{group___classification_module_ga123240dad792cb90b049e23cebabf178}{labels}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model labels. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga993c6e22ad71a3843fa4e737a29301a9}{set\+Labels} (\hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels} \&\&\hyperlink{group___classification_module_ga123240dad792cb90b049e23cebabf178}{labels}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the model labels. \end{DoxyCompactList}\item 
+const cv\+::\+Size \& \hyperlink{group___classification_module_ga630682de2af39cabdad720964e5047e9}{window\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the window size. \end{DoxyCompactList}\item 
+cv\+::\+Size \& \hyperlink{group___classification_module_ga44f6f6da4f8738af4aa302524e7929ce}{window\+Size} () noexcept
+\begin{DoxyCompactList}\small\item\em Gets the window size. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gac52cca4a6595cde91a1db6a76ab53eb0}{set\+Window\+Size} (const cv\+::\+Size \&\hyperlink{group___classification_module_ga630682de2af39cabdad720964e5047e9}{window\+Size}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the window size. \end{DoxyCompactList}\item 
+const cv\+::\+Rect2d \& \hyperlink{group___classification_module_ga69944ef95e7eeb403596b0f25eb677ec}{bounding\+Box} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the bounding box (lat/lon). \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \& \hyperlink{group___classification_module_gae4241cbe434313f9cc26d1d030ec9655}{bounding\+Box} () noexcept
+\begin{DoxyCompactList}\small\item\em Gets the bounding box (lat/lon). \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gab38e9f9c894441321a28a2074f91e5da}{set\+Bounding\+Box} (const cv\+::\+Rect2d \&\hyperlink{group___classification_module_ga69944ef95e7eeb403596b0f25eb677ec}{bounding\+Box}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the bounding box (lat/lon). \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___classification_module_ga572f92d09d217ff3a0661fe9f6df4247}{image\+Type} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the image type. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gaa2aa1b5aadc48ff8dea850aa061bcf2f}{set\+Image\+Type} (const std\+::string \&\hyperlink{group___classification_module_ga572f92d09d217ff3a0661fe9f6df4247}{image\+Type}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the image type. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_gafa8e703c3646c5f93ada56f3c811aac7}{Color\+Mode} \hyperlink{group___classification_module_ga3ba94c7945195ba13d1698849926656f}{color\+Mode} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the color mode. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga82fe704a35392f9a4a91469464e982c2}{set\+Color\+Mode} (\hyperlink{group___classification_module_gafa8e703c3646c5f93ada56f3c811aac7}{Color\+Mode} \hyperlink{group___classification_module_ga3ba94c7945195ba13d1698849926656f}{color\+Mode}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the color mode. \end{DoxyCompactList}\item 
+int64\+\_\+t \hyperlink{group___classification_module_gae7ab9c52670087042f53dfb8b6c26e0c}{size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the total serialized uncompressed model package size. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga7acb468cd6e0f06a423940720ae37a30}{set\+Size} (int64\+\_\+t \hyperlink{group___classification_module_gae7ab9c52670087042f53dfb8b6c26e0c}{size}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the total serialized uncompressed model package size. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $\ast$ \hyperlink{group___classification_module_gaefd1b5db6a78f7fae50f1ec637672c67}{create} (const char $\ast$\hyperlink{group___classification_module_ga5d7ed12ccbf9bda3bd29b6d59648db76}{type})
+\begin{DoxyCompactList}\small\item\em A factory function that creates metadata based on type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Contains model metadata. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Model\+Metadata@{dg\+::deepcore\+::classification\+::\+Model\+Metadata}!````~Model\+Metadata@{$\sim$\+Model\+Metadata}}
+\index{````~Model\+Metadata@{$\sim$\+Model\+Metadata}!dg\+::deepcore\+::classification\+::\+Model\+Metadata@{dg\+::deepcore\+::classification\+::\+Model\+Metadata}}
+\subsubsection[{\texorpdfstring{$\sim$\+Model\+Metadata()}{~ModelMetadata()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::classification\+::\+Model\+Metadata\+::$\sim$\+Model\+Metadata (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_metadata_a958d757e0031ca02105806c51268c9c3}{}\label{classdg_1_1deepcore_1_1classification_1_1_model_metadata_a958d757e0031ca02105806c51268c9c3}

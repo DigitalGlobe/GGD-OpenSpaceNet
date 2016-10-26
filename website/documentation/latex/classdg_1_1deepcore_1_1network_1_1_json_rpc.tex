@@ -1,0 +1,45 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_rpc}\index{dg\+::deepcore\+::network\+::\+Json\+Rpc@{dg\+::deepcore\+::network\+::\+Json\+Rpc}}
+
+
+An abstract class for J\+S\+O\+N-\/\+R\+PC communication.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Json\+Rpc.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1network_1_1_json_rpc__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const std\+::string \& \hyperlink{group___network_module_ga57b18a1db26df83b5d1769b6101ee67f}{version} () const noexcept
+\begin{DoxyCompactList}\small\item\em Get a string specifying the version of the J\+S\+O\+N-\/\+R\+PC protocol. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga7bfca4f17a0916e6f1313b04496b9e0d}{set\+Version} (const std\+::string \&\hyperlink{group___network_module_ga57b18a1db26df83b5d1769b6101ee67f}{version}) noexcept
+\begin{DoxyCompactList}\small\item\em Set a string specifying the version of the J\+S\+O\+N-\/\+R\+PC protocol. \end{DoxyCompactList}\item 
+const Json\+::\+Value \& \hyperlink{group___network_module_ga76f1d35ffeff40b5df1874c68b97c89a}{id} () const noexcept
+\begin{DoxyCompactList}\small\item\em Get an identifier established by the Client to disambiguate responses. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_gaf71b65c7bb55adbf936c38ffd1cd8289}{set\+Id} (const Json\+::\+Value \&\hyperlink{group___network_module_ga76f1d35ffeff40b5df1874c68b97c89a}{id}) noexcept
+\begin{DoxyCompactList}\small\item\em Set an identifier established by the Client to disambiguate responses. \end{DoxyCompactList}\item 
+const bool \hyperlink{group___network_module_gaef8ff7e1ae84dc613d31615fa973a521}{has\+Id} () const noexcept
+\begin{DoxyCompactList}\small\item\em Determine if the id in this J\+S\+O\+N-\/\+R\+PC packet has been set. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_gaa92eeabe2c022b96d2820a02118dc1b2}{clear\+Id} () noexcept
+\begin{DoxyCompactList}\small\item\em Clear the id if it had been previously set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+An abstract class for J\+S\+O\+N-\/\+R\+PC communication. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://www.jsonrpc.org/specification}{\tt http\+://www.\+jsonrpc.\+org/specification} 
+\end{DoxySeeAlso}

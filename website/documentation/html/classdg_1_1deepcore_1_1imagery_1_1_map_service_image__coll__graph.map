@@ -1,0 +1,4 @@
+<map id="dg::deepcore::imagery::MapServiceImage" name="dg::deepcore::imagery::MapServiceImage">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1imagery_1_1_geo_image.html" title="An abstract base class for geo&#45;registered images. " alt="" coords="5,112,156,153"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1imagery_1_1_spatial_reference.html" title="Represents a geographic or projected coordinate system. " alt="" coords="5,7,156,48"/>
+</map>

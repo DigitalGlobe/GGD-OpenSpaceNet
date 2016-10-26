@@ -1,0 +1,6 @@
+<map id="dg::deepcore::classification::CaffeBatchClassifier" name="dg::deepcore::classification::CaffeBatchClassifier">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_model.html" title="An abstract base class for all models. Represents the model capabilities. " alt="" coords="235,5,416,47"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector.html" title="Represents an abstract feature detector implemented as a sliding window classifier. Implements Detector and Classifier interfaces as special cases for a sliding window detector. " alt="" coords="235,71,416,112"/>
+<area shape="rect" id="node4" href="$classdg_1_1deepcore_1_1classification_1_1_classifier.html" title="Abstract base class for objects capable of doing classification. " alt="" coords="5,37,187,79"/>
+<area shape="rect" id="node5" href="$classdg_1_1deepcore_1_1classification_1_1_detector.html" title="Abstract base class for objects capable of doing feature detection. " alt="" coords="5,103,187,144"/>
+</map>

@@ -1,0 +1,30 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Sliding\+Window\+Iterator Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}\index{dg\+::deepcore\+::imagery\+::\+Sliding\+Window\+Iterator@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window\+Iterator}}
+
+
+Represents a single sliding window.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Sliding\+Window.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_gaa72789bec6d0d49fe87408e224739d23}{Sliding\+Window\+Iterator} () noexcept
+\begin{DoxyCompactList}\small\item\em Default constructor. Constructs the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}{Sliding\+Window\+Iterator} that can be \char`\"{}equal\char`\"{} to \hyperlink{group___imagery_module_ga1c962ee19d65114b9213d2aea33503a6}{Sliding\+Window\+::end()}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga7493aa55008e090f05fcb47bd53d6098}{Sliding\+Window\+Iterator} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window}{Sliding\+Window} \&sliding\+Window, const cv\+::\+Point \&window\+Index) noexcept
+\begin{DoxyCompactList}\small\item\em Constructs a sliding window. \end{DoxyCompactList}\item 
+const cv\+::\+Rect \& \hyperlink{group___imagery_module_gac4ebab49e1019b197708fa07ddf8a550}{operator$\ast$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current window. \end{DoxyCompactList}\item 
+const cv\+::\+Rect $\ast$ \hyperlink{group___imagery_module_ga72f982e7452565b8b39edcfd3e81e2b8}{operator-\/$>$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current window. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}{Sliding\+Window\+Iterator} \& \hyperlink{group___imagery_module_ga7b899de397aefb4987bcb989f3cb33d4}{operator++} ()
+\begin{DoxyCompactList}\small\item\em Moves on to the next window. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_gaf2d1d266e7176885e054f28bbdec7c61}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}{Sliding\+Window\+Iterator} \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a single sliding window. 

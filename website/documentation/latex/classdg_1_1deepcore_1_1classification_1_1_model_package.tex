@@ -1,0 +1,96 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_package}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Model\+Package Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_model_package}\index{dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}}
+
+
+An abstract base class for model packages. Contains metadata and a loading and packaging mechanism.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Model\+Package.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \& \hyperlink{group___classification_module_gac73fbbe8aca7bc1f27507c471939a0e7}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&rhs)
+\begin{DoxyCompactList}\small\item\em The copy operator. Can be overridden if additional state needs to be copied. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \& \hyperlink{group___classification_module_ga20bc12c1bba9457962b58f993a2106b4}{operator=} (\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&\&rhs)
+\begin{DoxyCompactList}\small\item\em The move operator. Can be overridden if additional state needs to be moved. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package_ad412100a44a69ffab9a37d236d5792ee}{$\sim$\+Model\+Package} ()
+\item 
+virtual const char $\ast$ \hyperlink{group___classification_module_ga9f09bd24a91c366c473b9fbb9a59b64a}{type} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the identifier for the model type. \end{DoxyCompactList}\item 
+virtual const \hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels} \& \hyperlink{group___classification_module_gaa23ae021f838b2836c02dcc626bc1c8e}{item\+Names} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the list of allowed item names for this model. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___classification_module_ga634f0af2484a3c6de2e8c3a2ff6cea1d}{model\+Metadata\+Item\+Names} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the list of items that can contain model metadata and can be read by \hyperlink{group___classification_module_gaa50c6f125db866bddba70b958c6a1074}{Model\+Package\+::read\+Metadata\+From\+Item}. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___classification_module_ga6b5ceb1c678e1afe83dbe6e30e82960d}{metadata\+Item\+Names} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the list of metadata items that are guaranteed to be retrieved from model items. Other metadata items can be retrieved, but the ones returned by this methods must always be retrived. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_gaa50c6f125db866bddba70b958c6a1074}{read\+Metadata\+From\+Item} (const std\+::string \&item\+Name) const 
+\begin{DoxyCompactList}\small\item\em Gets the metadata from a specified item name. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_ga479f0578c384bfe7d21f32d4bfb33983}{read\+Metadata\+From\+Item} (const std\+::string \&item\+Name, const std\+::vector$<$ uint8\+\_\+t $>$ \&item\+Data) const =0
+\begin{DoxyCompactList}\small\item\em Read metadata from the given item data. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \& \hyperlink{group___classification_module_gaa88957807aa9cd63108033b376e60ef2}{metadata} () const 
+\begin{DoxyCompactList}\small\item\em Gets the metadata. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \& \hyperlink{group___classification_module_ga1d2576e90ac787ae30dffb0920d48462}{metadata} ()
+\begin{DoxyCompactList}\small\item\em Gets the metadata. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga240a62f23ad36c3eac6b7c91d90708d7}{set\+Metadata} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \&\hyperlink{group___classification_module_gaa88957807aa9cd63108033b376e60ef2}{metadata}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the metadata. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga24a23bab6f1de6810b2b38c67b8eac78}{set\+Metadata} (\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $\ast$\hyperlink{group___classification_module_gaa88957807aa9cd63108033b376e60ef2}{metadata})
+\begin{DoxyCompactList}\small\item\em Sets the metadata. \end{DoxyCompactList}\item 
+const std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_ga897ce1fbc0efb85360a6cc5ab958209d}{item} (const std\+::string \&item\+Name) const 
+\begin{DoxyCompactList}\small\item\em Get a model item. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_ga8a80cf25a3e493dcbb32c6fcdfc1807b}{item} (const std\+::string \&item\+Name)
+\begin{DoxyCompactList}\small\item\em Get a model item. \end{DoxyCompactList}\item 
+bool \hyperlink{group___classification_module_gad0a0e3e9762e66bbd6b03d70011df25e}{have\+Item} (const std\+::string \&item\+Name) const 
+\begin{DoxyCompactList}\small\item\em Returns whether an item already exists in the model. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga8f03404f9b535950e5686b4003b20280}{set\+Item} (const std\+::string \&item\+Name, const std\+::vector$<$ uint8\+\_\+t $>$ \&\hyperlink{group___classification_module_ga897ce1fbc0efb85360a6cc5ab958209d}{item})
+\begin{DoxyCompactList}\small\item\em Sets a model item. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga17cdbbe5928308eb299844f4df1455ad}{set\+Item} (const std\+::string \&item\+Name, std\+::vector$<$ uint8\+\_\+t $>$ \&\&\hyperlink{group___classification_module_ga897ce1fbc0efb85360a6cc5ab958209d}{item})
+\begin{DoxyCompactList}\small\item\em Sets a model item. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} $\ast$ \hyperlink{group___classification_module_ga0c294e3def7dceac4acb48b191ee6df0}{create} (\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $\ast$\hyperlink{group___classification_module_gaa88957807aa9cd63108033b376e60ef2}{metadata})
+\begin{DoxyCompactList}\small\item\em Create a Model\+Metada instance based on given metadata. \end{DoxyCompactList}\item 
+static \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} $\ast$ \hyperlink{group___classification_module_gaa4bb1ba1156829db5249f2583da252d6}{create} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \&\hyperlink{group___classification_module_gaa88957807aa9cd63108033b376e60ef2}{metadata})
+\begin{DoxyCompactList}\small\item\em Create a Model\+Metada instance based on given metadata. \end{DoxyCompactList}\item 
+static \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} $\ast$ \hyperlink{group___classification_module_ga37d9fd1a7c8847139c5e6663c258f377}{create} (const char $\ast$\hyperlink{group___classification_module_ga9f09bd24a91c366c473b9fbb9a59b64a}{type})
+\begin{DoxyCompactList}\small\item\em Create a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} instance based on type with metadata initialized to default values. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::unique\+\_\+ptr$<$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $>$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package_a9c9ba155717330c95cdfb0f9ea28283d}{metadata\+\_\+}
+\begin{DoxyCompactList}\small\item\em The model package metadata. Inheriting classes M\+U\+ST initialize this in the constructor. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::string, std\+::vector$<$ uint8\+\_\+t $>$ $>$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package_a784e847b90280d4b73eee6fd79be4dcc}{items\+\_\+}
+\begin{DoxyCompactList}\small\item\em Map containing the model data mapped to item names. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+An abstract base class for model packages. Contains metadata and a loading and packaging mechanism. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}!````~Model\+Package@{$\sim$\+Model\+Package}}
+\index{````~Model\+Package@{$\sim$\+Model\+Package}!dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}}
+\subsubsection[{\texorpdfstring{$\sim$\+Model\+Package()}{~ModelPackage()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::classification\+::\+Model\+Package\+::$\sim$\+Model\+Package (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_package_ad412100a44a69ffab9a37d236d5792ee}{}\label{classdg_1_1deepcore_1_1classification_1_1_model_package_ad412100a44a69ffab9a37d236d5792ee}
+
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}!items\+\_\+@{items\+\_\+}}
+\index{items\+\_\+@{items\+\_\+}!dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}}
+\subsubsection[{\texorpdfstring{items\+\_\+}{items_}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$std\+::string, std\+::vector$<$uint8\+\_\+t$>$ $>$ dg\+::deepcore\+::classification\+::\+Model\+Package\+::items\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_package_a784e847b90280d4b73eee6fd79be4dcc}{}\label{classdg_1_1deepcore_1_1classification_1_1_model_package_a784e847b90280d4b73eee6fd79be4dcc}
+
+
+Map containing the model data mapped to item names. 
+
+\index{dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}!metadata\+\_\+@{metadata\+\_\+}}
+\index{metadata\+\_\+@{metadata\+\_\+}!dg\+::deepcore\+::classification\+::\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Model\+Package}}
+\subsubsection[{\texorpdfstring{metadata\+\_\+}{metadata_}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::unique\+\_\+ptr$<${\bf Model\+Metadata}$>$ dg\+::deepcore\+::classification\+::\+Model\+Package\+::metadata\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model_package_a9c9ba155717330c95cdfb0f9ea28283d}{}\label{classdg_1_1deepcore_1_1classification_1_1_model_package_a9c9ba155717330c95cdfb0f9ea28283d}
+
+
+The model package metadata. Inheriting classes M\+U\+ST initialize this in the constructor. 
+

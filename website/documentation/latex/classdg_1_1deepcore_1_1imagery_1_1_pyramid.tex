@@ -1,0 +1,39 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid}\index{dg\+::deepcore\+::imagery\+::\+Pyramid@{dg\+::deepcore\+::imagery\+::\+Pyramid}}
+
+
+Assists in calculation of pyramid levels.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_a2d3f920bc3973c97a029135f03974ab1}{Pyramid} ()=default
+\item 
+\hyperlink{group___imagery_module_ga5133c51d0c8c7ca698287d5d4dd61986}{Pyramid} (const \hyperlink{namespacedg_1_1deepcore_1_1imagery_a19b24d2d9a7e8c5b4ab65d1fa42b8b20}{Pyramid\+Levels} \&\hyperlink{group___imagery_module_ga91d47b866ba5242dd28833d4c7607b1b}{levels})
+\begin{DoxyCompactList}\small\item\em Constructs the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{Pyramid} class with the provided pyramid levels. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga0d97d66a5c60146ee198f282e3633778}{Pyramid} (const cv\+::\+Size \&max\+Size, const cv\+::\+Size \&min\+Size, float scale\+Factor)
+\begin{DoxyCompactList}\small\item\em Construct the pyramid levels based on a scale factor with steps set to image size divided by the scale factor. This constructor is useful when breaking images into even tiles. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga92c5dda62793cc05a2fe10b8c85c7e65}{Pyramid} (const cv\+::\+Size \&max\+Size, const cv\+::\+Size \&min\+Size, const cv\+::\+Point \&max\+Step, float scale\+Factor)
+\begin{DoxyCompactList}\small\item\em Construct the pyramid levels based on a scale factor and step. \end{DoxyCompactList}\item 
+const \hyperlink{namespacedg_1_1deepcore_1_1imagery_a19b24d2d9a7e8c5b4ab65d1fa42b8b20}{Pyramid\+Levels} \& \hyperlink{group___imagery_module_ga91d47b866ba5242dd28833d4c7607b1b}{levels} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the generated pyramid levels. \end{DoxyCompactList}\item 
+\hyperlink{namespacedg_1_1deepcore_1_1imagery_a19b24d2d9a7e8c5b4ab65d1fa42b8b20}{Pyramid\+Levels} \& \hyperlink{group___imagery_module_gacabef885d8fcdf548631bcf134e17298}{levels} () noexcept
+\begin{DoxyCompactList}\small\item\em Returns the generated pyramid levels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Assists in calculation of pyramid levels. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid@{dg\+::deepcore\+::imagery\+::\+Pyramid}!Pyramid@{Pyramid}}
+\index{Pyramid@{Pyramid}!dg\+::deepcore\+::imagery\+::\+Pyramid@{dg\+::deepcore\+::imagery\+::\+Pyramid}}
+\subsubsection[{\texorpdfstring{Pyramid()=default}{Pyramid()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Pyramid\+::\+Pyramid (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_a2d3f920bc3973c97a029135f03974ab1}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_a2d3f920bc3973c97a029135f03974ab1}

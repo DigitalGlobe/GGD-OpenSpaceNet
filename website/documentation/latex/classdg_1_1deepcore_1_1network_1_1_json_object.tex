@@ -1,0 +1,41 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_object}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Object Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_object}\index{dg\+::deepcore\+::network\+::\+Json\+Object@{dg\+::deepcore\+::network\+::\+Json\+Object}}
+
+
+{\ttfamily \#include $<$network/\+Json\+Object.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual Json\+::\+Value \hyperlink{group___network_module_ga96e3f7817a3257d80034811a9545f3ff}{to\+Json} () const =0
+\begin{DoxyCompactList}\small\item\em Marshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+virtual void \hyperlink{group___network_module_ga74a2303be2ae11e8d94101b55154362e}{from\+Json} (const Json\+::\+Value \&root)=0
+\begin{DoxyCompactList}\small\item\em Unmarshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga72539fce4a3396cb0e2adcb65fe911d8}{from\+Json\+String} (const std\+::string \&root) noexcept
+\begin{DoxyCompactList}\small\item\em Unmarshal this object from a J\+S\+ON string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\static void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_object_ae81f08e95123912253775b1729431ede}{from\+Json\+Array} (const Json\+::\+Value \&root, std\+::vector$<$ T $>$ \&elements)
+\item 
+{\footnotesize template$<$class T $>$ }\\static void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_object_adfd3a6da57cf68ad708f31890540ff6d}{from\+Json\+Array\+String} (const std\+::string \&root, std\+::vector$<$ T $>$ \&elements)
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Json\+Object@{dg\+::deepcore\+::network\+::\+Json\+Object}!from\+Json\+Array@{from\+Json\+Array}}
+\index{from\+Json\+Array@{from\+Json\+Array}!dg\+::deepcore\+::network\+::\+Json\+Object@{dg\+::deepcore\+::network\+::\+Json\+Object}}
+\subsubsection[{\texorpdfstring{from\+Json\+Array(const Json\+::\+Value \&root, std\+::vector$<$ T $>$ \&elements)}{fromJsonArray(const Json::Value &root, std::vector< T > &elements)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ static void dg\+::deepcore\+::network\+::\+Json\+Object\+::from\+Json\+Array (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{root, }
+\item[{std\+::vector$<$ T $>$ \&}]{elements}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_object_ae81f08e95123912253775b1729431ede}{}\label{classdg_1_1deepcore_1_1network_1_1_json_object_ae81f08e95123912253775b1729431ede}
+\index{dg\+::deepcore\+::network\+::\+Json\+Object@{dg\+::deepcore\+::network\+::\+Json\+Object}!from\+Json\+Array\+String@{from\+Json\+Array\+String}}
+\index{from\+Json\+Array\+String@{from\+Json\+Array\+String}!dg\+::deepcore\+::network\+::\+Json\+Object@{dg\+::deepcore\+::network\+::\+Json\+Object}}
+\subsubsection[{\texorpdfstring{from\+Json\+Array\+String(const std\+::string \&root, std\+::vector$<$ T $>$ \&elements)}{fromJsonArrayString(const std::string &root, std::vector< T > &elements)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ static void dg\+::deepcore\+::network\+::\+Json\+Object\+::from\+Json\+Array\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{root, }
+\item[{std\+::vector$<$ T $>$ \&}]{elements}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_object_adfd3a6da57cf68ad708f31890540ff6d}{}\label{classdg_1_1deepcore_1_1network_1_1_json_object_adfd3a6da57cf68ad708f31890540ff6d}

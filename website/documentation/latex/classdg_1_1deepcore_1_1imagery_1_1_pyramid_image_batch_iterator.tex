@@ -1,0 +1,33 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid\+Image\+Batch\+Iterator$<$ T $>$ Class Template Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch\+Iterator$<$ T $>$@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch\+Iterator$<$ T $>$}}
+
+
+Represents a single \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Image\+Batch.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga9859e48a78c1a93cbc5d6ec39bfa33c4}{Pyramid\+Image\+Batch\+Iterator} () noexcept
+\begin{DoxyCompactList}\small\item\em The default constructor. Constructs the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator} that can be \char`\"{}equal\char`\"{} to \hyperlink{group___imagery_module_ga7e2fa7f2608bc1784f52c8f165fcc2f7}{Pyramid\+Image\+Batch\+::end()}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gafaa065adfee60c6db16f2c398c438400}{Pyramid\+Image\+Batch\+Iterator} (\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch}{Pyramid\+Image\+Batch}$<$ T $>$ \&batcher, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_iterator}{Pyramid\+Image\+Slicer\+Iterator} \&slicer)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator}. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}$<$ T $>$ \& \hyperlink{group___imagery_module_gac21ea85be8311510322c9fdd5c9ebe50}{operator$\ast$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}$<$ T $>$ $\ast$ \hyperlink{group___imagery_module_gaccd917f1703532af22119b69f9f87acc}{operator-\/$>$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator} \& \hyperlink{group___imagery_module_ga8a830889046c718cbfcb4067a33908f3}{operator++} ()
+\begin{DoxyCompactList}\small\item\em Moves on to the next batch. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga6ebbb4ad321f8a6fff0423155a784e3c}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch_iterator}{Pyramid\+Image\+Batch\+Iterator} \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\\*
+class dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Batch\+Iterator$<$ T $>$}
+
+Represents a single \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}. 

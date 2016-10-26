@@ -1,0 +1,149 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Batch\+Classifier Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier}\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+
+
+A Caffe-\/based implementation of a sliding window detector.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Caffe\+Batch\+Classifier.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Batch\+Classifier\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_ga8501a61fcaf492b0fe8b43b4e9440085}{Caffe\+Batch\+Classifier} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&model, bool \hyperlink{group___classification_module_gaea38e3353458ab22d099d54411d6f868}{use\+Gpu}, float \hyperlink{group___classification_module_ga08d73772f04eb0553e4d787c69b34aa2}{max\+Utilization}=0.\+95)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier}{Caffe\+Batch\+Classifier}. \end{DoxyCompactList}\item 
+const char $\ast$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9b0b78b3f39094f4c44364073c649be0}{type} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Get the identifier for the model type. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a957dde9717bc47fec977f8d1541a1daf}{capabilities} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Gets the model capabilities. \end{DoxyCompactList}\item 
+cv\+::\+Size \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a7433ca559f73adce83d12eb84bf0121d}{window\+Size} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Returns the classifier window size. \end{DoxyCompactList}\item 
+cv\+::\+Point \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9a34ee36b62d9949494388ba4f44b47b}{default\+Step} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Returns the default minimum sliding window step. \end{DoxyCompactList}\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a5c3997f010631f038dcc49eb90bd6e69}{detect} (const cv\+::\+Mat \&image, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{imagery\+::\+Pyramid} \&pyramid, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) override
+\begin{DoxyCompactList}\small\item\em Performs feature detection on the given image using the sliding window strategy. \end{DoxyCompactList}\item 
+int \hyperlink{group___classification_module_ga7871db221a66762c7c7247df6b53391d}{max\+Batch\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the batch size. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+A Caffe-\/based implementation of a sliding window detector. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}!capabilities@{capabilities}}
+\index{capabilities@{capabilities}!dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+\subsubsection[{\texorpdfstring{capabilities() const noexceptoverride}{capabilities() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier\+::capabilities (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a957dde9717bc47fec977f8d1541a1daf}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a957dde9717bc47fec977f8d1541a1daf}
+
+
+Gets the model capabilities. 
+
+\begin{DoxyReturn}{Returns}
+A bitfield that represents the model capabilities. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga1a7ca79fbb134c78c7e88df94cf8d374}{dg\+::deepcore\+::classification\+::\+Model}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}!default\+Step@{default\+Step}}
+\index{default\+Step@{default\+Step}!dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+\subsubsection[{\texorpdfstring{default\+Step() const noexceptoverride}{defaultStep() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier\+::default\+Step (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9a34ee36b62d9949494388ba4f44b47b}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9a34ee36b62d9949494388ba4f44b47b}
+
+
+Returns the default minimum sliding window step. 
+
+\begin{DoxyReturn}{Returns}
+The default minimum sliding window step. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga8e430c585fe3d3bcba00c21f418752d2}{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}!detect@{detect}}
+\index{detect@{detect}!dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+\subsubsection[{\texorpdfstring{detect(const cv\+::\+Mat \&image, const imagery\+::\+Pyramid \&pyramid, Simple\+Progress progress\+Func=nullptr) override}{detect(const cv::Mat &image, const imagery::Pyramid &pyramid, SimpleProgress progressFunc=nullptr) override}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ {\bf Window\+Prediction} $>$ dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier\+::detect (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Mat \&}]{mat, }
+\item[{const {\bf imagery\+::\+Pyramid} \&}]{pyramid, }
+\item[{{\bf Simple\+Progress}}]{progress\+Func = {\ttfamily nullptr}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a5c3997f010631f038dcc49eb90bd6e69}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a5c3997f010631f038dcc49eb90bd6e69}
+
+
+Performs feature detection on the given image using the sliding window strategy. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mat} & The input image on which to perform feature detection. \\
+\hline
+\mbox{\tt in}  & {\em pyramid} & The sliding window pyramids. \\
+\hline
+\mbox{\tt in}  & {\em progress\+Func} & A callback for reporting detection progress. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A list of prediction windows for this image.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+If the input image color depth does not match the model color depth, the input image may be transformed to match. 3-\/channel images are assumed to be B\+GR, 4-\/channel images are assumed to be B\+G\+RA. 
+\end{DoxyNote}
+
+
+Implements \hyperlink{group___classification_module_ga359de047765fb32d9a6f537bf8a4c1f3}{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}!type@{type}}
+\index{type@{type}!dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+\subsubsection[{\texorpdfstring{type() const noexceptoverride}{type() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier\+::type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9b0b78b3f39094f4c44364073c649be0}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a9b0b78b3f39094f4c44364073c649be0}
+
+
+Get the identifier for the model type. 
+
+\begin{DoxyReturn}{Returns}
+The model type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_gaf5f12d2050c32035c1b9a038ec61d618}{dg\+::deepcore\+::classification\+::\+Model}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}!window\+Size@{window\+Size}}
+\index{window\+Size@{window\+Size}!dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier@{dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier}}
+\subsubsection[{\texorpdfstring{window\+Size() const noexceptoverride}{windowSize() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size dg\+::deepcore\+::classification\+::\+Caffe\+Batch\+Classifier\+::window\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a7433ca559f73adce83d12eb84bf0121d}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier_a7433ca559f73adce83d12eb84bf0121d}
+
+
+Returns the classifier window size. 
+
+\begin{DoxyReturn}{Returns}
+The classifier window size. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga35c268eb743bfbfb5d77d30ddbcc48e5}{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}.
+

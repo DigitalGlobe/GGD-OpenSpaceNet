@@ -1,0 +1,77 @@
+#titlearea {
+    background: url(header-bg.jpg) repeat-x;
+}
+
+#projectlogo img {
+    width: 200px;
+    height: auto;
+    padding-bottom: 5px;
+}
+
+#projectalign {
+    padding-left: 10px;
+    padding-bottom: 5px;
+    width: 50%
+}
+
+#projectname {
+    font-weight: bolder;
+    font-size: 350%;
+}
+
+#projectnumalign {
+    vertical-align: bottom;
+    padding-right: 10px;
+    padding-bottom: 5px;
+    width: 50%;
+}
+
+#projectnumber {
+    font-size: 100%;
+    float: right;
+}
+
+.tabs, .tabs2, .tabs3 {
+    background: #0d3b5e none;
+}
+
+.tablist a {
+    background: #0d3b5e none;
+    color: #fff;
+    text-shadow: none;
+}
+
+.tablist a:hover {
+    color: #fff;
+    background: #2268b2 none;
+    text-shadow: none;
+}
+
+.tablist li.current a {
+    color: #fff;
+    text-shadow: none;
+    background: #5397df none;
+}
+
+.navpath ul {
+    background: #0d3b5e none;
+}
+
+.navpath li.navelem a {
+    color: #fff;
+    text-shadow: none;
+}
+
+.navpath li.navelem a:hover {
+    color: #666;
+}
+
+.navpath li.footer {
+    color: #fff;
+    text-shadow: none;
+    font-size: 10pt;
+}
+
+.navpath li.footer a {
+    color: #fff;
+}

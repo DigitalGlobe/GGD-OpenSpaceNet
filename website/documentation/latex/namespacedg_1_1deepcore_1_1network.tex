@@ -1,0 +1,134 @@
+\hypertarget{namespacedg_1_1deepcore_1_1network}{}\section{dg\+:\+:deepcore\+:\+:network Namespace Reference}
+\label{namespacedg_1_1deepcore_1_1network}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structdg_1_1deepcore_1_1network_1_1_apache_tomcat_error}{Apache\+Tomcat\+Error}
+\begin{DoxyCompactList}\small\item\em Represents an H\+T\+ML Apache Tomcat error report. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_data}{Download\+Data}
+\item 
+struct \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request}{Download\+Request}
+\begin{DoxyCompactList}\small\item\em Represents an asynchronous download request. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_cleanup}{Http\+Cleanup}
+\begin{DoxyCompactList}\small\item\em Safely manages the global curl initialization and cleanup. Should be used instead of curlpp\+::\+Cleaner or curl\+\_\+global\+\_\+init. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader}{Http\+Downloader}
+\begin{DoxyCompactList}\small\item\em Downloads from H\+T\+T\+P/\+H\+T\+T\+PS endpoints. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_error}{Http\+Error}
+\begin{DoxyCompactList}\small\item\em Represents an H\+T\+TP error response. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_object}{Json\+Object}
+\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc}{Json\+Rpc}
+\begin{DoxyCompactList}\small\item\em An abstract class for J\+S\+O\+N-\/\+R\+PC communication. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error}
+\begin{DoxyCompactList}\small\item\em J\+S\+O\+N-\/\+R\+PC error codes, messages and data. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_request}{Json\+Rpc\+Request}
+\begin{DoxyCompactList}\small\item\em J\+S\+O\+N-\/\+R\+PC Request container, parsing, and marshalling. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}{Json\+Rpc\+Response}
+\begin{DoxyCompactList}\small\item\em J\+S\+O\+N-\/\+R\+PC Response container, parsing, and marshalling. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server}{Json\+Rpc\+Server}
+\begin{DoxyCompactList}\small\item\em A virtual class to handle J\+S\+O\+N-\/\+R\+PC interaction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{group___network_module_ga4d618c88e9b1e6e961f70621dc9aab41}{Download\+Callback} = std\+::function$<$ bool(std\+::istream \&stream)$>$
+\begin{DoxyCompactList}\small\item\em Callback for a finished download. \end{DoxyCompactList}\item 
+using \hyperlink{group___network_module_ga6a460317d5e2b04bbaa2bb5389ca2ce3}{Download\+Requests} = std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request}{Download\+Request} $>$
+\begin{DoxyCompactList}\small\item\em An std\+::vector of \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request}{Download\+Request} objects. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{group___utility_module_gab8f3ab23c87fe876bb3e9b76fc46fff9}{parse\+Json\+Message} (const string \&json) noexcept
+\begin{DoxyCompactList}\small\item\em Extracts a \char`\"{}message\char`\"{} object from the root object of a J\+S\+ON string. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_ga0da8fb7d0201ab9eb336b86047a4cbf6}{build\+Url} (const string \&base\+Url, const map$<$ string, string $>$ \&args)
+\begin{DoxyCompactList}\small\item\em Combines a base U\+RL and query string. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_ga39931550a7bb4a32d7fd6ef6bc3e4a14}{split\+Url\+Query} (const string \&url, map$<$ string, string $>$ \&args)
+\begin{DoxyCompactList}\small\item\em Split the U\+RL into base url and query arguments. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_gaaa9055eea94c920782da31b4136243e7}{url\+Encode} (const string \&str)
+\begin{DoxyCompactList}\small\item\em Encodes a string to be used as a U\+RL query component. Equivalent to the Java\+Script encode\+U\+R\+I\+Component. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_gae91a77df82de63d6bce7940e22d5db0e}{url\+Decode} (const string \&str)
+\begin{DoxyCompactList}\small\item\em Decodes a string previously encoded with url\+Encode, or equivalent. Equivalent to the Java\+Script decode\+U\+R\+I\+Component. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{namespacedg_1_1deepcore_1_1network_af2d3502a6309acacaebc8b19a0cf76bb}{html\+To\+Xml} (const std\+::string \&html)
+\item 
+int \hyperlink{namespacedg_1_1deepcore_1_1network_a50c68eaf4787d70e3236ceea5c651aed}{code\+From\+Type} (const \hyperlink{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{Json\+Rpc\+Error\+Type} type)
+\item 
+std\+::string \hyperlink{namespacedg_1_1deepcore_1_1network_ad7e27867c00b5fbca5999693c70d9e99}{message\+From\+Type} (const \hyperlink{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{Json\+Rpc\+Error\+Type} type)
+\item 
+\hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \hyperlink{namespacedg_1_1deepcore_1_1network_aefe6d53131bd9a612d7d806bfe4358ad}{from\+Error\+Json} (const Json\+::\+Value \&root)
+\item 
+Json\+::\+Value \hyperlink{namespacedg_1_1deepcore_1_1network_af041406cc8c73fcda34f96399159d9c2}{to\+Error\+Json} (const \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \&rpc\+Error)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+set$<$ long $>$ \hyperlink{namespacedg_1_1deepcore_1_1network_aac2ec119bfabeb0695c296eeffaac58c}{R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES} = \{ 408, 429, 500, 504 \}
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!Json\+Rpc\+Error\+Type@{Json\+Rpc\+Error\+Type}}
+\index{Json\+Rpc\+Error\+Type@{Json\+Rpc\+Error\+Type}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{Json\+Rpc\+Error\+Type}{JsonRpcErrorType}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error\+Type}}\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR@{P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR@{P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR}}\item[{\em 
+P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a0524638ba0ab13fe3c437e48c60ba414}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a0524638ba0ab13fe3c437e48c60ba414}
+}]\index{I\+N\+V\+A\+L\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+ST@{I\+N\+V\+A\+L\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+ST}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!I\+N\+V\+A\+L\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+ST@{I\+N\+V\+A\+L\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+ST}}\item[{\em 
+I\+N\+V\+A\+L\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+ST\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a44f3135b093bdc29288976be964a00fb}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a44f3135b093bdc29288976be964a00fb}
+}]\index{M\+E\+T\+H\+O\+D\+\_\+\+N\+O\+T\+\_\+\+F\+O\+U\+ND@{M\+E\+T\+H\+O\+D\+\_\+\+N\+O\+T\+\_\+\+F\+O\+U\+ND}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!M\+E\+T\+H\+O\+D\+\_\+\+N\+O\+T\+\_\+\+F\+O\+U\+ND@{M\+E\+T\+H\+O\+D\+\_\+\+N\+O\+T\+\_\+\+F\+O\+U\+ND}}\item[{\em 
+M\+E\+T\+H\+O\+D\+\_\+\+N\+O\+T\+\_\+\+F\+O\+U\+ND\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a298057212fa43844273565f820529ab8}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a298057212fa43844273565f820529ab8}
+}]\index{I\+N\+V\+A\+L\+I\+D\+\_\+\+P\+A\+R\+A\+MS@{I\+N\+V\+A\+L\+I\+D\+\_\+\+P\+A\+R\+A\+MS}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!I\+N\+V\+A\+L\+I\+D\+\_\+\+P\+A\+R\+A\+MS@{I\+N\+V\+A\+L\+I\+D\+\_\+\+P\+A\+R\+A\+MS}}\item[{\em 
+I\+N\+V\+A\+L\+I\+D\+\_\+\+P\+A\+R\+A\+MS\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44aebbe9d70ea473e6beacf6ad482c78841}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44aebbe9d70ea473e6beacf6ad482c78841}
+}]\index{I\+N\+T\+E\+R\+N\+A\+L\+\_\+\+E\+R\+R\+OR@{I\+N\+T\+E\+R\+N\+A\+L\+\_\+\+E\+R\+R\+OR}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!I\+N\+T\+E\+R\+N\+A\+L\+\_\+\+E\+R\+R\+OR@{I\+N\+T\+E\+R\+N\+A\+L\+\_\+\+E\+R\+R\+OR}}\item[{\em 
+I\+N\+T\+E\+R\+N\+A\+L\+\_\+\+E\+R\+R\+OR\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44ade3b4c1a2d0db05a652363a0e80fc3d3}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44ade3b4c1a2d0db05a652363a0e80fc3d3}
+}]\index{S\+E\+R\+V\+E\+R\+\_\+\+E\+R\+R\+OR@{S\+E\+R\+V\+E\+R\+\_\+\+E\+R\+R\+OR}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!S\+E\+R\+V\+E\+R\+\_\+\+E\+R\+R\+OR@{S\+E\+R\+V\+E\+R\+\_\+\+E\+R\+R\+OR}}\item[{\em 
+S\+E\+R\+V\+E\+R\+\_\+\+E\+R\+R\+OR\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a4f9e80577b63b98117bba936c8c2db9b}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44a4f9e80577b63b98117bba936c8c2db9b}
+}]\index{A\+P\+P\+L\+I\+C\+A\+T\+I\+O\+N\+\_\+\+E\+R\+R\+OR@{A\+P\+P\+L\+I\+C\+A\+T\+I\+O\+N\+\_\+\+E\+R\+R\+OR}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!A\+P\+P\+L\+I\+C\+A\+T\+I\+O\+N\+\_\+\+E\+R\+R\+OR@{A\+P\+P\+L\+I\+C\+A\+T\+I\+O\+N\+\_\+\+E\+R\+R\+OR}}\item[{\em 
+A\+P\+P\+L\+I\+C\+A\+T\+I\+O\+N\+\_\+\+E\+R\+R\+OR\hypertarget{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44ab8268ee4d9bf50d295a158e8183e7ea3}{}\label{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44ab8268ee4d9bf50d295a158e8183e7ea3}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!code\+From\+Type@{code\+From\+Type}}
+\index{code\+From\+Type@{code\+From\+Type}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{code\+From\+Type(const Json\+Rpc\+Error\+Type type)}{codeFromType(const JsonRpcErrorType type)}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::network\+::code\+From\+Type (
+\begin{DoxyParamCaption}
+\item[{const {\bf Json\+Rpc\+Error\+Type}}]{type}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1network_a50c68eaf4787d70e3236ceea5c651aed}{}\label{namespacedg_1_1deepcore_1_1network_a50c68eaf4787d70e3236ceea5c651aed}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!from\+Error\+Json@{from\+Error\+Json}}
+\index{from\+Error\+Json@{from\+Error\+Json}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{from\+Error\+Json(const Json\+::\+Value \&root)}{fromErrorJson(const Json::Value &root)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Json\+Rpc\+Error} dg\+::deepcore\+::network\+::from\+Error\+Json (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{root}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1network_aefe6d53131bd9a612d7d806bfe4358ad}{}\label{namespacedg_1_1deepcore_1_1network_aefe6d53131bd9a612d7d806bfe4358ad}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!html\+To\+Xml@{html\+To\+Xml}}
+\index{html\+To\+Xml@{html\+To\+Xml}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{html\+To\+Xml(const std\+::string \&html)}{htmlToXml(const std::string &html)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::network\+::html\+To\+Xml (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{html}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1network_af2d3502a6309acacaebc8b19a0cf76bb}{}\label{namespacedg_1_1deepcore_1_1network_af2d3502a6309acacaebc8b19a0cf76bb}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!message\+From\+Type@{message\+From\+Type}}
+\index{message\+From\+Type@{message\+From\+Type}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{message\+From\+Type(const Json\+Rpc\+Error\+Type type)}{messageFromType(const JsonRpcErrorType type)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::network\+::message\+From\+Type (
+\begin{DoxyParamCaption}
+\item[{const {\bf Json\+Rpc\+Error\+Type}}]{type}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1network_ad7e27867c00b5fbca5999693c70d9e99}{}\label{namespacedg_1_1deepcore_1_1network_ad7e27867c00b5fbca5999693c70d9e99}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!to\+Error\+Json@{to\+Error\+Json}}
+\index{to\+Error\+Json@{to\+Error\+Json}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{to\+Error\+Json(const Json\+Rpc\+Error \&rpc\+Error)}{toErrorJson(const JsonRpcError &rpcError)}}]{\setlength{\rightskip}{0pt plus 5cm}Json\+::\+Value dg\+::deepcore\+::network\+::to\+Error\+Json (
+\begin{DoxyParamCaption}
+\item[{const {\bf Json\+Rpc\+Error} \&}]{rpc\+Error}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1network_af041406cc8c73fcda34f96399159d9c2}{}\label{namespacedg_1_1deepcore_1_1network_af041406cc8c73fcda34f96399159d9c2}
+
+
+\subsection{Variable Documentation}
+\index{dg\+::deepcore\+::network@{dg\+::deepcore\+::network}!R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES@{R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES}}
+\index{R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES@{R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES}!dg\+::deepcore\+::network@{dg\+::deepcore\+::network}}
+\subsubsection[{\texorpdfstring{R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES}{RETRY_RESPONSES}}]{\setlength{\rightskip}{0pt plus 5cm}set$<$long$>$ dg\+::deepcore\+::network\+::\+R\+E\+T\+R\+Y\+\_\+\+R\+E\+S\+P\+O\+N\+S\+ES = \{ 408, 429, 500, 504 \}}\hypertarget{namespacedg_1_1deepcore_1_1network_aac2ec119bfabeb0695c296eeffaac58c}{}\label{namespacedg_1_1deepcore_1_1network_aac2ec119bfabeb0695c296eeffaac58c}

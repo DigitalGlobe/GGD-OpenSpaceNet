@@ -1,0 +1,82 @@
+\hypertarget{classdg_1_1deepcore_1_1vector_1_1_feature_set}{}\section{dg\+:\+:deepcore\+:\+:vector\+:\+:Feature\+Set Class Reference}
+\label{classdg_1_1deepcore_1_1vector_1_1_feature_set}\index{dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}}
+
+
+Assists in creation of a vector feature set.  
+
+
+
+
+{\ttfamily \#include $<$vector/\+Feature\+Set.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___vector_module_gad9d6de87ab5e9557f542c0691ca088e0}{Feature\+Set} (const std\+::string \&\hyperlink{group___vector_module_ga438beae23c8c7333e1763addeb99b286}{file\+Path}, const std\+::string \&format, const std\+::string \&layer\+Name, const \hyperlink{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}{Field\+Definitions} \&field\+Definitions)
+\begin{DoxyCompactList}\small\item\em Constructs a vector feature set. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature_set_acc3af359cff5a59c1ca421e8970c6118}{$\sim$\+Feature\+Set} ()
+\begin{DoxyCompactList}\small\item\em The destructor. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___vector_module_ga438beae23c8c7333e1763addeb99b286}{file\+Path} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the vector feature set file path. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_ga9117c49056efd1ac51c2bb74043b50d6}{add\+Feature} (const \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature}{Feature} \&feature)
+\begin{DoxyCompactList}\small\item\em Add a feature to the feature set. \end{DoxyCompactList}\item 
+ptrdiff\+\_\+t \hyperlink{group___vector_module_ga6ea15b282c93cedd1ddc676f1146e967}{num\+Features} (const std\+::string \&layer\+Name) const 
+\begin{DoxyCompactList}\small\item\em Returns number of features in a layer. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___vector_module_ga6067c0ad1fc35879804d30756d6af8d8}{projection} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the projection as a W\+KT string. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_gab665679d2cea8d9b0c324fd52410e181}{set\+Projection} (const std\+::string projection\+Wkt)
+\begin{DoxyCompactList}\small\item\em Sets the projection. Note that this will have no effect if features are added before the projection is changed. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_gabd53e45c4396d9a6798453b82fb396ac}{close} ()
+\begin{DoxyCompactList}\small\item\em Closes the feature set. This will close the feature set and apply the changes. No changes are possible after closing. \end{DoxyCompactList}\item 
+bool \hyperlink{group___vector_module_ga452851f214ba915b11acdac63fe3d6ba}{is\+Open} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns whether the feature set is open. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::vector$<$ std\+::string $>$ \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature_set_a157fb6015d620a272b8c8395daea2c03}{supported\+Formats} ()
+\begin{DoxyCompactList}\small\item\em Gets the list of supported formats. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}{Field\+Definitions} \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature_set_a0fdfbe8046808f547dd24594b45be9cf}{field\+Definitions\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Assists in creation of a vector feature set. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}!````~Feature\+Set@{$\sim$\+Feature\+Set}}
+\index{````~Feature\+Set@{$\sim$\+Feature\+Set}!dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}}
+\subsubsection[{\texorpdfstring{$\sim$\+Feature\+Set()}{~FeatureSet()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::vector\+::\+Feature\+Set\+::$\sim$\+Feature\+Set (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1vector_1_1_feature_set_acc3af359cff5a59c1ca421e8970c6118}{}\label{classdg_1_1deepcore_1_1vector_1_1_feature_set_acc3af359cff5a59c1ca421e8970c6118}
+
+
+The destructor. 
+
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}!supported\+Formats@{supported\+Formats}}
+\index{supported\+Formats@{supported\+Formats}!dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}}
+\subsubsection[{\texorpdfstring{supported\+Formats()}{supportedFormats()}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ string $>$ dg\+::deepcore\+::vector\+::\+Feature\+Set\+::supported\+Formats (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{classdg_1_1deepcore_1_1vector_1_1_feature_set_a157fb6015d620a272b8c8395daea2c03}{}\label{classdg_1_1deepcore_1_1vector_1_1_feature_set_a157fb6015d620a272b8c8395daea2c03}
+
+
+Gets the list of supported formats. 
+
+\begin{DoxyReturn}{Returns}
+The list of supported formats. 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}!field\+Definitions\+\_\+@{field\+Definitions\+\_\+}}
+\index{field\+Definitions\+\_\+@{field\+Definitions\+\_\+}!dg\+::deepcore\+::vector\+::\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Feature\+Set}}
+\subsubsection[{\texorpdfstring{field\+Definitions\+\_\+}{fieldDefinitions_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Field\+Definitions} dg\+::deepcore\+::vector\+::\+Feature\+Set\+::field\+Definitions\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1vector_1_1_feature_set_a0fdfbe8046808f547dd24594b45be9cf}{}\label{classdg_1_1deepcore_1_1vector_1_1_feature_set_a0fdfbe8046808f547dd24594b45be9cf}

@@ -1,0 +1,80 @@
+\hypertarget{classdg_1_1deepcore_1_1_un_zip_file}{}\section{dg\+:\+:deepcore\+:\+:Un\+Zip\+File Class Reference}
+\label{classdg_1_1deepcore_1_1_un_zip_file}\index{dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}}
+
+
+Reads contents of a zip file.  
+
+
+
+
+{\ttfamily \#include $<$utility/zip/\+Un\+Zip\+File.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___utility_module_gac32fa3973017fa76647d90ab64bbceae}{Un\+Zip\+File} (std\+::istream \&is)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given input stream. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga64e2c80586cc8429067c15ab1fa39e08}{Un\+Zip\+File} (const std\+::vector$<$ uint8\+\_\+t $>$ \&buf)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given vector. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga1efd284e3fbbef3d57a598c47a7cc73b}{Un\+Zip\+File} (const uint8\+\_\+t $\ast$buf, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given memory buffer. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga4418028e98c6031359ace40625987864}{Un\+Zip\+File} (const std\+::string \&\hyperlink{group___utility_module_ga4c5433ff98fc88ebe244871a16660e0f}{file\+Name})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a file on disk. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga325131b751ccc5a391367afb09084036}{$\sim$\+Un\+Zip\+File} ()
+\begin{DoxyCompactList}\small\item\em Destructs the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object and closes the zip file. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1_un_zip_file_aae918141726089605648d22560cfce7d}{Un\+Zip\+File} (\hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} \&\&)=default
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_un_zip_file_a1c1da90565db56d9d8eed0f10a8a8b2e}{Un\+Zip\+File} (const \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} \&)=delete
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} \& \hyperlink{classdg_1_1deepcore_1_1_un_zip_file_af550bb1d0ede835cd3b6c7a1c5d94239}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} \&)=delete
+\item 
+void \hyperlink{group___utility_module_ga6f28d71dffa80123aaa68ebf44783d0c}{close} ()
+\begin{DoxyCompactList}\small\item\em Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object is no longer usable after it\textquotesingle{}s closed. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga065f405804b43cb3fdabca1fe7bd095a}{go\+To\+First\+File} ()
+\begin{DoxyCompactList}\small\item\em Goes to the first file in the archive. \end{DoxyCompactList}\item 
+bool \hyperlink{group___utility_module_ga88b7a33f99cbcc1748da060b7233cb9a}{go\+To\+Next\+File} ()
+\begin{DoxyCompactList}\small\item\em Goes to the next file in the archive if possible. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{group___utility_module_ga16985655d6b3bf1f05330d54ca736b0e}{read\+File} (uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a memory buffer. \end{DoxyCompactList}\item 
+std\+::ostream \& \hyperlink{group___utility_module_ga2139dc65cb701db211a8fe4970232307}{read\+File} (std\+::ostream \&os, const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into an output stream. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \hyperlink{group___utility_module_gaf6c3c8e93c73b827d8dcd06c7b0aa1f8}{read\+File} (const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a vector. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_gaff912e76c9566cf07f198acc2df1decc}{read\+File\+To\+String} (const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a string. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga4c5433ff98fc88ebe244871a16660e0f}{file\+Name} () const 
+\begin{DoxyCompactList}\small\item\em Returns the name and path of the current file in the archive. \end{DoxyCompactList}\item 
+const uint64\+\_\+t \hyperlink{group___utility_module_ga447144b52bd10fb30c362d8b05f9547a}{file\+Size} () const 
+\begin{DoxyCompactList}\small\item\em Returns the uncompressed file size of the current file in the archive. \end{DoxyCompactList}\item 
+bool \hyperlink{group___utility_module_gafd884d3fc036bfe37ec3e4e4c272d466}{encrypted} () const 
+\begin{DoxyCompactList}\small\item\em Returns whether the current file is encrypted. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Reads contents of a zip file. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(\+Un\+Zip\+File \&\&)=default}{UnZipFile(UnZipFile &&)=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{{\bf Un\+Zip\+File} \&\&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1_un_zip_file_aae918141726089605648d22560cfce7d}{}\label{classdg_1_1deepcore_1_1_un_zip_file_aae918141726089605648d22560cfce7d}
+\index{dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(const Un\+Zip\+File \&)=delete}{UnZipFile(const UnZipFile &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const {\bf Un\+Zip\+File} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1_un_zip_file_a1c1da90565db56d9d8eed0f10a8a8b2e}{}\label{classdg_1_1deepcore_1_1_un_zip_file_a1c1da90565db56d9d8eed0f10a8a8b2e}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}!operator=@{operator=}}
+\index{operator=@{operator=}!dg\+::deepcore\+::\+Un\+Zip\+File@{dg\+::deepcore\+::\+Un\+Zip\+File}}
+\subsubsection[{\texorpdfstring{operator=(const Un\+Zip\+File \&)=delete}{operator=(const UnZipFile &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Un\+Zip\+File}\& dg\+::deepcore\+::\+Un\+Zip\+File\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const {\bf Un\+Zip\+File} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1_un_zip_file_af550bb1d0ede835cd3b6c7a1c5d94239}{}\label{classdg_1_1deepcore_1_1_un_zip_file_af550bb1d0ede835cd3b6c7a1c5d94239}

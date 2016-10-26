@@ -1,0 +1,62 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_sliding_window}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Sliding\+Window Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_sliding_window}\index{dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}}
+
+
+Assists in calculation of sliding windows.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Sliding\+Window.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef cv\+::\+Rect \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aa709c18e431e937e57b72a869e2bf272}{value\+\_\+type}
+\item 
+typedef const cv\+::\+Rect \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_a73353ca1fb994a367f73d6d079b170e9}{const\+\_\+reference}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_iterator}{Sliding\+Window\+Iterator} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}{const\+\_\+iterator}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_gaac77ef4c080960674fcf6c0c25960a1d}{Sliding\+Window} (const cv\+::\+Size \&\hyperlink{group___imagery_module_ga2771aea9a69cec6529758e6315bf2088}{image\+Size}, const cv\+::\+Size \&\hyperlink{group___imagery_module_ga7d3254b7d65021c7f0464c2424479de1}{window\+Size}, const cv\+::\+Point \&\hyperlink{group___imagery_module_gaa5f0a9213abf71efe1d51e6da9fc0163}{step}, \hyperlink{group___imagery_module_gaf813556adc6cfc1daa1ee410d7c84a17}{Edge\+Behavior} \hyperlink{group___imagery_module_ga069cd456276d030f571f59d1f04be74c}{edge\+Behavior}=\hyperlink{namespacedg_1_1deepcore_1_1imagery_gaf813556adc6cfc1daa1ee410d7c84a17ae8225b11842409df543692aebed34fd1}{Edge\+Behavior\+::\+F\+I\+LL})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window}{Sliding\+Window}. \end{DoxyCompactList}\item 
+const cv\+::\+Size \& \hyperlink{group___imagery_module_ga2771aea9a69cec6529758e6315bf2088}{image\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the image size. \end{DoxyCompactList}\item 
+const cv\+::\+Size \& \hyperlink{group___imagery_module_ga7d3254b7d65021c7f0464c2424479de1}{window\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the window size. \end{DoxyCompactList}\item 
+const cv\+::\+Point \& \hyperlink{group___imagery_module_gaa5f0a9213abf71efe1d51e6da9fc0163}{step} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the step. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gaf813556adc6cfc1daa1ee410d7c84a17}{Edge\+Behavior} \hyperlink{group___imagery_module_ga069cd456276d030f571f59d1f04be74c}{edge\+Behavior} () const noexcept
+\begin{DoxyCompactList}\small\item\em Return the edge behavior. \end{DoxyCompactList}\item 
+int \hyperlink{group___imagery_module_ga32af1d9b6602d69bd6e000c95b6c17d6}{num\+WindowsX} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the number of windows in the X direction. \end{DoxyCompactList}\item 
+int \hyperlink{group___imagery_module_gab7406512817ad61129d28a1315932fce}{num\+WindowsY} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the number of windows in the Y direction. \end{DoxyCompactList}\item 
+int \hyperlink{group___imagery_module_gadcf0dadb638b7a12ce4b43c1a769279c}{num\+Windows} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the total number of windows. \end{DoxyCompactList}\item 
+const cv\+::\+Point \& \hyperlink{group___imagery_module_gaab719997b423835ef06be24b605a9bc6}{offset} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the offset. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}{const\+\_\+iterator} \hyperlink{group___imagery_module_ga935a8a28313d10b815762aeb92e78629}{begin} () const 
+\begin{DoxyCompactList}\small\item\em Returns the beginning sliding window iterator. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}{const\+\_\+iterator} \hyperlink{group___imagery_module_ga1c962ee19d65114b9213d2aea33503a6}{end} () const 
+\begin{DoxyCompactList}\small\item\em Returns the ending sliding window iterator. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga771dbe2b22ec6f714c0c707ed7a63c1f}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window}{Sliding\+Window} \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Assists in calculation of sliding windows. 
+
+\subsection{Member Typedef Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}!const\+\_\+iterator@{const\+\_\+iterator}}
+\index{const\+\_\+iterator@{const\+\_\+iterator}!dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{const\+\_\+iterator}{const_iterator}}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf Sliding\+Window\+Iterator} {\bf dg\+::deepcore\+::imagery\+::\+Sliding\+Window\+::const\+\_\+iterator}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}{}\label{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}
+\index{dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}!const\+\_\+reference@{const\+\_\+reference}}
+\index{const\+\_\+reference@{const\+\_\+reference}!dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{const\+\_\+reference}{const_reference}}]{\setlength{\rightskip}{0pt plus 5cm}typedef const cv\+::\+Rect\& {\bf dg\+::deepcore\+::imagery\+::\+Sliding\+Window\+::const\+\_\+reference}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_a73353ca1fb994a367f73d6d079b170e9}{}\label{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_a73353ca1fb994a367f73d6d079b170e9}
+\index{dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}!value\+\_\+type@{value\+\_\+type}}
+\index{value\+\_\+type@{value\+\_\+type}!dg\+::deepcore\+::imagery\+::\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{value\+\_\+type}{value_type}}]{\setlength{\rightskip}{0pt plus 5cm}typedef cv\+::\+Rect {\bf dg\+::deepcore\+::imagery\+::\+Sliding\+Window\+::value\+\_\+type}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aa709c18e431e937e57b72a869e2bf272}{}\label{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aa709c18e431e937e57b72a869e2bf272}

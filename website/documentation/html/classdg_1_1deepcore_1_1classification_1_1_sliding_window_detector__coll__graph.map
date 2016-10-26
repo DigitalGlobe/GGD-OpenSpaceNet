@@ -1,0 +1,4 @@
+<map id="dg::deepcore::classification::SlidingWindowDetector" name="dg::deepcore::classification::SlidingWindowDetector">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_classifier.html" title="Abstract base class for objects capable of doing classification. " alt="" coords="5,5,187,47"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_detector.html" title="Abstract base class for objects capable of doing feature detection. " alt="" coords="211,5,392,47"/>
+</map>

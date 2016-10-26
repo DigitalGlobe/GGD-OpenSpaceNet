@@ -1,0 +1,82 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Response Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response}}
+
+
+J\+S\+O\+N-\/\+R\+PC Response container, parsing, and marshalling.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Json\+Rpc\+Response.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Response\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1network_1_1_json_rpc_response__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual Json\+::\+Value \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aaa56d4f6a634774f8d5f6e91c547fb84}{to\+Json} () const override
+\begin{DoxyCompactList}\small\item\em Marshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+virtual void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aa07ab7d8e7068333a54397e71aa2e06b}{from\+Json} (const Json\+::\+Value \&root) override
+\begin{DoxyCompactList}\small\item\em Unmarshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+bool \hyperlink{group___network_module_gaf86a4b609361bdbee6d2bad26ef43c71}{has\+Error} () const noexcept
+\begin{DoxyCompactList}\small\item\em Does this response contain an error object? \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \& \hyperlink{group___network_module_ga7a8d72cacfd617c8aa04d3ef973e3d19}{error} () const noexcept
+\begin{DoxyCompactList}\small\item\em If this response contains an error, get it. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga47913460de543d08ee67b2d263a49b37}{set\+Error} (const \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \&\hyperlink{group___network_module_ga7a8d72cacfd617c8aa04d3ef973e3d19}{error}) noexcept
+\begin{DoxyCompactList}\small\item\em If this response contains an error, get it. \end{DoxyCompactList}\item 
+bool \hyperlink{group___network_module_ga6bce2bddf5eb24775a682dd8078d1392}{has\+Result} () const noexcept
+\begin{DoxyCompactList}\small\item\em Does this response contain an result object? \end{DoxyCompactList}\item 
+const Json\+::\+Value \& \hyperlink{group___network_module_gaff7247fb07139f7e6f620020f3a00224}{result} () const noexcept
+\begin{DoxyCompactList}\small\item\em If this response contains an result, get it. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga70614bdc02d6aeca557c21644305a72a}{set\+Result} (const Json\+::\+Value \&\hyperlink{group___network_module_gaff7247fb07139f7e6f620020f3a00224}{result}) noexcept
+\begin{DoxyCompactList}\small\item\em Set a result object for this response. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+J\+S\+O\+N-\/\+R\+PC Response container, parsing, and marshalling. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://www.jsonrpc.org/specification}{\tt http\+://www.\+jsonrpc.\+org/specification} 
+\end{DoxySeeAlso}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response}!from\+Json@{from\+Json}}
+\index{from\+Json@{from\+Json}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response}}
+\subsubsection[{\texorpdfstring{from\+Json(const Json\+::\+Value \&root) override}{fromJson(const Json::Value &root) override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response\+::from\+Json (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{root}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aa07ab7d8e7068333a54397e71aa2e06b}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aa07ab7d8e7068333a54397e71aa2e06b}
+
+
+Unmarshal this object to a J\+S\+ON container. 
+
+Beware that a string is also valid json, so from\+Json will interpret a passed in string as a string literal without parsing it. 
+
+Implements \hyperlink{group___network_module_ga74a2303be2ae11e8d94101b55154362e}{dg\+::deepcore\+::network\+::\+Json\+Object}.
+
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response}!to\+Json@{to\+Json}}
+\index{to\+Json@{to\+Json}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response}}
+\subsubsection[{\texorpdfstring{to\+Json() const override}{toJson() const override}}]{\setlength{\rightskip}{0pt plus 5cm}Json\+::\+Value dg\+::deepcore\+::network\+::\+Json\+Rpc\+Response\+::to\+Json (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aaa56d4f6a634774f8d5f6e91c547fb84}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_response_aaa56d4f6a634774f8d5f6e91c547fb84}
+
+
+Marshal this object to a J\+S\+ON container. 
+
+
+
+Implements \hyperlink{group___network_module_ga96e3f7817a3257d80034811a9545f3ff}{dg\+::deepcore\+::network\+::\+Json\+Object}.
+

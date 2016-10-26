@@ -1,0 +1,54 @@
+\hypertarget{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Window\+Prediction Struct Reference}
+\label{structdg_1_1deepcore_1_1classification_1_1_window_prediction}\index{dg\+::deepcore\+::classification\+::\+Window\+Prediction@{dg\+::deepcore\+::classification\+::\+Window\+Prediction}}
+
+
+Another \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} struct that also keeps the window region where the detection happened.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Prediction.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_ga6337a86649fa61f2b4e122a35aa06bf6}{Window\+Prediction} ()
+\begin{DoxyCompactList}\small\item\em Default constructor for \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction}. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_gaa68db23c3bebd48d26ac60872a7f4f9c}{Window\+Prediction} (const std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} $>$ \&\hyperlink{group___classification_module_gaaec179dc0e22d9c897260b650c2a6b82}{predictions}, const cv\+::\+Rect \&\hyperlink{group___classification_module_ga200902328358f2246a5e62d390e57278}{window})
+\begin{DoxyCompactList}\small\item\em A parameterized constructor for \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction}. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga22fb55b25a1827cd37a05b7ac72edc2c}{Window\+Prediction} (std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} $>$ \&\&\hyperlink{group___classification_module_gaaec179dc0e22d9c897260b650c2a6b82}{predictions}, cv\+::\+Rect \&\&\hyperlink{group___classification_module_ga200902328358f2246a5e62d390e57278}{window})
+\begin{DoxyCompactList}\small\item\em A move constructor for \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction}. \end{DoxyCompactList}\item 
+bool \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction_a818bdc4e9168d4d1b1fbca0b68180608}{operator==} (const \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} \&rhs) const 
+\begin{DoxyCompactList}\small\item\em The equality comparison operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} $>$ \hyperlink{group___classification_module_gaaec179dc0e22d9c897260b650c2a6b82}{predictions}
+\begin{DoxyCompactList}\small\item\em A vector containing Predictions for the window. \end{DoxyCompactList}\item 
+cv\+::\+Rect \hyperlink{group___classification_module_ga200902328358f2246a5e62d390e57278}{window}
+\begin{DoxyCompactList}\small\item\em A window that is the active region for this set of Predictions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Another \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} struct that also keeps the window region where the detection happened. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Window\+Prediction@{dg\+::deepcore\+::classification\+::\+Window\+Prediction}!operator==@{operator==}}
+\index{operator==@{operator==}!dg\+::deepcore\+::classification\+::\+Window\+Prediction@{dg\+::deepcore\+::classification\+::\+Window\+Prediction}}
+\subsubsection[{\texorpdfstring{operator==(const Window\+Prediction \&rhs) const }{operator==(const WindowPrediction &rhs) const }}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::classification\+::\+Window\+Prediction\+::operator== (
+\begin{DoxyParamCaption}
+\item[{const {\bf Window\+Prediction} \&}]{rhs}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{structdg_1_1deepcore_1_1classification_1_1_window_prediction_a818bdc4e9168d4d1b1fbca0b68180608}{}\label{structdg_1_1deepcore_1_1classification_1_1_window_prediction_a818bdc4e9168d4d1b1fbca0b68180608}
+
+
+The equality comparison operator. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em rhs} & The right-\/hand side. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether rhs == this. 
+\end{DoxyReturn}

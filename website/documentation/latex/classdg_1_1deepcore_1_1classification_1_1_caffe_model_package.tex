@@ -1,0 +1,105 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Model\+Package Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package}\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package}}
+
+
+Represents a Caffe model package.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Caffe\+Model\+Package.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Model\+Package\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=280pt]{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata} \hyperlink{group___classification_module_gae0f23f2d134e0b3fc83b807077e32e8b}{Metadata\+Type}
+\begin{DoxyCompactList}\small\item\em Defines a \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata} as Metadata\+Type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_afd5cc8bebbcfc379cfb7c5cc828aa0e0}{type} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Gets the identifier for the model type. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_a8013f0d5b4efb54e85e9fe75c1d30d20}{read\+Metadata\+From\+Item} (const std\+::string \&item\+Name, const std\+::vector$<$ uint8\+\_\+t $>$ \&item\+Data) const override
+\begin{DoxyCompactList}\small\item\em Read metadata from the given item data. \end{DoxyCompactList}\item 
+const std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_gaa62fc3b5391b279e26f1ef7140f51217}{model} () const 
+\begin{DoxyCompactList}\small\item\em Gets the model data. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_gadaf4382bc554e534107ba578956b9431}{model} ()
+\begin{DoxyCompactList}\small\item\em Gets the model data. \end{DoxyCompactList}\item 
+const std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_gabd25f1f8b96431128dbd5e1f2dbd6e51}{trained} () const 
+\begin{DoxyCompactList}\small\item\em Gets the trained data. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_gab25e04015819d180c69e52aed3992855}{trained} ()
+\begin{DoxyCompactList}\small\item\em Gets the trained data. \end{DoxyCompactList}\item 
+const std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_gaf96a25edff440f66fe6faba94ff1af66}{mean} () const 
+\begin{DoxyCompactList}\small\item\em Returns the mean data. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___classification_module_ga992d98f0f066f15edc2dfb40c03a3a88}{mean} ()
+\begin{DoxyCompactList}\small\item\em Returns the mean data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_ga44a441d13d149f42cc659ee92e83fdb4}{I\+T\+E\+M\+\_\+\+N\+A\+M\+ES}
+\begin{DoxyCompactList}\small\item\em A collection of strings that names that will be found in this package. \end{DoxyCompactList}\item 
+static const std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_ga0d8174bf9f1ba89932caa3abb73aa4cb}{M\+E\+T\+A\+D\+A\+T\+A\+\_\+\+I\+T\+E\+M\+\_\+\+N\+A\+M\+ES}
+\begin{DoxyCompactList}\small\item\em A collection of strings that are metadata item names for the items in the package. \end{DoxyCompactList}\item 
+static const std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_ga66d66cfd2c51d9d01f001fc6d55afcaf}{M\+O\+D\+E\+L\+\_\+\+M\+E\+T\+A\+D\+A\+T\+A\+\_\+\+I\+T\+E\+M\+\_\+\+N\+A\+M\+ES}
+\begin{DoxyCompactList}\small\item\em A collection of names of items found in the model. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Represents a Caffe model package. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package}!read\+Metadata\+From\+Item@{read\+Metadata\+From\+Item}}
+\index{read\+Metadata\+From\+Item@{read\+Metadata\+From\+Item}!dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package}}
+\subsubsection[{\texorpdfstring{read\+Metadata\+From\+Item(const std\+::string \&item\+Name, const std\+::vector$<$ uint8\+\_\+t $>$ \&item\+Data) const override}{readMetadataFromItem(const std::string &itemName, const std::vector< uint8_t > &itemData) const override}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ string $>$ dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package\+::read\+Metadata\+From\+Item (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{item\+Name, }
+\item[{const std\+::vector$<$ uint8\+\_\+t $>$ \&}]{item\+Data}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_a8013f0d5b4efb54e85e9fe75c1d30d20}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_a8013f0d5b4efb54e85e9fe75c1d30d20}
+
+
+Read metadata from the given item data. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em item\+Name} & Name of the item to read from. \\
+\hline
+\mbox{\tt in}  & {\em item\+Data} & Item data to read from. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A list of metadata items read. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga479f0578c384bfe7d21f32d4bfb33983}{dg\+::deepcore\+::classification\+::\+Model\+Package}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package}!type@{type}}
+\index{type@{type}!dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package}}
+\subsubsection[{\texorpdfstring{type() const noexceptoverride}{type() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Package\+::type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_afd5cc8bebbcfc379cfb7c5cc828aa0e0}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package_afd5cc8bebbcfc379cfb7c5cc828aa0e0}
+
+
+Gets the identifier for the model type. 
+
+\begin{DoxyReturn}{Returns}
+The model type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga9f09bd24a91c366c473b9fbb9a59b64a}{dg\+::deepcore\+::classification\+::\+Model\+Package}.
+

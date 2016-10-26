@@ -1,0 +1,332 @@
+\hypertarget{group___vector_module}{}\section{Vector}
+\label{group___vector_module}\index{Vector@{Vector}}
+
+
+Contains vector features and vector set creation for vector data.  
+
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_buffered_feature_set}{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set}
+\begin{DoxyCompactList}\small\item\em Assists a creation of a vector feature set in memory. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field_definition}{dg\+::deepcore\+::vector\+::\+Field\+Definition}
+\begin{DoxyCompactList}\small\item\em Represents a definition of a vector attribute field. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field}{dg\+::deepcore\+::vector\+::\+Field}
+\begin{DoxyCompactList}\small\item\em Represents a vector attribute field. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature}{dg\+::deepcore\+::vector\+::\+Feature}
+\begin{DoxyCompactList}\small\item\em Base class for vector features. \end{DoxyCompactList}\item 
+class \hyperlink{structdg_1_1deepcore_1_1vector_1_1_feature_t}{dg\+::deepcore\+::vector\+::\+Feature\+T$<$ T, G $>$}
+\begin{DoxyCompactList}\small\item\em A helper base class for \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature}{Feature} implementations. \end{DoxyCompactList}\item 
+class \hyperlink{class_point_feature}{Point\+Feature}
+\begin{DoxyCompactList}\small\item\em Represents a point vector feature. \end{DoxyCompactList}\item 
+class \hyperlink{class_polygon_feature}{Polygon\+Feature}
+\begin{DoxyCompactList}\small\item\em Represents a polygon vector feature. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature_set}{dg\+::deepcore\+::vector\+::\+Feature\+Set}
+\begin{DoxyCompactList}\small\item\em Assists in creation of a vector feature set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{group___vector_module_ga4b8ce414fd5c655308a07474c35828c0}{dg\+::deepcore\+::vector\+::\+Field\+Value} = boost\+::variant$<$ int, double, std\+::string, time\+\_\+t $>$
+\begin{DoxyCompactList}\small\item\em Represents a vector attribute field value. \end{DoxyCompactList}\item 
+using \hyperlink{group___vector_module_gabeca0d4b0cbea4335ae890255ca59128}{dg\+::deepcore\+::vector\+::\+Fields} = std\+::map$<$ std\+::string, Field $>$
+\begin{DoxyCompactList}\small\item\em Represent a list of vector attribute fields. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___vector_module_ga13bed828345853b15d61ba90d6df392e}{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::\+Buffered\+Feature\+Set} (const std\+::string \&format, const std\+::string \&layer\+Name, const Field\+Definitions \&field\+Definitions)
+\begin{DoxyCompactList}\small\item\em Constructs a buffered vector feature set. \end{DoxyCompactList}\item 
+uint8\+\_\+t $\ast$ \hyperlink{group___vector_module_ga3541fd309ad0269dbdb1a64657a5a11d}{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer} (size\+\_\+t \&length, bool take\+Ownership=false)
+\begin{DoxyCompactList}\small\item\em Returns the buffer containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \hyperlink{group___vector_module_ga0a390de9fa273210eb7d905538d22b19}{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer} ()
+\begin{DoxyCompactList}\small\item\em Returns an std\+::vector containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___vector_module_gaa41d91dcbee14ef2363b9acecb332b1f}{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer\+As\+String} ()
+\begin{DoxyCompactList}\small\item\em Returns an std\+::string containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\item 
+\hyperlink{group___vector_module_gad9d6de87ab5e9557f542c0691ca088e0}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::\+Feature\+Set} (const std\+::string \&file\+Path, const std\+::string \&format, const std\+::string \&layer\+Name, const Field\+Definitions \&field\+Definitions)
+\begin{DoxyCompactList}\small\item\em Constructs a vector feature set. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___vector_module_ga438beae23c8c7333e1763addeb99b286}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::file\+Path} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the vector feature set file path. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_ga9117c49056efd1ac51c2bb74043b50d6}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::add\+Feature} (const Feature \&feature)
+\begin{DoxyCompactList}\small\item\em Add a feature to the feature set. \end{DoxyCompactList}\item 
+ptrdiff\+\_\+t \hyperlink{group___vector_module_ga6ea15b282c93cedd1ddc676f1146e967}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::num\+Features} (const std\+::string \&layer\+Name) const 
+\begin{DoxyCompactList}\small\item\em Returns number of features in a layer. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___vector_module_ga6067c0ad1fc35879804d30756d6af8d8}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::projection} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the projection as a W\+KT string. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_gab665679d2cea8d9b0c324fd52410e181}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::set\+Projection} (const std\+::string projection\+Wkt)
+\begin{DoxyCompactList}\small\item\em Sets the projection. Note that this will have no effect if features are added before the projection is changed. \end{DoxyCompactList}\item 
+void \hyperlink{group___vector_module_gabd53e45c4396d9a6798453b82fb396ac}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::close} ()
+\begin{DoxyCompactList}\small\item\em Closes the feature set. This will close the feature set and apply the changes. No changes are possible after closing. \end{DoxyCompactList}\item 
+bool \hyperlink{group___vector_module_ga452851f214ba915b11acdac63fe3d6ba}{dg\+::deepcore\+::vector\+::\+Feature\+Set\+::is\+Open} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns whether the feature set is open. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Contains vector features and vector set creation for vector data. 
+
+
+
+\subsection{Typedef Documentation}
+\index{Vector@{Vector}!Fields@{Fields}}
+\index{Fields@{Fields}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Fields}{Fields}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dg\+::deepcore\+::vector\+::\+Fields}}\hypertarget{group___vector_module_gabeca0d4b0cbea4335ae890255ca59128}{}\label{group___vector_module_gabeca0d4b0cbea4335ae890255ca59128}
+
+
+Represent a list of vector attribute fields. 
+
+\index{Vector@{Vector}!Field\+Value@{Field\+Value}}
+\index{Field\+Value@{Field\+Value}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Field\+Value}{FieldValue}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dg\+::deepcore\+::vector\+::\+Field\+Value}}\hypertarget{group___vector_module_ga4b8ce414fd5c655308a07474c35828c0}{}\label{group___vector_module_ga4b8ce414fd5c655308a07474c35828c0}
+
+
+Represents a vector attribute field value. 
+
+
+
+\subsection{Enumeration Type Documentation}
+\index{Vector@{Vector}!Field\+Type@{Field\+Type}}
+\index{Field\+Type@{Field\+Type}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Field\+Type}{FieldType}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::vector\+::\+Field\+Type}\hspace{0.3cm}{\ttfamily [strong]}}\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99d}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99d}
+
+
+Represents a vector attribute field type. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{U\+N\+K\+N\+O\+WN@{U\+N\+K\+N\+O\+WN}!Vector@{Vector}}\index{Vector@{Vector}!U\+N\+K\+N\+O\+WN@{U\+N\+K\+N\+O\+WN}}\item[{\em 
+U\+N\+K\+N\+O\+WN\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da696b031073e74bf2cb98e5ef201d4aa3}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da696b031073e74bf2cb98e5ef201d4aa3}
+}]\index{I\+N\+T\+E\+G\+ER@{I\+N\+T\+E\+G\+ER}!Vector@{Vector}}\index{Vector@{Vector}!I\+N\+T\+E\+G\+ER@{I\+N\+T\+E\+G\+ER}}\item[{\em 
+I\+N\+T\+E\+G\+ER\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da5d5cd46919fa987731fb2edefe0f2a0c}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da5d5cd46919fa987731fb2edefe0f2a0c}
+}]\index{R\+E\+AL@{R\+E\+AL}!Vector@{Vector}}\index{Vector@{Vector}!R\+E\+AL@{R\+E\+AL}}\item[{\em 
+R\+E\+AL\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da8cf125b0e31559ba75a9d9b4f818a554}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da8cf125b0e31559ba75a9d9b4f818a554}
+}]\index{S\+T\+R\+I\+NG@{S\+T\+R\+I\+NG}!Vector@{Vector}}\index{Vector@{Vector}!S\+T\+R\+I\+NG@{S\+T\+R\+I\+NG}}\item[{\em 
+S\+T\+R\+I\+NG\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da63b588d5559f64f89a416e656880b949}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da63b588d5559f64f89a416e656880b949}
+}]\index{D\+A\+TE@{D\+A\+TE}!Vector@{Vector}}\index{Vector@{Vector}!D\+A\+TE@{D\+A\+TE}}\item[{\em 
+D\+A\+TE\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da633a6c7a6b9958f8174250094daf1e6a}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da633a6c7a6b9958f8174250094daf1e6a}
+}]\index{T\+I\+ME@{T\+I\+ME}!Vector@{Vector}}\index{Vector@{Vector}!T\+I\+ME@{T\+I\+ME}}\item[{\em 
+T\+I\+ME\hypertarget{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da346ff32eaa3c09983fb2ec057816d352}{}\label{group___vector_module_gaedcee2e418daac47dd4516efa9a0b99da346ff32eaa3c09983fb2ec057816d352}
+}]\end{description}
+\end{Desc}
+\index{Vector@{Vector}!Geometry\+Type@{Geometry\+Type}}
+\index{Geometry\+Type@{Geometry\+Type}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Geometry\+Type}{GeometryType}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::vector\+::\+Geometry\+Type}\hspace{0.3cm}{\ttfamily [strong]}}\hypertarget{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8}{}\label{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8}
+
+
+Represents a vertor feature geometry type. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{U\+N\+K\+N\+O\+WN@{U\+N\+K\+N\+O\+WN}!Vector@{Vector}}\index{Vector@{Vector}!U\+N\+K\+N\+O\+WN@{U\+N\+K\+N\+O\+WN}}\item[{\em 
+U\+N\+K\+N\+O\+WN\hypertarget{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8a696b031073e74bf2cb98e5ef201d4aa3}{}\label{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8a696b031073e74bf2cb98e5ef201d4aa3}
+}]\index{P\+O\+I\+NT@{P\+O\+I\+NT}!Vector@{Vector}}\index{Vector@{Vector}!P\+O\+I\+NT@{P\+O\+I\+NT}}\item[{\em 
+P\+O\+I\+NT\hypertarget{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8aaebdbcb765394d25d6a604589a890f82}{}\label{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8aaebdbcb765394d25d6a604589a890f82}
+}]\index{P\+O\+L\+Y\+G\+ON@{P\+O\+L\+Y\+G\+ON}!Vector@{Vector}}\index{Vector@{Vector}!P\+O\+L\+Y\+G\+ON@{P\+O\+L\+Y\+G\+ON}}\item[{\em 
+P\+O\+L\+Y\+G\+ON\hypertarget{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8aecdc92bf56d960b73b02ee40125758bc}{}\label{group___vector_module_gade61c1773afa31064c4eae92cb6bb0b8aecdc92bf56d960b73b02ee40125758bc}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{Vector@{Vector}!add\+Feature@{add\+Feature}}
+\index{add\+Feature@{add\+Feature}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{add\+Feature(const Feature \&feature)}{addFeature(const Feature &feature)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::vector\+::\+Feature\+Set\+::add\+Feature (
+\begin{DoxyParamCaption}
+\item[{const {\bf Feature} \&}]{feature}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_ga9117c49056efd1ac51c2bb74043b50d6}{}\label{group___vector_module_ga9117c49056efd1ac51c2bb74043b50d6}
+
+
+Add a feature to the feature set. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em feature} & The feature definition. \\
+\hline
+\end{DoxyParams}
+\index{Vector@{Vector}!buffer@{buffer}}
+\index{buffer@{buffer}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{buffer(size\+\_\+t \&length, bool take\+Ownership=false)}{buffer(size_t &length, bool takeOwnership=false)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t $\ast$ dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t \&}]{length, }
+\item[{bool}]{take\+Ownership = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_ga3541fd309ad0269dbdb1a64657a5a11d}{}\label{group___vector_module_ga3541fd309ad0269dbdb1a64657a5a11d}
+
+
+Returns the buffer containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em length} & The length of the buffer. \\
+\hline
+\mbox{\tt in}  & {\em take\+Ownership} & If true, the user will be responsible for freeing the returned buffer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the buffer containing the serialized vector feature set. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!buffer@{buffer}}
+\index{buffer@{buffer}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{buffer()}{buffer()}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ uint8\+\_\+t $>$ dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_ga0a390de9fa273210eb7d905538d22b19}{}\label{group___vector_module_ga0a390de9fa273210eb7d905538d22b19}
+
+
+Returns an std\+::vector containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. 
+
+\begin{DoxyReturn}{Returns}
+An std\+::vector containing the serialized vector feature set. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!buffer\+As\+String@{buffer\+As\+String}}
+\index{buffer\+As\+String@{buffer\+As\+String}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{buffer\+As\+String()}{bufferAsString()}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::buffer\+As\+String (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_gaa41d91dcbee14ef2363b9acecb332b1f}{}\label{group___vector_module_gaa41d91dcbee14ef2363b9acecb332b1f}
+
+
+Returns an std\+::string containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. 
+
+\begin{DoxyReturn}{Returns}
+An std\+::string containing the serialized vector feature set. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!Buffered\+Feature\+Set@{Buffered\+Feature\+Set}}
+\index{Buffered\+Feature\+Set@{Buffered\+Feature\+Set}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Buffered\+Feature\+Set(const std\+::string \&format, const std\+::string \&layer\+Name, const Field\+Definitions \&field\+Definitions)}{BufferedFeatureSet(const std::string &format, const std::string &layerName, const FieldDefinitions &fieldDefinitions)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set\+::\+Buffered\+Feature\+Set (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{format, }
+\item[{const std\+::string \&}]{layer\+Name, }
+\item[{const {\bf Field\+Definitions} \&}]{field\+Definitions}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_ga13bed828345853b15d61ba90d6df392e}{}\label{group___vector_module_ga13bed828345853b15d61ba90d6df392e}
+
+
+Constructs a buffered vector feature set. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em format} & File format. Allowed formats are shp, kml, geojson, postgis, and elasticsearch. \\
+\hline
+\mbox{\tt in}  & {\em layer\+Name} & Layer name to use. \\
+\hline
+\mbox{\tt in}  & {\em field\+Definitions} & Schema for the vector feature set attributes. \\
+\hline
+\end{DoxyParams}
+\index{Vector@{Vector}!close@{close}}
+\index{close@{close}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{close()}{close()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::vector\+::\+Feature\+Set\+::close (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_gabd53e45c4396d9a6798453b82fb396ac}{}\label{group___vector_module_gabd53e45c4396d9a6798453b82fb396ac}
+
+
+Closes the feature set. This will close the feature set and apply the changes. No changes are possible after closing. 
+
+\index{Vector@{Vector}!Feature\+Set@{Feature\+Set}}
+\index{Feature\+Set@{Feature\+Set}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{Feature\+Set(const std\+::string \&file\+Path, const std\+::string \&format, const std\+::string \&layer\+Name, const Field\+Definitions \&field\+Definitions)}{FeatureSet(const std::string &filePath, const std::string &format, const std::string &layerName, const FieldDefinitions &fieldDefinitions)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::vector\+::\+Feature\+Set\+::\+Feature\+Set (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{file\+Path, }
+\item[{const std\+::string \&}]{format, }
+\item[{const std\+::string \&}]{layer\+Name, }
+\item[{const {\bf Field\+Definitions} \&}]{field\+Definitions}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_gad9d6de87ab5e9557f542c0691ca088e0}{}\label{group___vector_module_gad9d6de87ab5e9557f542c0691ca088e0}
+
+
+Constructs a vector feature set. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file\+Path} & Path to the vector feature set to create. \\
+\hline
+\mbox{\tt in}  & {\em format} & File format. Allowed formats are shp, kml, geojson, postgis, and elasticsearch. \\
+\hline
+\mbox{\tt in}  & {\em layer\+Name} & Layer name to use. \\
+\hline
+\mbox{\tt in}  & {\em field\+Definitions} & Schema for the vector feature set attributes. \\
+\hline
+\end{DoxyParams}
+\index{Vector@{Vector}!file\+Path@{file\+Path}}
+\index{file\+Path@{file\+Path}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{file\+Path() const noexcept}{filePath() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::vector\+::\+Feature\+Set\+::file\+Path (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___vector_module_ga438beae23c8c7333e1763addeb99b286}{}\label{group___vector_module_ga438beae23c8c7333e1763addeb99b286}
+
+
+Returns the vector feature set file path. 
+
+\begin{DoxyReturn}{Returns}
+The file path. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!is\+Open@{is\+Open}}
+\index{is\+Open@{is\+Open}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{is\+Open() const noexcept}{isOpen() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::vector\+::\+Feature\+Set\+::is\+Open (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___vector_module_ga452851f214ba915b11acdac63fe3d6ba}{}\label{group___vector_module_ga452851f214ba915b11acdac63fe3d6ba}
+
+
+Returns whether the feature set is open. 
+
+\begin{DoxyReturn}{Returns}
+Whether the feature set is open. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!num\+Features@{num\+Features}}
+\index{num\+Features@{num\+Features}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{num\+Features(const std\+::string \&layer\+Name) const }{numFeatures(const std::string &layerName) const }}]{\setlength{\rightskip}{0pt plus 5cm}ptrdiff\+\_\+t dg\+::deepcore\+::vector\+::\+Feature\+Set\+::num\+Features (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{layer\+Name}
+\end{DoxyParamCaption}
+) const}\hypertarget{group___vector_module_ga6ea15b282c93cedd1ddc676f1146e967}{}\label{group___vector_module_ga6ea15b282c93cedd1ddc676f1146e967}
+
+
+Returns number of features in a layer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em layer\+Name} & The layer name. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of features in the layer. 0 is returned if layer is not present. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!projection@{projection}}
+\index{projection@{projection}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{projection() const noexcept}{projection() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::vector\+::\+Feature\+Set\+::projection (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___vector_module_ga6067c0ad1fc35879804d30756d6af8d8}{}\label{group___vector_module_ga6067c0ad1fc35879804d30756d6af8d8}
+
+
+Returns the projection as a W\+KT string. 
+
+\begin{DoxyReturn}{Returns}
+The projection. 
+\end{DoxyReturn}
+\index{Vector@{Vector}!set\+Projection@{set\+Projection}}
+\index{set\+Projection@{set\+Projection}!Vector@{Vector}}
+\subsubsection[{\texorpdfstring{set\+Projection(const std\+::string projection\+Wkt)}{setProjection(const std::string projectionWkt)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::vector\+::\+Feature\+Set\+::set\+Projection (
+\begin{DoxyParamCaption}
+\item[{const std\+::string}]{projection\+Wkt}
+\end{DoxyParamCaption}
+)}\hypertarget{group___vector_module_gab665679d2cea8d9b0c324fd52410e181}{}\label{group___vector_module_gab665679d2cea8d9b0c324fd52410e181}
+
+
+Sets the projection. Note that this will have no effect if features are added before the projection is changed. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em projection\+Wkt} & The W\+KT string representing the projection. \\
+\hline
+\end{DoxyParams}

@@ -1,0 +1,46 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_downloader}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Image\+Downloader Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_image_downloader}\index{dg\+::deepcore\+::imagery\+::\+Image\+Downloader@{dg\+::deepcore\+::imagery\+::\+Image\+Downloader}}
+
+
+Downloads multiple images at the same time.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Image\+Downloader.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_downloader_ab12446188ca9974b707426862216943d}{Image\+Downloader} ()=default
+\item 
+\hyperlink{group___imagery_module_ga72fc422dd0b77c0a04e4f86b15d60fa3}{Image\+Downloader} (const \hyperlink{group___imagery_module_ga759e24100f96d6dee1eee94f4f1d6898}{Image\+Download\+Requests} \&\hyperlink{group___imagery_module_ga7c66e615a56d4f8e747cb3f0af302ca8}{requests})
+\begin{DoxyCompactList}\small\item\em Construct an \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_downloader}{Image\+Downloader}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gaa2d0277480846121930f1a18e4ed7875}{Image\+Downloader} (\hyperlink{group___imagery_module_ga759e24100f96d6dee1eee94f4f1d6898}{Image\+Download\+Requests} \&\&\hyperlink{group___imagery_module_ga7c66e615a56d4f8e747cb3f0af302ca8}{requests})
+\begin{DoxyCompactList}\small\item\em Construct an \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_downloader}{Image\+Downloader}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga759e24100f96d6dee1eee94f4f1d6898}{Image\+Download\+Requests} \& \hyperlink{group___imagery_module_ga7c66e615a56d4f8e747cb3f0af302ca8}{requests} () noexcept
+\begin{DoxyCompactList}\small\item\em Gets the requests that will be processed by \hyperlink{group___imagery_module_ga64b386de28c7445ef9e1b679d31147c7}{Image\+Downloader\+::download\+Async}. \end{DoxyCompactList}\item 
+const \hyperlink{group___imagery_module_ga759e24100f96d6dee1eee94f4f1d6898}{Image\+Download\+Requests} \& \hyperlink{group___imagery_module_gafaeeb86aeb496d8e57515f17c098dc76}{requests} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the requests that will be processed by \hyperlink{group___imagery_module_ga64b386de28c7445ef9e1b679d31147c7}{Image\+Downloader\+::download\+Async}. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga64b386de28c7445ef9e1b679d31147c7}{download\+Async} (\hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress=nullptr, int max\+Connections=10) const 
+\begin{DoxyCompactList}\small\item\em Downloads the requests asynchronously. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static cv\+::\+Mat \hyperlink{group___imagery_module_ga82fca828a982b5f7cb7c15669c5b23df}{download} (const std\+::string \&url, const std\+::string \&credentials=\char`\"{}\char`\"{}, \hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} mode=\hyperlink{namespacedg_1_1deepcore_1_1imagery_ga1db94ae833853b71ed501bb1ea8c1c24a46335765005ff44b1fe1e38e5d2ddfcc}{Image\+Read\+Mode\+::\+U\+N\+C\+H\+A\+N\+G\+ED})
+\begin{DoxyCompactList}\small\item\em Download a single image. \end{DoxyCompactList}\item 
+static std\+::vector$<$ cv\+::\+Mat $>$ \hyperlink{group___imagery_module_gaacc87d30277f2e58dd3cc5a52c8d4a5a}{download} (const std\+::vector$<$ std\+::string $>$ \&urls, const std\+::string \&credentials=\char`\"{}\char`\"{}, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress=nullptr, int max\+Connections=10, \hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} mode=\hyperlink{namespacedg_1_1deepcore_1_1imagery_ga1db94ae833853b71ed501bb1ea8c1c24a46335765005ff44b1fe1e38e5d2ddfcc}{Image\+Read\+Mode\+::\+U\+N\+C\+H\+A\+N\+G\+ED})
+\begin{DoxyCompactList}\small\item\em Download multiple images. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Downloads multiple images at the same time. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Image\+Downloader@{dg\+::deepcore\+::imagery\+::\+Image\+Downloader}!Image\+Downloader@{Image\+Downloader}}
+\index{Image\+Downloader@{Image\+Downloader}!dg\+::deepcore\+::imagery\+::\+Image\+Downloader@{dg\+::deepcore\+::imagery\+::\+Image\+Downloader}}
+\subsubsection[{\texorpdfstring{Image\+Downloader()=default}{ImageDownloader()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Image\+Downloader\+::\+Image\+Downloader (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_downloader_ab12446188ca9974b707426862216943d}{}\label{classdg_1_1deepcore_1_1imagery_1_1_image_downloader_ab12446188ca9974b707426862216943d}

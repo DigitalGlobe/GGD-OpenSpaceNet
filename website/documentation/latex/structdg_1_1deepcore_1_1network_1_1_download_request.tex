@@ -1,0 +1,65 @@
+\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Download\+Request Struct Reference}
+\label{structdg_1_1deepcore_1_1network_1_1_download_request}\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+
+
+Represents an asynchronous download request.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Http\+Downloader.\+h$>$}
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request_a27a77bb34f9c7a50280643a7f5642645}{url}
+\begin{DoxyCompactList}\small\item\em Request U\+RL. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request_a658bf11041a4e59708e11a03586a3cc8}{credentials}
+\begin{DoxyCompactList}\small\item\em Credentials (optional) \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga4d618c88e9b1e6e961f70621dc9aab41}{Download\+Callback} \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request_adb453a945c53898c25e110d81c0d2369}{callback} = nullptr
+\begin{DoxyCompactList}\small\item\em Callback for the request, must be specified. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request_ac2c22b1c491ff60d2ac5e15419b1b04b}{progress} = nullptr
+\begin{DoxyCompactList}\small\item\em Download progress for the individual request. (optional) \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \hyperlink{structdg_1_1deepcore_1_1network_1_1_download_request_a155aa5c32169a6bf6d47fec321672f4e}{headers}
+\begin{DoxyCompactList}\small\item\em Additional H\+T\+TP request headers. (optional) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents an asynchronous download request. 
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}!callback@{callback}}
+\index{callback@{callback}!dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+\subsubsection[{\texorpdfstring{callback}{callback}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Download\+Callback} dg\+::deepcore\+::network\+::\+Download\+Request\+::callback = nullptr}\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request_adb453a945c53898c25e110d81c0d2369}{}\label{structdg_1_1deepcore_1_1network_1_1_download_request_adb453a945c53898c25e110d81c0d2369}
+
+
+Callback for the request, must be specified. 
+
+\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}!credentials@{credentials}}
+\index{credentials@{credentials}!dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+\subsubsection[{\texorpdfstring{credentials}{credentials}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::network\+::\+Download\+Request\+::credentials}\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request_a658bf11041a4e59708e11a03586a3cc8}{}\label{structdg_1_1deepcore_1_1network_1_1_download_request_a658bf11041a4e59708e11a03586a3cc8}
+
+
+Credentials (optional) 
+
+\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}!headers@{headers}}
+\index{headers@{headers}!dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+\subsubsection[{\texorpdfstring{headers}{headers}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$std\+::string$>$ dg\+::deepcore\+::network\+::\+Download\+Request\+::headers}\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request_a155aa5c32169a6bf6d47fec321672f4e}{}\label{structdg_1_1deepcore_1_1network_1_1_download_request_a155aa5c32169a6bf6d47fec321672f4e}
+
+
+Additional H\+T\+TP request headers. (optional) 
+
+\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}!progress@{progress}}
+\index{progress@{progress}!dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+\subsubsection[{\texorpdfstring{progress}{progress}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Simple\+Progress} dg\+::deepcore\+::network\+::\+Download\+Request\+::progress = nullptr}\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request_ac2c22b1c491ff60d2ac5e15419b1b04b}{}\label{structdg_1_1deepcore_1_1network_1_1_download_request_ac2c22b1c491ff60d2ac5e15419b1b04b}
+
+
+Download progress for the individual request. (optional) 
+
+\index{dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}!url@{url}}
+\index{url@{url}!dg\+::deepcore\+::network\+::\+Download\+Request@{dg\+::deepcore\+::network\+::\+Download\+Request}}
+\subsubsection[{\texorpdfstring{url}{url}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::network\+::\+Download\+Request\+::url}\hypertarget{structdg_1_1deepcore_1_1network_1_1_download_request_a27a77bb34f9c7a50280643a7f5642645}{}\label{structdg_1_1deepcore_1_1network_1_1_download_request_a27a77bb34f9c7a50280643a7f5642645}
+
+
+Request U\+RL. 
+

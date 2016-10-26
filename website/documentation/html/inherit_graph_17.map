@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classdg_1_1deepcore_1_1imagery_1_1_map_service_client.html" title="A base class for asynchronous web service clients. " alt="" coords="5,39,156,80"/>
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1imagery_1_1_map_box_client.html" title="A client for a MapBox (or similar) tile service which uses TileJSON for its &quot;GetCapabilities&quot; request..." alt="" coords="204,5,355,47"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1imagery_1_1_wmts_client.html" title="A client for a WMTS service. Currently only the KVP encoding scheme is supported. ..." alt="" coords="204,71,355,112"/>
+<area shape="rect" id="node4" href="$classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client.html" title="A base class for DigitalGlobe WMTS services. " alt="" coords="403,71,553,112"/>
+<area shape="rect" id="node5" href="$structdg_1_1deepcore_1_1imagery_1_1_dgcs_client.html" title="A client for the DigitalGlobe DGCS service. " alt="" coords="601,37,752,79"/>
+<area shape="rect" id="node6" href="$structdg_1_1deepcore_1_1imagery_1_1_evwhs_client.html" title="A client for the DigitalGlobe EVWHS service. " alt="" coords="601,103,752,144"/>
+</map>

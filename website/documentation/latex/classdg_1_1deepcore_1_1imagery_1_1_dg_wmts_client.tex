@@ -1,0 +1,207 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Dg\+Wmts\+Client Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client}\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+
+
+A base class for Digital\+Globe W\+M\+TS services.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Dg\+Wmts\+Client.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Dg\+Wmts\+Client\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a080a9c2664a66bccee9b36ffd411085c}{Dg\+Wmts\+Client} (const std\+::string \&\hyperlink{group___imagery_module_gadf279770cec6dc9ac56348bb2e1b29e1}{base\+Url}, const std\+::string \&\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aaa23928355c68c5422a5aab297d64f99}{connect\+Id}, const std\+::string \&\hyperlink{group___imagery_module_gac4c03ea635c336ca2fe7de533706c11c}{credentials}, bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a718ef987832eb1d5bbab510c6ef7b70c}{use\+Cloudless\+Geometry}=false)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client}{Dg\+Wmts\+Client}. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aaa23928355c68c5422a5aab297d64f99}{connect\+Id} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the connect\+Id. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aa7e7d9c316fc59ccbe6a30596389a3da}{set\+Connect\+Id} (const std\+::string \&\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aaa23928355c68c5422a5aab297d64f99}{connect\+Id})
+\begin{DoxyCompactList}\small\item\em Sets the connect\+Id. Causes the service to disconnect. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a718ef987832eb1d5bbab510c6ef7b70c}{use\+Cloudless\+Geometry} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets whether to use cloudless geometry. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_ab517b9f4668bc619e790455cd5111cff}{set\+Use\+Cloudless\+Geometry} (bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a718ef987832eb1d5bbab510c6ef7b70c}{use\+Cloudless\+Geometry})
+\begin{DoxyCompactList}\small\item\em Sets whether to use cloudless geometry. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a70e018e8832c4c32a0089074cd1d0adb}{feature\+Profile} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the feature profile. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a77b7384edff50a3f9f1fdb46319cb4ec}{set\+Feature\+Profile} (const std\+::string \&\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a70e018e8832c4c32a0089074cd1d0adb}{feature\+Profile})
+\begin{DoxyCompactList}\small\item\em Sets the feature profile. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a63828e25ea51f3c4bef0975d073d38f2}{connect\+Internal} () override
+\begin{DoxyCompactList}\small\item\em Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1_error}{Error} $\ast$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_abce47a0dd9861f62a39d135dcf750cd0}{on\+Http\+Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&e) const noexceptoverride
+\begin{DoxyCompactList}\small\item\em H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A base class for Digital\+Globe W\+M\+TS services. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!Dg\+Wmts\+Client@{Dg\+Wmts\+Client}}
+\index{Dg\+Wmts\+Client@{Dg\+Wmts\+Client}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{Dg\+Wmts\+Client(const std\+::string \&base\+Url, const std\+::string \&connect\+Id, const std\+::string \&credentials, bool use\+Cloudless\+Geometry=false)}{DgWmtsClient(const std::string &baseUrl, const std::string &connectId, const std::string &credentials, bool useCloudlessGeometry=false)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::\+Dg\+Wmts\+Client (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{base\+Url, }
+\item[{const std\+::string \&}]{connect\+Id, }
+\item[{const std\+::string \&}]{credentials, }
+\item[{bool}]{use\+Cloudless\+Geometry = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a080a9c2664a66bccee9b36ffd411085c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a080a9c2664a66bccee9b36ffd411085c}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client}{Dg\+Wmts\+Client}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em base\+Url} & The base U\+RL of the W\+M\+TS service. \\
+\hline
+\mbox{\tt in}  & {\em connect\+Id} & The connect\+Id for the service. \\
+\hline
+\mbox{\tt in}  & {\em credentials} & The servcie credentials. \\
+\hline
+\mbox{\tt in}  & {\em use\+Cloudless\+Geometry} & Whether to use cloudless geometry. Setting this to true will limit the available imagery. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!connect\+Id@{connect\+Id}}
+\index{connect\+Id@{connect\+Id}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{connect\+Id() const noexcept}{connectId() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::connect\+Id (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aaa23928355c68c5422a5aab297d64f99}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aaa23928355c68c5422a5aab297d64f99}
+
+
+Gets the connect\+Id. 
+
+\begin{DoxyReturn}{Returns}
+The connect\+Id. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!connect\+Internal@{connect\+Internal}}
+\index{connect\+Internal@{connect\+Internal}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{connect\+Internal() override}{connectInternal() override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::connect\+Internal (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a63828e25ea51f3c4bef0975d073d38f2}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a63828e25ea51f3c4bef0975d073d38f2}
+
+
+Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. 
+
+
+
+Implements \hyperlink{group___imagery_module_gabba13ea72115a1196ed44e35cc17f1b9}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!feature\+Profile@{feature\+Profile}}
+\index{feature\+Profile@{feature\+Profile}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{feature\+Profile() const noexcept}{featureProfile() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::feature\+Profile (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a70e018e8832c4c32a0089074cd1d0adb}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a70e018e8832c4c32a0089074cd1d0adb}
+
+
+Gets the feature profile. 
+
+\begin{DoxyReturn}{Returns}
+The feature profile. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!on\+Http\+Error@{on\+Http\+Error}}
+\index{on\+Http\+Error@{on\+Http\+Error}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{on\+Http\+Error(const Error \&e) const noexceptoverride}{onHttpError(const Error &e) const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Error} $\ast$ dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::on\+Http\+Error (
+\begin{DoxyParamCaption}
+\item[{const {\bf Error} \&}]{e}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_abce47a0dd9861f62a39d135dcf750cd0}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_abce47a0dd9861f62a39d135dcf750cd0}
+
+
+H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em e} & The input Http\+Error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classdg_1_1deepcore_1_1_error}{Error}, or nullptr if \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was not transformed. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae8429816853b38f7bdb29c1a75daebe5}{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!set\+Connect\+Id@{set\+Connect\+Id}}
+\index{set\+Connect\+Id@{set\+Connect\+Id}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Connect\+Id(const std\+::string \&connect\+Id)}{setConnectId(const std::string &connectId)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::set\+Connect\+Id (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{connect\+Id}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aa7e7d9c316fc59ccbe6a30596389a3da}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_aa7e7d9c316fc59ccbe6a30596389a3da}
+
+
+Sets the connect\+Id. Causes the service to disconnect. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em connect\+Id} & The connect\+Id. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!set\+Feature\+Profile@{set\+Feature\+Profile}}
+\index{set\+Feature\+Profile@{set\+Feature\+Profile}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Feature\+Profile(const std\+::string \&feature\+Profile)}{setFeatureProfile(const std::string &featureProfile)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::set\+Feature\+Profile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{feature\+Profile}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a77b7384edff50a3f9f1fdb46319cb4ec}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a77b7384edff50a3f9f1fdb46319cb4ec}
+
+
+Sets the feature profile. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em feature\+Profile} & The feature profile. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!set\+Use\+Cloudless\+Geometry@{set\+Use\+Cloudless\+Geometry}}
+\index{set\+Use\+Cloudless\+Geometry@{set\+Use\+Cloudless\+Geometry}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{set\+Use\+Cloudless\+Geometry(bool use\+Cloudless\+Geometry)}{setUseCloudlessGeometry(bool useCloudlessGeometry)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::set\+Use\+Cloudless\+Geometry (
+\begin{DoxyParamCaption}
+\item[{bool}]{use\+Cloudless\+Geometry}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_ab517b9f4668bc619e790455cd5111cff}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_ab517b9f4668bc619e790455cd5111cff}
+
+
+Sets whether to use cloudless geometry. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em use\+Cloudless\+Geometry} & Whether to use cloudless geometry. Setting this to true will limit the available imagery. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}!use\+Cloudless\+Geometry@{use\+Cloudless\+Geometry}}
+\index{use\+Cloudless\+Geometry@{use\+Cloudless\+Geometry}!dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client@{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}}
+\subsubsection[{\texorpdfstring{use\+Cloudless\+Geometry() const noexcept}{useCloudlessGeometry() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client\+::use\+Cloudless\+Geometry (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a718ef987832eb1d5bbab510c6ef7b70c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_a718ef987832eb1d5bbab510c6ef7b70c}
+
+
+Gets whether to use cloudless geometry. 
+
+\begin{DoxyReturn}{Returns}
+Whether to use cloudless geometry. 
+\end{DoxyReturn}

@@ -1,0 +1,150 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_service_client}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Map\+Service\+Client Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_map_service_client}\index{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}}
+
+
+A base class for asynchronous web service clients.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Map\+Service\+Client.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \hyperlink{group___imagery_module_ga93933812a2678d47a119231a41b52e2d}{$\sim$\+Map\+Service\+Client} ()
+\begin{DoxyCompactList}\small\item\em The virtual destructor. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{connect} ()
+\begin{DoxyCompactList}\small\item\em Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_gafbcd14e6930fee4427877f52e36613ba}{connect\+If\+Not\+Connected} ()
+\begin{DoxyCompactList}\small\item\em Calls \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{connect()} only if \hyperlink{group___imagery_module_gab0c42dc6fd8965108c0bc5ef80d4d4b3}{is\+Connected()} == false. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_gab0c42dc6fd8965108c0bc5ef80d4d4b3}{is\+Connected} () const noexcept
+\begin{DoxyCompactList}\small\item\em Return whether the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client}{Map\+Box\+Client} is connected. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_gadf279770cec6dc9ac56348bb2e1b29e1}{base\+Url} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the base U\+RL. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga39b179cd4494f868a7807f616e04ee24}{set\+Base\+Url} (const std\+::string \&\hyperlink{group___imagery_module_gadf279770cec6dc9ac56348bb2e1b29e1}{base\+Url})
+\begin{DoxyCompactList}\small\item\em Sets the base U\+RL. Will terminate the current connection if connected. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_gac4c03ea635c336ca2fe7de533706c11c}{credentials} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the credentials. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga28ed4b8b833fa7785b0c456f79df0c40}{set\+Credentials} (const std\+::string \&\hyperlink{group___imagery_module_gac4c03ea635c336ca2fe7de533706c11c}{credentials})
+\begin{DoxyCompactList}\small\item\em Sets the credentials. Will terminate the current connection if connected. \end{DoxyCompactList}\item 
+int \hyperlink{group___imagery_module_ga772f97c22e6540f665946757800b2ed7}{max\+Connections} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the number of simultaneous connections to use. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga8584ffb2dd25fce0f67842b72defb0cf}{set\+Max\+Connections} (int connections)
+\begin{DoxyCompactList}\small\item\em Sets the number of simultaneous connections to use. \end{DoxyCompactList}\item 
+virtual const std\+::string \& \hyperlink{group___imagery_module_gafe3e2d18fb0c9ef72b3c23e97ead241f}{layer} ()
+\begin{DoxyCompactList}\small\item\em Gets the current layer. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{group___imagery_module_ga509f0f787565fafc1618cc0e5fb2399a}{set\+Layer} (const std\+::string \&\hyperlink{group___imagery_module_gafe3e2d18fb0c9ef72b3c23e97ead241f}{layer})
+\begin{DoxyCompactList}\small\item\em Sets the current layer. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_gae380a970bc0aa63d34e6f2295ea9c8f4}{tile\+Matrix\+Set} ()
+\begin{DoxyCompactList}\small\item\em Gets the tile matrix set. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{group___imagery_module_ga56c3ba986ce399f2fc6a1d9dcf886b49}{set\+Tile\+Matrix\+Set} (const std\+::string \&\hyperlink{group___imagery_module_gae380a970bc0aa63d34e6f2295ea9c8f4}{tile\+Matrix\+Set})
+\begin{DoxyCompactList}\small\item\em Sets the tile matrix set. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_gae6a1721e1da9ab60ab4e62240baf304b}{tile\+Matrix\+Id} ()
+\begin{DoxyCompactList}\small\item\em Gets the tile matrix id. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{group___imagery_module_ga5f85c6b91d45f419905321b3752aa70c}{set\+Tile\+Matrix\+Id} (const std\+::string \&\hyperlink{group___imagery_module_gae6a1721e1da9ab60ab4e62240baf304b}{tile\+Matrix\+Id})
+\begin{DoxyCompactList}\small\item\em Sets the tile matrix id. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_ga847bc79084bf9856525ce04240a24428}{image\+Format} ()
+\begin{DoxyCompactList}\small\item\em Gets the image format as M\+I\+ME type. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{group___imagery_module_ga9c0fa65750aaf5c860f046eccf6f0fe7}{set\+Image\+Format} (const std\+::string \&\hyperlink{group___imagery_module_ga847bc79084bf9856525ce04240a24428}{image\+Format})
+\begin{DoxyCompactList}\small\item\em Sets the image format. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+const std\+::map$<$ std\+::string, std\+::string $>$ \& \hyperlink{group___imagery_module_gae806d1f279ef82bd45c8375e96936836}{additional\+Arguments} ()
+\begin{DoxyCompactList}\small\item\em Gets additional U\+RL arguments to be added to each request. \end{DoxyCompactList}\item 
+virtual void \hyperlink{group___imagery_module_gac4ab75cb614415087330a2bc36b3a8d7}{set\+Additional\+Arguments} (const std\+::map$<$ std\+::string, std\+::string $>$ \&arguments)
+\begin{DoxyCompactList}\small\item\em Gets additional U\+RL arguments to be added to each request. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+cv\+::\+Point \hyperlink{group___imagery_module_gadac27fac13942e9aa0717191107da278}{proj\+To\+Tile} (const cv\+::\+Point2d \&proj)
+\begin{DoxyCompactList}\small\item\em Converts a coordinate in image\textquotesingle{}s projection into a tile coordinate. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_gafc62330e9990a5048dd7ce44cdfb489d}{proj\+To\+Tile} (const cv\+::\+Point2d \&proj, cv\+::\+Point \&tile, cv\+::\+Point \&tile\+Coord)
+\begin{DoxyCompactList}\small\item\em Converts a coordinate in image\textquotesingle{}s projection into a tile coordinate. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_ga16bfe2b02badb978b9faf6efc4e630ff}{tile\+To\+Proj} (const cv\+::\+Point \&tile, const cv\+::\+Point \&tile\+Coord=\{\})
+\begin{DoxyCompactList}\small\item\em Converts a tile coordinate into the image\textquotesingle{}s projection coordinate. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_image}{Map\+Service\+Image} $\ast$ \hyperlink{group___imagery_module_ga3526b9184dbdbe4402c0a3f73c2daeae}{image\+From\+Area} (const cv\+::\+Rect2d \&area, bool trim\+To\+Area=true)
+\begin{DoxyCompactList}\small\item\em Returns an image spanning the bounding box in the service\textquotesingle{}s projection. Does not cause any tiles to download, but will cause the service to connect. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_image}{Map\+Service\+Image} $\ast$ \hyperlink{group___imagery_module_ga950285a4f5f5a45562210ca27fb91b29}{image} (const std\+::vector$<$ cv\+::\+Point $>$ \&tiles)
+\begin{DoxyCompactList}\small\item\em Returns an image spanning the requested tiles. Does not cause any tiles to download, but will cause the service to connect. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_image}{Map\+Service\+Image} $\ast$ \hyperlink{group___imagery_module_gae8420c1898450274a950574a997d6ccd}{image} (const cv\+::\+Rect \&tile\+Span)
+\begin{DoxyCompactList}\small\item\em Returns an image containing the requested tiles. Does not cause any tiles to download, but will cause the service to connect. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___imagery_module_ga00d806ed6fd8737d485ad2eb844701e7}{pixel\+Size} ()
+\begin{DoxyCompactList}\small\item\em Calculates the pixel size for the current tile matrix. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___imagery_module_gab51c76e17b6432742a0eeb0d34fa21f1}{proj\+Tile\+Size} ()
+\begin{DoxyCompactList}\small\item\em Calculates the tile size in image\textquotesingle{}s projection for the current tile matrix. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___imagery_module_gad1f4f578c9e222b4cd709e9c2d370bb6}{bounding\+Box} ()
+\begin{DoxyCompactList}\small\item\em Calculates the bounding box for the current tile matrix in image\textquotesingle{}s projection. \end{DoxyCompactList}\item 
+virtual const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \& \hyperlink{group___imagery_module_gadfaf375c95456bdf445d774f5dd24bbc}{spatial\+Reference} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the spatial coordinate reference for the web service. May cause \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{Map\+Service\+Client\+::connect()} to be called. \end{DoxyCompactList}\item 
+virtual const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{wmts\+::\+Tile\+Matrix} \& \hyperlink{group___imagery_module_ga0f308a2d98dc9f34b8ca651576265449}{tile\+Matrix} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the current tile matrix parameters. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___imagery_module_ga48b6f633e02c44d955b4d4b1b8352b57}{image\+Formats} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the supported image formats for the current layer, tile matrix set, and tile matrix. \end{DoxyCompactList}\item 
+virtual int \hyperlink{group___imagery_module_ga7b7d8333be9d5386d8ddca5148b041b5}{num\+Bands} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the number of raster bands in the image. \end{DoxyCompactList}\item 
+virtual int \hyperlink{group___imagery_module_gaa94fd511ae5e578357ceba16a9039b51}{pixel\+Type} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. \end{DoxyCompactList}\item 
+virtual \hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae727c872288e3a4219f80b6caa90ff3a}{mode} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the image read mode. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___imagery_module_ga51617c7aeaf00918210d64aaf5712d4e}{layers} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the available layer names. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___imagery_module_ga1cf271559e56836cf29176382c934a0c}{tile\+Matrix\+Sets} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the the available tile matrix sets for the current layer. \end{DoxyCompactList}\item 
+virtual const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___imagery_module_ga2e5ad607fa13ac17e0fcb6b00af7d30e}{tile\+Matrix\+Ids} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the available tile matrix ids for the current tile matrix set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \hyperlink{group___imagery_module_gadf7a167ee936ff1819c8ede7933cc6db}{set\+Connected} (bool connected)
+\begin{DoxyCompactList}\small\item\em Sets whether we\textquotesingle{}re connected to the web service. Inheriting classes may override this, but be sure to call the base classe\textquotesingle{}s method as well. \end{DoxyCompactList}\item 
+virtual \hyperlink{classdg_1_1deepcore_1_1_error}{Error} $\ast$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae53b20c2986e1b9898c77b2065cbdd54}{on\+Http\+Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&e) const noexcept
+\begin{DoxyCompactList}\small\item\em H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. \end{DoxyCompactList}\item 
+virtual void \hyperlink{group___imagery_module_gabba13ea72115a1196ed44e35cc17f1b9}{connect\+Internal} ()=0
+\begin{DoxyCompactList}\small\item\em Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{group___imagery_module_ga900665eb2167743cdac5e46ac536c209}{layer\+Names\+Restricted} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets whether the layer names are restricted. If true, layer name must be in the vector returned by Map\+Service\+Image(), if false, layer names can be arbitrary. \end{DoxyCompactList}\item 
+virtual std\+::string \hyperlink{group___imagery_module_gaafa4e8cc2a047f6467e227603ccf1a23}{url\+Template} ()=0
+\begin{DoxyCompactList}\small\item\em Gets the U\+RL template for the current layer, tile matrix set, and tile matrix. The template must contain \{x\} and \{y\} placeholders for the tile coordinate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A base class for asynchronous web service clients. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}!mode@{mode}}
+\index{mode@{mode}!dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}}
+\subsubsection[{\texorpdfstring{mode()=0}{mode()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual {\bf Image\+Read\+Mode} dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client\+::mode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae727c872288e3a4219f80b6caa90ff3a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae727c872288e3a4219f80b6caa90ff3a}
+
+
+Gets the image read mode. 
+
+\begin{DoxyReturn}{Returns}
+The image read mode; 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a73b020a3bff3007fd139850b58095904}{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}, and \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_a011ce59444a970647066f9edf3a7544b}{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}!on\+Http\+Error@{on\+Http\+Error}}
+\index{on\+Http\+Error@{on\+Http\+Error}!dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}}
+\subsubsection[{\texorpdfstring{on\+Http\+Error(const Error \&e) const noexcept}{onHttpError(const Error &e) const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Error} $\ast$ dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client\+::on\+Http\+Error (
+\begin{DoxyParamCaption}
+\item[{const {\bf Error} \&}]{e}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae53b20c2986e1b9898c77b2065cbdd54}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae53b20c2986e1b9898c77b2065cbdd54}
+
+
+H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em e} & The input Http\+Error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classdg_1_1deepcore_1_1_error}{Error}, or nullptr if \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was not transformed. 
+\end{DoxyReturn}
+
+
+Reimplemented in \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a0767d558b44e4ed5c70af2e92e09d6bb}{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}, \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_wmts_client_ae8429816853b38f7bdb29c1a75daebe5}{dg\+::deepcore\+::imagery\+::\+Wmts\+Client}, and \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_dg_wmts_client_abce47a0dd9861f62a39d135dcf750cd0}{dg\+::deepcore\+::imagery\+::\+Dg\+Wmts\+Client}.
+

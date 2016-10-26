@@ -1,0 +1,32 @@
+\hypertarget{namespaceboost_1_1program__options}{}\section{boost\+:\+:program\+\_\+options Namespace Reference}
+\label{namespaceboost_1_1program__options}\index{boost\+::program\+\_\+options@{boost\+::program\+\_\+options}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}
+\begin{DoxyCompactList}\small\item\em Extends boost\+::program\+\_\+options\+::typed\+\_\+value to allow for setting a specific number of tokens. \end{DoxyCompactList}\item 
+class \hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value}
+\begin{DoxyCompactList}\small\item\em Extends \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value} to supoort cv\+::\+Point, cv\+::\+Point2d, cv\+::\+Size, and cv\+::\+Size2d command line parameters. \end{DoxyCompactList}\item 
+class \hyperlink{structboost_1_1program__options_1_1cv_rect__typed__value}{cv\+Rect\+\_\+typed\+\_\+value}
+\begin{DoxyCompactList}\small\item\em Extends \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value} to supoort cv\+::\+Rect and cv\+::\+Rect2d command line parameters. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_rect__typed__value}{cv\+Rect\+\_\+typed\+\_\+value}$<$ int, charT $>$ $\ast$ \hyperlink{group___imagery_module_ga4c86fa93534ee8f020d46b81f7513c8a}{cv\+Rect\+\_\+value} (cv\+::\+Rect $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_rect__typed__value}{cv\+Rect\+\_\+typed\+\_\+value} for cv\+::\+Rect. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_rect__typed__value}{cv\+Rect\+\_\+typed\+\_\+value}$<$ double, charT $>$ $\ast$ \hyperlink{group___imagery_module_gaa8c37992162927f9717159d47accbc97}{cv\+Rect2d\+\_\+value} (cv\+::\+Rect2d $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_rect__typed__value}{cv\+Rect\+\_\+typed\+\_\+value} for cv\+::\+Rect2d. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value}$<$ cv\+::\+Point, charT $>$ $\ast$ \hyperlink{group___imagery_module_ga9a85fe711b2ade00ca9bb9288d405d98}{cv\+Point\+\_\+value} (cv\+::\+Point $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value} for cv\+::\+Point. Optionally, min\+\_\+tokens can be set to 1 in which case x and y coordinates will be the same. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value}$<$ cv\+::\+Point2d, charT $>$ $\ast$ \hyperlink{group___imagery_module_ga18ab1a2491f19ae825e658aee9ff5f4e}{cv\+Point2d\+\_\+value} (cv\+::\+Point2d $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value} for cv\+::\+Point2d. Optionally, min\+\_\+tokens can be set to 1 in which case x and y coordinates will be the same. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value}$<$ cv\+::\+Size, charT $>$ $\ast$ \hyperlink{group___imagery_module_gae944e0209fb649650a1c5beac4d60fea}{cv\+Size\+\_\+value} (cv\+::\+Size $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value} for cv\+::\+Size. Optionally, min\+\_\+tokens can be set to 1 in which case width and height will be the same. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class charT  = char$>$ }\\\hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value}$<$ cv\+::\+Size2d, charT $>$ $\ast$ \hyperlink{group___imagery_module_gad6ef9cef6acd63e1f9d3adcb4e055cf1}{cv\+Size2d\+\_\+value} (cv\+::\+Size2d $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{structboost_1_1program__options_1_1cv_coord__typed__value}{cv\+Coord\+\_\+typed\+\_\+value} for cv\+::\+Size2d. Optionally, min\+\_\+tokens can be set to 1 in which case width and height will be the same. \end{DoxyCompactList}\item 
+std\+::vector$<$ option $>$ \hyperlink{group___utility_module_ga3db1b0bae61386198482fae1645b959d}{ignore\+\_\+numbers} (std\+::vector$<$ std\+::string $>$ \&args)
+\begin{DoxyCompactList}\small\item\em A boost\+::program\+\_\+options\+::detail\+::style\+\_\+parser that allows using multitoken options with numbers, including negative numbers. This disallows using numbers are short command line arguments. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::string \hyperlink{group___utility_module_ga8b756cf9f42d2452f48d168883c76f4f}{name\+\_\+with\+\_\+default} (std\+::string name, T default\+Val)
+\begin{DoxyCompactList}\small\item\em Creates a value for the default which is suitable for input to po\+::value\+\_\+name();. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T , class charT  = char$>$ }\\\hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}$<$ T, charT $>$ $\ast$ \hyperlink{group___utility_module_ga29195cfb403d70365c30a76867c787b5}{bounded\+\_\+value} (T $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}. \end{DoxyCompactList}\end{DoxyCompactItemize}

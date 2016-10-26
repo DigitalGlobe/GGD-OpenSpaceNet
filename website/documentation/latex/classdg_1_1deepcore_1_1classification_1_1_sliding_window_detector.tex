@@ -1,0 +1,130 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Sliding\+Window\+Detector Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector}\index{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}}
+
+
+Represents an abstract feature detector implemented as a sliding window classifier. Implements \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} and \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} interfaces as special cases for a sliding window detector.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Sliding\+Window\+Detector.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:classification\+:\+:Sliding\+Window\+Detector\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{group___classification_module_ga359de047765fb32d9a6f537bf8a4c1f3}{detect} (const cv\+::\+Mat \&mat, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{imagery\+::\+Pyramid} \&pyramid, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr)=0
+\begin{DoxyCompactList}\small\item\em Performs feature detection on the given image using the sliding window strategy. \end{DoxyCompactList}\item 
+virtual cv\+::\+Size \hyperlink{group___classification_module_ga35c268eb743bfbfb5d77d30ddbcc48e5}{window\+Size} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Returns the classifier window size. \end{DoxyCompactList}\item 
+virtual cv\+::\+Point \hyperlink{group___classification_module_ga8e430c585fe3d3bcba00c21f418752d2}{default\+Step} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Returns the default minimum sliding window step. \end{DoxyCompactList}\item 
+const cv\+::\+Size \& \hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a5c17402f377ea926f2afaf6f1965fa60}{override\+Size} () const 
+\begin{DoxyCompactList}\small\item\em Gets the override window size. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a2cc53edf58b59bea7b5c0da7e8de0391}{set\+Override\+Size} (const cv\+::\+Size \&\hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a5c17402f377ea926f2afaf6f1965fa60}{override\+Size})
+\begin{DoxyCompactList}\small\item\em Gets the override window size. \end{DoxyCompactList}\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} $>$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_ad68cd98a39fdab57c9de0ad0e3153f45}{classify} (const cv\+::\+Mat \&mat, double \hyperlink{group___classification_module_ga11004d28f6b88023d1ae1bed44261dc9}{confidence}, int \hyperlink{group___classification_module_gae2a1d191924996f7d3d0673b8c2da35d}{max\+Results}=5) override
+\begin{DoxyCompactList}\small\item\em Classifies the input image and returns a list of predictions. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga9fa0b4fe3495e513c3c0746aa0940f41}{Detector\+Type} \hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a0897f20b003a4e70066e1cd69ea98c66}{detector\+Type} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Gets the feature detector type. \end{DoxyCompactList}\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{group___classification_module_gaf9e9535cf11f5961389a5271248062cb}{detect} (const cv\+::\+Mat \&mat, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) override
+\begin{DoxyCompactList}\small\item\em Performs sliding window feature detection on an image with default parameters specified by \hyperlink{group___classification_module_ga35c268eb743bfbfb5d77d30ddbcc48e5}{Sliding\+Window\+Detector\+::window\+Size()} and \hyperlink{group___classification_module_ga8e430c585fe3d3bcba00c21f418752d2}{Sliding\+Window\+Detector\+::default\+Step()}, with the Pyramid scale set to 2.\+0. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Represents an abstract feature detector implemented as a sliding window classifier. Implements \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} and \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} interfaces as special cases for a sliding window detector. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}!classify@{classify}}
+\index{classify@{classify}!dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}}
+\subsubsection[{\texorpdfstring{classify(const cv\+::\+Mat \&mat, double confidence, int max\+Results=5) override}{classify(const cv::Mat &mat, double confidence, int maxResults=5) override}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ {\bf Prediction} $>$ dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector\+::classify (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Mat \&}]{mat, }
+\item[{double}]{confidence, }
+\item[{int}]{max\+Results = {\ttfamily 5}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_ad68cd98a39fdab57c9de0ad0e3153f45}{}\label{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_ad68cd98a39fdab57c9de0ad0e3153f45}
+
+
+Classifies the input image and returns a list of predictions. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mat} & The input image to classify. \\
+\hline
+\mbox{\tt in}  & {\em confidence} & Confidence threshold for predictions. \\
+\hline
+\mbox{\tt in}  & {\em max\+Results} & Maximum number of predictions to return. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A list of predictions for this image.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+If the input image color depth does not match the model color depth, the input image may be transformed to match. 3-\/channel images are assumed to be B\+GR, 4-\/channel images are assumed to be B\+G\+RA. 
+\end{DoxyNote}
+
+
+Implements \hyperlink{group___classification_module_ga4485a5f0dd8fc0b63fb56284ce5a5705}{dg\+::deepcore\+::classification\+::\+Classifier}.
+
+\index{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}!detector\+Type@{detector\+Type}}
+\index{detector\+Type@{detector\+Type}!dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}}
+\subsubsection[{\texorpdfstring{detector\+Type() const noexceptoverride}{detectorType() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Detector\+::\+Detector\+Type} dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector\+::detector\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a0897f20b003a4e70066e1cd69ea98c66}{}\label{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a0897f20b003a4e70066e1cd69ea98c66}
+
+
+Gets the feature detector type. 
+
+\begin{DoxyReturn}{Returns}
+The feature detector type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___classification_module_ga6f82560e3b0c2886e919f2e76e766838}{dg\+::deepcore\+::classification\+::\+Detector}.
+
+\index{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}!override\+Size@{override\+Size}}
+\index{override\+Size@{override\+Size}!dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}}
+\subsubsection[{\texorpdfstring{override\+Size() const }{overrideSize() const }}]{\setlength{\rightskip}{0pt plus 5cm}const cv\+::\+Size \& dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector\+::override\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a5c17402f377ea926f2afaf6f1965fa60}{}\label{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a5c17402f377ea926f2afaf6f1965fa60}
+
+
+Gets the override window size. 
+
+If override window size is specified, the sliding windows will appear to be of the override size. The image slice passed to the classifier will have the image slice of the override size centered in it with the border filled in by Gaussian noise.
+
+\begin{DoxyReturn}{Returns}
+The override window size. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}!set\+Override\+Size@{set\+Override\+Size}}
+\index{set\+Override\+Size@{set\+Override\+Size}!dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector@{dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector}}
+\subsubsection[{\texorpdfstring{set\+Override\+Size(const cv\+::\+Size \&override\+Size)}{setOverrideSize(const cv::Size &overrideSize)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::classification\+::\+Sliding\+Window\+Detector\+::set\+Override\+Size (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Size \&}]{override\+Size}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a2cc53edf58b59bea7b5c0da7e8de0391}{}\label{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector_a2cc53edf58b59bea7b5c0da7e8de0391}
+
+
+Gets the override window size. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em override\+Size} & The override size.\\
+\hline
+\end{DoxyParams}
+If override window size is specified, the sliding windows will appear to be of the override size. The image slice passed to the classifier will have the image slice of the override size centered in it with the border filled in by Gaussian noise. 

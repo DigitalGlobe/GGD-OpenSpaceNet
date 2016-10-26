@@ -1,0 +1,53 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_model}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Model Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_model}\index{dg\+::deepcore\+::classification\+::\+Model@{dg\+::deepcore\+::classification\+::\+Model}}
+
+
+An abstract base class for all models. Represents the model capabilities.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Model.\+h$>$}
+
+\subsection*{Public Types}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \hyperlink{group___classification_module_ga744d3e71e7c92fb7a8fa52e27095575f}{$\sim$\+Model} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor for base class. \end{DoxyCompactList}\item 
+virtual const char $\ast$ \hyperlink{group___classification_module_gaf5f12d2050c32035c1b9a038ec61d618}{type} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Get the identifier for the model type. \end{DoxyCompactList}\item 
+virtual int \hyperlink{group___classification_module_ga1a7ca79fbb134c78c7e88df94cf8d374}{capabilities} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the model capabilities. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \& \hyperlink{group___classification_module_ga33bdb8fac324a49d0e70175a1440cdd1}{metadata} () const 
+\begin{DoxyCompactList}\small\item\em Gets the model metadata. \end{DoxyCompactList}\item 
+bool \hyperlink{group___classification_module_gaea38e3353458ab22d099d54411d6f868}{use\+Gpu} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets whether this model uses G\+PU for processing. \end{DoxyCompactList}\item 
+float \hyperlink{group___classification_module_ga08d73772f04eb0553e4d787c69b34aa2}{max\+Utilization} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the maximum G\+PU utilization. \end{DoxyCompactList}\item 
+bool \hyperlink{group___classification_module_ga27cea1c556b1303cd34db8df4f4a33da}{can\+Classify} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets whether this model can perform classification. \end{DoxyCompactList}\item 
+bool \hyperlink{group___classification_module_gaafe846e469639d35d62b4f68bc59d85c}{can\+Detect} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets whether this model can perform feature detection. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} \& \hyperlink{group___classification_module_gafe563e22d16379a9cd82e0a46d08e15a}{classifer} ()
+\begin{DoxyCompactList}\small\item\em Gets this model\textquotesingle{}s \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} interface. Throws an exception if this model cannot classify. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} \& \hyperlink{group___classification_module_gad1c66c709abc2247957f20cb6b9f9fc6}{classifer} () const 
+\begin{DoxyCompactList}\small\item\em Gets this model\textquotesingle{}s \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} interface. Throws an exception if this model cannot classify. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} \& \hyperlink{group___classification_module_gadf0416476dc05f6e06f6c9f1f86b149d}{detector} ()
+\begin{DoxyCompactList}\small\item\em Gets this model\textquotesingle{}s \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} interface. Throws an exception if this model cannot do feature detection. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} \& \hyperlink{group___classification_module_ga1758ede5c855a4a52556b9f97e1454a8}{detector} () const 
+\begin{DoxyCompactList}\small\item\em Gets this model\textquotesingle{}s \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} interface. Throws an exception if this model cannot do feature detection. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model}{Model} $\ast$ \hyperlink{group___classification_module_ga7b908a0f56b71ac72ae872e903a042e2}{create} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&model, bool \hyperlink{group___classification_module_gaea38e3353458ab22d099d54411d6f868}{use\+Gpu}, float \hyperlink{group___classification_module_ga08d73772f04eb0553e4d787c69b34aa2}{max\+Utilization}=0.\+95)
+\begin{DoxyCompactList}\small\item\em Creates an appropriate \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model}{Model} instance from the given \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package}. This is the main factory method for creating models. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_gac3f95551de3a41eb2bbda756cda5fc07}{Model} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&model, bool \hyperlink{group___classification_module_gaea38e3353458ab22d099d54411d6f868}{use\+Gpu}, float \hyperlink{group___classification_module_ga08d73772f04eb0553e4d787c69b34aa2}{max\+Utilization})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model}{Model}, sets \hyperlink{group___classification_module_ga33bdb8fac324a49d0e70175a1440cdd1}{Model\+::metadata()} and \hyperlink{group___classification_module_gaea38e3353458ab22d099d54411d6f868}{Model\+::use\+Gpu()}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+An abstract base class for all models. Represents the model capabilities. 

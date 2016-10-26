@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classdg_1_1deepcore_1_1classification_1_1_model_package.html" title="An abstract base class for model packages. Contains metadata and a loading and packaging mechanism..." alt="" coords="5,39,187,80"/>
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_model_package_t.html" title="A template class implementing some default constructors. " alt="" coords="277,5,459,47"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_model_package_t.html" title="dg::deepcore::classification\l::ModelPackageT\&lt; CaffeModelPackage \&gt;" alt="" coords="235,71,501,112"/>
+<area shape="rect" id="node4" href="$classdg_1_1deepcore_1_1classification_1_1_caffe_model_package.html" title="Represents a Caffe model package. " alt="" coords="549,71,731,112"/>
+</map>

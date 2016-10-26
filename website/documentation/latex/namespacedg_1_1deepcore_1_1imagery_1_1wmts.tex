@@ -1,0 +1,86 @@
+\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:wmts Namespace Reference}
+\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts}\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_capabilities}{Capabilities}
+\begin{DoxyCompactList}\small\item\em Represents a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_contents}{Contents}
+\begin{DoxyCompactList}\small\item\em Represents a \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_contents}{Contents} node in a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_layer}{Layer}
+\begin{DoxyCompactList}\small\item\em Represents a \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_layer}{Layer} node in a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_operation}{Operation}
+\begin{DoxyCompactList}\small\item\em Represents an ows\+:\hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_operation}{Operation} node in a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{Tile\+Matrix}
+\begin{DoxyCompactList}\small\item\em Represents a \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{Tile\+Matrix} node in a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix_set}{Tile\+Matrix\+Set}
+\begin{DoxyCompactList}\small\item\em Represents a \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix_set}{Tile\+Matrix\+Set} node in a W\+M\+TS Get\+Capabilities request. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_contents}{Contents} \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a31a76ad80e6b2533baf25db42d85be32}{parse\+Contents} (const xml\+\_\+node \&node)
+\item 
+map$<$ string, \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_operation}{Operation} $>$ \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3d537770a0ea9e28ddab365e085fef48}{parse\+Operations\+Metadata} (const xml\+\_\+node \&node)
+\item 
+\hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_layer}{Layer} \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a9b2fc450f6ad7939b01200952d9f0cdf}{parse\+Layer} (const xml\+\_\+node \&node)
+\item 
+cv\+::\+Rect2d \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a0dfd07c2c45978eeca76b3f41b8fa1be}{parse\+W\+G\+S84\+Bounding\+Box} (const xml\+\_\+node \&node)
+\item 
+\hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix_set}{Tile\+Matrix\+Set} \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a7cb14cab7ce8ecc30b852e6bb3320988}{parse\+Tile\+Matrix\+Set} (const xml\+\_\+node \&node)
+\item 
+\hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{Tile\+Matrix} \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3631933d78c31afb5aa46d64166208e3}{parse\+Tile\+Matrix} (const xml\+\_\+node \&node)
+\item 
+cv\+::\+Point2d \hyperlink{namespacedg_1_1deepcore_1_1imagery_1_1wmts_ae47bfc1d7ae820673ea56235915cee3f}{parse\+Coordinate} (const xml\+\_\+node \&node)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Contents@{parse\+Contents}}
+\index{parse\+Contents@{parse\+Contents}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Contents(const xml\+\_\+node \&node)}{parseContents(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Contents} dg\+::deepcore\+::imagery\+::wmts\+::parse\+Contents (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a31a76ad80e6b2533baf25db42d85be32}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a31a76ad80e6b2533baf25db42d85be32}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Coordinate@{parse\+Coordinate}}
+\index{parse\+Coordinate@{parse\+Coordinate}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Coordinate(const xml\+\_\+node \&node)}{parseCoordinate(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point2d dg\+::deepcore\+::imagery\+::wmts\+::parse\+Coordinate (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_ae47bfc1d7ae820673ea56235915cee3f}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_ae47bfc1d7ae820673ea56235915cee3f}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Layer@{parse\+Layer}}
+\index{parse\+Layer@{parse\+Layer}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Layer(const xml\+\_\+node \&node)}{parseLayer(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Layer} dg\+::deepcore\+::imagery\+::wmts\+::parse\+Layer (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a9b2fc450f6ad7939b01200952d9f0cdf}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a9b2fc450f6ad7939b01200952d9f0cdf}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Operations\+Metadata@{parse\+Operations\+Metadata}}
+\index{parse\+Operations\+Metadata@{parse\+Operations\+Metadata}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Operations\+Metadata(const xml\+\_\+node \&node)}{parseOperationsMetadata(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}map$<$ string, {\bf Operation} $>$ dg\+::deepcore\+::imagery\+::wmts\+::parse\+Operations\+Metadata (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3d537770a0ea9e28ddab365e085fef48}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3d537770a0ea9e28ddab365e085fef48}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Tile\+Matrix@{parse\+Tile\+Matrix}}
+\index{parse\+Tile\+Matrix@{parse\+Tile\+Matrix}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Tile\+Matrix(const xml\+\_\+node \&node)}{parseTileMatrix(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Tile\+Matrix} dg\+::deepcore\+::imagery\+::wmts\+::parse\+Tile\+Matrix (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3631933d78c31afb5aa46d64166208e3}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a3631933d78c31afb5aa46d64166208e3}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+Tile\+Matrix\+Set@{parse\+Tile\+Matrix\+Set}}
+\index{parse\+Tile\+Matrix\+Set@{parse\+Tile\+Matrix\+Set}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+Tile\+Matrix\+Set(const xml\+\_\+node \&node)}{parseTileMatrixSet(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Tile\+Matrix\+Set} dg\+::deepcore\+::imagery\+::wmts\+::parse\+Tile\+Matrix\+Set (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a7cb14cab7ce8ecc30b852e6bb3320988}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a7cb14cab7ce8ecc30b852e6bb3320988}
+\index{dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}!parse\+W\+G\+S84\+Bounding\+Box@{parse\+W\+G\+S84\+Bounding\+Box}}
+\index{parse\+W\+G\+S84\+Bounding\+Box@{parse\+W\+G\+S84\+Bounding\+Box}!dg\+::deepcore\+::imagery\+::wmts@{dg\+::deepcore\+::imagery\+::wmts}}
+\subsubsection[{\texorpdfstring{parse\+W\+G\+S84\+Bounding\+Box(const xml\+\_\+node \&node)}{parseWGS84BoundingBox(const xml_node &node)}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Rect2d dg\+::deepcore\+::imagery\+::wmts\+::parse\+W\+G\+S84\+Bounding\+Box (
+\begin{DoxyParamCaption}
+\item[{const xml\+\_\+node \&}]{node}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a0dfd07c2c45978eeca76b3f41b8fa1be}{}\label{namespacedg_1_1deepcore_1_1imagery_1_1wmts_a0dfd07c2c45978eeca76b3f41b8fa1be}

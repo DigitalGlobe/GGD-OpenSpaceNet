@@ -1,0 +1,54 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid\+Sliding\+Window Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}}
+
+
+Assists in calculation of sliding windows over pyramid levels.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Sliding\+Window.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ab19431f1af5d94cf35d3c13e62831b0a}{value\+\_\+type}
+\item 
+typedef const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_a2607e7416973611462d45f5a3772b46e}{const\+\_\+reference}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ac39f725e03255cd3776e47672a02e78f}{const\+\_\+iterator}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga7081b8742fc33b80063c679df62eda40}{Pyramid\+Sliding\+Window} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gac631dfe3960fc55db1cd264b508d7927}{Pyramid\+Sliding\+Window} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{Pyramid} \&\hyperlink{group___imagery_module_ga5e94310b058604eb1df583996f97dd14}{pyramid}, const cv\+::\+Size \&window\+Size, \hyperlink{group___imagery_module_gaf813556adc6cfc1daa1ee410d7c84a17}{Edge\+Behavior} edge\+Behavior=\hyperlink{namespacedg_1_1deepcore_1_1imagery_gaf813556adc6cfc1daa1ee410d7c84a17ae8225b11842409df543692aebed34fd1}{Edge\+Behavior\+::\+F\+I\+LL})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window}. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid}{Pyramid} \& \hyperlink{group___imagery_module_ga5e94310b058604eb1df583996f97dd14}{pyramid} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the pyramid levels. \end{DoxyCompactList}\item 
+const \hyperlink{namespacedg_1_1deepcore_1_1imagery_af586b82f51aad0d30be6ee5671df62c5}{Sliding\+Windows} \& \hyperlink{group___imagery_module_gaf36171178d54eeed0b910aede8fd1933}{sliding\+Windows} () const noexcept
+\begin{DoxyCompactList}\small\item\em Retuns the sliding windows (one per pyramid level) \end{DoxyCompactList}\item 
+const int \hyperlink{group___imagery_module_gaced848a3140b83deb89ba3ba522bdfa9}{num\+Windows} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the total number of windows generated. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ac39f725e03255cd3776e47672a02e78f}{const\+\_\+iterator} \hyperlink{group___imagery_module_gac0245ad134745b2621ecc95ca7aa5219}{begin} () const 
+\begin{DoxyCompactList}\small\item\em Returns the beginning \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ac39f725e03255cd3776e47672a02e78f}{const\+\_\+iterator} \hyperlink{group___imagery_module_gaf39101c886a6ca5194201848f7d6d831}{end} () const 
+\begin{DoxyCompactList}\small\item\em Returns the ending \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator}. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga1b88dd8ec7d6e4c9841dfa93b64c763e}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Assists in calculation of sliding windows over pyramid levels. 
+
+\subsection{Member Typedef Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}!const\+\_\+iterator@{const\+\_\+iterator}}
+\index{const\+\_\+iterator@{const\+\_\+iterator}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{const\+\_\+iterator}{const_iterator}}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf Pyramid\+Sliding\+Window\+Iterator} {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window\+::const\+\_\+iterator}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ac39f725e03255cd3776e47672a02e78f}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ac39f725e03255cd3776e47672a02e78f}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}!const\+\_\+reference@{const\+\_\+reference}}
+\index{const\+\_\+reference@{const\+\_\+reference}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{const\+\_\+reference}{const_reference}}]{\setlength{\rightskip}{0pt plus 5cm}typedef const {\bf Pyramid\+Window}\& {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window\+::const\+\_\+reference}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_a2607e7416973611462d45f5a3772b46e}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_a2607e7416973611462d45f5a3772b46e}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}!value\+\_\+type@{value\+\_\+type}}
+\index{value\+\_\+type@{value\+\_\+type}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window}}
+\subsubsection[{\texorpdfstring{value\+\_\+type}{value_type}}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf Pyramid\+Window} {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window\+::value\+\_\+type}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ab19431f1af5d94cf35d3c13e62831b0a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_ab19431f1af5d94cf35d3c13e62831b0a}

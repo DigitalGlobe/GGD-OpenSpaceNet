@@ -1,0 +1,21 @@
+\hypertarget{index_intro_sec}{}\section{Introduction}\label{index_intro_sec}
+Deep\+Core is a library framework that will allow application developers to leverage deep machine learning while encapsulating some of the complexity. This building block approach will allow developers to use common functionality from the Deep\+Core framework, putting the business logic in the application where it belongs.\hypertarget{index_dependencies_sec}{}\section{Dependencies}\label{index_dependencies_sec}
+Deep\+Core has dependencies on several libraries, such as\+:
+\begin{DoxyItemize}
+\item Open\+CV for image manipulation and loading images for classification
+\item Caffe for image classification
+\item Boost for general toolkit things
+\item G\+D\+A\+L/\+O\+GR for geospatial exports
+\item C\+U\+RL / Curlpp for web calls and downloads
+\item libjson-\/rpc-\/cpp for json rpc calls Prior to building, run the osn\+\_\+install.\+sh script to install all of the dependencies
+\end{DoxyItemize}\hypertarget{index_building_sec}{}\section{Building}\label{index_building_sec}
+
+\begin{DoxyPre}
+mkdir build
+cd build
+cmake .. -DCMAKE\_CXX\_FLAGS="-I /opt/DeepCore/include -L/opt/DeepCore/lib" -DCMAKE\_PREFIX\_PATH=/opt/DeepCore
+make
+sudo make install
+\end{DoxyPre}
+ This will install the framework libs into /usr/lib/deepcore, for later use with the apps\hypertarget{index_howitworks_sec}{}\section{How it works\+:}\label{index_howitworks_sec}
+ 

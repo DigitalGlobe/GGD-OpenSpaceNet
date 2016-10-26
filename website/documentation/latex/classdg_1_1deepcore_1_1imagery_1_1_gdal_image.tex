@@ -1,0 +1,264 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Gdal\+Image Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image}\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+
+
+Represents a geo-\/registered image read using G\+D\+AL.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Gdal\+Image.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Gdal\+Image\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=315pt]{classdg_1_1deepcore_1_1imagery_1_1_gdal_image__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga2c05530c01c9cc6bf0d0f332b74cecc3}{Gdal\+Image} (const std\+::string \&path)
+\begin{DoxyCompactList}\small\item\em Constructs the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image}{Gdal\+Image} class and opens the image. \end{DoxyCompactList}\item 
+cv\+::\+Size \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_abb3fdf6d72f690606ee00a6f1db93889}{size} () const override
+\begin{DoxyCompactList}\small\item\em Gets the image\textquotesingle{}s pixel size. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5a9fdea0bf1473c6c54a116a3b3fcd58}{origin} () const override
+\begin{DoxyCompactList}\small\item\em Gets the origin in the image\textquotesingle{}s native coordinate system. The origin is the north-\/west corner. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a703aceb4c6ab2e7b1948e0df6b44d965}{pixel\+Size} () const override
+\begin{DoxyCompactList}\small\item\em Gets the pixel size in the image\textquotesingle{}s native coordinate system. \end{DoxyCompactList}\item 
+cv\+::\+Size \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_ab9f14e75cccbffc7f43081f4dc171b53}{block\+Size} () const override
+\begin{DoxyCompactList}\small\item\em Gets the image block size. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a12f9039f7445e931359b351045676051}{num\+Bands} () const override
+\begin{DoxyCompactList}\small\item\em Gets the number of raster bands in the image. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2703af86b94a85181d5dc8c98dc7bc1a}{pixel\+Type} () const override
+\begin{DoxyCompactList}\small\item\em Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_gac2b4bcd00b506caa4a1d4a08b296e35c}{orig\+Origin} ()
+\begin{DoxyCompactList}\small\item\em Gets the origin of the underlying image without considering the current bounding box. \end{DoxyCompactList}\item 
+cv\+::\+Size \hyperlink{group___imagery_module_ga7e8ae8a7ad9fc775b39d358e1cd21647}{orig\+Size} ()
+\begin{DoxyCompactList}\small\item\em Gets the size of the underlying image without considering the current bounding box. \end{DoxyCompactList}\item 
+const cv\+::\+Rect \& \hyperlink{group___imagery_module_ga0fb4c1ea48ddb710e97310baddb9f63d}{bbox} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the bounding box that restricts read\+Image and read\+Image\+Async. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga9391ed841c25ec1391bbb577aa2b81d6}{set\+Bbox} (const cv\+::\+Rect \&\hyperlink{group___imagery_module_ga0fb4c1ea48ddb710e97310baddb9f63d}{bbox})
+\begin{DoxyCompactList}\small\item\em Gets the bounding box that restricts read\+Image and read\+Image\+Async. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a0dfbdd1a7a6260f38e67bbe10eb1007c}{pixel\+To\+Proj} (cv\+::\+Point pixel) const override
+\begin{DoxyCompactList}\small\item\em Convert a pixel coordinate to the image\textquotesingle{}s coordinate system. \end{DoxyCompactList}\item 
+cv\+::\+Point \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a824ec987881152e8ca9d95b0952e75c7}{proj\+To\+Pixel} (cv\+::\+Point2d proj) const override
+\begin{DoxyCompactList}\small\item\em Convert a coordinate in the image\textquotesingle{}s coordinate system to a pixel coordiante. \end{DoxyCompactList}\item 
+cv\+::\+Mat \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2f2dbe1f567c126aa8406ee86f9990d7}{read\+Image} (\hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) const override
+\begin{DoxyCompactList}\small\item\em Reads the image into a cv\+::\+Mat. \end{DoxyCompactList}\item 
+std\+::future$<$ bool $>$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5ae4e4f34682f1a9e753dd1534218988}{read\+Image\+Async} (\hyperlink{group___imagery_module_ga2238c2ef34502f68956ddef1f477ad95}{Block\+Read\+Func} read\+Func, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) const override
+\begin{DoxyCompactList}\small\item\em Reades the image asynchronously. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Represents a geo-\/registered image read using G\+D\+AL. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!block\+Size@{block\+Size}}
+\index{block\+Size@{block\+Size}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{block\+Size() const override}{blockSize() const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::block\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_ab9f14e75cccbffc7f43081f4dc171b53}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_ab9f14e75cccbffc7f43081f4dc171b53}
+
+
+Gets the image block size. 
+
+\begin{DoxyReturn}{Returns}
+The image block size. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga02738a1beaa1dd55f6d06593fe9a4c6f}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!num\+Bands@{num\+Bands}}
+\index{num\+Bands@{num\+Bands}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{num\+Bands() const override}{numBands() const override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::num\+Bands (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a12f9039f7445e931359b351045676051}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a12f9039f7445e931359b351045676051}
+
+
+Gets the number of raster bands in the image. 
+
+\begin{DoxyReturn}{Returns}
+The number of raster bands. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga27b0bde15551e580dc658947d7d29f61}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!origin@{origin}}
+\index{origin@{origin}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{origin() const override}{origin() const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point2d dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::origin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5a9fdea0bf1473c6c54a116a3b3fcd58}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5a9fdea0bf1473c6c54a116a3b3fcd58}
+
+
+Gets the origin in the image\textquotesingle{}s native coordinate system. The origin is the north-\/west corner. 
+
+\begin{DoxyReturn}{Returns}
+The origin. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga6dff2792da9db73d8d80e5841edce606}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!pixel\+Size@{pixel\+Size}}
+\index{pixel\+Size@{pixel\+Size}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{pixel\+Size() const override}{pixelSize() const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size2d dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::pixel\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a703aceb4c6ab2e7b1948e0df6b44d965}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a703aceb4c6ab2e7b1948e0df6b44d965}
+
+
+Gets the pixel size in the image\textquotesingle{}s native coordinate system. 
+
+\begin{DoxyReturn}{Returns}
+The pixel size. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga11359d5f53eff7d8ac2e661f31eb4f1a}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!pixel\+To\+Proj@{pixel\+To\+Proj}}
+\index{pixel\+To\+Proj@{pixel\+To\+Proj}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{pixel\+To\+Proj(cv\+::\+Point pixel) const override}{pixelToProj(cv::Point pixel) const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point2d dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::pixel\+To\+Proj (
+\begin{DoxyParamCaption}
+\item[{cv\+::\+Point}]{pixel\+Coord}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a0dfbdd1a7a6260f38e67bbe10eb1007c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a0dfbdd1a7a6260f38e67bbe10eb1007c}
+
+
+Convert a pixel coordinate to the image\textquotesingle{}s coordinate system. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pixel\+Coord} & A pixel coordinate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A coordinate in image\textquotesingle{}s coordinate system. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga6ef753bbb1d8a5dfa56a72de21af4f08}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!pixel\+Type@{pixel\+Type}}
+\index{pixel\+Type@{pixel\+Type}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{pixel\+Type() const override}{pixelType() const override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::pixel\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2703af86b94a85181d5dc8c98dc7bc1a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2703af86b94a85181d5dc8c98dc7bc1a}
+
+
+Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. 
+
+\begin{DoxyReturn}{Returns}
+The image pixel type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga3cb616a1de3ee19bebfdf14957d90d7c}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!proj\+To\+Pixel@{proj\+To\+Pixel}}
+\index{proj\+To\+Pixel@{proj\+To\+Pixel}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{proj\+To\+Pixel(cv\+::\+Point2d proj) const override}{projToPixel(cv::Point2d proj) const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::proj\+To\+Pixel (
+\begin{DoxyParamCaption}
+\item[{cv\+::\+Point2d}]{proj\+Coord}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a824ec987881152e8ca9d95b0952e75c7}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a824ec987881152e8ca9d95b0952e75c7}
+
+
+Convert a coordinate in the image\textquotesingle{}s coordinate system to a pixel coordiante. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em proj\+Coord} & A coordinate in the image\textquotesingle{}s coordinate system. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pixel coordinate. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga4935502553685c597c803da24f706b99}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!read\+Image@{read\+Image}}
+\index{read\+Image@{read\+Image}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{read\+Image(\+Simple\+Progress progress\+Func=nullptr) const override}{readImage(SimpleProgress progressFunc=nullptr) const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Mat dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::read\+Image (
+\begin{DoxyParamCaption}
+\item[{{\bf Simple\+Progress}}]{progress\+Func = {\ttfamily nullptr}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2f2dbe1f567c126aa8406ee86f9990d7}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a2f2dbe1f567c126aa8406ee86f9990d7}
+
+
+Reads the image into a cv\+::\+Mat. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em progress\+Func} & The progress reporting callback. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cv\+::\+Mat containing the pixel data. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga58e7e5d070e788600714a331c5bdaf02}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!read\+Image\+Async@{read\+Image\+Async}}
+\index{read\+Image\+Async@{read\+Image\+Async}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{read\+Image\+Async(\+Block\+Read\+Func read\+Func, Simple\+Progress progress\+Func=nullptr) const override}{readImageAsync(BlockReadFunc readFunc, SimpleProgress progressFunc=nullptr) const override}}]{\setlength{\rightskip}{0pt plus 5cm}future$<$ bool $>$ dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::read\+Image\+Async (
+\begin{DoxyParamCaption}
+\item[{{\bf Block\+Read\+Func}}]{read\+Func, }
+\item[{{\bf Simple\+Progress}}]{progress\+Func = {\ttfamily nullptr}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5ae4e4f34682f1a9e753dd1534218988}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_a5ae4e4f34682f1a9e753dd1534218988}
+
+
+Reades the image asynchronously. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em read\+Func} & Function that is called for every block read. \\
+\hline
+\mbox{\tt in}  & {\em progress\+Func} & The progress reporting callback. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The future that will be true if the download compeleted, false if cancelled. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga546feafefa76af28c13edab7a92e1cee}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}!size@{size}}
+\index{size@{size}!dg\+::deepcore\+::imagery\+::\+Gdal\+Image@{dg\+::deepcore\+::imagery\+::\+Gdal\+Image}}
+\subsubsection[{\texorpdfstring{size() const override}{size() const override}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size dg\+::deepcore\+::imagery\+::\+Gdal\+Image\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_abb3fdf6d72f690606ee00a6f1db93889}{}\label{classdg_1_1deepcore_1_1imagery_1_1_gdal_image_abb3fdf6d72f690606ee00a6f1db93889}
+
+
+Gets the image\textquotesingle{}s pixel size. 
+
+\begin{DoxyReturn}{Returns}
+The image\textquotesingle{}s pixel size. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gaac80b110347bd25c8fbdefef229d89c6}{dg\+::deepcore\+::imagery\+::\+Geo\+Image}.
+

@@ -1,0 +1,4 @@
+<map id="dg::deepcore::imagery::DgWmtsClient" name="dg::deepcore::imagery::DgWmtsClient">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1imagery_1_1_wmts_client.html" title="A client for a WMTS service. Currently only the KVP encoding scheme is supported. ..." alt="" coords="5,95,156,136"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1imagery_1_1_map_service_client.html" title="A base class for asynchronous web service clients. " alt="" coords="5,5,156,47"/>
+</map>

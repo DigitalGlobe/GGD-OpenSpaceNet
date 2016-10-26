@@ -1,0 +1,52 @@
+\hypertarget{structdg_1_1deepcore_1_1classification_1_1_prediction}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Prediction Struct Reference}
+\label{structdg_1_1deepcore_1_1classification_1_1_prediction}\index{dg\+::deepcore\+::classification\+::\+Prediction@{dg\+::deepcore\+::classification\+::\+Prediction}}
+
+
+A structure to hold information about hits during detection and classification runs.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Prediction.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_gab393a5d0a2ff4d9ba72801a7d450a140}{Prediction} ()
+\begin{DoxyCompactList}\small\item\em Default Constructor for \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction}. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga4656207fb44b596eaf90bb5613f6f9aa}{Prediction} (const std\+::string \&\hyperlink{group___classification_module_gae1374a898e2380401c2e671786e69ff1}{label}, float \hyperlink{group___classification_module_gae7ab1c3906399dab0ee969ffc521bcfb}{confidence}=0.\+0)
+\begin{DoxyCompactList}\small\item\em Constructor for \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction}. \end{DoxyCompactList}\item 
+bool \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction_aac4912ad9ef4cfbd390237c5cfacb289}{operator==} (const \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} \&rhs) const 
+\begin{DoxyCompactList}\small\item\em The equality comparison operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{group___classification_module_gae1374a898e2380401c2e671786e69ff1}{label}
+\begin{DoxyCompactList}\small\item\em A string label that is the display name of the class in the model for this \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction}. \end{DoxyCompactList}\item 
+float \hyperlink{group___classification_module_gae7ab1c3906399dab0ee969ffc521bcfb}{confidence}
+\begin{DoxyCompactList}\small\item\em A float value that is the minimum threshold value for this \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A structure to hold information about hits during detection and classification runs. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Prediction@{dg\+::deepcore\+::classification\+::\+Prediction}!operator==@{operator==}}
+\index{operator==@{operator==}!dg\+::deepcore\+::classification\+::\+Prediction@{dg\+::deepcore\+::classification\+::\+Prediction}}
+\subsubsection[{\texorpdfstring{operator==(const Prediction \&rhs) const }{operator==(const Prediction &rhs) const }}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::classification\+::\+Prediction\+::operator== (
+\begin{DoxyParamCaption}
+\item[{const {\bf Prediction} \&}]{rhs}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{structdg_1_1deepcore_1_1classification_1_1_prediction_aac4912ad9ef4cfbd390237c5cfacb289}{}\label{structdg_1_1deepcore_1_1classification_1_1_prediction_aac4912ad9ef4cfbd390237c5cfacb289}
+
+
+The equality comparison operator. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em rhs} & The right-\/hand side. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether rhs == this. 
+\end{DoxyReturn}

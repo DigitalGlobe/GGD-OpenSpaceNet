@@ -1,0 +1,30 @@
+\hypertarget{classdg_1_1deepcore_1_1_multi_progress_display}{}\section{dg\+:\+:deepcore\+:\+:Multi\+Progress\+Display Class Reference}
+\label{classdg_1_1deepcore_1_1_multi_progress_display}\index{dg\+::deepcore\+::\+Multi\+Progress\+Display@{dg\+::deepcore\+::\+Multi\+Progress\+Display}}
+
+
+A console progress display capable of displaying progress of multiple concurrent tasks.  
+
+
+
+
+{\ttfamily \#include $<$utility/\+Multi\+Progress\+Display.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___utility_module_ga51c18fad87e104455921392fc91a7c03}{Multi\+Progress\+Display} (const std\+::vector$<$ std\+::string $>$ \&\hyperlink{group___utility_module_ga89b9c96322231a81b2e64f178a8291e3}{categories}, int interval\+Ms=500)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_multi_progress_display}{Multi\+Progress\+Display}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gae12a350c3384d98843cd2851dcaa10fe}{$\sim$\+Multi\+Progress\+Display} ()
+\begin{DoxyCompactList}\small\item\em The destructor. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaa7547dfd4650dc8a0f761b174ce24450}{start} ()
+\begin{DoxyCompactList}\small\item\em Starts and displays the progress meter(s). \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga2f43542bd34ad2f51b7c368d4e94e650}{stop} ()
+\begin{DoxyCompactList}\small\item\em Stops the progress meter(s). \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gadbcb8e02b7d21ce799baa34e93bc9fee}{update} (size\+\_\+t category\+Id, float progress)
+\begin{DoxyCompactList}\small\item\em Updateds progress. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___utility_module_ga89b9c96322231a81b2e64f178a8291e3}{categories} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the categories. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A console progress display capable of displaying progress of multiple concurrent tasks. 

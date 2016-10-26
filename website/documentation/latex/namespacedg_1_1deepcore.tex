@@ -1,0 +1,210 @@
+\hypertarget{namespacedg_1_1deepcore}{}\section{dg\+:\+:deepcore Namespace Reference}
+\label{namespacedg_1_1deepcore}\index{dg\+::deepcore@{dg\+::deepcore}}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1classification}{classification}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1imagery}{imagery}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1log}{log}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1memory}{memory}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1network}{network}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1vector}{vector}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1zip}{zip}
+\end{DoxyCompactItemize}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classdg_1_1deepcore_1_1_call_stack_reader}{Call\+Stack\+Reader}
+\begin{DoxyCompactList}\small\item\em Reads the callstack. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol}
+\begin{DoxyCompactList}\small\item\em Represents an entry in a callstack. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1_embedded_resource}{Embedded\+Resource}
+\begin{DoxyCompactList}\small\item\em Hold information on an in-\/memory resource, with name, pointer, and length
+
+This is designed to accompany resources which are added during the cmake phase with Embed\+Resources.\+cmake. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_error}{Error}
+\begin{DoxyCompactList}\small\item\em Represents a Deep\+Core error. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_logger}{Logger}
+\begin{DoxyCompactList}\small\item\em A class to facilitate logging. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_multi_progress_display}{Multi\+Progress\+Display}
+\begin{DoxyCompactList}\small\item\em A console progress display capable of displaying progress of multiple concurrent tasks. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_singleton}{Singleton}
+\begin{DoxyCompactList}\small\item\em A thread-\/safe singleton class holder. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File}
+\begin{DoxyCompactList}\small\item\em Reads contents of a zip file. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File}
+\begin{DoxyCompactList}\small\item\em Creates a zip file and writes data and directory information into it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} = std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} $>$
+\begin{DoxyCompactList}\small\item\em Represents a callstack. \end{DoxyCompactList}\item 
+using \hyperlink{group___utility_module_gaa93ea71a4ed4c044369d3b323aec4435}{Error\+Func} = std\+::function$<$ \hyperlink{classdg_1_1deepcore_1_1_error}{Error} $\ast$(const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&e)$>$
+\begin{DoxyCompactList}\small\item\em An \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback function. The can examine the input error and transform it if necessary. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was transformed, the function should return a new \hyperlink{classdg_1_1deepcore_1_1_error}{Error} instance. The caller will take ownership of the pointer. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, the function should return nullptr. \end{DoxyCompactList}\item 
+typedef trivial\+::severity\+\_\+level \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t}
+\item 
+typedef src\+::severity\+\_\+logger$<$ \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} $>$ \hyperlink{namespacedg_1_1deepcore_acaeda2fb8a475fd1de2ef14ac9ec7a2f}{logger\+\_\+t}
+\item 
+{\footnotesize template$<$class T $>$ }\\using \hyperlink{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{attribute} = attrs\+::mutable\+\_\+constant$<$ T $>$
+\item 
+using \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} = std\+::function$<$ bool(float progress)$>$
+\begin{DoxyCompactList}\small\item\em A simple progress reporting callback. \end{DoxyCompactList}\item 
+using \hyperlink{group___utility_module_gae07fce8a40a5222a0dcd537a0b28a008}{Progress} = std\+::function$<$ bool(float progress, const char $\ast$status)$>$
+\begin{DoxyCompactList}\small\item\em A progress reporting callback with ability to display additional information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \hyperlink{group___utility_module_gafa131d4872913d78dd09474524e54de3}{operator$<$$<$} (ostream \&os, const \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} \&symbol)
+\begin{DoxyCompactList}\small\item\em Allows writing a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} into an std\+::ostream. \end{DoxyCompactList}\item 
+std\+::ostream \& \hyperlink{group___utility_module_ga0e3995beecca99ed6a56bbd006d778cf}{operator$<$$<$} (ostream \&os, const \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} \&call\+Stack)
+\begin{DoxyCompactList}\small\item\em Allows writing a Call\+Stack into an std\+::ostream. \end{DoxyCompactList}\item 
+boost\+::log\+::formatting\+\_\+ostream \& \hyperlink{group___utility_module_ga97adfcc9f917f8bd42421eaa2d618ef6}{operator$<$$<$} (boost\+::log\+::formatting\+\_\+ostream \&os, const \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} \&symbol)
+\begin{DoxyCompactList}\small\item\em Allows logging a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} with D\+G\+\_\+\+L\+OG. \end{DoxyCompactList}\item 
+boost\+::log\+::formatting\+\_\+ostream \& \hyperlink{group___utility_module_ga34296a075c256c17fe8ba2f1f6d18372}{operator$<$$<$} (boost\+::log\+::formatting\+\_\+ostream \&os, const \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} \&call\+Stack)
+\begin{DoxyCompactList}\small\item\em Allows logging a Call\+Stack with D\+G\+\_\+\+L\+OG. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga3d0cf89b2a18e61bc8c07ae4006c9744}{read\+Masked\+Input\+From\+Console} ()
+\begin{DoxyCompactList}\small\item\em Initializes a getline that is masked for the purposes of hiding the user input of a password. \end{DoxyCompactList}\item 
+double \hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{radians} (double \hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{degrees}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___utility_module_ga8ce4d2c11e35fe075404a256c272b4d8}{radians} (const cv\+::\+Point2d \&\hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{degrees}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___utility_module_gabf4e708fbdf32c6c93035b918d7ffa03}{radians} (const cv\+::\+Size2d \&\hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{degrees}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___utility_module_ga7712032c74d8bc4e9c392964d4e18e8c}{radians} (const cv\+::\+Rect2d \&\hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{degrees}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+double \hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{degrees} (double \hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{radians}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___utility_module_ga8ee006518e8f0489aa3e18166d74c6fe}{degrees} (const cv\+::\+Point2d \&\hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{radians}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___utility_module_gaa1f8aec2237eca2394ae5df2528e8eca}{degrees} (const cv\+::\+Size2d \&\hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{radians}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___utility_module_ga1be3f98796bf80ec2aa5899e73269be7}{degrees} (const cv\+::\+Rect2d \&\hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{radians}) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_gaab89548f655eaadb805d9099ea0ec616}{almost\+Eq} (T x, T y, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two numbers are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga2096c3bec84b70855daa9399ec178fe2}{almost\+Eq} (const cv\+::\+Point\+\_\+$<$ T $>$ \&p1, const cv\+::\+Point\+\_\+$<$ T $>$ \&p2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Point\+\_\+$<$\+T$>$ coordinates are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga71b9189756badfb3f5466bf9f0549203}{almost\+Eq} (const cv\+::\+Size\+\_\+$<$ T $>$ \&s1, const cv\+::\+Size\+\_\+$<$ T $>$ \&s2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Size\+\_\+$<$\+T$>$ sizes are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga115e2428efbb3b6d3105d8f2fab75e51}{almost\+Eq} (const cv\+::\+Rect\+\_\+$<$ T $>$ \&r1, const cv\+::\+Rect\+\_\+$<$ T $>$ \&r2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Rect\+\_\+$<$\+T$>$ rectangles are approximately equal. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga7eb961cce72452d6bc60ca27f699bad6}{login\+User} ()
+\begin{DoxyCompactList}\small\item\em Returns the current login user name. If the information cannot be determined returns a blank string. \end{DoxyCompactList}\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1_embedded_resource}{Embedded\+Resource} $>$ \hyperlink{namespacedg_1_1deepcore_a03f6e7d5cdfe836e05971aebdfe39af2}{gdal\+Data} ()
+\item 
+std\+::string \hyperlink{namespacedg_1_1deepcore_a60a6e789dc5541737ef1429bc39d6635}{center} (const std\+::string \&str, size\+\_\+t width)
+\item 
+std\+::string \hyperlink{namespacedg_1_1deepcore_ad0ae2792453751f4ed8444126c673dc0}{progress\+String} (float progress, size\+\_\+t width)
+\item 
+const char $\ast$ \hyperlink{namespacedg_1_1deepcore_a0c24e3f3ec1175311028a99cc155f324}{unzip\+Error} (int unz\+Err) noexcept
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{classdg_1_1deepcore_1_1_call_stack_reader}{Call\+Stack\+Reader} \& \hyperlink{namespacedg_1_1deepcore_afc7f592477ea2eea67265ba8c406e8e7}{call\+Stack\+Reader}
+\item 
+const size\+\_\+t \hyperlink{namespacedg_1_1deepcore_a5280e55f2875dddfa4400c900d1cef04}{M\+I\+N\+\_\+\+W\+I\+D\+TH} = 8
+\item 
+constexpr size\+\_\+t \hyperlink{namespacedg_1_1deepcore_ab58b33a87a4d5099cdc3f464eff13f48}{B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE} = 8192
+\end{DoxyCompactItemize}
+
+
+\subsection{Typedef Documentation}
+\index{dg\+::deepcore@{dg\+::deepcore}!attribute@{attribute}}
+\index{attribute@{attribute}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{attribute}{attribute}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ using {\bf dg\+::deepcore\+::attribute} = typedef attrs\+::mutable\+\_\+constant$<$T$>$}\hypertarget{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{}\label{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}
+\index{dg\+::deepcore@{dg\+::deepcore}!level\+\_\+t@{level\+\_\+t}}
+\index{level\+\_\+t@{level\+\_\+t}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{level\+\_\+t}{level_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef trivial\+::severity\+\_\+level {\bf dg\+::deepcore\+::level\+\_\+t}}\hypertarget{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{}\label{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}
+\index{dg\+::deepcore@{dg\+::deepcore}!logger\+\_\+t@{logger\+\_\+t}}
+\index{logger\+\_\+t@{logger\+\_\+t}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{logger\+\_\+t}{logger_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef src\+::severity\+\_\+logger$<${\bf level\+\_\+t}$>$ {\bf dg\+::deepcore\+::logger\+\_\+t}}\hypertarget{namespacedg_1_1deepcore_acaeda2fb8a475fd1de2ef14ac9ec7a2f}{}\label{namespacedg_1_1deepcore_acaeda2fb8a475fd1de2ef14ac9ec7a2f}
+
+
+\subsection{Enumeration Type Documentation}
+\index{dg\+::deepcore@{dg\+::deepcore}!Local\+Bit\+Flag@{Local\+Bit\+Flag}}
+\index{Local\+Bit\+Flag@{Local\+Bit\+Flag}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{Local\+Bit\+Flag}{LocalBitFlag}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::\+Local\+Bit\+Flag}\hspace{0.3cm}{\ttfamily [strong]}}\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{E\+N\+C\+R\+Y\+P\+T\+ED@{E\+N\+C\+R\+Y\+P\+T\+ED}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!E\+N\+C\+R\+Y\+P\+T\+ED@{E\+N\+C\+R\+Y\+P\+T\+ED}}\item[{\em 
+E\+N\+C\+R\+Y\+P\+T\+ED\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3fe1c5068682cdee737d379207ab631f}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3fe1c5068682cdee737d379207ab631f}
+}]\index{O\+P\+T\+I\+O\+N1@{O\+P\+T\+I\+O\+N1}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!O\+P\+T\+I\+O\+N1@{O\+P\+T\+I\+O\+N1}}\item[{\em 
+O\+P\+T\+I\+O\+N1\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a138625d3ecabc965e4915365e3c3ad0d}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a138625d3ecabc965e4915365e3c3ad0d}
+}]\index{O\+P\+T\+I\+O\+N2@{O\+P\+T\+I\+O\+N2}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!O\+P\+T\+I\+O\+N2@{O\+P\+T\+I\+O\+N2}}\item[{\em 
+O\+P\+T\+I\+O\+N2\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ad1313aafa63feaf357f0a6448a6a979b}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ad1313aafa63feaf357f0a6448a6a979b}
+}]\index{D\+E\+S\+C\+R\+I\+P\+T\+OR@{D\+E\+S\+C\+R\+I\+P\+T\+OR}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!D\+E\+S\+C\+R\+I\+P\+T\+OR@{D\+E\+S\+C\+R\+I\+P\+T\+OR}}\item[{\em 
+D\+E\+S\+C\+R\+I\+P\+T\+OR\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a9d3d09ed3b419739eda9918a987332a6}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a9d3d09ed3b419739eda9918a987332a6}
+}]\index{E\+N\+H\+A\+N\+C\+ED@{E\+N\+H\+A\+N\+C\+ED}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!E\+N\+H\+A\+N\+C\+ED@{E\+N\+H\+A\+N\+C\+ED}}\item[{\em 
+E\+N\+H\+A\+N\+C\+ED\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ae7386be94c723513b3c97a1a8d84891e}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ae7386be94c723513b3c97a1a8d84891e}
+}]\index{P\+A\+T\+C\+H\+ED@{P\+A\+T\+C\+H\+ED}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!P\+A\+T\+C\+H\+ED@{P\+A\+T\+C\+H\+ED}}\item[{\em 
+P\+A\+T\+C\+H\+ED\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a558afe9f453959dd62b9e563451aa4f2}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a558afe9f453959dd62b9e563451aa4f2}
+}]\index{S\+T\+R\+O\+NG@{S\+T\+R\+O\+NG}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!S\+T\+R\+O\+NG@{S\+T\+R\+O\+NG}}\item[{\em 
+S\+T\+R\+O\+NG\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3dfb3ae3cdaa322f0388f1a531c39520}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3dfb3ae3cdaa322f0388f1a531c39520}
+}]\index{U\+N\+U\+S\+ED@{U\+N\+U\+S\+ED}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!U\+N\+U\+S\+ED@{U\+N\+U\+S\+ED}}\item[{\em 
+U\+N\+U\+S\+ED\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3bc180bd00be2c60a3a5a68e0dd49503}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a3bc180bd00be2c60a3a5a68e0dd49503}
+}]\index{E\+N\+C\+O\+D\+I\+NG@{E\+N\+C\+O\+D\+I\+NG}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!E\+N\+C\+O\+D\+I\+NG@{E\+N\+C\+O\+D\+I\+NG}}\item[{\em 
+E\+N\+C\+O\+D\+I\+NG\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0030ec33a90f5cba53b26354f131d1fd}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0030ec33a90f5cba53b26354f131d1fd}
+}]\index{R\+E\+S\+E\+R\+V\+E\+D1@{R\+E\+S\+E\+R\+V\+E\+D1}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!R\+E\+S\+E\+R\+V\+E\+D1@{R\+E\+S\+E\+R\+V\+E\+D1}}\item[{\em 
+R\+E\+S\+E\+R\+V\+E\+D1\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ad8179a090910d4923b044cbce813c8ea}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972ad8179a090910d4923b044cbce813c8ea}
+}]\index{M\+A\+SK@{M\+A\+SK}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!M\+A\+SK@{M\+A\+SK}}\item[{\em 
+M\+A\+SK\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0a9501840acacfc8efe7522f5340000c}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0a9501840acacfc8efe7522f5340000c}
+}]\index{R\+E\+S\+E\+R\+V\+E\+D2@{R\+E\+S\+E\+R\+V\+E\+D2}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!R\+E\+S\+E\+R\+V\+E\+D2@{R\+E\+S\+E\+R\+V\+E\+D2}}\item[{\em 
+R\+E\+S\+E\+R\+V\+E\+D2\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0b5885d29a74762639e4b55c51ce2d85}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972a0b5885d29a74762639e4b55c51ce2d85}
+}]\index{R\+E\+S\+E\+R\+V\+E\+D3@{R\+E\+S\+E\+R\+V\+E\+D3}!dg\+::deepcore@{dg\+::deepcore}}\index{dg\+::deepcore@{dg\+::deepcore}!R\+E\+S\+E\+R\+V\+E\+D3@{R\+E\+S\+E\+R\+V\+E\+D3}}\item[{\em 
+R\+E\+S\+E\+R\+V\+E\+D3\hypertarget{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972aeb65411a7ccd9efc5037b3d1ca03b8b3}{}\label{namespacedg_1_1deepcore_afd046fec5b746209d21544a49540a972aeb65411a7ccd9efc5037b3d1ca03b8b3}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{dg\+::deepcore@{dg\+::deepcore}!center@{center}}
+\index{center@{center}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{center(const std\+::string \&str, size\+\_\+t width)}{center(const std::string &str, size_t width)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::center (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str, }
+\item[{size\+\_\+t}]{width}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{namespacedg_1_1deepcore_a60a6e789dc5541737ef1429bc39d6635}{}\label{namespacedg_1_1deepcore_a60a6e789dc5541737ef1429bc39d6635}
+\index{dg\+::deepcore@{dg\+::deepcore}!gdal\+Data@{gdal\+Data}}
+\index{gdal\+Data@{gdal\+Data}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{gdal\+Data()}{gdalData()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<${\bf Embedded\+Resource}$>$ dg\+::deepcore\+::gdal\+Data (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_a03f6e7d5cdfe836e05971aebdfe39af2}{}\label{namespacedg_1_1deepcore_a03f6e7d5cdfe836e05971aebdfe39af2}
+\index{dg\+::deepcore@{dg\+::deepcore}!progress\+String@{progress\+String}}
+\index{progress\+String@{progress\+String}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{progress\+String(float progress, size\+\_\+t width)}{progressString(float progress, size_t width)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::progress\+String (
+\begin{DoxyParamCaption}
+\item[{float}]{progress, }
+\item[{size\+\_\+t}]{width}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{namespacedg_1_1deepcore_ad0ae2792453751f4ed8444126c673dc0}{}\label{namespacedg_1_1deepcore_ad0ae2792453751f4ed8444126c673dc0}
+\index{dg\+::deepcore@{dg\+::deepcore}!unzip\+Error@{unzip\+Error}}
+\index{unzip\+Error@{unzip\+Error}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{unzip\+Error(int unz\+Err) noexcept}{unzipError(int unzErr) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ dg\+::deepcore\+::unzip\+Error (
+\begin{DoxyParamCaption}
+\item[{int}]{unz\+Err}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{namespacedg_1_1deepcore_a0c24e3f3ec1175311028a99cc155f324}{}\label{namespacedg_1_1deepcore_a0c24e3f3ec1175311028a99cc155f324}
+
+
+\subsection{Variable Documentation}
+\index{dg\+::deepcore@{dg\+::deepcore}!B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE@{B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE}}
+\index{B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE@{B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE}{BUFFER_SIZE}}]{\setlength{\rightskip}{0pt plus 5cm}constexpr size\+\_\+t dg\+::deepcore\+::\+B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE = 8192}\hypertarget{namespacedg_1_1deepcore_ab58b33a87a4d5099cdc3f464eff13f48}{}\label{namespacedg_1_1deepcore_ab58b33a87a4d5099cdc3f464eff13f48}
+\index{dg\+::deepcore@{dg\+::deepcore}!call\+Stack\+Reader@{call\+Stack\+Reader}}
+\index{call\+Stack\+Reader@{call\+Stack\+Reader}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{call\+Stack\+Reader}{callStackReader}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf Call\+Stack\+Reader}\& dg\+::deepcore\+::call\+Stack\+Reader}\hypertarget{namespacedg_1_1deepcore_afc7f592477ea2eea67265ba8c406e8e7}{}\label{namespacedg_1_1deepcore_afc7f592477ea2eea67265ba8c406e8e7}
+\index{dg\+::deepcore@{dg\+::deepcore}!M\+I\+N\+\_\+\+W\+I\+D\+TH@{M\+I\+N\+\_\+\+W\+I\+D\+TH}}
+\index{M\+I\+N\+\_\+\+W\+I\+D\+TH@{M\+I\+N\+\_\+\+W\+I\+D\+TH}!dg\+::deepcore@{dg\+::deepcore}}
+\subsubsection[{\texorpdfstring{M\+I\+N\+\_\+\+W\+I\+D\+TH}{MIN_WIDTH}}]{\setlength{\rightskip}{0pt plus 5cm}const size\+\_\+t dg\+::deepcore\+::\+M\+I\+N\+\_\+\+W\+I\+D\+TH = 8}\hypertarget{namespacedg_1_1deepcore_a5280e55f2875dddfa4400c900d1cef04}{}\label{namespacedg_1_1deepcore_a5280e55f2875dddfa4400c900d1cef04}

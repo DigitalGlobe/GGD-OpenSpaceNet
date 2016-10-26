@@ -1,0 +1,48 @@
+\hypertarget{namespacedg_1_1deepcore_1_1vector}{}\section{dg\+:\+:deepcore\+:\+:vector Namespace Reference}
+\label{namespacedg_1_1deepcore_1_1vector}\index{dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_buffered_feature_set}{Buffered\+Feature\+Set}
+\begin{DoxyCompactList}\small\item\em Assists a creation of a vector feature set in memory. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature}{Feature}
+\begin{DoxyCompactList}\small\item\em Base class for vector features. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature_set}{Feature\+Set}
+\begin{DoxyCompactList}\small\item\em Assists in creation of a vector feature set. \end{DoxyCompactList}\item 
+class \hyperlink{structdg_1_1deepcore_1_1vector_1_1_feature_t}{FeatureT}
+\begin{DoxyCompactList}\small\item\em A helper base class for \hyperlink{classdg_1_1deepcore_1_1vector_1_1_feature}{Feature} implementations. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field}{Field}
+\begin{DoxyCompactList}\small\item\em Represents a vector attribute field. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field_definition}{Field\+Definition}
+\begin{DoxyCompactList}\small\item\em Represents a definition of a vector attribute field. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{group___vector_module_ga4b8ce414fd5c655308a07474c35828c0}{Field\+Value} = boost\+::variant$<$ int, double, std\+::string, time\+\_\+t $>$
+\begin{DoxyCompactList}\small\item\em Represents a vector attribute field value. \end{DoxyCompactList}\item 
+using \hyperlink{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}{Field\+Definitions} = std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field_definition}{Field\+Definition} $>$
+\item 
+using \hyperlink{group___vector_module_gabeca0d4b0cbea4335ae890255ca59128}{Fields} = std\+::map$<$ std\+::string, \hyperlink{structdg_1_1deepcore_1_1vector_1_1_field}{Field} $>$
+\begin{DoxyCompactList}\small\item\em Represent a list of vector attribute fields. \end{DoxyCompactList}\item 
+using \hyperlink{namespacedg_1_1deepcore_1_1vector_a2e8401e06dc8648dfe778b719b9a3c19}{Point\+Feature} = \hyperlink{structdg_1_1deepcore_1_1vector_1_1_feature_t}{FeatureT}$<$ \hyperlink{namespacedg_1_1deepcore_1_1vector_gade61c1773afa31064c4eae92cb6bb0b8aaebdbcb765394d25d6a604589a890f82}{Geometry\+Type\+::\+P\+O\+I\+NT}, cv\+::\+Point2d $>$
+\item 
+using \hyperlink{namespacedg_1_1deepcore_1_1vector_a9c0dc25684d925c9b90c71145c8b8645}{Polygon\+Feature} = \hyperlink{structdg_1_1deepcore_1_1vector_1_1_feature_t}{FeatureT}$<$ \hyperlink{namespacedg_1_1deepcore_1_1vector_gade61c1773afa31064c4eae92cb6bb0b8aecdc92bf56d960b73b02ee40125758bc}{Geometry\+Type\+::\+P\+O\+L\+Y\+G\+ON}, std\+::vector$<$ cv\+::\+Point2d $>$$>$
+\item 
+using \hyperlink{namespacedg_1_1deepcore_1_1vector_ab18ed4ff537b320bfc6ab749908f0192}{O\+G\+R\+Feature\+Ptr} = std\+::unique\+\_\+ptr$<$ O\+G\+R\+Feature, std\+::function$<$ void(O\+G\+R\+Feature $\ast$)$>$$>$
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+
+
+\subsection{Typedef Documentation}
+\index{dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}!Field\+Definitions@{Field\+Definitions}}
+\index{Field\+Definitions@{Field\+Definitions}!dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}}
+\subsubsection[{\texorpdfstring{Field\+Definitions}{FieldDefinitions}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::vector\+::\+Field\+Definitions} = typedef std\+::vector$<${\bf Field\+Definition}$>$}\hypertarget{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}{}\label{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}
+\index{dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}!O\+G\+R\+Feature\+Ptr@{O\+G\+R\+Feature\+Ptr}}
+\index{O\+G\+R\+Feature\+Ptr@{O\+G\+R\+Feature\+Ptr}!dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}}
+\subsubsection[{\texorpdfstring{O\+G\+R\+Feature\+Ptr}{OGRFeaturePtr}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::vector\+::\+O\+G\+R\+Feature\+Ptr} = typedef std\+::unique\+\_\+ptr$<$O\+G\+R\+Feature, std\+::function$<$void(O\+G\+R\+Feature$\ast$)$>$$>$}\hypertarget{namespacedg_1_1deepcore_1_1vector_ab18ed4ff537b320bfc6ab749908f0192}{}\label{namespacedg_1_1deepcore_1_1vector_ab18ed4ff537b320bfc6ab749908f0192}
+\index{dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}!Point\+Feature@{Point\+Feature}}
+\index{Point\+Feature@{Point\+Feature}!dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}}
+\subsubsection[{\texorpdfstring{Point\+Feature}{PointFeature}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::vector\+::\+Point\+Feature} = typedef {\bf FeatureT}$<${\bf Geometry\+Type\+::\+P\+O\+I\+NT}, cv\+::\+Point2d$>$}\hypertarget{namespacedg_1_1deepcore_1_1vector_a2e8401e06dc8648dfe778b719b9a3c19}{}\label{namespacedg_1_1deepcore_1_1vector_a2e8401e06dc8648dfe778b719b9a3c19}
+\index{dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}!Polygon\+Feature@{Polygon\+Feature}}
+\index{Polygon\+Feature@{Polygon\+Feature}!dg\+::deepcore\+::vector@{dg\+::deepcore\+::vector}}
+\subsubsection[{\texorpdfstring{Polygon\+Feature}{PolygonFeature}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::vector\+::\+Polygon\+Feature} = typedef {\bf FeatureT}$<${\bf Geometry\+Type\+::\+P\+O\+L\+Y\+G\+ON}, std\+::vector$<$cv\+::\+Point2d$>$$>$}\hypertarget{namespacedg_1_1deepcore_1_1vector_a9c0dc25684d925c9b90c71145c8b8645}{}\label{namespacedg_1_1deepcore_1_1vector_a9c0dc25684d925c9b90c71145c8b8645}

@@ -1,0 +1,54 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Image\+Batch$<$ T $>$ Struct Template Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_image_batch}\index{dg\+::deepcore\+::imagery\+::\+Image\+Batch$<$ T $>$@{dg\+::deepcore\+::imagery\+::\+Image\+Batch$<$ T $>$}}
+
+
+Stores the image batch data and the original window dimensions.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Image\+Batch.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga52149325af21fd8be3bde4c7d78696cd}{Image\+Batch} () noexcept
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga6663c2526c7d20915f501b0ac54117be}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch}{Image\+Batch}$<$ T $>$ \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\item 
+std\+::vector$<$ cv\+::\+Mat $>$ \hyperlink{group___imagery_module_ga7ccd99a9f9c630c7b732712635684f1f}{image\+Channels} (size\+\_\+t index) const 
+\begin{DoxyCompactList}\small\item\em Returns the image data at the given index wrapped into cv\+::\+Mat, one cv\+::\+Mat per channel. \end{DoxyCompactList}\item 
+cv\+::\+Mat \hyperlink{group___imagery_module_ga73b4b21231657bbb95ab18e4be9f4e19}{image} (size\+\_\+t index) const 
+\begin{DoxyCompactList}\small\item\em Returns a cv\+::\+Mat that contains an image represented by the batch data at the given index. This function will combine individual channels of multi-\/band images, so the data may be copied. This funciton is provided for convenience and testing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window} $>$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch_aaad6b20c2ef1174aa8f76316de2f3346}{windows}
+\item 
+T $\ast$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a796462f273b731f121263a3673c5c58c}{data}
+\item 
+size\+\_\+t \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch_ab09934cee7a93fb7477e28f216fe33ac}{data\+Size}
+\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a80cbef4587861d99294c5ca3ee0e7aec}{num\+Channels}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\\*
+struct dg\+::deepcore\+::imagery\+::\+Image\+Batch$<$ T $>$}
+
+Stores the image batch data and the original window dimensions. 
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}!data@{data}}
+\index{data@{data}!dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{data}{data}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ T$\ast$ {\bf dg\+::deepcore\+::imagery\+::\+Image\+Batch}$<$ T $>$\+::data}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a796462f273b731f121263a3673c5c58c}{}\label{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a796462f273b731f121263a3673c5c58c}
+\index{dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}!data\+Size@{data\+Size}}
+\index{data\+Size@{data\+Size}!dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{data\+Size}{dataSize}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ size\+\_\+t {\bf dg\+::deepcore\+::imagery\+::\+Image\+Batch}$<$ T $>$\+::data\+Size}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_batch_ab09934cee7a93fb7477e28f216fe33ac}{}\label{classdg_1_1deepcore_1_1imagery_1_1_image_batch_ab09934cee7a93fb7477e28f216fe33ac}
+\index{dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}!num\+Channels@{num\+Channels}}
+\index{num\+Channels@{num\+Channels}!dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{num\+Channels}{numChannels}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ int {\bf dg\+::deepcore\+::imagery\+::\+Image\+Batch}$<$ T $>$\+::num\+Channels}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a80cbef4587861d99294c5ca3ee0e7aec}{}\label{classdg_1_1deepcore_1_1imagery_1_1_image_batch_a80cbef4587861d99294c5ca3ee0e7aec}
+\index{dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}!windows@{windows}}
+\index{windows@{windows}!dg\+::deepcore\+::imagery\+::\+Image\+Batch@{dg\+::deepcore\+::imagery\+::\+Image\+Batch}}
+\subsubsection[{\texorpdfstring{windows}{windows}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ std\+::vector$<${\bf Pyramid\+Window}$>$ {\bf dg\+::deepcore\+::imagery\+::\+Image\+Batch}$<$ T $>$\+::windows}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_image_batch_aaad6b20c2ef1174aa8f76316de2f3346}{}\label{classdg_1_1deepcore_1_1imagery_1_1_image_batch_aaad6b20c2ef1174aa8f76316de2f3346}

@@ -1,0 +1,70 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Error Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error}}
+
+
+J\+S\+O\+N-\/\+R\+PC error codes, messages and data.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Json\+Rpc\+Error.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Error\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1network_1_1_json_rpc_error__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___network_module_ga6177a0628073de16562fdbaf8ef12f33}{Json\+Rpc\+Error} ()
+\begin{DoxyCompactList}\small\item\em The default constructor. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga041044a45186dbc1faa970ec45ecba81}{Json\+Rpc\+Error} (const std\+::string \&\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const std\+::string \&\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const \hyperlink{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{Json\+Rpc\+Error\+Type} type, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_gad7b1e6630b2774ffa45cbcc88b9a1b3f}{Json\+Rpc\+Error} (const std\+::string \&\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const std\+::string \&\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const int \hyperlink{group___network_module_gab5f760ae09f901ed94e08ea1c0d26e50}{code}, const std\+::string \&\hyperlink{group___network_module_gab4cfbb46ab5f2ce706d08b5daf106263}{short\+Message}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga15642140f0fe7b5bc798cdd884954040}{Json\+Rpc\+Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&error, const \hyperlink{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{Json\+Rpc\+Error\+Type} type)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} based on an error. \end{DoxyCompactList}\item 
+int \hyperlink{group___network_module_gab5f760ae09f901ed94e08ea1c0d26e50}{code} () const 
+\begin{DoxyCompactList}\small\item\em A Number that indicates the error type that occurred. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_gab4cfbb46ab5f2ce706d08b5daf106263}{short\+Message} () const 
+\begin{DoxyCompactList}\small\item\em Get a string providing a short description of the error. \end{DoxyCompactList}\item 
+Json\+::\+Value \hyperlink{group___network_module_ga30e099cc04ea022587d643d2c93bb0e9}{data} () const 
+\begin{DoxyCompactList}\small\item\em Get additional information about the error. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \hyperlink{group___network_module_ga2fdfe2154c20e91cb5f0205ced658714}{from\+Format} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const \hyperlink{namespacedg_1_1deepcore_1_1network_a396e76c62ff66c95c20af09d8e45ce44}{Json\+Rpc\+Error\+Type} type, const char $\ast$format,...) noexcept
+\begin{DoxyCompactList}\small\item\em Creates an error with a message that can be formatted using sprintf-\/style format. \end{DoxyCompactList}\item 
+static \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} \hyperlink{group___network_module_gaef99638ab60920c9af55d3c15349119f}{from\+Data} (const int \hyperlink{group___network_module_gab5f760ae09f901ed94e08ea1c0d26e50}{code}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message}, const Json\+::\+Value \&\hyperlink{group___network_module_ga30e099cc04ea022587d643d2c93bb0e9}{data})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error}{Json\+Rpc\+Error} without thrown metadata. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_error_a50717ff2c062ffb255c045ab41f57440}{init\+Data} () noexcept
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+J\+S\+O\+N-\/\+R\+PC error codes, messages and data. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://www.jsonrpc.org/specification}{\tt http\+://www.\+jsonrpc.\+org/specification} 
+
+\hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}{Json\+Rpc\+Response} 
+\end{DoxySeeAlso}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error}!init\+Data@{init\+Data}}
+\index{init\+Data@{init\+Data}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error}}
+\subsubsection[{\texorpdfstring{init\+Data() noexcept}{initData() noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Error\+::init\+Data (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_error_a50717ff2c062ffb255c045ab41f57440}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_error_a50717ff2c062ffb255c045ab41f57440}

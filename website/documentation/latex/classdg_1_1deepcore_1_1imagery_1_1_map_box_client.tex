@@ -1,0 +1,370 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Map\+Box\+Client Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client}\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+
+
+A client for a Map\+Box (or similar) tile service which uses Tile\+J\+S\+ON for its \char`\"{}\+Get\+Capabilities\char`\"{} request. and X\+YZ tile indexing scheme.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Map\+Box\+Client.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Map\+Box\+Client\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1imagery_1_1_map_box_client__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a70e2f2865377dfdf9bc35c87b4506c97}{Map\+Box\+Client} ()=default
+\item 
+\hyperlink{group___imagery_module_ga1377794e139dc1d5042a91da0f31a382}{Map\+Box\+Client} (const std\+::string \&\hyperlink{group___imagery_module_gadf279770cec6dc9ac56348bb2e1b29e1}{base\+Url}, const std\+::string \&map\+Id, const std\+::string \&\hyperlink{group___imagery_module_ga09b8428dd2d706d2816a06509cdefdf3}{access\+Token})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client}{Map\+Box\+Client} for the given U\+RL. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga9258467b609a2dad474905cd984f4451}{Map\+Box\+Client} (const std\+::string \&map\+Id, const std\+::string \&\hyperlink{group___imagery_module_ga09b8428dd2d706d2816a06509cdefdf3}{access\+Token})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client}{Map\+Box\+Client} for the default Map\+Box U\+RL. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___imagery_module_ga09b8428dd2d706d2816a06509cdefdf3}{access\+Token} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the access token. \end{DoxyCompactList}\item 
+void \hyperlink{group___imagery_module_ga24970dc0f6164b6592cb6a97bab71e15}{set\+Access\+Token} (const std\+::string \&\hyperlink{group___imagery_module_ga09b8428dd2d706d2816a06509cdefdf3}{access\+Token})
+\begin{DoxyCompactList}\small\item\em Sets the access token. Will terminate the current connection if connected. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5206bbd6192373b345bad4d8176d64e3}{spatial\+Reference} () override
+\begin{DoxyCompactList}\small\item\em Gets the spatial coordinate reference for the web service. May cause \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{Map\+Service\+Client\+::connect()} to be called. \end{DoxyCompactList}\item 
+const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1wmts_1_1_tile_matrix}{wmts\+::\+Tile\+Matrix} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5426c8d2965597bef6bc049d2ce3c2dc}{tile\+Matrix} () override
+\begin{DoxyCompactList}\small\item\em Gets the current tile matrix parameters. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a37567713011802bdf418df046d5ac8b7}{image\+Formats} () override
+\begin{DoxyCompactList}\small\item\em Gets the supported image formats for the current layer, tile matrix set, and tile matrix. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_afd9e6b51a7e49ff4814351ce57a3a97b}{num\+Bands} () override
+\begin{DoxyCompactList}\small\item\em Gets the number of raster bands in the image. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a73b020a3bff3007fd139850b58095904}{mode} () override
+\begin{DoxyCompactList}\small\item\em Gets the image read mode. \end{DoxyCompactList}\item 
+int \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a359e62eba94444a18ec2b9e1d6ee79b3}{pixel\+Type} () override
+\begin{DoxyCompactList}\small\item\em Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_acc5dad6d2a151315a7e3fd9a3e081e72}{layers} () override
+\begin{DoxyCompactList}\small\item\em Gets the available layer names. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ac06778e9445c7a7843e457bae300900a}{set\+Layer} (const std\+::string \&\hyperlink{group___imagery_module_gafe3e2d18fb0c9ef72b3c23e97ead241f}{layer}) override
+\begin{DoxyCompactList}\small\item\em Sets the current layer. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ae83fada50dee68c2491b5c6f3b97b9bb}{set\+Tile\+Matrix\+Id} (const std\+::string \&\hyperlink{group___imagery_module_gae6a1721e1da9ab60ab4e62240baf304b}{tile\+Matrix\+Id}) override
+\begin{DoxyCompactList}\small\item\em Sets the tile matrix id. Does not cause the connection to be terminated, but inheriting classes may do so. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ab2e00c195882421cb7bfc782010b2f96}{tile\+Matrix\+Sets} () override
+\begin{DoxyCompactList}\small\item\em Gets the the available tile matrix sets for the current layer. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a53d5ba0fda2541a4c505bbdd3594e3ab}{tile\+Matrix\+Ids} () override
+\begin{DoxyCompactList}\small\item\em Gets the available tile matrix ids for the current tile matrix set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const std\+::string \hyperlink{group___imagery_module_gae7617429b79fb76140ac754cbe1a52d5}{M\+A\+P\+B\+O\+X\+\_\+\+B\+A\+S\+E\+\_\+\+U\+RL} = \char`\"{}https\+://api.\+mapbox.\+com/v4\char`\"{}
+\begin{DoxyCompactList}\small\item\em The default Map\+Box A\+PI U\+RL. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_aa46bb7e4f7f6b83810c2e80cef034fe8}{connect\+Internal} () override
+\begin{DoxyCompactList}\small\item\em Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. \end{DoxyCompactList}\item 
+bool \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a86d236c1fee402774a2abbfa06512f97}{layer\+Names\+Restricted} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Gets whether the layer names are restricted. If true, layer name must be in the vector returned by Map\+Service\+Image(), if false, layer names can be arbitrary. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a15e0db91e958c17f4fa133fff342e481}{url\+Template} () override
+\begin{DoxyCompactList}\small\item\em Gets the U\+RL template for the current layer, tile matrix set, and tile matrix. The template must contain \{x\} and \{y\} placeholders for the tile coordinate. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1_error}{Error} $\ast$ \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a0767d558b44e4ed5c70af2e92e09d6bb}{on\+Http\+Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&e) const noexceptoverride
+\begin{DoxyCompactList}\small\item\em H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A client for a Map\+Box (or similar) tile service which uses Tile\+J\+S\+ON for its \char`\"{}\+Get\+Capabilities\char`\"{} request. and X\+YZ tile indexing scheme. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!Map\+Box\+Client@{Map\+Box\+Client}}
+\index{Map\+Box\+Client@{Map\+Box\+Client}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{Map\+Box\+Client()=default}{MapBoxClient()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::\+Map\+Box\+Client (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a70e2f2865377dfdf9bc35c87b4506c97}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a70e2f2865377dfdf9bc35c87b4506c97}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!connect\+Internal@{connect\+Internal}}
+\index{connect\+Internal@{connect\+Internal}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{connect\+Internal() override}{connectInternal() override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::connect\+Internal (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_aa46bb7e4f7f6b83810c2e80cef034fe8}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_aa46bb7e4f7f6b83810c2e80cef034fe8}
+
+
+Connects to the server and performs a \char`\"{}\+Get\+Capabilities\char`\"{} request. Throws an exception if anything went wrong. This may also set an intelligent default for layer, tile matrix set, and tile matrix if possible. 
+
+
+
+Implements \hyperlink{group___imagery_module_gabba13ea72115a1196ed44e35cc17f1b9}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!image\+Formats@{image\+Formats}}
+\index{image\+Formats@{image\+Formats}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{image\+Formats() override}{imageFormats() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::image\+Formats (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a37567713011802bdf418df046d5ac8b7}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a37567713011802bdf418df046d5ac8b7}
+
+
+Gets the supported image formats for the current layer, tile matrix set, and tile matrix. 
+
+\begin{DoxyReturn}{Returns}
+The supported image formats in the H\+T\+M\+L-\/style media type format. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga48b6f633e02c44d955b4d4b1b8352b57}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!layer\+Names\+Restricted@{layer\+Names\+Restricted}}
+\index{layer\+Names\+Restricted@{layer\+Names\+Restricted}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{layer\+Names\+Restricted() const noexceptoverride}{layerNamesRestricted() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::layer\+Names\+Restricted (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a86d236c1fee402774a2abbfa06512f97}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a86d236c1fee402774a2abbfa06512f97}
+
+
+Gets whether the layer names are restricted. If true, layer name must be in the vector returned by Map\+Service\+Image(), if false, layer names can be arbitrary. 
+
+\begin{DoxyReturn}{Returns}
+Whether the layer names are restricted. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga900665eb2167743cdac5e46ac536c209}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!layers@{layers}}
+\index{layers@{layers}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{layers() override}{layers() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::layers (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_acc5dad6d2a151315a7e3fd9a3e081e72}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_acc5dad6d2a151315a7e3fd9a3e081e72}
+
+
+Gets the available layer names. 
+
+\begin{DoxyReturn}{Returns}
+The available layer names. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga51617c7aeaf00918210d64aaf5712d4e}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!mode@{mode}}
+\index{mode@{mode}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{mode() override}{mode() override}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Image\+Read\+Mode} dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::mode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a73b020a3bff3007fd139850b58095904}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a73b020a3bff3007fd139850b58095904}
+
+
+Gets the image read mode. 
+
+\begin{DoxyReturn}{Returns}
+The image read mode; 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae727c872288e3a4219f80b6caa90ff3a}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!num\+Bands@{num\+Bands}}
+\index{num\+Bands@{num\+Bands}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{num\+Bands() override}{numBands() override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::num\+Bands (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_afd9e6b51a7e49ff4814351ce57a3a97b}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_afd9e6b51a7e49ff4814351ce57a3a97b}
+
+
+Gets the number of raster bands in the image. 
+
+\begin{DoxyReturn}{Returns}
+The number of bands. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga7b7d8333be9d5386d8ddca5148b041b5}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!on\+Http\+Error@{on\+Http\+Error}}
+\index{on\+Http\+Error@{on\+Http\+Error}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{on\+Http\+Error(const Error \&e) const noexceptoverride}{onHttpError(const Error &e) const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Error} $\ast$ dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::on\+Http\+Error (
+\begin{DoxyParamCaption}
+\item[{const {\bf Error} \&}]{e}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a0767d558b44e4ed5c70af2e92e09d6bb}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a0767d558b44e4ed5c70af2e92e09d6bb}
+
+
+H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback method. Note that this method will only be invoked for exceptions of type Http\+Error. The implementing class can override this function to interpret and optionally transform the input Http\+Error. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, nullptr should be returned. Caller takes ownership of the pointer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em e} & The input Http\+Error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classdg_1_1deepcore_1_1_error}{Error}, or nullptr if \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was not transformed. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_map_service_client_ae53b20c2986e1b9898c77b2065cbdd54}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!pixel\+Type@{pixel\+Type}}
+\index{pixel\+Type@{pixel\+Type}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{pixel\+Type() override}{pixelType() override}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::pixel\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a359e62eba94444a18ec2b9e1d6ee79b3}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a359e62eba94444a18ec2b9e1d6ee79b3}
+
+
+Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. 
+
+\begin{DoxyReturn}{Returns}
+The pixel type. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gaa94fd511ae5e578357ceba16a9039b51}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!set\+Layer@{set\+Layer}}
+\index{set\+Layer@{set\+Layer}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{set\+Layer(const std\+::string \&layer) override}{setLayer(const std::string &layer) override}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::set\+Layer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{layer}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ac06778e9445c7a7843e457bae300900a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ac06778e9445c7a7843e457bae300900a}
+
+
+Sets the current layer. Does not cause the connection to be terminated, but inheriting classes may do so. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em layer} & The layer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the layer was reset, false if the desired layer is already current. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_ga509f0f787565fafc1618cc0e5fb2399a}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!set\+Tile\+Matrix\+Id@{set\+Tile\+Matrix\+Id}}
+\index{set\+Tile\+Matrix\+Id@{set\+Tile\+Matrix\+Id}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{set\+Tile\+Matrix\+Id(const std\+::string \&tile\+Matrix\+Id) override}{setTileMatrixId(const std::string &tileMatrixId) override}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::set\+Tile\+Matrix\+Id (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{tile\+Matrix\+Id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ae83fada50dee68c2491b5c6f3b97b9bb}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ae83fada50dee68c2491b5c6f3b97b9bb}
+
+
+Sets the tile matrix id. Does not cause the connection to be terminated, but inheriting classes may do so. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tile\+Matrix\+Id} & The tile matrix id. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the tile matrix was reset, false if the desired tile matrix is already current. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{group___imagery_module_ga5f85c6b91d45f419905321b3752aa70c}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!spatial\+Reference@{spatial\+Reference}}
+\index{spatial\+Reference@{spatial\+Reference}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{spatial\+Reference() override}{spatialReference() override}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf Spatial\+Reference} \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::spatial\+Reference (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5206bbd6192373b345bad4d8176d64e3}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5206bbd6192373b345bad4d8176d64e3}
+
+
+Gets the spatial coordinate reference for the web service. May cause \hyperlink{group___imagery_module_ga5e5f58c725cafba7966936f688a6ade0}{Map\+Service\+Client\+::connect()} to be called. 
+
+\begin{DoxyReturn}{Returns}
+The spatial coordinate reference. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gadfaf375c95456bdf445d774f5dd24bbc}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!tile\+Matrix@{tile\+Matrix}}
+\index{tile\+Matrix@{tile\+Matrix}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix() override}{tileMatrix() override}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf wmts\+::\+Tile\+Matrix} \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::tile\+Matrix (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5426c8d2965597bef6bc049d2ce3c2dc}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a5426c8d2965597bef6bc049d2ce3c2dc}
+
+
+Gets the current tile matrix parameters. 
+
+\begin{DoxyReturn}{Returns}
+The tile matrix parameters. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga0f308a2d98dc9f34b8ca651576265449}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!tile\+Matrix\+Ids@{tile\+Matrix\+Ids}}
+\index{tile\+Matrix\+Ids@{tile\+Matrix\+Ids}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix\+Ids() override}{tileMatrixIds() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::tile\+Matrix\+Ids (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a53d5ba0fda2541a4c505bbdd3594e3ab}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a53d5ba0fda2541a4c505bbdd3594e3ab}
+
+
+Gets the available tile matrix ids for the current tile matrix set. 
+
+\begin{DoxyReturn}{Returns}
+The available tile matricies 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga2e5ad607fa13ac17e0fcb6b00af7d30e}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!tile\+Matrix\+Sets@{tile\+Matrix\+Sets}}
+\index{tile\+Matrix\+Sets@{tile\+Matrix\+Sets}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{tile\+Matrix\+Sets() override}{tileMatrixSets() override}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::tile\+Matrix\+Sets (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ab2e00c195882421cb7bfc782010b2f96}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_ab2e00c195882421cb7bfc782010b2f96}
+
+
+Gets the the available tile matrix sets for the current layer. 
+
+\begin{DoxyReturn}{Returns}
+The available tile matrix sets 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_ga1cf271559e56836cf29176382c934a0c}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+
+\index{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}!url\+Template@{url\+Template}}
+\index{url\+Template@{url\+Template}!dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client@{dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client}}
+\subsubsection[{\texorpdfstring{url\+Template() override}{urlTemplate() override}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::imagery\+::\+Map\+Box\+Client\+::url\+Template (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a15e0db91e958c17f4fa133fff342e481}{}\label{classdg_1_1deepcore_1_1imagery_1_1_map_box_client_a15e0db91e958c17f4fa133fff342e481}
+
+
+Gets the U\+RL template for the current layer, tile matrix set, and tile matrix. The template must contain \{x\} and \{y\} placeholders for the tile coordinate. 
+
+\begin{DoxyReturn}{Returns}
+The U\+RL template. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{group___imagery_module_gaafa4e8cc2a047f6467e227603ccf1a23}{dg\+::deepcore\+::imagery\+::\+Map\+Service\+Client}.
+

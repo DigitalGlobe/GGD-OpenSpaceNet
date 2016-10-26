@@ -1,0 +1,125 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Http\+Downloader Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_http_downloader}\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+
+
+Downloads from H\+T\+T\+P/\+H\+T\+T\+PS endpoints.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Http\+Downloader.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_ad3562074929d133e54c31df007dec36f}{Http\+Downloader} ()=default
+\item 
+\hyperlink{group___network_module_gaee68926e47a7a8e18926b25a274a6741}{Http\+Downloader} (const \hyperlink{group___network_module_ga6a460317d5e2b04bbaa2bb5389ca2ce3}{Download\+Requests} \&\hyperlink{group___network_module_ga93ed91ce22dd499848d0f42e683d64d5}{requests})
+\begin{DoxyCompactList}\small\item\em Contruct an \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader}{Http\+Downloader}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_gaf623ef672fad2678ff7a1f1dd8361d95}{Http\+Downloader} (\hyperlink{group___network_module_ga6a460317d5e2b04bbaa2bb5389ca2ce3}{Download\+Requests} \&\&\hyperlink{group___network_module_ga93ed91ce22dd499848d0f42e683d64d5}{requests})
+\begin{DoxyCompactList}\small\item\em Contruct an \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader}{Http\+Downloader}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga6a460317d5e2b04bbaa2bb5389ca2ce3}{Download\+Requests} \& \hyperlink{group___network_module_ga93ed91ce22dd499848d0f42e683d64d5}{requests} () noexcept
+\begin{DoxyCompactList}\small\item\em Gets the requests that will be processed by \hyperlink{group___network_module_ga5a3dc48bb7c2c0e14ce394c515742b47}{Http\+Downloader\+::download\+Async}. \end{DoxyCompactList}\item 
+const \hyperlink{group___network_module_ga6a460317d5e2b04bbaa2bb5389ca2ce3}{Download\+Requests} \& \hyperlink{group___network_module_ga3c0af4cc2f8ea2880e48173183fdb758}{requests} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the requests that will be processed by \hyperlink{group___network_module_ga5a3dc48bb7c2c0e14ce394c515742b47}{Http\+Downloader\+::download\+Async}. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga5a3dc48bb7c2c0e14ce394c515742b47}{download\+Async} (\hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress=nullptr, int max\+Connections=10) const 
+\begin{DoxyCompactList}\small\item\em Downloads the requests asynchronously. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_adabfaf68384e694a042bd4418976f885}{num\+Retries} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets number of allowed retries. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_a816ab62855840ce30fbd7deadeb78ae9}{set\+Num\+Retries} (size\+\_\+t \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_adabfaf68384e694a042bd4418976f885}{num\+Retries}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets number of allowed retries. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_aec830e6e7d5634b3cfac883309ac7357}{initial\+Timeout} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the initial timeout value. Timeout values are calculated as 2$\ast$$\ast$num\+Retries $\ast$ initial\+Timeout. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_downloader_a524baa482724f8c6230104a1d1dc302f}{set\+Initial\+Timeout} (size\+\_\+t timeout\+Ms) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the initial timeout value. Timeout values are calculated as 2$\ast$$\ast$num\+Retries $\ast$ initial\+Timeout. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::vector$<$ uint8\+\_\+t $>$ \hyperlink{group___network_module_ga8f1ba1b79c2af5d051f6e8591cd0ea89}{download} (const std\+::string \&url, const std\+::string \&credentials=\char`\"{}\char`\"{}, const std\+::vector$<$ std\+::string $>$ \&headers=\{\})
+\begin{DoxyCompactList}\small\item\em Download from a single U\+RL. \end{DoxyCompactList}\item 
+static std\+::string \hyperlink{group___network_module_ga06013d9acaf746065be05b6571f2462a}{download\+String} (const std\+::string \&url, const std\+::string \&credentials=\char`\"{}\char`\"{}, const std\+::vector$<$ std\+::string $>$ \&headers=\{\})
+\begin{DoxyCompactList}\small\item\em Download from a single U\+RL and return the result as a string. \end{DoxyCompactList}\item 
+static std\+::vector$<$ std\+::vector$<$ uint8\+\_\+t $>$ $>$ \hyperlink{group___network_module_ga07d51f62025e158feeca83cbc40d8564}{download} (const std\+::vector$<$ std\+::string $>$ \&urls, const std\+::string \&credentials=\char`\"{}\char`\"{}, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress=nullptr, int max\+Connections=10, const std\+::vector$<$ std\+::string $>$ \&headers=\{\})
+\begin{DoxyCompactList}\small\item\em Download from multiple U\+R\+Ls. \end{DoxyCompactList}\item 
+static bool \hyperlink{group___network_module_gab82b59cab6622abae4998f5fde08e688}{check\+Connectivity} (const std\+::string \&url) noexcept
+\begin{DoxyCompactList}\small\item\em Check connectivity to a U\+RL. \end{DoxyCompactList}\item 
+static void \hyperlink{group___network_module_ga4aa457ededfdc5fcb0db52f7215909cb}{set\+Verbose\+Logging} (bool \hyperlink{group___network_module_ga2470c65fd9d6dd62854a9c9e7df877c6}{verbose\+Logging})
+\begin{DoxyCompactList}\small\item\em Enables verbose logging of C\+U\+RL connections. \end{DoxyCompactList}\item 
+static bool \hyperlink{group___network_module_ga2470c65fd9d6dd62854a9c9e7df877c6}{verbose\+Logging} ()
+\begin{DoxyCompactList}\small\item\em Is verbose logging of C\+U\+RL connections enabled? \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Downloads from H\+T\+T\+P/\+H\+T\+T\+PS endpoints. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}!Http\+Downloader@{Http\+Downloader}}
+\index{Http\+Downloader@{Http\+Downloader}!dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+\subsubsection[{\texorpdfstring{Http\+Downloader()=default}{HttpDownloader()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::network\+::\+Http\+Downloader\+::\+Http\+Downloader (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader_ad3562074929d133e54c31df007dec36f}{}\label{classdg_1_1deepcore_1_1network_1_1_http_downloader_ad3562074929d133e54c31df007dec36f}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}!initial\+Timeout@{initial\+Timeout}}
+\index{initial\+Timeout@{initial\+Timeout}!dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+\subsubsection[{\texorpdfstring{initial\+Timeout() const noexcept}{initialTimeout() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t dg\+::deepcore\+::network\+::\+Http\+Downloader\+::initial\+Timeout (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader_aec830e6e7d5634b3cfac883309ac7357}{}\label{classdg_1_1deepcore_1_1network_1_1_http_downloader_aec830e6e7d5634b3cfac883309ac7357}
+
+
+Gets the initial timeout value. Timeout values are calculated as 2$\ast$$\ast$num\+Retries $\ast$ initial\+Timeout. 
+
+\begin{DoxyReturn}{Returns}
+The initial timeout value in milliseconds. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}!num\+Retries@{num\+Retries}}
+\index{num\+Retries@{num\+Retries}!dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+\subsubsection[{\texorpdfstring{num\+Retries() const noexcept}{numRetries() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t dg\+::deepcore\+::network\+::\+Http\+Downloader\+::num\+Retries (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader_adabfaf68384e694a042bd4418976f885}{}\label{classdg_1_1deepcore_1_1network_1_1_http_downloader_adabfaf68384e694a042bd4418976f885}
+
+
+Gets number of allowed retries. 
+
+\begin{DoxyReturn}{Returns}
+The number of allowed retries. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}!set\+Initial\+Timeout@{set\+Initial\+Timeout}}
+\index{set\+Initial\+Timeout@{set\+Initial\+Timeout}!dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+\subsubsection[{\texorpdfstring{set\+Initial\+Timeout(size\+\_\+t timeout\+Ms) noexcept}{setInitialTimeout(size_t timeoutMs) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Http\+Downloader\+::set\+Initial\+Timeout (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{timeout\+Ms}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader_a524baa482724f8c6230104a1d1dc302f}{}\label{classdg_1_1deepcore_1_1network_1_1_http_downloader_a524baa482724f8c6230104a1d1dc302f}
+
+
+Sets the initial timeout value. Timeout values are calculated as 2$\ast$$\ast$num\+Retries $\ast$ initial\+Timeout. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em timeout\+Ms} & The initial timeout value in milliseconds. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}!set\+Num\+Retries@{set\+Num\+Retries}}
+\index{set\+Num\+Retries@{set\+Num\+Retries}!dg\+::deepcore\+::network\+::\+Http\+Downloader@{dg\+::deepcore\+::network\+::\+Http\+Downloader}}
+\subsubsection[{\texorpdfstring{set\+Num\+Retries(size\+\_\+t num\+Retries) noexcept}{setNumRetries(size_t numRetries) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Http\+Downloader\+::set\+Num\+Retries (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{num\+Retries}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_downloader_a816ab62855840ce30fbd7deadeb78ae9}{}\label{classdg_1_1deepcore_1_1network_1_1_http_downloader_a816ab62855840ce30fbd7deadeb78ae9}
+
+
+Sets number of allowed retries. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em num\+Retries} & The number of allowed retries. \\
+\hline
+\end{DoxyParams}

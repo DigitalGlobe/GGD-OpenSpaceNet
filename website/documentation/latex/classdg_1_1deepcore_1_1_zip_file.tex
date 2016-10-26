@@ -1,0 +1,92 @@
+\hypertarget{classdg_1_1deepcore_1_1_zip_file}{}\section{dg\+:\+:deepcore\+:\+:Zip\+File Class Reference}
+\label{classdg_1_1deepcore_1_1_zip_file}\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}
+
+
+Creates a zip file and writes data and directory information into it.  
+
+
+
+
+{\ttfamily \#include $<$utility/zip/\+Zip\+File.\+h$>$}
+
+\subsection*{Public Types}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___utility_module_gaeb5b4a5bdcfb3401601b79d5b2b8d67f}{Zip\+File} (std\+::ostream \&os)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} to write the given output stream. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gafa1ff9f05e738574c7ab39179c553a10}{Zip\+File} (const std\+::string \&file\+Name)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} that creates or overwrites a file on disk. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga4a3d14bf12cdc92d728b1bee2ef3afbe}{$\sim$\+Zip\+File} ()
+\begin{DoxyCompactList}\small\item\em Destructs the \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object and closes the zip file. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1_zip_file_adf2263875e7094658f836d69056cbcd3}{Zip\+File} (\hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} \&\&)=default
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_zip_file_a5a254be95e73344dd5abfad64aceeab5}{Zip\+File} (const \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} \&)=delete
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} \& \hyperlink{classdg_1_1deepcore_1_1_zip_file_ab424ebe12558c54fb848df2fa015d8bd}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} \&)=delete
+\item 
+void \hyperlink{group___utility_module_gab6e19571b30242e6604590e978a932ef}{close} ()
+\begin{DoxyCompactList}\small\item\em Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object is no longer usable after it\textquotesingle{}s closed. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gabe05472ab2b9e7af516484c107dafe5a}{add\+File} (const std\+::string \&zip\+Path, const std\+::string \&file\+Name, const std\+::string \&password=\char`\"{}\char`\"{}, \hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{Compression\+Level} level=\hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON})
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from given path. Input file must be readable. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga14fc46ab41bdf091a4e278e941e175a0}{add\+File} (const std\+::string \&zip\+Path, std\+::istream \&is, const std\+::string \&password=\char`\"{}\char`\"{}, \hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{Compression\+Level} level=\hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON})
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from the given input stream. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gafb1c01f849fc0fc4b33e33285cd39cf5}{add\+File} (const std\+::string \&zip\+Path, const std\+::vector$<$ uint8\+\_\+t $>$ \&buf, const std\+::string \&password=\char`\"{}\char`\"{}, \hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{Compression\+Level} level=\hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON})
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a vector. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaffadeb76614f94276dc5631a7f2f3a7a}{add\+File} (const std\+::string \&zip\+Path, const uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password=\char`\"{}\char`\"{}, \hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{Compression\+Level} level=\hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON})
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a raw memory buffer. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gad85b99f9708af55dfb3074e9a0a50cf3}{add\+File\+From\+String} (const std\+::string \&zip\+Path, const std\+::string \&buf, const std\+::string \&password=\char`\"{}\char`\"{}, \hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{Compression\+Level} level=\hyperlink{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON})
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Creates a zip file and writes data and directory information into it. 
+
+\subsection{Member Enumeration Documentation}
+\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!Compression\+Level@{Compression\+Level}}
+\index{Compression\+Level@{Compression\+Level}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}
+\subsubsection[{\texorpdfstring{Compression\+Level}{CompressionLevel}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::\+Zip\+File\+::\+Compression\+Level}}\hypertarget{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}{}\label{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdd}
+
+
+Compression level for adding files into zip. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}\item[{\em 
+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON\hypertarget{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}{}\label{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda62b26dddf684026102b91f79a0848012}
+}]\index{N\+O\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{N\+O\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!N\+O\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{N\+O\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}\item[{\em 
+N\+O\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON\hypertarget{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda386fd795eecb0a3d664109067e7bb2cd}{}\label{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda386fd795eecb0a3d664109067e7bb2cd}
+}]\index{B\+E\+S\+T\+\_\+\+S\+P\+E\+ED@{B\+E\+S\+T\+\_\+\+S\+P\+E\+ED}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!B\+E\+S\+T\+\_\+\+S\+P\+E\+ED@{B\+E\+S\+T\+\_\+\+S\+P\+E\+ED}}\item[{\em 
+B\+E\+S\+T\+\_\+\+S\+P\+E\+ED\hypertarget{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda457a7ef86ef595dd6cd92cd5b8cc0674}{}\label{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda457a7ef86ef595dd6cd92cd5b8cc0674}
+}]\index{B\+E\+S\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{B\+E\+S\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!B\+E\+S\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON@{B\+E\+S\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}\item[{\em 
+B\+E\+S\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON\hypertarget{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda9d4ff64e663655a9dc19e90a16cdb6cc}{}\label{classdg_1_1deepcore_1_1_zip_file_afbf537eaa2281817c203388707564bdda9d4ff64e663655a9dc19e90a16cdb6cc}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!Zip\+File@{Zip\+File}}
+\index{Zip\+File@{Zip\+File}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}
+\subsubsection[{\texorpdfstring{Zip\+File(\+Zip\+File \&\&)=default}{ZipFile(ZipFile &&)=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{{\bf Zip\+File} \&\&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1_zip_file_adf2263875e7094658f836d69056cbcd3}{}\label{classdg_1_1deepcore_1_1_zip_file_adf2263875e7094658f836d69056cbcd3}
+\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!Zip\+File@{Zip\+File}}
+\index{Zip\+File@{Zip\+File}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}
+\subsubsection[{\texorpdfstring{Zip\+File(const Zip\+File \&)=delete}{ZipFile(const ZipFile &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const {\bf Zip\+File} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1_zip_file_a5a254be95e73344dd5abfad64aceeab5}{}\label{classdg_1_1deepcore_1_1_zip_file_a5a254be95e73344dd5abfad64aceeab5}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}!operator=@{operator=}}
+\index{operator=@{operator=}!dg\+::deepcore\+::\+Zip\+File@{dg\+::deepcore\+::\+Zip\+File}}
+\subsubsection[{\texorpdfstring{operator=(const Zip\+File \&)=delete}{operator=(const ZipFile &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Zip\+File}\& dg\+::deepcore\+::\+Zip\+File\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const {\bf Zip\+File} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1_zip_file_ab424ebe12558c54fb848df2fa015d8bd}{}\label{classdg_1_1deepcore_1_1_zip_file_ab424ebe12558c54fb848df2fa015d8bd}

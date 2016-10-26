@@ -1,0 +1,44 @@
+\hypertarget{classdg_1_1deepcore_1_1_singleton}{}\section{dg\+:\+:deepcore\+:\+:Singleton$<$ T $>$ Class Template Reference}
+\label{classdg_1_1deepcore_1_1_singleton}\index{dg\+::deepcore\+::\+Singleton$<$ T $>$@{dg\+::deepcore\+::\+Singleton$<$ T $>$}}
+
+
+A thread-\/safe singleton class holder.  
+
+
+
+
+{\ttfamily \#include $<$utility/\+Singleton.\+h$>$}
+
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename... Args$>$ }\\static T \& \hyperlink{classdg_1_1deepcore_1_1_singleton_a7f8312195e3d6d9a7755b571714562d1}{instance} (Args...\+args)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$\\*
+class dg\+::deepcore\+::\+Singleton$<$ T $>$}
+
+A thread-\/safe singleton class holder. 
+
+Example usage\+:
+
+/code\{.cpp\}
+
+// Class declaration class My\+Class \{ public\+: void my\+Method() \{ std\+::cout $<$$<$ \char`\"{}\+Do something\char`\"{} $<$$<$ std\+::endl; \} \}
+
+// \hyperlink{classdg_1_1deepcore_1_1_singleton}{Singleton} declaration static auto\& my\+Class = \hyperlink{classdg_1_1deepcore_1_1_singleton_a7f8312195e3d6d9a7755b571714562d1}{Singleton$<$\+My\+Class$>$\+::instance()};
+
+// .............
+
+// using the singleton my\+Class.\+my\+Method(); /endcode 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Singleton@{dg\+::deepcore\+::\+Singleton}!instance@{instance}}
+\index{instance@{instance}!dg\+::deepcore\+::\+Singleton@{dg\+::deepcore\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{instance(\+Args...\+args)}{instance(Args...args)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ template$<$typename... Args$>$ static T\& {\bf dg\+::deepcore\+::\+Singleton}$<$ T $>$\+::instance (
+\begin{DoxyParamCaption}
+\item[{Args...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{classdg_1_1deepcore_1_1_singleton_a7f8312195e3d6d9a7755b571714562d1}{}\label{classdg_1_1deepcore_1_1_singleton_a7f8312195e3d6d9a7755b571714562d1}

@@ -1,0 +1,31 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_detector}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Detector Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_detector}\index{dg\+::deepcore\+::classification\+::\+Detector@{dg\+::deepcore\+::classification\+::\+Detector}}
+
+
+Abstract base class for objects capable of doing feature detection.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Detector.\+h$>$}
+
+\subsection*{Public Types}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \hyperlink{group___classification_module_ga9fa0b4fe3495e513c3c0746aa0940f41}{Detector\+Type} \hyperlink{group___classification_module_ga6f82560e3b0c2886e919f2e76e766838}{detector\+Type} () const noexcept=0
+\begin{DoxyCompactList}\small\item\em Gets the feature detector type. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{group___classification_module_gac09a9197de6732069e40b0e3bcbdf94c}{detect} (const cv\+::\+Mat \&mat, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr)=0
+\begin{DoxyCompactList}\small\item\em Performs feature detection on the given image. \end{DoxyCompactList}\item 
+double \hyperlink{group___classification_module_ga11004d28f6b88023d1ae1bed44261dc9}{confidence} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the confidence threshold for predictions. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga870a49fe3273eacfea12e38aa8360f6f}{set\+Confidence} (double \hyperlink{group___classification_module_ga11004d28f6b88023d1ae1bed44261dc9}{confidence}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the confidence threshold for predictions. \end{DoxyCompactList}\item 
+int \hyperlink{group___classification_module_gae2a1d191924996f7d3d0673b8c2da35d}{max\+Results} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the maximum number of predictions to return for each prediction window. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga936252ea1133d7c0c2a42ba0afbc2cf0}{set\+Max\+Results} (int \hyperlink{group___classification_module_gae2a1d191924996f7d3d0673b8c2da35d}{max\+Results}) noexcept
+\begin{DoxyCompactList}\small\item\em Sets maximum number of predictions to return for each prediction window. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Abstract base class for objects capable of doing feature detection. 

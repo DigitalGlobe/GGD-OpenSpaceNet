@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classdg_1_1deepcore_1_1classification_1_1_classifier.html" title="Abstract base class for objects capable of doing classification. " alt="" coords="5,5,187,47"/>
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector.html" title="Represents an abstract feature detector implemented as a sliding window classifier. Implements Detector and Classifier interfaces as special cases for a sliding window detector. " alt="" coords="235,37,416,79"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier.html" title="A Caffe&#45;based implementation of a sliding window detector. " alt="" coords="464,71,645,112"/>
+<area shape="rect" id="node4" href="$classdg_1_1deepcore_1_1classification_1_1_detector.html" title="Abstract base class for objects capable of doing feature detection. " alt="" coords="5,71,187,112"/>
+<area shape="rect" id="node5" href="$classdg_1_1deepcore_1_1classification_1_1_model.html" title="An abstract base class for all models. Represents the model capabilities. " alt="" coords="235,103,416,144"/>
+</map>

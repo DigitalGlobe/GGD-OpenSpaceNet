@@ -1,0 +1,117 @@
+\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Tile\+Downloader Class Reference}
+\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader}\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+
+
+Downloads web service tiles.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Tile\+Downloader.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{group___imagery_module_gaa827cfb6a45622a0de54b136f7d7b22f}{download} (\hyperlink{group___imagery_module_ga2238c2ef34502f68956ddef1f477ad95}{Block\+Read\+Func} read\+Func, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr, int max\+Connections=10) const 
+\begin{DoxyCompactList}\small\item\em Downloads tiles synchronously. \end{DoxyCompactList}\item 
+std\+::future$<$ bool $>$ \hyperlink{group___imagery_module_ga8786d795cb77a5853a8f11310a19aa16}{download\+Async} (\hyperlink{group___imagery_module_ga2238c2ef34502f68956ddef1f477ad95}{Block\+Read\+Func} read\+Func, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr, int max\+Connections=10) const 
+\begin{DoxyCompactList}\small\item\em Downloads tiles asynchronously. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ac8fb59cb29683585c7f868e6d8a70f6f}{url\+Template}
+\begin{DoxyCompactList}\small\item\em The U\+RL template, must have \{x\} and \{y\} tags to replace with tile coordinates. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a129f882a4aecc3f2fee375d62c99fef8}{credentials}
+\begin{DoxyCompactList}\small\item\em The credentials to use, if needed. \end{DoxyCompactList}\item 
+std\+::vector$<$ cv\+::\+Point $>$ \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a213ae477313131ed92dab6df96354a94}{tiles}
+\begin{DoxyCompactList}\small\item\em The tiles to download. \end{DoxyCompactList}\item 
+cv\+::\+Rect \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a09a8dbd06565015c875284ab6618e7d7}{tile\+Span}
+\begin{DoxyCompactList}\small\item\em The bounding box in tile coordinates. \end{DoxyCompactList}\item 
+cv\+::\+Rect \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a34151548b03536061442aefb2decd4f2}{pixel\+Span}
+\begin{DoxyCompactList}\small\item\em The bounding box in pixel coordinates. \end{DoxyCompactList}\item 
+cv\+::\+Size \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a393833b2aa8a3a134ca6aac438802ece}{tile\+Size}
+\begin{DoxyCompactList}\small\item\em Tile size in pixels. \end{DoxyCompactList}\item 
+int \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_afd6c4c2baaa6dfe52a2f45a6e5bd64ef}{num\+Bands} = 3
+\begin{DoxyCompactList}\small\item\em Number of image bands. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga1db94ae833853b71ed501bb1ea8c1c24}{Image\+Read\+Mode} \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a33b7cac77d8a1690d08eda79fba5aae6}{mode} = \hyperlink{namespacedg_1_1deepcore_1_1imagery_ga1db94ae833853b71ed501bb1ea8c1c24a46335765005ff44b1fe1e38e5d2ddfcc}{Image\+Read\+Mode\+::\+U\+N\+C\+H\+A\+N\+G\+ED}
+\begin{DoxyCompactList}\small\item\em Image read mode. \end{DoxyCompactList}\item 
+int \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ae1ce289c04410240e1232c2859491ed5}{pixel\+Type} = C\+V\+\_\+8U
+\begin{DoxyCompactList}\small\item\em Open\+CV pixel type. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gaa93ea71a4ed4c044369d3b323aec4435}{Error\+Func} \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a98c544a47086337b9c92c189c5cbe6d4}{on\+Http\+Error}
+\begin{DoxyCompactList}\small\item\em H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback function. Note that this function will only be invoked for exceptions of type Http\+Error. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Downloads web service tiles. 
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!credentials@{credentials}}
+\index{credentials@{credentials}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{credentials}{credentials}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::credentials}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a129f882a4aecc3f2fee375d62c99fef8}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a129f882a4aecc3f2fee375d62c99fef8}
+
+
+The credentials to use, if needed. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!mode@{mode}}
+\index{mode@{mode}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{mode}{mode}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Image\+Read\+Mode} dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::mode = {\bf Image\+Read\+Mode\+::\+U\+N\+C\+H\+A\+N\+G\+ED}}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a33b7cac77d8a1690d08eda79fba5aae6}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a33b7cac77d8a1690d08eda79fba5aae6}
+
+
+Image read mode. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!num\+Bands@{num\+Bands}}
+\index{num\+Bands@{num\+Bands}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{num\+Bands}{numBands}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::num\+Bands = 3}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_afd6c4c2baaa6dfe52a2f45a6e5bd64ef}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_afd6c4c2baaa6dfe52a2f45a6e5bd64ef}
+
+
+Number of image bands. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!on\+Http\+Error@{on\+Http\+Error}}
+\index{on\+Http\+Error@{on\+Http\+Error}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{on\+Http\+Error}{onHttpError}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Error\+Func} dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::on\+Http\+Error}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a98c544a47086337b9c92c189c5cbe6d4}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a98c544a47086337b9c92c189c5cbe6d4}
+
+
+H\+T\+TP \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback function. Note that this function will only be invoked for exceptions of type Http\+Error. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!pixel\+Span@{pixel\+Span}}
+\index{pixel\+Span@{pixel\+Span}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{pixel\+Span}{pixelSpan}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Rect dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::pixel\+Span}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a34151548b03536061442aefb2decd4f2}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a34151548b03536061442aefb2decd4f2}
+
+
+The bounding box in pixel coordinates. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!pixel\+Type@{pixel\+Type}}
+\index{pixel\+Type@{pixel\+Type}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{pixel\+Type}{pixelType}}]{\setlength{\rightskip}{0pt plus 5cm}int dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::pixel\+Type = C\+V\+\_\+8U}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ae1ce289c04410240e1232c2859491ed5}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ae1ce289c04410240e1232c2859491ed5}
+
+
+Open\+CV pixel type. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!tiles@{tiles}}
+\index{tiles@{tiles}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{tiles}{tiles}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$cv\+::\+Point$>$ dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::tiles}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a213ae477313131ed92dab6df96354a94}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a213ae477313131ed92dab6df96354a94}
+
+
+The tiles to download. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!tile\+Size@{tile\+Size}}
+\index{tile\+Size@{tile\+Size}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{tile\+Size}{tileSize}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::tile\+Size}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a393833b2aa8a3a134ca6aac438802ece}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a393833b2aa8a3a134ca6aac438802ece}
+
+
+Tile size in pixels. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!tile\+Span@{tile\+Span}}
+\index{tile\+Span@{tile\+Span}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{tile\+Span}{tileSpan}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Rect dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::tile\+Span}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a09a8dbd06565015c875284ab6618e7d7}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_a09a8dbd06565015c875284ab6618e7d7}
+
+
+The bounding box in tile coordinates. 
+
+\index{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}!url\+Template@{url\+Template}}
+\index{url\+Template@{url\+Template}!dg\+::deepcore\+::imagery\+::\+Tile\+Downloader@{dg\+::deepcore\+::imagery\+::\+Tile\+Downloader}}
+\subsubsection[{\texorpdfstring{url\+Template}{urlTemplate}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::imagery\+::\+Tile\+Downloader\+::url\+Template}\hypertarget{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ac8fb59cb29683585c7f868e6d8a70f6f}{}\label{structdg_1_1deepcore_1_1imagery_1_1_tile_downloader_ac8fb59cb29683585c7f868e6d8a70f6f}
+
+
+The U\+RL template, must have \{x\} and \{y\} tags to replace with tile coordinates. 
+

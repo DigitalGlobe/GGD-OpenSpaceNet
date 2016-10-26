@@ -1,0 +1,71 @@
+\hypertarget{classdg_1_1deepcore_1_1_call_stack_reader}{}\section{dg\+:\+:deepcore\+:\+:Call\+Stack\+Reader Class Reference}
+\label{classdg_1_1deepcore_1_1_call_stack_reader}\index{dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}}
+
+
+Reads the callstack.  
+
+
+
+
+{\ttfamily \#include $<$utility/\+Call\+Stack\+Reader.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_call_stack_reader_a9eae863d9981b80813f862aa3ca3eda8}{Call\+Stack\+Reader} (bool force\+Fallback=false)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_call_stack_reader}{Call\+Stack\+Reader}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1_call_stack_reader_a2ca85ed337036abaeb59c32c6d050843}{$\sim$\+Call\+Stack\+Reader} ()
+\item 
+\hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} \hyperlink{classdg_1_1deepcore_1_1_call_stack_reader_ab0a0af576fa9a5015e29b5a3aa792899}{read} (size\+\_\+t skip\+Levels=0) const noexcept
+\begin{DoxyCompactList}\small\item\em Reads the callstack. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Reads the callstack. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}!Call\+Stack\+Reader@{Call\+Stack\+Reader}}
+\index{Call\+Stack\+Reader@{Call\+Stack\+Reader}!dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}}
+\subsubsection[{\texorpdfstring{Call\+Stack\+Reader(bool force\+Fallback=false)}{CallStackReader(bool forceFallback=false)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Call\+Stack\+Reader\+::\+Call\+Stack\+Reader (
+\begin{DoxyParamCaption}
+\item[{bool}]{force\+Fallback = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1_call_stack_reader_a9eae863d9981b80813f862aa3ca3eda8}{}\label{classdg_1_1deepcore_1_1_call_stack_reader_a9eae863d9981b80813f862aa3ca3eda8}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_call_stack_reader}{Call\+Stack\+Reader}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em force\+Fallback} & Forces the reader to go into fallback mode. This is not used for all platforms and is there mostly for testing. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}!````~Call\+Stack\+Reader@{$\sim$\+Call\+Stack\+Reader}}
+\index{````~Call\+Stack\+Reader@{$\sim$\+Call\+Stack\+Reader}!dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}}
+\subsubsection[{\texorpdfstring{$\sim$\+Call\+Stack\+Reader()}{~CallStackReader()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Call\+Stack\+Reader\+::$\sim$\+Call\+Stack\+Reader (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1_call_stack_reader_a2ca85ed337036abaeb59c32c6d050843}{}\label{classdg_1_1deepcore_1_1_call_stack_reader_a2ca85ed337036abaeb59c32c6d050843}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}!read@{read}}
+\index{read@{read}!dg\+::deepcore\+::\+Call\+Stack\+Reader@{dg\+::deepcore\+::\+Call\+Stack\+Reader}}
+\subsubsection[{\texorpdfstring{read(size\+\_\+t skip\+Levels=0) const noexcept}{read(size_t skipLevels=0) const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Call\+Stack} dg\+::deepcore\+::\+Call\+Stack\+Reader\+::read (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{skip\+Levels = {\ttfamily 0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1_call_stack_reader_ab0a0af576fa9a5015e29b5a3aa792899}{}\label{classdg_1_1deepcore_1_1_call_stack_reader_ab0a0af576fa9a5015e29b5a3aa792899}
+
+
+Reads the callstack. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em skip\+Levels} & Number of top callstack levels to skip. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The callstack. 
+\end{DoxyReturn}

@@ -1,0 +1,4 @@
+<map id="dg::deepcore::network::JsonRpcRequest" name="dg::deepcore::network::JsonRpcRequest">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1network_1_1_json_rpc.html" title="An abstract class for JSON&#45;RPC communication. " alt="" coords="5,95,156,136"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1network_1_1_json_object.html" title="dg::deepcore::network\l::JsonObject" alt="" coords="5,5,156,47"/>
+</map>

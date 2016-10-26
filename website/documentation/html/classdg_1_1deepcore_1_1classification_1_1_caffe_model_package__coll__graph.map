@@ -1,0 +1,4 @@
+<map id="dg::deepcore::classification::CaffeModelPackage" name="dg::deepcore::classification::CaffeModelPackage">
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_model_package_t.html" title="dg::deepcore::classification\l::ModelPackageT\&lt; CaffeModelPackage \&gt;" alt="" coords="5,95,272,136"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_model_package.html" title="An abstract base class for model packages. Contains metadata and a loading and packaging mechanism..." alt="" coords="48,5,229,47"/>
+</map>

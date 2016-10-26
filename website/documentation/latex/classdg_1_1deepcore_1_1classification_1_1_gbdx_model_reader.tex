@@ -1,0 +1,62 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Gbdx\+Model\+Reader Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}\index{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}}
+
+
+Reads a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} from a gbdxm file.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Gbdx\+Model\+Reader.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_gaf76d6b5a7aedc2124731adf9e3858853}{Gbdx\+Model\+Reader} (std\+::istream \&is)
+\begin{DoxyCompactList}\small\item\em Constructs a gbdxm model reader from an input stream. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga3253da2225ab14f864894af9ddea77db}{Gbdx\+Model\+Reader} (const std\+::vector$<$ uint8\+\_\+t $>$ \&buf)
+\begin{DoxyCompactList}\small\item\em Constructs a gbdxm model reader from a vector. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga5f5b18f2c2c2349d68cf670d8f7ea3ec}{Gbdx\+Model\+Reader} (const uint8\+\_\+t $\ast$buf, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Constructs a gbdxm model reader from a memory buffer. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga1a936c6873d8a865411691d42d37ca28}{Gbdx\+Model\+Reader} (const std\+::string \&file\+Name)
+\begin{DoxyCompactList}\small\item\em Constructs a gbdxm model reader from a file. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a3f90482a7b8d7af6e5722af4a862000d}{Gbdx\+Model\+Reader} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{Gbdx\+Model\+Reader} \&)=delete
+\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{Gbdx\+Model\+Reader} \& \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a448613f6bbdf70e453d25ac2a1fca6a5}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{Gbdx\+Model\+Reader} \&)=delete
+\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_aff78e92e8291fc5dd406e0c5a76805d9}{Gbdx\+Model\+Reader} (\hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{Gbdx\+Model\+Reader} \&\&)=default
+\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} $\ast$ \hyperlink{group___classification_module_gac674f549aa5900b6b07a1be95eac7564}{read\+Model} ()
+\begin{DoxyCompactList}\small\item\em Read the model. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} $\ast$ \hyperlink{group___classification_module_ga64604bec40c4e4906abe110671ad8e01}{read\+Model} (std\+::map$<$ std\+::string, std\+::string $>$ \&out\+Contents\+Map)
+\begin{DoxyCompactList}\small\item\em Read the model and return the original contents map. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Reads a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} from a gbdxm file. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}!Gbdx\+Model\+Reader@{Gbdx\+Model\+Reader}}
+\index{Gbdx\+Model\+Reader@{Gbdx\+Model\+Reader}!dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}}
+\subsubsection[{\texorpdfstring{Gbdx\+Model\+Reader(const Gbdx\+Model\+Reader \&)=delete}{GbdxModelReader(const GbdxModelReader &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader\+::\+Gbdx\+Model\+Reader (
+\begin{DoxyParamCaption}
+\item[{const {\bf Gbdx\+Model\+Reader} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a3f90482a7b8d7af6e5722af4a862000d}{}\label{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a3f90482a7b8d7af6e5722af4a862000d}
+\index{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}!Gbdx\+Model\+Reader@{Gbdx\+Model\+Reader}}
+\index{Gbdx\+Model\+Reader@{Gbdx\+Model\+Reader}!dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}}
+\subsubsection[{\texorpdfstring{Gbdx\+Model\+Reader(\+Gbdx\+Model\+Reader \&\&)=default}{GbdxModelReader(GbdxModelReader &&)=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader\+::\+Gbdx\+Model\+Reader (
+\begin{DoxyParamCaption}
+\item[{{\bf Gbdx\+Model\+Reader} \&\&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_aff78e92e8291fc5dd406e0c5a76805d9}{}\label{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_aff78e92e8291fc5dd406e0c5a76805d9}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}!operator=@{operator=}}
+\index{operator=@{operator=}!dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader}}
+\subsubsection[{\texorpdfstring{operator=(const Gbdx\+Model\+Reader \&)=delete}{operator=(const GbdxModelReader &)=delete}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Gbdx\+Model\+Reader}\& dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Reader\+::operator= (
+\begin{DoxyParamCaption}
+\item[{const {\bf Gbdx\+Model\+Reader} \&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [delete]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a448613f6bbdf70e453d25ac2a1fca6a5}{}\label{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader_a448613f6bbdf70e453d25ac2a1fca6a5}

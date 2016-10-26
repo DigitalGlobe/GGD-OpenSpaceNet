@@ -1,0 +1,110 @@
+\hypertarget{classdg_1_1deepcore_1_1_error}{}\section{dg\+:\+:deepcore\+:\+:Error Class Reference}
+\label{classdg_1_1deepcore_1_1_error}\index{dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}}
+
+
+Represents a Deep\+Core error.  
+
+
+
+
+{\ttfamily \#include $<$utility/\+Error.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_error_a943534a24622307ce6903bd92d5a60a8}{Error} ()
+\begin{DoxyCompactList}\small\item\em The default constructor. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1_error_aeedd4c1e5e96e13e92eede0f9597a7eb}{Error} (const \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \&error, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with parameters of the other error, replacing the message. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga345a7202460cb865e17cff4a78c7bcf6}{Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const char $\ast$\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gab98e5ffafca5efc6945f295698550854}{Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga0e8a3ee91298ab22afb0d7146afa23fb}{Error} (const std\+::string \&\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const std\+::string \&\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+virtual const char $\ast$ \hyperlink{group___utility_module_ga7dff6b319144bcfcf602e0124fb0fb01}{what} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Returns the error description in format \char`\"{}\{message\} in \{function\}, file\+: \{file\}, line\+: \{line\}.\char`\"{}. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the source file name in which the error occured. \end{DoxyCompactList}\item 
+const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the source line number. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the function name in which the error occured. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the error message. \end{DoxyCompactList}\item 
+const \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} \& \hyperlink{classdg_1_1deepcore_1_1_error_af326513a1dad0dde7d595c2b9f9d9d1e}{call\+Stack} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the callstack. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1_error_a2b4a03a6ce3cc8b5ab2fdc719e270e61}{log} (const std\+::string \&channel) const 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1_error}{Error} \hyperlink{group___utility_module_ga00500e337578c7170d2608cb93af4f51}{from\+Format} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const char $\ast$format,...) noexcept
+\begin{DoxyCompactList}\small\item\em Creates an error with a message that can be formatted using sprintf-\/style format. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___utility_module_ga50ae85ad2e348408fa2552abfb6570f9}{Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message}, size\+\_\+t skip\+Levels)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to skip callstack levels. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga3d20a4e6ef5f0579707ccf7b01f235b2}{Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{message}, const \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{Call\+Stack} \&call\+Stack\+Override)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to override the callstack. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a Deep\+Core error. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}!Error@{Error}}
+\index{Error@{Error}!dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}}
+\subsubsection[{\texorpdfstring{Error()}{Error()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1_error_a943534a24622307ce6903bd92d5a60a8}{}\label{classdg_1_1deepcore_1_1_error_a943534a24622307ce6903bd92d5a60a8}
+
+
+The default constructor. 
+
+\index{dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}!Error@{Error}}
+\index{Error@{Error}!dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}}
+\subsubsection[{\texorpdfstring{Error(const Error \&error, const std\+::string \&message)}{Error(const Error &error, const std::string &message)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const {\bf Error} \&}]{error, }
+\item[{const std\+::string \&}]{message}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1_error_aeedd4c1e5e96e13e92eede0f9597a7eb}{}\label{classdg_1_1deepcore_1_1_error_aeedd4c1e5e96e13e92eede0f9597a7eb}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with parameters of the other error, replacing the message. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em error} & The \hyperlink{classdg_1_1deepcore_1_1_error}{Error} from which to copy the parameters. \\
+\hline
+{\em message} & The error message. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}!call\+Stack@{call\+Stack}}
+\index{call\+Stack@{call\+Stack}!dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}}
+\subsubsection[{\texorpdfstring{call\+Stack() const noexcept}{callStack() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf Call\+Stack} \& dg\+::deepcore\+::\+Error\+::call\+Stack (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1_error_af326513a1dad0dde7d595c2b9f9d9d1e}{}\label{classdg_1_1deepcore_1_1_error_af326513a1dad0dde7d595c2b9f9d9d1e}
+
+
+Gets the callstack. 
+
+\begin{DoxyReturn}{Returns}
+The callstack. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}!log@{log}}
+\index{log@{log}!dg\+::deepcore\+::\+Error@{dg\+::deepcore\+::\+Error}}
+\subsubsection[{\texorpdfstring{log(const std\+::string \&channel) const }{log(const std::string &channel) const }}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Error\+::log (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{channel}
+\end{DoxyParamCaption}
+) const}\hypertarget{classdg_1_1deepcore_1_1_error_a2b4a03a6ce3cc8b5ab2fdc719e270e61}{}\label{classdg_1_1deepcore_1_1_error_a2b4a03a6ce3cc8b5ab2fdc719e270e61}

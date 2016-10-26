@@ -1,0 +1,83 @@
+\hypertarget{namespacedg_1_1deepcore_1_1classification}{}\section{dg\+:\+:deepcore\+:\+:classification Namespace Reference}
+\label{namespacedg_1_1deepcore_1_1classification}\index{dg\+::deepcore\+::classification@{dg\+::deepcore\+::classification}}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \hyperlink{namespacedg_1_1deepcore_1_1classification_1_1gbdxm}{gbdxm}
+\end{DoxyCompactItemize}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_batch_classifier}{Caffe\+Batch\+Classifier}
+\begin{DoxyCompactList}\small\item\em A Caffe-\/based implementation of a sliding window detector. \end{DoxyCompactList}\item 
+class \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata}
+\begin{DoxyCompactList}\small\item\em Contains Caffe model metadata. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json}{Caffe\+Model\+Metadata\+Json}
+\begin{DoxyCompactList}\small\item\em Converts between \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata} and J\+S\+ON. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_package}{Caffe\+Model\+Package}
+\begin{DoxyCompactList}\small\item\em Represents a Caffe model package. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier}
+\begin{DoxyCompactList}\small\item\em Abstract base class for objects capable of doing classification. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector}
+\begin{DoxyCompactList}\small\item\em Abstract base class for objects capable of doing feature detection. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_reader}{Gbdx\+Model\+Reader}
+\begin{DoxyCompactList}\small\item\em Reads a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} from a gbdxm file. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_writer}{Gbdx\+Model\+Writer}
+\begin{DoxyCompactList}\small\item\em Writes a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} to a gbdxm file. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model}{Model}
+\begin{DoxyCompactList}\small\item\em An abstract base class for all models. Represents the model capabilities. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata}
+\begin{DoxyCompactList}\small\item\em Contains model metadata. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata_json}{Model\+Metadata\+Json}
+\begin{DoxyCompactList}\small\item\em Converts between \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} and J\+S\+ON. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata_t}{Model\+MetadataT}
+\begin{DoxyCompactList}\small\item\em A template class implementing some default constructors and \hyperlink{group___classification_module_ga851d179b56e5c32b25512df0141f3ca2}{Model\+Metadata\+::copy} in terms of operator=. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package}
+\begin{DoxyCompactList}\small\item\em An abstract base class for model packages. Contains metadata and a loading and packaging mechanism. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package_t}{Model\+PackageT}
+\begin{DoxyCompactList}\small\item\em A template class implementing some default constructors. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction}
+\begin{DoxyCompactList}\small\item\em A structure to hold information about hits during detection and classification runs. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1classification_1_1_sliding_window_detector}{Sliding\+Window\+Detector}
+\begin{DoxyCompactList}\small\item\em Represents an abstract feature detector implemented as a sliding window classifier. Implements \hyperlink{classdg_1_1deepcore_1_1classification_1_1_detector}{Detector} and \hyperlink{classdg_1_1deepcore_1_1classification_1_1_classifier}{Classifier} interfaces as special cases for a sliding window detector. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction}
+\begin{DoxyCompactList}\small\item\em Another \hyperlink{structdg_1_1deepcore_1_1classification_1_1_prediction}{Prediction} struct that also keeps the window region where the detection happened. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_ga4c4d47162fed299b627f2e9d17381866}{Labels}
+\begin{DoxyCompactList}\small\item\em A collection of string labels to be used for the classes identified in a model. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{group___classification_module_ga099af7f7bc5f6030c39c39f3f8fdcf8d}{filter\+Labels} (const std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \&window\+Predictions, \hyperlink{group___classification_module_ga6915e250f3155525f9d14c0aed87a868}{Filter\+Type} type, const std\+::set$<$ std\+::string $>$ \&labels)
+\begin{DoxyCompactList}\small\item\em Run category filtering to remove unwanted or retain only wanted categories. \end{DoxyCompactList}\item 
+boost\+::log\+::formatting\+\_\+ostream \& \hyperlink{namespacedg_1_1deepcore_1_1classification_a71edab714c1d4f9c5553d587fd4b4dc2}{operator$<$$<$} (boost\+::log\+::formatting\+\_\+ostream \&os, const \hyperlink{group___classification_module_gafa8e703c3646c5f93ada56f3c811aac7}{dg\+::deepcore\+::classification\+::\+Model\+Metadata\+::\+Color\+Mode} \&mode)
+\item 
+std\+::vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \hyperlink{group___classification_module_ga30426b4ff4fd24cceff0dda284ea4a05}{non\+Max\+Suppression} (const vector$<$ \hyperlink{structdg_1_1deepcore_1_1classification_1_1_window_prediction}{Window\+Prediction} $>$ \&window\+Predictions, float overlap\+Threshold)
+\begin{DoxyCompactList}\small\item\em Run Non-\/\+Maximum Suppression (N\+MS) to remove overlapping prediction windows. \end{DoxyCompactList}\item 
+formatting\+\_\+ostream \& \hyperlink{group___classification_module_ga2ca3a003d928630b46eed89e774eda35}{operator$<$$<$} (formatting\+\_\+ostream \&os, const \hyperlink{group___classification_module_gafa8e703c3646c5f93ada56f3c811aac7}{Model\+Metadata\+::\+Color\+Mode} \&mode)
+\begin{DoxyCompactList}\small\item\em Allows logging a \hyperlink{group___classification_module_gafa8e703c3646c5f93ada56f3c811aac7}{Model\+Metadata\+::\+Color\+Mode} with D\+G\+\_\+\+L\+OG. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+constexpr int \hyperlink{namespacedg_1_1deepcore_1_1classification_aa446ed99e9dde48dda8f883367797b68}{M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH} = 100
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{dg\+::deepcore\+::classification@{dg\+::deepcore\+::classification}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!dg\+::deepcore\+::classification@{dg\+::deepcore\+::classification}}
+\subsubsection[{\texorpdfstring{operator$<$$<$(boost\+::log\+::formatting\+\_\+ostream \&os, const dg\+::deepcore\+::classification\+::\+Model\+Metadata\+::\+Color\+Mode \&mode)}{operator<<(boost::log::formatting_ostream &os, const dg::deepcore::classification::ModelMetadata::ColorMode &mode)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::log\+::formatting\+\_\+ostream\& dg\+::deepcore\+::classification\+::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{boost\+::log\+::formatting\+\_\+ostream \&}]{os, }
+\item[{const {\bf dg\+::deepcore\+::classification\+::\+Model\+Metadata\+::\+Color\+Mode} \&}]{mode}
+\end{DoxyParamCaption}
+)}\hypertarget{namespacedg_1_1deepcore_1_1classification_a71edab714c1d4f9c5553d587fd4b4dc2}{}\label{namespacedg_1_1deepcore_1_1classification_a71edab714c1d4f9c5553d587fd4b4dc2}
+
+
+\subsection{Variable Documentation}
+\index{dg\+::deepcore\+::classification@{dg\+::deepcore\+::classification}!M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH@{M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH}}
+\index{M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH@{M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH}!dg\+::deepcore\+::classification@{dg\+::deepcore\+::classification}}
+\subsubsection[{\texorpdfstring{M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH}{MAX_TEST_BATCH}}]{\setlength{\rightskip}{0pt plus 5cm}constexpr int dg\+::deepcore\+::classification\+::\+M\+A\+X\+\_\+\+T\+E\+S\+T\+\_\+\+B\+A\+T\+CH = 100}\hypertarget{namespacedg_1_1deepcore_1_1classification_aa446ed99e9dde48dda8f883367797b68}{}\label{namespacedg_1_1deepcore_1_1classification_aa446ed99e9dde48dda8f883367797b68}

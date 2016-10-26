@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classboost_1_1program__options_1_1bounded__typed__value.html" title="Extends boost::program_options::typed_value to allow for setting a specific number of tokens..." alt="" coords="154,5,313,61"/>
+<area shape="rect" id="node3" href="$classboost_1_1program__options_1_1bounded__typed__value.html" title="boost::program_options\l::bounded_typed_value\l\&lt; coordT, charT \&gt;" alt="" coords="154,85,313,141"/>
+<area shape="rect" id="node5" href="$classboost_1_1program__options_1_1bounded__typed__value.html" title="boost::program_options\l::bounded_typed_value\l\&lt; cv::Rect_\&lt; T \&gt;, charT \&gt;" alt="" coords="145,165,321,221"/>
+<area shape="rect" id="node4" href="$structboost_1_1program__options_1_1cv_coord__typed__value.html" title="Extends boost::program_options::bounded_typed_value to supoort cv::Point, cv::Point2d, cv::Size, and cv::Size2d command line parameters. " alt="" coords="369,85,528,141"/>
+<area shape="rect" id="node6" href="$structboost_1_1program__options_1_1cv_rect__typed__value.html" title="Extends boost::program_options::bounded_typed_value to supoort cv::Rect and cv::Rect2d command line p..." alt="" coords="369,165,528,221"/>
+</map>

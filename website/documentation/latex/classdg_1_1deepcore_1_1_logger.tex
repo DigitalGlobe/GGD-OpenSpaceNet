@@ -1,0 +1,93 @@
+\hypertarget{classdg_1_1deepcore_1_1_logger}{}\section{dg\+:\+:deepcore\+:\+:Logger Class Reference}
+\label{classdg_1_1deepcore_1_1_logger}\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+
+
+A class to facilitate logging.  
+
+
+
+
+{\ttfamily \#include $<$utility/\+Log\+Source.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_logger_ad757afdbd753af92bb9858dbf868746c}{Logger} ()
+\item 
+\hyperlink{namespacedg_1_1deepcore_acaeda2fb8a475fd1de2ef14ac9ec7a2f}{logger\+\_\+t} \& \hyperlink{classdg_1_1deepcore_1_1_logger_abe36ca0960079ec47a53414d1a0d4e11}{logger} ()
+\item 
+void \hyperlink{classdg_1_1deepcore_1_1_logger_ad3fab1d86034c5eb5d76ac54668890d8}{set\+Scope} (const std\+::string \&channel, const std\+::string \&file, unsigned int line, const std\+::string \&function)
+\begin{DoxyCompactList}\small\item\em Set the scope attributes for this logger. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{attribute}$<$ std\+::string $>$ \hyperlink{classdg_1_1deepcore_1_1_logger_af00fae5beb806f1da15a373aebef47b8}{channel\+Attribute\+\_\+}
+\item 
+\hyperlink{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{attribute}$<$ std\+::string $>$ \hyperlink{classdg_1_1deepcore_1_1_logger_aac43d5d218af238cb8986e88b8869c2b}{file\+Attribute\+\_\+}
+\item 
+\hyperlink{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{attribute}$<$ unsigned int $>$ \hyperlink{classdg_1_1deepcore_1_1_logger_a24747695ff0705357175723df9f12b56}{line\+Attribute\+\_\+}
+\item 
+\hyperlink{namespacedg_1_1deepcore_abfee748fb46325389237ecd4d1d7f21b}{attribute}$<$ std\+::string $>$ \hyperlink{classdg_1_1deepcore_1_1_logger_a06e46109c370c3cf591175abfd3bfc91}{function\+Attribute\+\_\+}
+\item 
+\hyperlink{namespacedg_1_1deepcore_acaeda2fb8a475fd1de2ef14ac9ec7a2f}{logger\+\_\+t} \hyperlink{classdg_1_1deepcore_1_1_logger_a56b6829ddf4b1bce3d269f4cb89f0e3b}{logger\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A class to facilitate logging. 
+
+\begin{DoxySeeAlso}{See also}
+For macros to assist with logging, see\+: \hyperlink{_logging_8h_source}{Logging.\+h}
+\end{DoxySeeAlso}
+This is not thread-\/safe, since the calls to set the attributes differs from the call to the get the logger. The simplist way to use this is thread\+\_\+locally. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!Logger@{Logger}}
+\index{Logger@{Logger}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{Logger()}{Logger()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Logger\+::\+Logger (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{classdg_1_1deepcore_1_1_logger_ad757afdbd753af92bb9858dbf868746c}{}\label{classdg_1_1deepcore_1_1_logger_ad757afdbd753af92bb9858dbf868746c}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!logger@{logger}}
+\index{logger@{logger}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{logger()}{logger()}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf logger\+\_\+t}\& dg\+::deepcore\+::\+Logger\+::logger (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{classdg_1_1deepcore_1_1_logger_abe36ca0960079ec47a53414d1a0d4e11}{}\label{classdg_1_1deepcore_1_1_logger_abe36ca0960079ec47a53414d1a0d4e11}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!set\+Scope@{set\+Scope}}
+\index{set\+Scope@{set\+Scope}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{set\+Scope(const std\+::string \&channel, const std\+::string \&file, unsigned int line, const std\+::string \&function)}{setScope(const std::string &channel, const std::string &file, unsigned int line, const std::string &function)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Logger\+::set\+Scope (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{channel, }
+\item[{const std\+::string \&}]{file, }
+\item[{unsigned int}]{line, }
+\item[{const std\+::string \&}]{function}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{classdg_1_1deepcore_1_1_logger_ad3fab1d86034c5eb5d76ac54668890d8}{}\label{classdg_1_1deepcore_1_1_logger_ad3fab1d86034c5eb5d76ac54668890d8}
+
+
+Set the scope attributes for this logger. 
+
+
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!channel\+Attribute\+\_\+@{channel\+Attribute\+\_\+}}
+\index{channel\+Attribute\+\_\+@{channel\+Attribute\+\_\+}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{channel\+Attribute\+\_\+}{channelAttribute_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf attribute}$<$std\+::string$>$ dg\+::deepcore\+::\+Logger\+::channel\+Attribute\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1_logger_af00fae5beb806f1da15a373aebef47b8}{}\label{classdg_1_1deepcore_1_1_logger_af00fae5beb806f1da15a373aebef47b8}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!file\+Attribute\+\_\+@{file\+Attribute\+\_\+}}
+\index{file\+Attribute\+\_\+@{file\+Attribute\+\_\+}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{file\+Attribute\+\_\+}{fileAttribute_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf attribute}$<$std\+::string$>$ dg\+::deepcore\+::\+Logger\+::file\+Attribute\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1_logger_aac43d5d218af238cb8986e88b8869c2b}{}\label{classdg_1_1deepcore_1_1_logger_aac43d5d218af238cb8986e88b8869c2b}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!function\+Attribute\+\_\+@{function\+Attribute\+\_\+}}
+\index{function\+Attribute\+\_\+@{function\+Attribute\+\_\+}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{function\+Attribute\+\_\+}{functionAttribute_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf attribute}$<$std\+::string$>$ dg\+::deepcore\+::\+Logger\+::function\+Attribute\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1_logger_a06e46109c370c3cf591175abfd3bfc91}{}\label{classdg_1_1deepcore_1_1_logger_a06e46109c370c3cf591175abfd3bfc91}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!line\+Attribute\+\_\+@{line\+Attribute\+\_\+}}
+\index{line\+Attribute\+\_\+@{line\+Attribute\+\_\+}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{line\+Attribute\+\_\+}{lineAttribute_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf attribute}$<$unsigned int$>$ dg\+::deepcore\+::\+Logger\+::line\+Attribute\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1_logger_a24747695ff0705357175723df9f12b56}{}\label{classdg_1_1deepcore_1_1_logger_a24747695ff0705357175723df9f12b56}
+\index{dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}!logger\+\_\+@{logger\+\_\+}}
+\index{logger\+\_\+@{logger\+\_\+}!dg\+::deepcore\+::\+Logger@{dg\+::deepcore\+::\+Logger}}
+\subsubsection[{\texorpdfstring{logger\+\_\+}{logger_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf logger\+\_\+t} dg\+::deepcore\+::\+Logger\+::logger\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1_logger_a56b6829ddf4b1bce3d269f4cb89f0e3b}{}\label{classdg_1_1deepcore_1_1_logger_a56b6829ddf4b1bce3d269f4cb89f0e3b}

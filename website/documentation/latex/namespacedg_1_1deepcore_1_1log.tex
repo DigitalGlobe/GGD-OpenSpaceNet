@@ -1,0 +1,43 @@
+\hypertarget{namespacedg_1_1deepcore_1_1log}{}\section{dg\+:\+:deepcore\+:\+:log Namespace Reference}
+\label{namespacedg_1_1deepcore_1_1log}\index{dg\+::deepcore\+::log@{dg\+::deepcore\+::log}}
+\subsection*{Enumerations}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1_logger}{Logger} \& \hyperlink{group___utility_module_ga94a3335f72a1830e58c8386c35015b2b}{thread\+Logger} ()
+\begin{DoxyCompactList}\small\item\em get the global static instance \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaedfd950d41ec88d7eff2a7a9929e45e8}{init} ()
+\begin{DoxyCompactList}\small\item\em Initialize the logging framework. \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_gafe05a271abd51b48bd7dea8104793704}{add\+Stream\+Sink} (boost\+::shared\+\_\+ptr$<$ std\+::ostream $>$ const \&stream, \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} min\+Level, \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} max\+Level, \hyperlink{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}{dg\+\_\+log\+\_\+format} format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to clog \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga9db801100c707255528a26083ff913df}{add\+Clog\+Sink} (\hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} min\+Level, \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} max\+Level, \hyperlink{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}{dg\+\_\+log\+\_\+format} format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to clog \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga185ecc92fb211afe98782f6f8b1d7e97}{add\+Cerr\+Sink} (\hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} min\+Level, \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} max\+Level, \hyperlink{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}{dg\+\_\+log\+\_\+format} format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to cerr \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_gab685eb3b065e30feda59f337bd016cb3}{add\+Cout\+Sink} (\hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} min\+Level, \hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} max\+Level, \hyperlink{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}{dg\+\_\+log\+\_\+format} format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to cout \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga44021d28fcb20375f28dc6b2dfcc8e06}{add\+Sink} (boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)
+\begin{DoxyCompactList}\small\item\em add a complex log sink \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga6b5b9a8a9fb82aab4e0a9e4eaa77a4b9}{remove\+Sink} (boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)
+\begin{DoxyCompactList}\small\item\em remove a log sink \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga16b3e354d4c2a3894e9fa0354103e7b3}{level\+To\+String} (\hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} level)
+\begin{DoxyCompactList}\small\item\em Convert an enum representation of logging level to string. \end{DoxyCompactList}\item 
+\hyperlink{namespacedg_1_1deepcore_ac108b40b3a6b8e3450281eb787e27d6b}{level\+\_\+t} \hyperlink{group___utility_module_gafb8296927e835cd0399664adc12a5be8}{string\+To\+Level} (const std\+::string \&str)
+\begin{DoxyCompactList}\small\item\em Convert a string representation of logging level to enum. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\index{dg\+::deepcore\+::log@{dg\+::deepcore\+::log}!dg\+\_\+log\+\_\+format@{dg\+\_\+log\+\_\+format}}
+\index{dg\+\_\+log\+\_\+format@{dg\+\_\+log\+\_\+format}!dg\+::deepcore\+::log@{dg\+::deepcore\+::log}}
+\subsubsection[{\texorpdfstring{dg\+\_\+log\+\_\+format}{dg_log_format}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf dg\+::deepcore\+::log\+::dg\+\_\+log\+\_\+format}}\hypertarget{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}{}\label{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbd}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{dg\+\_\+short\+\_\+log@{dg\+\_\+short\+\_\+log}!dg\+::deepcore\+::log@{dg\+::deepcore\+::log}}\index{dg\+::deepcore\+::log@{dg\+::deepcore\+::log}!dg\+\_\+short\+\_\+log@{dg\+\_\+short\+\_\+log}}\item[{\em 
+dg\+\_\+short\+\_\+log\hypertarget{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbda4ba9b0389ba1ae118fc668774fe8b7b3}{}\label{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbda4ba9b0389ba1ae118fc668774fe8b7b3}
+}]\index{dg\+\_\+long\+\_\+log@{dg\+\_\+long\+\_\+log}!dg\+::deepcore\+::log@{dg\+::deepcore\+::log}}\index{dg\+::deepcore\+::log@{dg\+::deepcore\+::log}!dg\+\_\+long\+\_\+log@{dg\+\_\+long\+\_\+log}}\item[{\em 
+dg\+\_\+long\+\_\+log\hypertarget{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbdaec955aab1696c25aeb164aeae1a72b18}{}\label{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbdaec955aab1696c25aeb164aeae1a72b18}
+}]\index{dg\+\_\+debug\+\_\+log@{dg\+\_\+debug\+\_\+log}!dg\+::deepcore\+::log@{dg\+::deepcore\+::log}}\index{dg\+::deepcore\+::log@{dg\+::deepcore\+::log}!dg\+\_\+debug\+\_\+log@{dg\+\_\+debug\+\_\+log}}\item[{\em 
+dg\+\_\+debug\+\_\+log\hypertarget{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbdab22c8e3b9e5a148f1be7c6e8aa86abd1}{}\label{namespacedg_1_1deepcore_1_1log_a6851fd8d8bef57cbcaba93f7bed8fdbdab22c8e3b9e5a148f1be7c6e8aa86abd1}
+}]\end{description}
+\end{Desc}

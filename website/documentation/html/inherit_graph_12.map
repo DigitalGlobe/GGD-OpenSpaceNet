@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title="STL class. " alt="" coords="5,46,109,73"/>
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1_error.html" title="Represents a DeepCore error. " alt="" coords="157,46,291,73"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1network_1_1_http_error.html" title="Represents an HTTP error response. " alt="" coords="339,5,489,47"/>
+<area shape="rect" id="node4" href="$classdg_1_1deepcore_1_1network_1_1_json_rpc_error.html" title="JSON&#45;RPC error codes, messages and data. " alt="" coords="339,71,489,112"/>
+</map>

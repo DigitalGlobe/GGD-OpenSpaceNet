@@ -1,0 +1,38 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_writer}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Gbdx\+Model\+Writer Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_writer}\index{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Writer@{dg\+::deepcore\+::classification\+::\+Gbdx\+Model\+Writer}}
+
+
+Writes a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} to a gbdxm file.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Gbdx\+Model\+Writer.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___classification_module_ga783393c4251282622db262338581da20}{Gbdx\+Model\+Writer} (std\+::ostream \&os, const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&model, bool encrypt=true)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_writer}{Gbdx\+Model\+Writer} to write to the given output stream. \end{DoxyCompactList}\item 
+\hyperlink{group___classification_module_ga6806ebdaff05b3ff528a9c0fff8fe494}{Gbdx\+Model\+Writer} (const std\+::string \&file\+Name, const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} \&model, bool encrypt=true)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_gbdx_model_writer}{Gbdx\+Model\+Writer} to write to a file on disk. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gabb8c5d415c526a83a3c4e9222bfada9b}{close} ()
+\begin{DoxyCompactList}\small\item\em Closes the writer. The object is unusable after it\textquotesingle{}s closed. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gaddc807cb470f47457237613199395f54}{write\+Model} (const std\+::map$<$ std\+::string, std\+::string $>$ \&content\+Map)
+\begin{DoxyCompactList}\small\item\em Writes out the model contained in the \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package}. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gaf870ec5ffa5611fbc185a31964180c25}{write\+Metadata} (const std\+::map$<$ std\+::string, std\+::string $>$ \&content\+Map)
+\begin{DoxyCompactList}\small\item\em Writes the model metadata. Metadata must be written before any more files are written to the package. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gae289cee9ebc10a5cb834404c73e3dd7e}{add\+File} (const std\+::string \&item\+Name, const std\+::string \&file\+Name)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a file on disk. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_ga0f6ad9a470685adc23659eb7a3aa46eb}{add\+File} (const std\+::string \&item\+Name, std\+::istream \&is)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from an input stream. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gac4840a6a32e802a42f75732b2ec75de8}{add\+File} (const std\+::string \&item\+Name, const std\+::vector$<$ uint8\+\_\+t $>$ \&buf)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a vector. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gafbcf569e170e01a25e9a1cc7a114a742}{add\+File} (const std\+::string \&item\+Name, const uint8\+\_\+t $\ast$buf, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a memory buffer. \end{DoxyCompactList}\item 
+void \hyperlink{group___classification_module_gaf0cf8086a94f63a55a3dedd710711c3d}{add\+File\+From\+String} (const std\+::string \&item\+Name, const std\+::string \&buf)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Writes a \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_package}{Model\+Package} to a gbdxm file. 

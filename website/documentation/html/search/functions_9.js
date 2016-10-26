@@ -1,0 +1,4 @@
+var searchData =
+    [
+        ['jsonrpcerror', ['JsonRpcError', ['../group___network_module.html#ga6177a0628073de16562fdbaf8ef12f33', 1, 'dg::deepcore::network::JsonRpcError::JsonRpcError()'], ['../group___network_module.html#ga041044a45186dbc1faa970ec45ecba81', 1, 'dg::deepcore::network::JsonRpcError::JsonRpcError(const std::string &amp;file, const unsigned int line, const std::string &amp;function, const JsonRpcErrorType type, const std::string &amp;message)'], ['../group___network_module.html#gad7b1e6630b2774ffa45cbcc88b9a1b3f', 1, 'dg::deepcore::network::JsonRpcError::JsonRpcError(const std::string &amp;file, const unsigned int line, const std::string &amp;function, const int code, const std::string &amp;shortMessage, const std::string &amp;message)'], ['../group___network_module.html#ga15642140f0fe7b5bc798cdd884954040', 1, 'dg::deepcore::network::JsonRpcError::JsonRpcError(const Error &amp;error, const JsonRpcErrorType type)']]]
+    ];

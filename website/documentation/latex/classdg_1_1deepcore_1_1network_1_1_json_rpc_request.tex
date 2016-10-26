@@ -1,0 +1,78 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_request}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Request Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_request}\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request}}
+
+
+J\+S\+O\+N-\/\+R\+PC Request container, parsing, and marshalling.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Json\+Rpc\+Request.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Request\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1network_1_1_json_rpc_request__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual Json\+::\+Value \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a5230a36464ddfebcb0dca43edaeae870}{to\+Json} () const override
+\begin{DoxyCompactList}\small\item\em Marshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+virtual void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a7b376d08b80e4231429aaa649c257cb0}{from\+Json} (const Json\+::\+Value \&root) override
+\begin{DoxyCompactList}\small\item\em Unmarshal this object to a J\+S\+ON container. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___network_module_gad706357297f0658e1e695cd7164291ef}{method} () const noexcept
+\begin{DoxyCompactList}\small\item\em Get the name of the method to be invoked. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_gab69275c8a35d2df9026f72f91700085e}{set\+Method} (const std\+::string \&\hyperlink{group___network_module_gad706357297f0658e1e695cd7164291ef}{method}) noexcept
+\begin{DoxyCompactList}\small\item\em Set the name of the method to be invoked. \end{DoxyCompactList}\item 
+const Json\+::\+Value \& \hyperlink{group___network_module_ga13af70a1e02c7446763e8e44f3484a53}{params} () const noexcept
+\begin{DoxyCompactList}\small\item\em Get a marshalled set of parameters. \end{DoxyCompactList}\item 
+void \hyperlink{group___network_module_ga2b7b7580f1d8d287c7ef4cf54a381e1e}{set\+Params} (const Json\+::\+Value \&\hyperlink{group___network_module_ga13af70a1e02c7446763e8e44f3484a53}{params}) noexcept
+\begin{DoxyCompactList}\small\item\em Set a marshalled set of parameters. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+J\+S\+O\+N-\/\+R\+PC Request container, parsing, and marshalling. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://www.jsonrpc.org/specification}{\tt http\+://www.\+jsonrpc.\+org/specification} 
+\end{DoxySeeAlso}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request}!from\+Json@{from\+Json}}
+\index{from\+Json@{from\+Json}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request}}
+\subsubsection[{\texorpdfstring{from\+Json(const Json\+::\+Value \&root) override}{fromJson(const Json::Value &root) override}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request\+::from\+Json (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{root}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a7b376d08b80e4231429aaa649c257cb0}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a7b376d08b80e4231429aaa649c257cb0}
+
+
+Unmarshal this object to a J\+S\+ON container. 
+
+Beware that a string is also valid json, so from\+Json will interpret a passed in string as a string literal without parsing it. 
+
+Implements \hyperlink{group___network_module_ga74a2303be2ae11e8d94101b55154362e}{dg\+::deepcore\+::network\+::\+Json\+Object}.
+
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request}!to\+Json@{to\+Json}}
+\index{to\+Json@{to\+Json}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request}}
+\subsubsection[{\texorpdfstring{to\+Json() const override}{toJson() const override}}]{\setlength{\rightskip}{0pt plus 5cm}Json\+::\+Value dg\+::deepcore\+::network\+::\+Json\+Rpc\+Request\+::to\+Json (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a5230a36464ddfebcb0dca43edaeae870}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_request_a5230a36464ddfebcb0dca43edaeae870}
+
+
+Marshal this object to a J\+S\+ON container. 
+
+
+
+Implements \hyperlink{group___network_module_ga96e3f7817a3257d80034811a9545f3ff}{dg\+::deepcore\+::network\+::\+Json\+Object}.
+

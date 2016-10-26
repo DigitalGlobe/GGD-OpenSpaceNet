@@ -1,0 +1,30 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid\+Sliding\+Window\+Iterator Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window\+Iterator@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Sliding\+Window\+Iterator}}
+
+
+Represents a single \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window}.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Sliding\+Window.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_gacbd11cb149d2263770674f86d6595617}{Pyramid\+Sliding\+Window\+Iterator} () noexcept
+\begin{DoxyCompactList}\small\item\em The default constructor. Constructs the \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator} that can be \char`\"{}equal\char`\"{} to \hyperlink{group___imagery_module_gaf39101c886a6ca5194201848f7d6d831}{Pyramid\+Sliding\+Window\+::end()}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gaba595bfc1790d917eaa28c1533afa2ad}{Pyramid\+Sliding\+Window\+Iterator} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \&pyramid\+Sliding\+Window, const Pyramid\+Levels\+::const\+\_\+iterator \&level, const Sliding\+Windows\+::const\+\_\+iterator \&windows, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_sliding_window_aca1804ceef890966623a8acfcd01f2e9}{Sliding\+Window\+::const\+\_\+iterator} \&window) noexcept
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator}. \end{DoxyCompactList}\item 
+const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window} \& \hyperlink{group___imagery_module_gaca9c2f2b709dbe324355c544933339ee}{operator$\ast$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window}. \end{DoxyCompactList}\item 
+const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window} $\ast$ \hyperlink{group___imagery_module_gac54e72b4aa8c5b92bc491c12aed242d0}{operator-\/$>$} () const 
+\begin{DoxyCompactList}\small\item\em Returns the current \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator} \& \hyperlink{group___imagery_module_gaa6990163252dcca167db1dde03c55100}{operator++} ()
+\begin{DoxyCompactList}\small\item\em Moves on to the next window. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_gaa1566b49b13ee8b98e58d748aba156b3}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window_iterator}{Pyramid\+Sliding\+Window\+Iterator} \&rhs) const noexcept
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a single \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_window}{Pyramid\+Window}. 

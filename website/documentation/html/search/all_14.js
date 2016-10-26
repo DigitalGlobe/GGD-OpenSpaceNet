@@ -1,0 +1,8 @@
+var searchData =
+    [
+        ['value', ['value', ['../structdg_1_1deepcore_1_1vector_1_1_field.html#a236f34fb91447d2c807943a28ebcd119', 1, 'dg::deepcore::vector::Field']]],
+        ['value_5ftype', ['value_type', ['../classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_batch.html#a64329b050ba9864aec3e3532c7a2aad3', 1, 'dg::deepcore::imagery::PyramidImageBatch::value_type()'], ['../classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer.html#a6a2ca5ffdf4ce25771ce96dec3be678a', 1, 'dg::deepcore::imagery::PyramidImageSlicer::value_type()'], ['../classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window.html#ab19431f1af5d94cf35d3c13e62831b0a', 1, 'dg::deepcore::imagery::PyramidSlidingWindow::value_type()'], ['../classdg_1_1deepcore_1_1imagery_1_1_sliding_window.html#aa709c18e431e937e57b72a869e2bf272', 1, 'dg::deepcore::imagery::SlidingWindow::value_type()']]],
+        ['vector', ['Vector', ['../group___vector_module.html', 1, '']]],
+        ['verboselogging', ['verboseLogging', ['../group___network_module.html#ga2470c65fd9d6dd62854a9c9e7df877c6', 1, 'dg::deepcore::network::HttpDownloader']]],
+        ['version', ['version', ['../structdg_1_1deepcore_1_1imagery_1_1ows_1_1_exception_report.html#aee7406892476149864fb6a4d683b8dbc', 1, 'dg::deepcore::imagery::ows::ExceptionReport::version()'], ['../structdg_1_1deepcore_1_1imagery_1_1_tile_json.html#a3037558f224105b744a9a2c43fdb7b5e', 1, 'dg::deepcore::imagery::TileJson::version()'], ['../group___classification_module.html#ga496e4c5294b5438ff17456c9e9ab2c05', 1, 'dg::deepcore::classification::ModelMetadata::version()'], ['../group___network_module.html#ga57b18a1db26df83b5d1769b6101ee67f', 1, 'dg::deepcore::network::JsonRpc::version()']]]
+    ];

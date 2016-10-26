@@ -1,0 +1,37 @@
+\hypertarget{classdg_1_1deepcore_1_1vector_1_1_buffered_feature_set}{}\section{dg\+:\+:deepcore\+:\+:vector\+:\+:Buffered\+Feature\+Set Class Reference}
+\label{classdg_1_1deepcore_1_1vector_1_1_buffered_feature_set}\index{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set@{dg\+::deepcore\+::vector\+::\+Buffered\+Feature\+Set}}
+
+
+Assists a creation of a vector feature set in memory.  
+
+
+
+
+{\ttfamily \#include $<$vector/\+Buffered\+Feature\+Set.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:vector\+:\+:Buffered\+Feature\+Set\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=187pt]{classdg_1_1deepcore_1_1vector_1_1_buffered_feature_set__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___vector_module_ga13bed828345853b15d61ba90d6df392e}{Buffered\+Feature\+Set} (const std\+::string \&format, const std\+::string \&layer\+Name, const \hyperlink{namespacedg_1_1deepcore_1_1vector_a89a39c2fa657ff95f116cfed4a951386}{Field\+Definitions} \&field\+Definitions)
+\begin{DoxyCompactList}\small\item\em Constructs a buffered vector feature set. \end{DoxyCompactList}\item 
+uint8\+\_\+t $\ast$ \hyperlink{group___vector_module_ga3541fd309ad0269dbdb1a64657a5a11d}{buffer} (size\+\_\+t \&length, bool take\+Ownership=false)
+\begin{DoxyCompactList}\small\item\em Returns the buffer containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \hyperlink{group___vector_module_ga0a390de9fa273210eb7d905538d22b19}{buffer} ()
+\begin{DoxyCompactList}\small\item\em Returns an std\+::vector containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___vector_module_gaa41d91dcbee14ef2363b9acecb332b1f}{buffer\+As\+String} ()
+\begin{DoxyCompactList}\small\item\em Returns an std\+::string containing the serialized vector feature set. This causes the vector feature set to be closed, so it\textquotesingle{}s not possible to add features after this function is called. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Assists a creation of a vector feature set in memory. 

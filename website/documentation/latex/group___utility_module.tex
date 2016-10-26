@@ -1,0 +1,1970 @@
+\hypertarget{group___utility_module}{}\section{Utility}
+\label{group___utility_module}\index{Utility@{Utility}}
+
+
+Contains utilities that include DG\textquotesingle{}s error and logger handling, as well as zip file functionality, boost program options and progress bars.  
+
+
+\subsection*{Files}
+\begin{DoxyCompactItemize}
+\item 
+file \hyperlink{_logging_8h}{Logging.\+h}
+\begin{DoxyCompactList}\small\item\em Macros and initialization methods for logging. \end{DoxyCompactList}\item 
+file \hyperlink{_progress_8h}{Progress.\+h}
+\begin{DoxyCompactList}\small\item\em Definitions for progress display funcitons. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{dg\+::deepcore\+::\+Call\+Stack\+Symbol}
+\begin{DoxyCompactList}\small\item\em Represents an entry in a callstack. \end{DoxyCompactList}\item 
+struct \hyperlink{structdg_1_1deepcore_1_1_embedded_resource}{dg\+::deepcore\+::\+Embedded\+Resource}
+\begin{DoxyCompactList}\small\item\em Hold information on an in-\/memory resource, with name, pointer, and length
+
+This is designed to accompany resources which are added during the cmake phase with Embed\+Resources.\+cmake. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_logger}{dg\+::deepcore\+::\+Logger}
+\begin{DoxyCompactList}\small\item\em A class to facilitate logging. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_singleton}{dg\+::deepcore\+::\+Singleton$<$ T $>$}
+\begin{DoxyCompactList}\small\item\em A thread-\/safe singleton class holder. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_error}{dg\+::deepcore\+::\+Error}
+\begin{DoxyCompactList}\small\item\em Represents a Deep\+Core error. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_multi_progress_display}{dg\+::deepcore\+::\+Multi\+Progress\+Display}
+\begin{DoxyCompactList}\small\item\em A console progress display capable of displaying progress of multiple concurrent tasks. \end{DoxyCompactList}\item 
+class \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value$<$ T, char\+T $>$}
+\begin{DoxyCompactList}\small\item\em Extends boost\+::program\+\_\+options\+::typed\+\_\+value to allow for setting a specific number of tokens. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{dg\+::deepcore\+::\+Un\+Zip\+File}
+\begin{DoxyCompactList}\small\item\em Reads contents of a zip file. \end{DoxyCompactList}\item 
+class \hyperlink{classdg_1_1deepcore_1_1_zip_file}{dg\+::deepcore\+::\+Zip\+File}
+\begin{DoxyCompactList}\small\item\em Creates a zip file and writes data and directory information into it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group___utility_module_gaf6227f9c970f2c98edd3520ed616f6ec}{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT}(format,  args...)~\hyperlink{group___utility_module_ga00500e337578c7170d2608cb93af4f51}{dg\+::deepcore\+::\+Error\+::from\+Format}(\+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+, format, \#\#args)
+\begin{DoxyCompactList}\small\item\em Initializes an Error for the current position in code, allows for sprintf-\/style message formatting. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_ga0460fddf1407217eacdeff8e007cbdbf}{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}(format,  args...)~throw \hyperlink{group___utility_module_ga00500e337578c7170d2608cb93af4f51}{dg\+::deepcore\+::\+Error\+::from\+Format}(\+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+, format, \#\#args)
+\begin{DoxyCompactList}\small\item\em Throws an Error for the current position in code, allows for sprintf-\/style message formatting. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_gaa226e9947e37cd076e8adf02ab473910}{D\+G\+\_\+\+C\+H\+E\+CK}(condition,  message,  args...)~if(!(condition)) \{ \hyperlink{group___utility_module_ga0460fddf1407217eacdeff8e007cbdbf}{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}(message, \#\#args); \}
+\begin{DoxyCompactList}\small\item\em Checks the condition and throws an Error if the condition is false. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_ga43295d768f6d9ee49180610e3d1a99ee}{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG}(channel,  error)~error.\+log(\#channel)
+\begin{DoxyCompactList}\small\item\em Logs the Error. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_gaccdc4ecc408590a0c9e70a014e36df03}{D\+G\+\_\+\+L\+OG}(channel,  sev)~\hyperlink{group___utility_module_gaf0f303ba463f71805710b4ad637b5140}{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}( \+::\hyperlink{group___utility_module_ga94a3335f72a1830e58c8386c35015b2b}{dg\+::deepcore\+::log\+::thread\+Logger}(), channel, sev)
+\begin{DoxyCompactList}\small\item\em Create a ostream to log a message to the global logging framework at a given severity. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_gaf0f303ba463f71805710b4ad637b5140}{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}(dg\+\_\+logger,  channel,  sev)~\hyperlink{group___utility_module_ga5da92d91fa3446e9251ec613e360b8d5}{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}(dg\+\_\+logger, channel, sev, \+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+)
+\begin{DoxyCompactList}\small\item\em Create a ostream to log a message to a local logging object. \end{DoxyCompactList}\item 
+\#define \hyperlink{group___utility_module_ga5da92d91fa3446e9251ec613e360b8d5}{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}(dg\+\_\+logger,  channel,  sev,  filename,  line,  function)
+\begin{DoxyCompactList}\small\item\em Create a ostream to log a message to a local logging object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{dg\+::deepcore\+::\+Call\+Stack} = std\+::vector$<$ Call\+Stack\+Symbol $>$
+\begin{DoxyCompactList}\small\item\em Represents a callstack. \end{DoxyCompactList}\item 
+using \hyperlink{group___utility_module_gaa93ea71a4ed4c044369d3b323aec4435}{dg\+::deepcore\+::\+Error\+Func} = std\+::function$<$ Error $\ast$(const Error \&e)$>$
+\begin{DoxyCompactList}\small\item\em An \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback function. The can examine the input error and transform it if necessary. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was transformed, the function should return a new \hyperlink{classdg_1_1deepcore_1_1_error}{Error} instance. The caller will take ownership of the pointer. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, the function should return nullptr. \end{DoxyCompactList}\item 
+using \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{dg\+::deepcore\+::\+Simple\+Progress} = std\+::function$<$ bool(float progress)$>$
+\begin{DoxyCompactList}\small\item\em A simple progress reporting callback. \end{DoxyCompactList}\item 
+using \hyperlink{group___utility_module_gae07fce8a40a5222a0dcd537a0b28a008}{dg\+::deepcore\+::\+Progress} = std\+::function$<$ bool(float progress, const char $\ast$status)$>$
+\begin{DoxyCompactList}\small\item\em A progress reporting callback with ability to display additional information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_gaab89548f655eaadb805d9099ea0ec616}{dg\+::deepcore\+::almost\+Eq} (T x, T y, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two numbers are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga2096c3bec84b70855daa9399ec178fe2}{dg\+::deepcore\+::almost\+Eq} (const cv\+::\+Point\+\_\+$<$ T $>$ \&p1, const cv\+::\+Point\+\_\+$<$ T $>$ \&p2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Point\+\_\+$<$\+T$>$ coordinates are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga71b9189756badfb3f5466bf9f0549203}{dg\+::deepcore\+::almost\+Eq} (const cv\+::\+Size\+\_\+$<$ T $>$ \&s1, const cv\+::\+Size\+\_\+$<$ T $>$ \&s2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Size\+\_\+$<$\+T$>$ sizes are approximately equal. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$ T $>$\+::is\+\_\+integer, bool $>$\+::type \hyperlink{group___utility_module_ga115e2428efbb3b6d3105d8f2fab75e51}{dg\+::deepcore\+::almost\+Eq} (const cv\+::\+Rect\+\_\+$<$ T $>$ \&r1, const cv\+::\+Rect\+\_\+$<$ T $>$ \&r2, int ulp=4)
+\begin{DoxyCompactList}\small\item\em Checks if the two cv\+::\+Rect\+\_\+$<$\+T$>$ rectangles are approximately equal. \end{DoxyCompactList}\item 
+std\+::vector$<$ option $>$ \hyperlink{group___utility_module_ga3db1b0bae61386198482fae1645b959d}{boost\+::program\+\_\+options\+::ignore\+\_\+numbers} (std\+::vector$<$ std\+::string $>$ \&args)
+\begin{DoxyCompactList}\small\item\em A boost\+::program\+\_\+options\+::detail\+::style\+\_\+parser that allows using multitoken options with numbers, including negative numbers. This disallows using numbers are short command line arguments. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T $>$ }\\std\+::string \hyperlink{group___utility_module_ga8b756cf9f42d2452f48d168883c76f4f}{boost\+::program\+\_\+options\+::name\+\_\+with\+\_\+default} (std\+::string name, T default\+Val)
+\begin{DoxyCompactList}\small\item\em Creates a value for the default which is suitable for input to po\+::value\+\_\+name();. \end{DoxyCompactList}\item 
+bounded\+\_\+typed\+\_\+value $\ast$ \hyperlink{group___utility_module_ga92bfc58add0451fb2f594e7b78ff966c}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value$<$ T, char\+T $>$\+::min\+\_\+tokens} (unsigned min\+\_\+tokens)
+\begin{DoxyCompactList}\small\item\em Sets the minimum number of tokens the value accepts. \end{DoxyCompactList}\item 
+bounded\+\_\+typed\+\_\+value $\ast$ \hyperlink{group___utility_module_ga88b81b9c4d7c1f667594d6e1490078ff}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value$<$ T, char\+T $>$\+::max\+\_\+tokens} (unsigned max\+\_\+tokens)
+\begin{DoxyCompactList}\small\item\em Sets the maximum number of tokens the value accepts. \end{DoxyCompactList}\item 
+bounded\+\_\+typed\+\_\+value $\ast$ \hyperlink{group___utility_module_ga1a9caf446ce6f236f70dfd6a54885478}{boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value$<$ T, char\+T $>$\+::fixed\+\_\+tokens} (unsigned num\+\_\+tokens)
+\begin{DoxyCompactList}\small\item\em Sets the exact number of tokens the value accepts. \end{DoxyCompactList}\item 
+{\footnotesize template$<$class T , class charT  = char$>$ }\\bounded\+\_\+typed\+\_\+value$<$ T, charT $>$ $\ast$ \hyperlink{group___utility_module_ga29195cfb403d70365c30a76867c787b5}{boost\+::program\+\_\+options\+::bounded\+\_\+value} (T $\ast$store\+\_\+to=nullptr)
+\begin{DoxyCompactList}\small\item\em Creates a new instance of \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_gab8f3ab23c87fe876bb3e9b76fc46fff9}{dg\+::deepcore\+::network\+::parse\+Json\+Message} (const string \&json) noexcept
+\begin{DoxyCompactList}\small\item\em Extracts a \char`\"{}message\char`\"{} object from the root object of a J\+S\+ON string. \end{DoxyCompactList}\item 
+std\+::ostream \& \hyperlink{group___utility_module_gafa131d4872913d78dd09474524e54de3}{dg\+::deepcore\+::operator$<$$<$} (ostream \&os, const Call\+Stack\+Symbol \&symbol)
+\begin{DoxyCompactList}\small\item\em Allows writing a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} into an std\+::ostream. \end{DoxyCompactList}\item 
+std\+::ostream \& \hyperlink{group___utility_module_ga0e3995beecca99ed6a56bbd006d778cf}{dg\+::deepcore\+::operator$<$$<$} (ostream \&os, const Call\+Stack \&call\+Stack)
+\begin{DoxyCompactList}\small\item\em Allows writing a Call\+Stack into an std\+::ostream. \end{DoxyCompactList}\item 
+boost\+::log\+::formatting\+\_\+ostream \& \hyperlink{group___utility_module_ga97adfcc9f917f8bd42421eaa2d618ef6}{dg\+::deepcore\+::operator$<$$<$} (boost\+::log\+::formatting\+\_\+ostream \&os, const Call\+Stack\+Symbol \&symbol)
+\begin{DoxyCompactList}\small\item\em Allows logging a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} with D\+G\+\_\+\+L\+OG. \end{DoxyCompactList}\item 
+boost\+::log\+::formatting\+\_\+ostream \& \hyperlink{group___utility_module_ga34296a075c256c17fe8ba2f1f6d18372}{dg\+::deepcore\+::operator$<$$<$} (boost\+::log\+::formatting\+\_\+ostream \&os, const Call\+Stack \&call\+Stack)
+\begin{DoxyCompactList}\small\item\em Allows logging a Call\+Stack with D\+G\+\_\+\+L\+OG. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga3d0cf89b2a18e61bc8c07ae4006c9744}{dg\+::deepcore\+::read\+Masked\+Input\+From\+Console} ()
+\begin{DoxyCompactList}\small\item\em Initializes a getline that is masked for the purposes of hiding the user input of a password. \end{DoxyCompactList}\item 
+double \hyperlink{group___utility_module_ga547c4f80c778878854c572c297cc1983}{dg\+::deepcore\+::radians} (double degrees) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___utility_module_ga8ce4d2c11e35fe075404a256c272b4d8}{dg\+::deepcore\+::radians} (const cv\+::\+Point2d \&degrees) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___utility_module_gabf4e708fbdf32c6c93035b918d7ffa03}{dg\+::deepcore\+::radians} (const cv\+::\+Size2d \&degrees) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___utility_module_ga7712032c74d8bc4e9c392964d4e18e8c}{dg\+::deepcore\+::radians} (const cv\+::\+Rect2d \&degrees) noexcept
+\begin{DoxyCompactList}\small\item\em Convert degrees to radians. \end{DoxyCompactList}\item 
+double \hyperlink{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{dg\+::deepcore\+::degrees} (double radians) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___utility_module_ga8ee006518e8f0489aa3e18166d74c6fe}{dg\+::deepcore\+::degrees} (const cv\+::\+Point2d \&radians) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Size2d \hyperlink{group___utility_module_gaa1f8aec2237eca2394ae5df2528e8eca}{dg\+::deepcore\+::degrees} (const cv\+::\+Size2d \&radians) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___utility_module_ga1be3f98796bf80ec2aa5899e73269be7}{dg\+::deepcore\+::degrees} (const cv\+::\+Rect2d \&radians) noexcept
+\begin{DoxyCompactList}\small\item\em Convert radians to degrees. \end{DoxyCompactList}\item 
+Logger \& \hyperlink{group___utility_module_ga94a3335f72a1830e58c8386c35015b2b}{dg\+::deepcore\+::log\+::thread\+Logger} ()
+\begin{DoxyCompactList}\small\item\em get the global static instance \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaedfd950d41ec88d7eff2a7a9929e45e8}{dg\+::deepcore\+::log\+::init} ()
+\begin{DoxyCompactList}\small\item\em Initialize the logging framework. \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_gafe05a271abd51b48bd7dea8104793704}{dg\+::deepcore\+::log\+::add\+Stream\+Sink} (boost\+::shared\+\_\+ptr$<$ std\+::ostream $>$ const \&stream, level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to clog \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga9db801100c707255528a26083ff913df}{dg\+::deepcore\+::log\+::add\+Clog\+Sink} (level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to clog \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga185ecc92fb211afe98782f6f8b1d7e97}{dg\+::deepcore\+::log\+::add\+Cerr\+Sink} (level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to cerr \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_gab685eb3b065e30feda59f337bd016cb3}{dg\+::deepcore\+::log\+::add\+Cout\+Sink} (level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)
+\begin{DoxyCompactList}\small\item\em add a simple log sink which directs output to cout \end{DoxyCompactList}\item 
+boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ \hyperlink{group___utility_module_ga44021d28fcb20375f28dc6b2dfcc8e06}{dg\+::deepcore\+::log\+::add\+Sink} (boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)
+\begin{DoxyCompactList}\small\item\em add a complex log sink \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga6b5b9a8a9fb82aab4e0a9e4eaa77a4b9}{dg\+::deepcore\+::log\+::remove\+Sink} (boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)
+\begin{DoxyCompactList}\small\item\em remove a log sink \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga16b3e354d4c2a3894e9fa0354103e7b3}{dg\+::deepcore\+::log\+::level\+To\+String} (level\+\_\+t level)
+\begin{DoxyCompactList}\small\item\em Convert an enum representation of logging level to string. \end{DoxyCompactList}\item 
+level\+\_\+t \hyperlink{group___utility_module_gafb8296927e835cd0399664adc12a5be8}{dg\+::deepcore\+::log\+::string\+To\+Level} (const std\+::string \&str)
+\begin{DoxyCompactList}\small\item\em Convert a string representation of logging level to enum. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_ga7eb961cce72452d6bc60ca27f699bad6}{dg\+::deepcore\+::login\+User} ()
+\begin{DoxyCompactList}\small\item\em Returns the current login user name. If the information cannot be determined returns a blank string. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga345a7202460cb865e17cff4a78c7bcf6}{dg\+::deepcore\+::\+Error\+::\+Error} (const char $\ast$file, const unsigned int line, const char $\ast$function, const char $\ast$message)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga0e8a3ee91298ab22afb0d7146afa23fb}{dg\+::deepcore\+::\+Error\+::\+Error} (const std\+::string \&file, const unsigned int line, const std\+::string \&function, const std\+::string \&message)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gab98e5ffafca5efc6945f295698550854}{dg\+::deepcore\+::\+Error\+::\+Error} (const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga50ae85ad2e348408fa2552abfb6570f9}{dg\+::deepcore\+::\+Error\+::\+Error} (const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message, size\+\_\+t skip\+Levels)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to skip callstack levels. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga3d20a4e6ef5f0579707ccf7b01f235b2}{dg\+::deepcore\+::\+Error\+::\+Error} (const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message, const Call\+Stack \&call\+Stack\+Override)
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to override the callstack. \end{DoxyCompactList}\item 
+static Error \hyperlink{group___utility_module_ga00500e337578c7170d2608cb93af4f51}{dg\+::deepcore\+::\+Error\+::from\+Format} (const char $\ast$file, const unsigned int line, const char $\ast$function, const char $\ast$format,...) noexcept
+\begin{DoxyCompactList}\small\item\em Creates an error with a message that can be formatted using sprintf-\/style format. \end{DoxyCompactList}\item 
+virtual const char $\ast$ \hyperlink{group___utility_module_ga7dff6b319144bcfcf602e0124fb0fb01}{dg\+::deepcore\+::\+Error\+::what} () const noexceptoverride
+\begin{DoxyCompactList}\small\item\em Returns the error description in format \char`\"{}\{message\} in \{function\}, file\+: \{file\}, line\+: \{line\}.\char`\"{}. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{dg\+::deepcore\+::\+Error\+::file} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the source file name in which the error occured. \end{DoxyCompactList}\item 
+const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{dg\+::deepcore\+::\+Error\+::line} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the source line number. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{dg\+::deepcore\+::\+Error\+::function} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the function name in which the error occured. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga7269ba8049ed86338733955565242539}{dg\+::deepcore\+::\+Error\+::message} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the error message. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga51c18fad87e104455921392fc91a7c03}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::\+Multi\+Progress\+Display} (const std\+::vector$<$ std\+::string $>$ \&categories, int interval\+Ms=500)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_multi_progress_display}{Multi\+Progress\+Display}. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gae12a350c3384d98843cd2851dcaa10fe}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::$\sim$\+Multi\+Progress\+Display} ()
+\begin{DoxyCompactList}\small\item\em The destructor. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaa7547dfd4650dc8a0f761b174ce24450}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::start} ()
+\begin{DoxyCompactList}\small\item\em Starts and displays the progress meter(s). \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga2f43542bd34ad2f51b7c368d4e94e650}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::stop} ()
+\begin{DoxyCompactList}\small\item\em Stops the progress meter(s). \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gadbcb8e02b7d21ce799baa34e93bc9fee}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::update} (size\+\_\+t category\+Id, float progress)
+\begin{DoxyCompactList}\small\item\em Updateds progress. \end{DoxyCompactList}\item 
+const std\+::vector$<$ std\+::string $>$ \& \hyperlink{group___utility_module_ga89b9c96322231a81b2e64f178a8291e3}{dg\+::deepcore\+::\+Multi\+Progress\+Display\+::categories} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the categories. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gac32fa3973017fa76647d90ab64bbceae}{dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File} (std\+::istream \&is)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given input stream. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga64e2c80586cc8429067c15ab1fa39e08}{dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File} (const std\+::vector$<$ uint8\+\_\+t $>$ \&buf)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given vector. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga1efd284e3fbbef3d57a598c47a7cc73b}{dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File} (const uint8\+\_\+t $\ast$buf, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given memory buffer. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga4418028e98c6031359ace40625987864}{dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File} (const std\+::string \&file\+Name)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a file on disk. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga325131b751ccc5a391367afb09084036}{dg\+::deepcore\+::\+Un\+Zip\+File\+::$\sim$\+Un\+Zip\+File} ()
+\begin{DoxyCompactList}\small\item\em Destructs the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object and closes the zip file. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga6f28d71dffa80123aaa68ebf44783d0c}{dg\+::deepcore\+::\+Un\+Zip\+File\+::close} ()
+\begin{DoxyCompactList}\small\item\em Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object is no longer usable after it\textquotesingle{}s closed. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga065f405804b43cb3fdabca1fe7bd095a}{dg\+::deepcore\+::\+Un\+Zip\+File\+::go\+To\+First\+File} ()
+\begin{DoxyCompactList}\small\item\em Goes to the first file in the archive. \end{DoxyCompactList}\item 
+bool \hyperlink{group___utility_module_ga88b7a33f99cbcc1748da060b7233cb9a}{dg\+::deepcore\+::\+Un\+Zip\+File\+::go\+To\+Next\+File} ()
+\begin{DoxyCompactList}\small\item\em Goes to the next file in the archive if possible. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{group___utility_module_ga16985655d6b3bf1f05330d54ca736b0e}{dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File} (uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a memory buffer. \end{DoxyCompactList}\item 
+std\+::ostream \& \hyperlink{group___utility_module_ga2139dc65cb701db211a8fe4970232307}{dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File} (std\+::ostream \&os, const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into an output stream. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \hyperlink{group___utility_module_gaf6c3c8e93c73b827d8dcd06c7b0aa1f8}{dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File} (const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a vector. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___utility_module_gaff912e76c9566cf07f198acc2df1decc}{dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File\+To\+String} (const std\+::string \&password=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Reads the current file from the archive into a string. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___utility_module_ga4c5433ff98fc88ebe244871a16660e0f}{dg\+::deepcore\+::\+Un\+Zip\+File\+::file\+Name} () const 
+\begin{DoxyCompactList}\small\item\em Returns the name and path of the current file in the archive. \end{DoxyCompactList}\item 
+const uint64\+\_\+t \hyperlink{group___utility_module_ga447144b52bd10fb30c362d8b05f9547a}{dg\+::deepcore\+::\+Un\+Zip\+File\+::file\+Size} () const 
+\begin{DoxyCompactList}\small\item\em Returns the uncompressed file size of the current file in the archive. \end{DoxyCompactList}\item 
+bool \hyperlink{group___utility_module_gafd884d3fc036bfe37ec3e4e4c272d466}{dg\+::deepcore\+::\+Un\+Zip\+File\+::encrypted} () const 
+\begin{DoxyCompactList}\small\item\em Returns whether the current file is encrypted. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gaeb5b4a5bdcfb3401601b79d5b2b8d67f}{dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File} (std\+::ostream \&os)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} to write the given output stream. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_gafa1ff9f05e738574c7ab39179c553a10}{dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File} (const std\+::string \&file\+Name)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} that creates or overwrites a file on disk. \end{DoxyCompactList}\item 
+\hyperlink{group___utility_module_ga4a3d14bf12cdc92d728b1bee2ef3afbe}{dg\+::deepcore\+::\+Zip\+File\+::$\sim$\+Zip\+File} ()
+\begin{DoxyCompactList}\small\item\em Destructs the \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object and closes the zip file. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gab6e19571b30242e6604590e978a932ef}{dg\+::deepcore\+::\+Zip\+File\+::close} ()
+\begin{DoxyCompactList}\small\item\em Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object is no longer usable after it\textquotesingle{}s closed. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gabe05472ab2b9e7af516484c107dafe5a}{dg\+::deepcore\+::\+Zip\+File\+::add\+File} (const std\+::string \&zip\+Path, const std\+::string \&file\+Name, const std\+::string \&password=\char`\"{}\char`\"{}, Compression\+Level level=D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from given path. Input file must be readable. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_ga14fc46ab41bdf091a4e278e941e175a0}{dg\+::deepcore\+::\+Zip\+File\+::add\+File} (const std\+::string \&zip\+Path, std\+::istream \&is, const std\+::string \&password=\char`\"{}\char`\"{}, Compression\+Level level=D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from the given input stream. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gafb1c01f849fc0fc4b33e33285cd39cf5}{dg\+::deepcore\+::\+Zip\+File\+::add\+File} (const std\+::string \&zip\+Path, const std\+::vector$<$ uint8\+\_\+t $>$ \&buf, const std\+::string \&password=\char`\"{}\char`\"{}, Compression\+Level level=D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a vector. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gaffadeb76614f94276dc5631a7f2f3a7a}{dg\+::deepcore\+::\+Zip\+File\+::add\+File} (const std\+::string \&zip\+Path, const uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password=\char`\"{}\char`\"{}, Compression\+Level level=D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a raw memory buffer. \end{DoxyCompactList}\item 
+void \hyperlink{group___utility_module_gad85b99f9708af55dfb3074e9a0a50cf3}{dg\+::deepcore\+::\+Zip\+File\+::add\+File\+From\+String} (const std\+::string \&zip\+Path, const std\+::string \&buf, const std\+::string \&password=\char`\"{}\char`\"{}, Compression\+Level level=D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON)
+\begin{DoxyCompactList}\small\item\em Adds a file to the archive from a string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Contains utilities that include DG\textquotesingle{}s error and logger handling, as well as zip file functionality, boost program options and progress bars. 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{Utility@{Utility}!D\+G\+\_\+\+C\+H\+E\+CK@{D\+G\+\_\+\+C\+H\+E\+CK}}
+\index{D\+G\+\_\+\+C\+H\+E\+CK@{D\+G\+\_\+\+C\+H\+E\+CK}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+C\+H\+E\+CK}{DG_CHECK}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+C\+H\+E\+CK(
+\begin{DoxyParamCaption}
+\item[{}]{condition, }
+\item[{}]{message, }
+\item[{}]{args...}
+\end{DoxyParamCaption}
+)~if(!(condition)) \{ {\bf D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}(message, \#\#args); \}}\hypertarget{group___utility_module_gaa226e9947e37cd076e8adf02ab473910}{}\label{group___utility_module_gaa226e9947e37cd076e8adf02ab473910}
+
+
+Checks the condition and throws an Error if the condition is false. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em condition} & The condition to check. \\
+\hline
+\mbox{\tt in}  & {\em message} & The sprintf-\/style format for the error message if condition is false. \\
+\hline
+\mbox{\tt in}  & {\em ...} & Arguments for format specification. \\
+\hline
+\mbox{\tt in}  & {\em args} & Arguments for format specification. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT}}
+\index{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT}{DG_ERROR_INIT}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+I\+N\+IT(
+\begin{DoxyParamCaption}
+\item[{}]{format, }
+\item[{}]{args...}
+\end{DoxyParamCaption}
+)~{\bf dg\+::deepcore\+::\+Error\+::from\+Format}(\+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+, format, \#\#args)}\hypertarget{group___utility_module_gaf6227f9c970f2c98edd3520ed616f6ec}{}\label{group___utility_module_gaf6227f9c970f2c98edd3520ed616f6ec}
+
+
+Initializes an Error for the current position in code, allows for sprintf-\/style message formatting. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em format} & The sprintf-\/style format for the error message. \\
+\hline
+\mbox{\tt in}  & {\em ...} & Arguments for format specification. \\
+\hline
+\mbox{\tt in}  & {\em args} & Arguments for format specification. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of the Error class initialized with the message and the current file, line, and function. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG}}
+\index{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG}{DG_ERROR_LOG}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+L\+OG(
+\begin{DoxyParamCaption}
+\item[{}]{channel, }
+\item[{}]{error}
+\end{DoxyParamCaption}
+)~error.\+log(\#channel)}\hypertarget{group___utility_module_ga43295d768f6d9ee49180610e3d1a99ee}{}\label{group___utility_module_ga43295d768f6d9ee49180610e3d1a99ee}
+
+
+Logs the Error. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em channel} & The log channel. \\
+\hline
+\mbox{\tt in}  & {\em error} & The Error to log. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}}
+\index{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW@{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW}{DG_ERROR_THROW}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+E\+R\+R\+O\+R\+\_\+\+T\+H\+R\+OW(
+\begin{DoxyParamCaption}
+\item[{}]{format, }
+\item[{}]{args...}
+\end{DoxyParamCaption}
+)~throw {\bf dg\+::deepcore\+::\+Error\+::from\+Format}(\+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+, format, \#\#args)}\hypertarget{group___utility_module_ga0460fddf1407217eacdeff8e007cbdbf}{}\label{group___utility_module_ga0460fddf1407217eacdeff8e007cbdbf}
+
+
+Throws an Error for the current position in code, allows for sprintf-\/style message formatting. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em format} & The sprintf-\/style format for the error message. \\
+\hline
+\mbox{\tt in}  & {\em ...} & Arguments for format specification.. \\
+\hline
+\mbox{\tt in}  & {\em args} & Arguments for format specification. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!D\+G\+\_\+\+L\+OG@{D\+G\+\_\+\+L\+OG}}
+\index{D\+G\+\_\+\+L\+OG@{D\+G\+\_\+\+L\+OG}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+L\+OG}{DG_LOG}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+L\+OG(
+\begin{DoxyParamCaption}
+\item[{}]{channel, }
+\item[{}]{sev}
+\end{DoxyParamCaption}
+)~{\bf D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}( \+::{\bf dg\+::deepcore\+::log\+::thread\+Logger}(), channel, sev)}\hypertarget{group___utility_module_gaccdc4ecc408590a0c9e70a014e36df03}{}\label{group___utility_module_gaccdc4ecc408590a0c9e70a014e36df03}
+
+
+Create a ostream to log a message to the global logging framework at a given severity. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em channel} & the channel to which to associate this message \\
+\hline
+\mbox{\tt in}  & {\em sev} & the severity of the log message\\
+\hline
+\end{DoxyParams}
+Severity (case sensitive) must be one of \{trace, debug, info, warning, error, fatal\} \index{Utility@{Utility}!D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL@{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}}
+\index{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL@{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL}{DG_LOG_LOCAL}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+AL(
+\begin{DoxyParamCaption}
+\item[{}]{dg\+\_\+logger, }
+\item[{}]{channel, }
+\item[{}]{sev}
+\end{DoxyParamCaption}
+)~{\bf D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}(dg\+\_\+logger, channel, sev, \+\_\+\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+L\+I\+N\+E\+\_\+\+\_\+, \+\_\+\+\_\+\+F\+U\+N\+C\+T\+I\+O\+N\+\_\+\+\_\+)}\hypertarget{group___utility_module_gaf0f303ba463f71805710b4ad637b5140}{}\label{group___utility_module_gaf0f303ba463f71805710b4ad637b5140}
+
+
+Create a ostream to log a message to a local logging object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dg\+\_\+logger} & the logger object to which to push the message \\
+\hline
+\mbox{\tt in}  & {\em channel} & the channel to which to associate this message \\
+\hline
+\mbox{\tt in}  & {\em sev} & the severity of the log message\\
+\hline
+\end{DoxyParams}
+Severity (case sensitive) must be one of \{trace, debug, info, warning, error, fatal\} \index{Utility@{Utility}!D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS@{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}}
+\index{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS@{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS}{DG_LOG_LOCAL_PARAMS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+G\+\_\+\+L\+O\+G\+\_\+\+L\+O\+C\+A\+L\+\_\+\+P\+A\+R\+A\+MS(
+\begin{DoxyParamCaption}
+\item[{}]{dg\+\_\+logger, }
+\item[{}]{channel, }
+\item[{}]{sev, }
+\item[{}]{filename, }
+\item[{}]{line, }
+\item[{}]{function}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga5da92d91fa3446e9251ec613e360b8d5}{}\label{group___utility_module_ga5da92d91fa3446e9251ec613e360b8d5}
+{\bfseries Value\+:}
+\begin{DoxyCode}
+BOOST\_LOG\_STREAM\_WITH\_PARAMS( \(\backslash\)
+       (dg\_logger.logger()), \(\backslash\)
+          (dg\_logger.setScope(#channel, filename, line, \textcolor{keyword}{function})) \(\backslash\)
+          (::boost::log::keywords::severity = (::boost::log::trivial::sev)) \(\backslash\)
+    )
+\end{DoxyCode}
+
+
+Create a ostream to log a message to a local logging object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dg\+\_\+logger} & the logger object to which to push the message \\
+\hline
+\mbox{\tt in}  & {\em channel} & the channel to which to associate this message \\
+\hline
+\mbox{\tt in}  & {\em sev} & the severity of the log message \\
+\hline
+\mbox{\tt in}  & {\em filename} & the filename attribute \\
+\hline
+\mbox{\tt in}  & {\em line} & the line attribute \\
+\hline
+\mbox{\tt in}  & {\em function} & the function attribute\\
+\hline
+\end{DoxyParams}
+Severity (case sensitive) must be one of \{trace, debug, info, warning, error, fatal\} 
+
+\subsection{Typedef Documentation}
+\index{Utility@{Utility}!Call\+Stack@{Call\+Stack}}
+\index{Call\+Stack@{Call\+Stack}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Call\+Stack}{CallStack}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::\+Call\+Stack} = typedef std\+::vector$<$Call\+Stack\+Symbol$>$}\hypertarget{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}{}\label{group___utility_module_gabdf2d70ae3aab3c57142eddec69a725c}
+
+
+Represents a callstack. 
+
+\index{Utility@{Utility}!Error\+Func@{Error\+Func}}
+\index{Error\+Func@{Error\+Func}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error\+Func}{ErrorFunc}}]{\setlength{\rightskip}{0pt plus 5cm}using {\bf dg\+::deepcore\+::\+Error\+Func} = typedef std\+::function$<$Error$\ast$(const Error\& e)$>$}\hypertarget{group___utility_module_gaa93ea71a4ed4c044369d3b323aec4435}{}\label{group___utility_module_gaa93ea71a4ed4c044369d3b323aec4435}
+
+
+An \hyperlink{classdg_1_1deepcore_1_1_error}{Error} callback function. The can examine the input error and transform it if necessary. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was transformed, the function should return a new \hyperlink{classdg_1_1deepcore_1_1_error}{Error} instance. The caller will take ownership of the pointer. If the \hyperlink{classdg_1_1deepcore_1_1_error}{Error} does not need to be transformed, the function should return nullptr. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em e} & The input \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classdg_1_1deepcore_1_1_error}{Error}, or nullptr if \hyperlink{classdg_1_1deepcore_1_1_error}{Error} was not transformed. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!Progress@{Progress}}
+\index{Progress@{Progress}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Progress}{Progress}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dg\+::deepcore\+::\+Progress}}\hypertarget{group___utility_module_gae07fce8a40a5222a0dcd537a0b28a008}{}\label{group___utility_module_gae07fce8a40a5222a0dcd537a0b28a008}
+
+
+A progress reporting callback with ability to display additional information. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em progress} & Progress value, must be a value in range from 0.\+0 to 1.\+0. \\
+\hline
+\mbox{\tt in}  & {\em status} & Additional information to display. If status is nullptr, status did not change. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Utility@{Utility}!Simple\+Progress@{Simple\+Progress}}
+\index{Simple\+Progress@{Simple\+Progress}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Simple\+Progress}{SimpleProgress}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dg\+::deepcore\+::\+Simple\+Progress}}\hypertarget{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{}\label{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}
+
+
+A simple progress reporting callback. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em progress} & Progress value, must be a value in range from 0.\+0 to 1.\+0. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Function Documentation}
+\index{Utility@{Utility}!add\+Cerr\+Sink@{add\+Cerr\+Sink}}
+\index{add\+Cerr\+Sink@{add\+Cerr\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+Cerr\+Sink(level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)}{addCerrSink(level_t minLevel, level_t maxLevel, dg_log_format format)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ dg\+::deepcore\+::log\+::add\+Cerr\+Sink (
+\begin{DoxyParamCaption}
+\item[{{\bf level\+\_\+t}}]{min\+Level, }
+\item[{{\bf level\+\_\+t}}]{max\+Level, }
+\item[{{\bf dg\+\_\+log\+\_\+format}}]{format}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga185ecc92fb211afe98782f6f8b1d7e97}{}\label{group___utility_module_ga185ecc92fb211afe98782f6f8b1d7e97}
+
+
+add a simple log sink which directs output to cerr 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em min\+Level} & the minimum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em max\+Level} & the maximum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em format} & the formatter to use for this sink \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the sink which was added to the log framework 
+\end{DoxyReturn}
+\index{Utility@{Utility}!add\+Clog\+Sink@{add\+Clog\+Sink}}
+\index{add\+Clog\+Sink@{add\+Clog\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+Clog\+Sink(level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)}{addClogSink(level_t minLevel, level_t maxLevel, dg_log_format format)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ dg\+::deepcore\+::log\+::add\+Clog\+Sink (
+\begin{DoxyParamCaption}
+\item[{{\bf level\+\_\+t}}]{min\+Level, }
+\item[{{\bf level\+\_\+t}}]{max\+Level, }
+\item[{{\bf dg\+\_\+log\+\_\+format}}]{format}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga9db801100c707255528a26083ff913df}{}\label{group___utility_module_ga9db801100c707255528a26083ff913df}
+
+
+add a simple log sink which directs output to clog 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em min\+Level} & the minimum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em max\+Level} & the maximum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em format} & the formatter to use for this sink \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the sink which was added to the log framework 
+\end{DoxyReturn}
+\index{Utility@{Utility}!add\+Cout\+Sink@{add\+Cout\+Sink}}
+\index{add\+Cout\+Sink@{add\+Cout\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+Cout\+Sink(level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)}{addCoutSink(level_t minLevel, level_t maxLevel, dg_log_format format)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ dg\+::deepcore\+::log\+::add\+Cout\+Sink (
+\begin{DoxyParamCaption}
+\item[{{\bf level\+\_\+t}}]{min\+Level, }
+\item[{{\bf level\+\_\+t}}]{max\+Level, }
+\item[{{\bf dg\+\_\+log\+\_\+format}}]{format}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gab685eb3b065e30feda59f337bd016cb3}{}\label{group___utility_module_gab685eb3b065e30feda59f337bd016cb3}
+
+
+add a simple log sink which directs output to cout 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em min\+Level} & the minimum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em max\+Level} & the maximum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em format} & the formatter to use for this sink \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the sink which was added to the log framework 
+\end{DoxyReturn}
+\index{Utility@{Utility}!add\+File@{add\+File}}
+\index{add\+File@{add\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+File(const std\+::string \&zip\+Path, const std\+::string \&file\+Name, const std\+::string \&password="""", Compression\+Level level=\+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+O\+N)}{addFile(const std::string &zipPath, const std::string &fileName, const std::string &password="", CompressionLevel level=DEFAULT_COMPRESSION)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::add\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{zip\+Path, }
+\item[{const std\+::string \&}]{file\+Name, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}, }
+\item[{{\bf Compression\+Level}}]{level = {\ttfamily {\bf D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gabe05472ab2b9e7af516484c107dafe5a}{}\label{group___utility_module_gabe05472ab2b9e7af516484c107dafe5a}
+
+
+Adds a file to the archive from given path. Input file must be readable. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em zip\+Path} & Path and file name that the file will have inside the archive. \\
+\hline
+\mbox{\tt in}  & {\em file\+Name} & Path to the input file. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for encryption. No encryption is perform if password is blank. \\
+\hline
+\mbox{\tt in}  & {\em level} & Zip compression level for the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!add\+File@{add\+File}}
+\index{add\+File@{add\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+File(const std\+::string \&zip\+Path, std\+::istream \&is, const std\+::string \&password="""", Compression\+Level level=\+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+O\+N)}{addFile(const std::string &zipPath, std::istream &is, const std::string &password="", CompressionLevel level=DEFAULT_COMPRESSION)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::add\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{zip\+Path, }
+\item[{std\+::istream \&}]{is, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}, }
+\item[{{\bf Compression\+Level}}]{level = {\ttfamily {\bf D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga14fc46ab41bdf091a4e278e941e175a0}{}\label{group___utility_module_ga14fc46ab41bdf091a4e278e941e175a0}
+
+
+Adds a file to the archive from the given input stream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em zip\+Path} & Path and file name that the file will have inside the archive. \\
+\hline
+\mbox{\tt in}  & {\em is} & The input stream to read from. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for encryption. No encryption is perform if password is blank. \\
+\hline
+\mbox{\tt in}  & {\em level} & Zip compression level for the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!add\+File@{add\+File}}
+\index{add\+File@{add\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+File(const std\+::string \&zip\+Path, const std\+::vector$<$ uint8\+\_\+t $>$ \&buf, const std\+::string \&password="""", Compression\+Level level=\+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+O\+N)}{addFile(const std::string &zipPath, const std::vector< uint8_t > &buf, const std::string &password="", CompressionLevel level=DEFAULT_COMPRESSION)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::add\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{zip\+Path, }
+\item[{const std\+::vector$<$ uint8\+\_\+t $>$ \&}]{buf, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}, }
+\item[{{\bf Zip\+File\+::\+Compression\+Level}}]{level = {\ttfamily {\bf D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gafb1c01f849fc0fc4b33e33285cd39cf5}{}\label{group___utility_module_gafb1c01f849fc0fc4b33e33285cd39cf5}
+
+
+Adds a file to the archive from a vector. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em zip\+Path} & Path and file name that the file will have inside the archive. \\
+\hline
+\mbox{\tt in}  & {\em buf} & The vector to read from. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for encryption. No encryption is perform if password is blank. \\
+\hline
+\mbox{\tt in}  & {\em level} & Zip compression level for the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!add\+File@{add\+File}}
+\index{add\+File@{add\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+File(const std\+::string \&zip\+Path, const uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password="""", Compression\+Level level=\+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+O\+N)}{addFile(const std::string &zipPath, const uint8_t *buf, size_t size, const std::string &password="", CompressionLevel level=DEFAULT_COMPRESSION)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::add\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{zip\+Path, }
+\item[{const uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{size, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}, }
+\item[{{\bf Zip\+File\+::\+Compression\+Level}}]{level = {\ttfamily {\bf D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaffadeb76614f94276dc5631a7f2f3a7a}{}\label{group___utility_module_gaffadeb76614f94276dc5631a7f2f3a7a}
+
+
+Adds a file to the archive from a raw memory buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em zip\+Path} & Path and file name that the file will have inside the archive. \\
+\hline
+\mbox{\tt in}  & {\em buf} & The input buffer to read from. \\
+\hline
+\mbox{\tt in}  & {\em size} & Size of the input buffer. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for encryption. No encryption is perform if password is blank. \\
+\hline
+\mbox{\tt in}  & {\em level} & Zip compression level for the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!add\+File\+From\+String@{add\+File\+From\+String}}
+\index{add\+File\+From\+String@{add\+File\+From\+String}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+File\+From\+String(const std\+::string \&zip\+Path, const std\+::string \&buf, const std\+::string \&password="""", Compression\+Level level=\+D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+O\+N)}{addFileFromString(const std::string &zipPath, const std::string &buf, const std::string &password="", CompressionLevel level=DEFAULT_COMPRESSION)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::add\+File\+From\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{zip\+Path, }
+\item[{const std\+::string \&}]{buf, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}, }
+\item[{{\bf Zip\+File\+::\+Compression\+Level}}]{level = {\ttfamily {\bf D\+E\+F\+A\+U\+L\+T\+\_\+\+C\+O\+M\+P\+R\+E\+S\+S\+I\+ON}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gad85b99f9708af55dfb3074e9a0a50cf3}{}\label{group___utility_module_gad85b99f9708af55dfb3074e9a0a50cf3}
+
+
+Adds a file to the archive from a string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em zip\+Path} & Path and file name that the file will have inside the archive. \\
+\hline
+\mbox{\tt in}  & {\em buf} & The input string to read from. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for encryption. No encryption is perform if password is blank. \\
+\hline
+\mbox{\tt in}  & {\em level} & Zip compression level for the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!add\+Sink@{add\+Sink}}
+\index{add\+Sink@{add\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+Sink(boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)}{addSink(boost::shared_ptr< sinks::sink > const &sink)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ dg\+::deepcore\+::log\+::add\+Sink (
+\begin{DoxyParamCaption}
+\item[{boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&}]{sink}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga44021d28fcb20375f28dc6b2dfcc8e06}{}\label{group___utility_module_ga44021d28fcb20375f28dc6b2dfcc8e06}
+
+
+add a complex log sink 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em sink} & the sink to add \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the sink which was added to the log framework 
+\end{DoxyReturn}
+\index{Utility@{Utility}!add\+Stream\+Sink@{add\+Stream\+Sink}}
+\index{add\+Stream\+Sink@{add\+Stream\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{add\+Stream\+Sink(boost\+::shared\+\_\+ptr$<$ std\+::ostream $>$ const \&stream, level\+\_\+t min\+Level, level\+\_\+t max\+Level, dg\+\_\+log\+\_\+format format)}{addStreamSink(boost::shared_ptr< std::ostream > const &stream, level_t minLevel, level_t maxLevel, dg_log_format format)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ dg\+::deepcore\+::log\+::add\+Stream\+Sink (
+\begin{DoxyParamCaption}
+\item[{boost\+::shared\+\_\+ptr$<$ std\+::ostream $>$ const \&}]{stream, }
+\item[{{\bf level\+\_\+t}}]{min\+Level, }
+\item[{{\bf level\+\_\+t}}]{max\+Level, }
+\item[{{\bf dg\+\_\+log\+\_\+format}}]{format}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gafe05a271abd51b48bd7dea8104793704}{}\label{group___utility_module_gafe05a271abd51b48bd7dea8104793704}
+
+
+add a simple log sink which directs output to clog 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em stream} & the stream to add with the given format and filter \\
+\hline
+\mbox{\tt in}  & {\em min\+Level} & the minimum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em max\+Level} & the maximum level (inclusive) for output of messages to this sink \\
+\hline
+\mbox{\tt in}  & {\em format} & the formatter to use for this sink \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the sink which was added to the log framework 
+\end{DoxyReturn}
+\index{Utility@{Utility}!almost\+Eq@{almost\+Eq}}
+\index{almost\+Eq@{almost\+Eq}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{almost\+Eq(\+T x, T y, int ulp=4)}{almostEq(T x, T y, int ulp=4)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$T$>$\+::is\+\_\+integer, bool$>$\+::type dg\+::deepcore\+::almost\+Eq (
+\begin{DoxyParamCaption}
+\item[{T}]{x, }
+\item[{T}]{y, }
+\item[{int}]{ulp = {\ttfamily 4}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaab89548f655eaadb805d9099ea0ec616}{}\label{group___utility_module_gaab89548f655eaadb805d9099ea0ec616}
+
+
+Checks if the two numbers are approximately equal. 
+
+Reference\+: \href{http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon}{\tt link text}
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Number format, must be floating point. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em x} & First number to compare. \\
+\hline
+\mbox{\tt in}  & {\em y} & Second number to compare. \\
+\hline
+\mbox{\tt in}  & {\em ulp} & Precision in units in last place. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether the two numbers are approximately equal. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!almost\+Eq@{almost\+Eq}}
+\index{almost\+Eq@{almost\+Eq}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{almost\+Eq(const cv\+::\+Point\+\_\+$<$ T $>$ \&p1, const cv\+::\+Point\+\_\+$<$ T $>$ \&p2, int ulp=4)}{almostEq(const cv::Point_< T > &p1, const cv::Point_< T > &p2, int ulp=4)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$T$>$\+::is\+\_\+integer, bool$>$\+::type dg\+::deepcore\+::almost\+Eq (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Point\+\_\+$<$ T $>$ \&}]{p1, }
+\item[{const cv\+::\+Point\+\_\+$<$ T $>$ \&}]{p2, }
+\item[{int}]{ulp = {\ttfamily 4}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga2096c3bec84b70855daa9399ec178fe2}{}\label{group___utility_module_ga2096c3bec84b70855daa9399ec178fe2}
+
+
+Checks if the two cv\+::\+Point\+\_\+$<$\+T$>$ coordinates are approximately equal. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em p1} & The first point to compare. \\
+\hline
+\mbox{\tt in}  & {\em p2} & The second point to compare. \\
+\hline
+\mbox{\tt in}  & {\em ulp} & Precision in units in last place. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether the two coordinates are approximately equal. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!almost\+Eq@{almost\+Eq}}
+\index{almost\+Eq@{almost\+Eq}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{almost\+Eq(const cv\+::\+Size\+\_\+$<$ T $>$ \&s1, const cv\+::\+Size\+\_\+$<$ T $>$ \&s2, int ulp=4)}{almostEq(const cv::Size_< T > &s1, const cv::Size_< T > &s2, int ulp=4)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$T$>$\+::is\+\_\+integer, bool$>$\+::type dg\+::deepcore\+::almost\+Eq (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Size\+\_\+$<$ T $>$ \&}]{s1, }
+\item[{const cv\+::\+Size\+\_\+$<$ T $>$ \&}]{s2, }
+\item[{int}]{ulp = {\ttfamily 4}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga71b9189756badfb3f5466bf9f0549203}{}\label{group___utility_module_ga71b9189756badfb3f5466bf9f0549203}
+
+
+Checks if the two cv\+::\+Size\+\_\+$<$\+T$>$ sizes are approximately equal. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em s1} & The first size to compare. \\
+\hline
+\mbox{\tt in}  & {\em s2} & The second size to compare. \\
+\hline
+\mbox{\tt in}  & {\em ulp} & Precision in units in last place. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether the two sizes are approximately equal. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!almost\+Eq@{almost\+Eq}}
+\index{almost\+Eq@{almost\+Eq}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{almost\+Eq(const cv\+::\+Rect\+\_\+$<$ T $>$ \&r1, const cv\+::\+Rect\+\_\+$<$ T $>$ \&r2, int ulp=4)}{almostEq(const cv::Rect_< T > &r1, const cv::Rect_< T > &r2, int ulp=4)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ std\+::enable\+\_\+if$<$!std\+::numeric\+\_\+limits$<$T$>$\+::is\+\_\+integer, bool$>$\+::type dg\+::deepcore\+::almost\+Eq (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Rect\+\_\+$<$ T $>$ \&}]{r1, }
+\item[{const cv\+::\+Rect\+\_\+$<$ T $>$ \&}]{r2, }
+\item[{int}]{ulp = {\ttfamily 4}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga115e2428efbb3b6d3105d8f2fab75e51}{}\label{group___utility_module_ga115e2428efbb3b6d3105d8f2fab75e51}
+
+
+Checks if the two cv\+::\+Rect\+\_\+$<$\+T$>$ rectangles are approximately equal. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em r1} & The first rectangle to compare. \\
+\hline
+\mbox{\tt in}  & {\em r2} & The second rectangle to compare. \\
+\hline
+\mbox{\tt in}  & {\em ulp} & Precision in units in last place. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether the two rectangles are approximately equal. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!bounded\+\_\+value@{bounded\+\_\+value}}
+\index{bounded\+\_\+value@{bounded\+\_\+value}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{bounded\+\_\+value(\+T $\ast$store\+\_\+to=nullptr)}{bounded_value(T *store_to=nullptr)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T , class charT  = char$>$ bounded\+\_\+typed\+\_\+value$<$T, charT$>$$\ast$ boost\+::program\+\_\+options\+::bounded\+\_\+value (
+\begin{DoxyParamCaption}
+\item[{T $\ast$}]{store\+\_\+to = {\ttfamily nullptr}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga29195cfb403d70365c30a76867c787b5}{}\label{group___utility_module_ga29195cfb403d70365c30a76867c787b5}
+
+
+Creates a new instance of \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em store\+\_\+to} & Pointer to a variable that automatically receives the argument\textquotesingle{}s value.\\
+\hline
+\end{DoxyParams}
+Usage example\+: 
+\begin{DoxyCode}
+boost::program\_options::options\_description desc;
+desc.add\_options()
+    (\textcolor{stringliteral}{"bounding-box,b"}, boost::program\_options::bounded\_value<vector<double>>()->fixed\_tokens(4), \textcolor{stringliteral}{"Bounding
+       box"});
+\end{DoxyCode}
+
+
+\begin{DoxyReturn}{Returns}
+A new instance of \hyperlink{classboost_1_1program__options_1_1bounded__typed__value}{bounded\+\_\+typed\+\_\+value}. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!categories@{categories}}
+\index{categories@{categories}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{categories() const noexcept}{categories() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const vector$<$ string $>$ \& dg\+::deepcore\+::\+Multi\+Progress\+Display\+::categories (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga89b9c96322231a81b2e64f178a8291e3}{}\label{group___utility_module_ga89b9c96322231a81b2e64f178a8291e3}
+
+
+Gets the categories. 
+
+\begin{DoxyReturn}{Returns}
+The categories. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!close@{close}}
+\index{close@{close}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{close()}{close()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Un\+Zip\+File\+::close (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga6f28d71dffa80123aaa68ebf44783d0c}{}\label{group___utility_module_ga6f28d71dffa80123aaa68ebf44783d0c}
+
+
+Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object is no longer usable after it\textquotesingle{}s closed. 
+
+\index{Utility@{Utility}!close@{close}}
+\index{close@{close}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{close()}{close()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Zip\+File\+::close (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gab6e19571b30242e6604590e978a932ef}{}\label{group___utility_module_gab6e19571b30242e6604590e978a932ef}
+
+
+Closes the zip file. \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object is no longer usable after it\textquotesingle{}s closed. 
+
+\index{Utility@{Utility}!degrees@{degrees}}
+\index{degrees@{degrees}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{degrees(double radians) noexcept}{degrees(double radians) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}double dg\+::deepcore\+::degrees (
+\begin{DoxyParamCaption}
+\item[{double}]{radians}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}{}\label{group___utility_module_gac74d2fa0aeac8bd310ed61663a153e84}
+
+
+Convert radians to degrees. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em radians} & Value in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in degrees. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!degrees@{degrees}}
+\index{degrees@{degrees}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{degrees(const cv\+::\+Point2d \&radians) noexcept}{degrees(const cv::Point2d &radians) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point2d dg\+::deepcore\+::degrees (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Point2d \&}]{radians}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga8ee006518e8f0489aa3e18166d74c6fe}{}\label{group___utility_module_ga8ee006518e8f0489aa3e18166d74c6fe}
+
+
+Convert radians to degrees. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em radians} & Value in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in degrees. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!degrees@{degrees}}
+\index{degrees@{degrees}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{degrees(const cv\+::\+Size2d \&radians) noexcept}{degrees(const cv::Size2d &radians) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size2d dg\+::deepcore\+::degrees (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Size2d \&}]{radians}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_gaa1f8aec2237eca2394ae5df2528e8eca}{}\label{group___utility_module_gaa1f8aec2237eca2394ae5df2528e8eca}
+
+
+Convert radians to degrees. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em radians} & Value in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in degrees. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!degrees@{degrees}}
+\index{degrees@{degrees}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{degrees(const cv\+::\+Rect2d \&radians) noexcept}{degrees(const cv::Rect2d &radians) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Rect2d dg\+::deepcore\+::degrees (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Rect2d \&}]{radians}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga1be3f98796bf80ec2aa5899e73269be7}{}\label{group___utility_module_ga1be3f98796bf80ec2aa5899e73269be7}
+
+
+Convert radians to degrees. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em radians} & Value in radians. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in degrees. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!encrypted@{encrypted}}
+\index{encrypted@{encrypted}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{encrypted() const }{encrypted() const }}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::\+Un\+Zip\+File\+::encrypted (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}\hypertarget{group___utility_module_gafd884d3fc036bfe37ec3e4e4c272d466}{}\label{group___utility_module_gafd884d3fc036bfe37ec3e4e4c272d466}
+
+
+Returns whether the current file is encrypted. 
+
+\begin{DoxyReturn}{Returns}
+Whether the current file is encrypted. 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+It\textquotesingle{}s up to the caller to check this flag before deciding whether to pass a password to \hyperlink{group___utility_module_ga16985655d6b3bf1f05330d54ca736b0e}{Un\+Zip\+File\+::read\+File}. 
+\end{DoxyNote}
+\index{Utility@{Utility}!Error@{Error}}
+\index{Error@{Error}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error(const char $\ast$file, const unsigned int line, const char $\ast$function, const char $\ast$message)}{Error(const char *file, const unsigned int line, const char *function, const char *message)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const char $\ast$}]{function, }
+\item[{const char $\ast$}]{message}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga345a7202460cb865e17cff4a78c7bcf6}{}\label{group___utility_module_ga345a7202460cb865e17cff4a78c7bcf6}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em message} & The error message. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Error@{Error}}
+\index{Error@{Error}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error(const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message)}{Error(const char *file, const unsigned int line, const char *function, const std::string &message)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const char $\ast$}]{function, }
+\item[{const std\+::string \&}]{message}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gab98e5ffafca5efc6945f295698550854}{}\label{group___utility_module_gab98e5ffafca5efc6945f295698550854}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em message} & The error message. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Error@{Error}}
+\index{Error@{Error}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error(const std\+::string \&file, const unsigned int line, const std\+::string \&function, const std\+::string \&message)}{Error(const std::string &file, const unsigned int line, const std::string &function, const std::string &message)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const std\+::string \&}]{function, }
+\item[{const std\+::string \&}]{message}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga0e8a3ee91298ab22afb0d7146afa23fb}{}\label{group___utility_module_ga0e8a3ee91298ab22afb0d7146afa23fb}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em message} & The error message. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Error@{Error}}
+\index{Error@{Error}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error(const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message, size\+\_\+t skip\+Levels)}{Error(const char *file, const unsigned int line, const char *function, const std::string &message, size_t skipLevels)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const char $\ast$}]{function, }
+\item[{const std\+::string \&}]{message, }
+\item[{size\+\_\+t}]{skip\+Levels}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{group___utility_module_ga50ae85ad2e348408fa2552abfb6570f9}{}\label{group___utility_module_ga50ae85ad2e348408fa2552abfb6570f9}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to skip callstack levels. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em message} & The error message. \\
+\hline
+\mbox{\tt in}  & {\em skip\+Levels} & The number of callstack levels to skip when recording the callstack. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Error@{Error}}
+\index{Error@{Error}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Error(const char $\ast$file, const unsigned int line, const char $\ast$function, const std\+::string \&message, const Call\+Stack \&call\+Stack\+Override)}{Error(const char *file, const unsigned int line, const char *function, const std::string &message, const CallStack &callStackOverride)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Error\+::\+Error (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const char $\ast$}]{function, }
+\item[{const std\+::string \&}]{message, }
+\item[{const {\bf Call\+Stack} \&}]{call\+Stack\+Override}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{group___utility_module_ga3d20a4e6ef5f0579707ccf7b01f235b2}{}\label{group___utility_module_ga3d20a4e6ef5f0579707ccf7b01f235b2}
+
+
+Constructs an \hyperlink{classdg_1_1deepcore_1_1_error}{Error} with ability to override the callstack. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em message} & The error message. \\
+\hline
+\mbox{\tt in}  & {\em call\+Stack\+Override} & The callstack to use for this \hyperlink{classdg_1_1deepcore_1_1_error}{Error} instance. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!file@{file}}
+\index{file@{file}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{file() const noexcept}{file() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::\+Error\+::file (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{}\label{group___utility_module_ga0b75e32780cb8534179ff3c060739496}
+
+
+Gets the source file name in which the error occured. 
+
+\begin{DoxyReturn}{Returns}
+The source file name. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!file\+Name@{file\+Name}}
+\index{file\+Name@{file\+Name}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{file\+Name() const }{fileName() const }}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::\+Un\+Zip\+File\+::file\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}\hypertarget{group___utility_module_ga4c5433ff98fc88ebe244871a16660e0f}{}\label{group___utility_module_ga4c5433ff98fc88ebe244871a16660e0f}
+
+
+Returns the name and path of the current file in the archive. 
+
+\begin{DoxyReturn}{Returns}
+The current file name.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!file\+Size@{file\+Size}}
+\index{file\+Size@{file\+Size}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{file\+Size() const }{fileSize() const }}]{\setlength{\rightskip}{0pt plus 5cm}const uint64\+\_\+t dg\+::deepcore\+::\+Un\+Zip\+File\+::file\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const}\hypertarget{group___utility_module_ga447144b52bd10fb30c362d8b05f9547a}{}\label{group___utility_module_ga447144b52bd10fb30c362d8b05f9547a}
+
+
+Returns the uncompressed file size of the current file in the archive. 
+
+\begin{DoxyReturn}{Returns}
+The uncompressed size of the current file.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!fixed\+\_\+tokens@{fixed\+\_\+tokens}}
+\index{fixed\+\_\+tokens@{fixed\+\_\+tokens}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{fixed\+\_\+tokens(unsigned num\+\_\+tokens)}{fixed_tokens(unsigned num_tokens)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T, class charT = char$>$ bounded\+\_\+typed\+\_\+value$\ast$ {\bf boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value}$<$ T, charT $>$\+::fixed\+\_\+tokens (
+\begin{DoxyParamCaption}
+\item[{unsigned}]{num\+\_\+tokens}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{group___utility_module_ga1a9caf446ce6f236f70dfd6a54885478}{}\label{group___utility_module_ga1a9caf446ce6f236f70dfd6a54885478}
+
+
+Sets the exact number of tokens the value accepts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+tokens} & Number of tokens to accept. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to this. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!from\+Format@{from\+Format}}
+\index{from\+Format@{from\+Format}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{from\+Format(const char $\ast$file, const unsigned int line, const char $\ast$function, const char $\ast$format,...) noexcept}{fromFormat(const char *file, const unsigned int line, const char *function, const char *format,...) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}Error dg\+::deepcore\+::\+Error\+::from\+Format (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{file, }
+\item[{const unsigned int}]{line, }
+\item[{const char $\ast$}]{function, }
+\item[{const char $\ast$}]{format, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga00500e337578c7170d2608cb93af4f51}{}\label{group___utility_module_ga00500e337578c7170d2608cb93af4f51}
+
+
+Creates an error with a message that can be formatted using sprintf-\/style format. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file} & Name of source file in which the error occurred. \\
+\hline
+\mbox{\tt in}  & {\em line} & Source line number for the error. \\
+\hline
+\mbox{\tt in}  & {\em function} & Function name in which the error occured. \\
+\hline
+\mbox{\tt in}  & {\em format} & The sprintf-\/style format specifier for the error message. \\
+\hline
+\mbox{\tt in}  & {\em ...} & Arguments for format specification. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The error. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!function@{function}}
+\index{function@{function}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{function() const noexcept}{function() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::\+Error\+::function (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{}\label{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}
+
+
+Returns the function name in which the error occured. 
+
+\begin{DoxyReturn}{Returns}
+The function name. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!go\+To\+First\+File@{go\+To\+First\+File}}
+\index{go\+To\+First\+File@{go\+To\+First\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{go\+To\+First\+File()}{goToFirstFile()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Un\+Zip\+File\+::go\+To\+First\+File (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga065f405804b43cb3fdabca1fe7bd095a}{}\label{group___utility_module_ga065f405804b43cb3fdabca1fe7bd095a}
+
+
+Goes to the first file in the archive. 
+
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!go\+To\+Next\+File@{go\+To\+Next\+File}}
+\index{go\+To\+Next\+File@{go\+To\+Next\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{go\+To\+Next\+File()}{goToNextFile()}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::\+Un\+Zip\+File\+::go\+To\+Next\+File (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga88b7a33f99cbcc1748da060b7233cb9a}{}\label{group___utility_module_ga88b7a33f99cbcc1748da060b7233cb9a}
+
+
+Goes to the next file in the archive if possible. 
+
+\begin{DoxyReturn}{Returns}
+true if the traversal was successful, false if the end of archive was reached.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!ignore\+\_\+numbers@{ignore\+\_\+numbers}}
+\index{ignore\+\_\+numbers@{ignore\+\_\+numbers}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{ignore\+\_\+numbers(std\+::vector$<$ std\+::string $>$ \&args)}{ignore_numbers(std::vector< std::string > &args)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$option$>$ boost\+::program\+\_\+options\+::ignore\+\_\+numbers (
+\begin{DoxyParamCaption}
+\item[{std\+::vector$<$ std\+::string $>$ \&}]{args}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga3db1b0bae61386198482fae1645b959d}{}\label{group___utility_module_ga3db1b0bae61386198482fae1645b959d}
+
+
+A boost\+::program\+\_\+options\+::detail\+::style\+\_\+parser that allows using multitoken options with numbers, including negative numbers. This disallows using numbers are short command line arguments. 
+
+Example usage\+: 
+\begin{DoxyCode}
+boost::program\_options::store(
+    boost::program\_options::command\_line\_parser(argc, argv)
+        .extra\_style\_parser(&\hyperlink{group___utility_module_ga3db1b0bae61386198482fae1645b959d}{boost::program\_options::ignore\_numbers})
+        .options(commands).run(), vm);
+\end{DoxyCode}
+
+
+
+\begin{DoxyParams}{Parameters}
+{\em args} & Arguments. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Parsed arguments. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!init@{init}}
+\index{init@{init}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{init()}{init()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::log\+::init (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaedfd950d41ec88d7eff2a7a9929e45e8}{}\label{group___utility_module_gaedfd950d41ec88d7eff2a7a9929e45e8}
+
+
+Initialize the logging framework. 
+
+This redirects glog messages to the Deep\+Core framework and remove all sinks \index{Utility@{Utility}!level\+To\+String@{level\+To\+String}}
+\index{level\+To\+String@{level\+To\+String}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{level\+To\+String(level\+\_\+t level)}{levelToString(level_t level)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::log\+::level\+To\+String (
+\begin{DoxyParamCaption}
+\item[{{\bf level\+\_\+t}}]{level}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga16b3e354d4c2a3894e9fa0354103e7b3}{}\label{group___utility_module_ga16b3e354d4c2a3894e9fa0354103e7b3}
+
+
+Convert an enum representation of logging level to string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em level} & The enum representation of logging level. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The string representation of logging level. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!line@{line}}
+\index{line@{line}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{line() const noexcept}{line() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int dg\+::deepcore\+::\+Error\+::line (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{}\label{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}
+
+
+Returns the source line number. 
+
+\begin{DoxyReturn}{Returns}
+The source line number. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!login\+User@{login\+User}}
+\index{login\+User@{login\+User}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{login\+User()}{loginUser()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::login\+User (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga7eb961cce72452d6bc60ca27f699bad6}{}\label{group___utility_module_ga7eb961cce72452d6bc60ca27f699bad6}
+
+
+Returns the current login user name. If the information cannot be determined returns a blank string. 
+
+\begin{DoxyReturn}{Returns}
+The current login user name. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!max\+\_\+tokens@{max\+\_\+tokens}}
+\index{max\+\_\+tokens@{max\+\_\+tokens}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{max\+\_\+tokens(unsigned max\+\_\+tokens)}{max_tokens(unsigned max_tokens)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T, class charT = char$>$ bounded\+\_\+typed\+\_\+value$\ast$ {\bf boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value}$<$ T, charT $>$\+::max\+\_\+tokens (
+\begin{DoxyParamCaption}
+\item[{unsigned}]{max\+\_\+tokens}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{group___utility_module_ga88b81b9c4d7c1f667594d6e1490078ff}{}\label{group___utility_module_ga88b81b9c4d7c1f667594d6e1490078ff}
+
+
+Sets the maximum number of tokens the value accepts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em max\+\_\+tokens} & Maximum number of tokens to accept. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to this. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!message@{message}}
+\index{message@{message}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{message() const noexcept}{message() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const string \& dg\+::deepcore\+::\+Error\+::message (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga7269ba8049ed86338733955565242539}{}\label{group___utility_module_ga7269ba8049ed86338733955565242539}
+
+
+Returns the error message. 
+
+\begin{DoxyReturn}{Returns}
+The error message. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!min\+\_\+tokens@{min\+\_\+tokens}}
+\index{min\+\_\+tokens@{min\+\_\+tokens}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{min\+\_\+tokens(unsigned min\+\_\+tokens)}{min_tokens(unsigned min_tokens)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T, class charT = char$>$ bounded\+\_\+typed\+\_\+value$\ast$ {\bf boost\+::program\+\_\+options\+::bounded\+\_\+typed\+\_\+value}$<$ T, charT $>$\+::min\+\_\+tokens (
+\begin{DoxyParamCaption}
+\item[{unsigned}]{min\+\_\+tokens}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{group___utility_module_ga92bfc58add0451fb2f594e7b78ff966c}{}\label{group___utility_module_ga92bfc58add0451fb2f594e7b78ff966c}
+
+
+Sets the minimum number of tokens the value accepts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em min\+\_\+tokens} & Minimum number of tokens to accept. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to this. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!Multi\+Progress\+Display@{Multi\+Progress\+Display}}
+\index{Multi\+Progress\+Display@{Multi\+Progress\+Display}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Multi\+Progress\+Display(const std\+::vector$<$ std\+::string $>$ \&categories, int interval\+Ms=500)}{MultiProgressDisplay(const std::vector< std::string > &categories, int intervalMs=500)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Multi\+Progress\+Display\+::\+Multi\+Progress\+Display (
+\begin{DoxyParamCaption}
+\item[{const std\+::vector$<$ std\+::string $>$ \&}]{categories, }
+\item[{int}]{interval\+Ms = {\ttfamily 500}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga51c18fad87e104455921392fc91a7c03}{}\label{group___utility_module_ga51c18fad87e104455921392fc91a7c03}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_multi_progress_display}{Multi\+Progress\+Display}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em categories} & A list of display categories. \\
+\hline
+\mbox{\tt in}  & {\em interval\+Ms} & The display refresh interval in milliseconds. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!name\+\_\+with\+\_\+default@{name\+\_\+with\+\_\+default}}
+\index{name\+\_\+with\+\_\+default@{name\+\_\+with\+\_\+default}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{name\+\_\+with\+\_\+default(std\+::string name, T default\+Val)}{name_with_default(std::string name, T defaultVal)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ std\+::string boost\+::program\+\_\+options\+::name\+\_\+with\+\_\+default (
+\begin{DoxyParamCaption}
+\item[{std\+::string}]{name, }
+\item[{T}]{default\+Val}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga8b756cf9f42d2452f48d168883c76f4f}{}\label{group___utility_module_ga8b756cf9f42d2452f48d168883c76f4f}
+
+
+Creates a value for the default which is suitable for input to po\+::value\+\_\+name();. 
+
+Example usage\+: 
+\begin{DoxyCode}
+(\textcolor{stringliteral}{"zoom"}, po::value<int>()->value\_name(\hyperlink{group___utility_module_ga8b756cf9f42d2452f48d168883c76f4f}{name\_with\_default}(\textcolor{stringliteral}{"ZOOM"}, zoom)), \textcolor{stringliteral}{"Zoom level."})
+\end{DoxyCode}
+
+
+This replaces po\+::default\+\_\+value(), when the triggering of notifiers is not desired.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the option \\
+\hline
+\mbox{\tt in}  & {\em default\+Val} & the default value of the option \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A string that represents the name with a default value 
+\end{DoxyReturn}
+\index{Utility@{Utility}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{operator$<$$<$(ostream \&os, const Call\+Stack\+Symbol \&symbol)}{operator<<(ostream &os, const CallStackSymbol &symbol)}}]{\setlength{\rightskip}{0pt plus 5cm}ostream \& dg\+::deepcore\+::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{ostream \&}]{os, }
+\item[{const {\bf Call\+Stack\+Symbol} \&}]{symbol}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gafa131d4872913d78dd09474524e54de3}{}\label{group___utility_module_gafa131d4872913d78dd09474524e54de3}
+
+
+Allows writing a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} into an std\+::ostream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The output stream to write to. \\
+\hline
+\mbox{\tt in}  & {\em symbol} & The \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} to write. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to the input stream. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{operator$<$$<$(ostream \&os, const Call\+Stack \&call\+Stack)}{operator<<(ostream &os, const CallStack &callStack)}}]{\setlength{\rightskip}{0pt plus 5cm}ostream \& dg\+::deepcore\+::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{ostream \&}]{os, }
+\item[{const {\bf Call\+Stack} \&}]{call\+Stack}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga0e3995beecca99ed6a56bbd006d778cf}{}\label{group___utility_module_ga0e3995beecca99ed6a56bbd006d778cf}
+
+
+Allows writing a Call\+Stack into an std\+::ostream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The output stream to write to. \\
+\hline
+\mbox{\tt in}  & {\em call\+Stack} & The Call\+Stack to write. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to the input stream. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{operator$<$$<$(boost\+::log\+::formatting\+\_\+ostream \&os, const Call\+Stack\+Symbol \&symbol)}{operator<<(boost::log::formatting_ostream &os, const CallStackSymbol &symbol)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::log\+::formatting\+\_\+ostream \& dg\+::deepcore\+::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{boost\+::log\+::formatting\+\_\+ostream \&}]{os, }
+\item[{const {\bf Call\+Stack\+Symbol} \&}]{symbol}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga97adfcc9f917f8bd42421eaa2d618ef6}{}\label{group___utility_module_ga97adfcc9f917f8bd42421eaa2d618ef6}
+
+
+Allows logging a \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} with D\+G\+\_\+\+L\+OG. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The stream to write to. \\
+\hline
+\mbox{\tt in}  & {\em symbol} & The \hyperlink{structdg_1_1deepcore_1_1_call_stack_symbol}{Call\+Stack\+Symbol} to write. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to the input stream. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{operator$<$$<$(boost\+::log\+::formatting\+\_\+ostream \&os, const Call\+Stack \&call\+Stack)}{operator<<(boost::log::formatting_ostream &os, const CallStack &callStack)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::log\+::formatting\+\_\+ostream \& dg\+::deepcore\+::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{boost\+::log\+::formatting\+\_\+ostream \&}]{os, }
+\item[{const {\bf Call\+Stack} \&}]{call\+Stack}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga34296a075c256c17fe8ba2f1f6d18372}{}\label{group___utility_module_ga34296a075c256c17fe8ba2f1f6d18372}
+
+
+Allows logging a Call\+Stack with D\+G\+\_\+\+L\+OG. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The stream to write to. \\
+\hline
+\mbox{\tt in}  & {\em call\+Stack} & The Call\+Stack to write. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to the input stream. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!parse\+Json\+Message@{parse\+Json\+Message}}
+\index{parse\+Json\+Message@{parse\+Json\+Message}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{parse\+Json\+Message(const string \&json) noexcept}{parseJsonMessage(const string &json) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::network\+::parse\+Json\+Message (
+\begin{DoxyParamCaption}
+\item[{const string \&}]{json}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_gab8f3ab23c87fe876bb3e9b76fc46fff9}{}\label{group___utility_module_gab8f3ab23c87fe876bb3e9b76fc46fff9}
+
+
+Extracts a \char`\"{}message\char`\"{} object from the root object of a J\+S\+ON string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em json} & The J\+S\+ON string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The contents for the \char`\"{}message\char`\"{} object. If the input string is not J\+S\+ON or if the \char`\"{}message\char`\"{} object does not exist, an empty string is returned. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!radians@{radians}}
+\index{radians@{radians}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{radians(double degrees) noexcept}{radians(double degrees) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}double dg\+::deepcore\+::radians (
+\begin{DoxyParamCaption}
+\item[{double}]{degrees}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga547c4f80c778878854c572c297cc1983}{}\label{group___utility_module_ga547c4f80c778878854c572c297cc1983}
+
+
+Convert degrees to radians. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em degrees} & Value in degrees. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in radians. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!radians@{radians}}
+\index{radians@{radians}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{radians(const cv\+::\+Point2d \&degrees) noexcept}{radians(const cv::Point2d &degrees) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Point2d dg\+::deepcore\+::radians (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Point2d \&}]{degrees}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga8ce4d2c11e35fe075404a256c272b4d8}{}\label{group___utility_module_ga8ce4d2c11e35fe075404a256c272b4d8}
+
+
+Convert degrees to radians. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em degrees} & Value in degrees. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in radians. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!radians@{radians}}
+\index{radians@{radians}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{radians(const cv\+::\+Size2d \&degrees) noexcept}{radians(const cv::Size2d &degrees) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Size2d dg\+::deepcore\+::radians (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Size2d \&}]{degrees}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_gabf4e708fbdf32c6c93035b918d7ffa03}{}\label{group___utility_module_gabf4e708fbdf32c6c93035b918d7ffa03}
+
+
+Convert degrees to radians. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em degrees} & Value in degrees. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in radians. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!radians@{radians}}
+\index{radians@{radians}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{radians(const cv\+::\+Rect2d \&degrees) noexcept}{radians(const cv::Rect2d &degrees) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}cv\+::\+Rect2d dg\+::deepcore\+::radians (
+\begin{DoxyParamCaption}
+\item[{const cv\+::\+Rect2d \&}]{degrees}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga7712032c74d8bc4e9c392964d4e18e8c}{}\label{group___utility_module_ga7712032c74d8bc4e9c392964d4e18e8c}
+
+
+Convert degrees to radians. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em degrees} & Value in degrees. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value in radians. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!read\+File@{read\+File}}
+\index{read\+File@{read\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{read\+File(uint8\+\_\+t $\ast$buf, size\+\_\+t size, const std\+::string \&password="""")}{readFile(uint8_t *buf, size_t size, const std::string &password="")}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{size, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga16985655d6b3bf1f05330d54ca736b0e}{}\label{group___utility_module_ga16985655d6b3bf1f05330d54ca736b0e}
+
+
+Reads the current file from the archive into a memory buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & The buffer to read the data into. Must not be nullptr. \\
+\hline
+\mbox{\tt in}  & {\em size} & Size of the buffer. If the buffer is smaller than the current file, the file will only be read partially. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for the file if it was encrypted. If the password is incorrect, an exception will be thrown. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of bytes read.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!read\+File@{read\+File}}
+\index{read\+File@{read\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{read\+File(std\+::ostream \&os, const std\+::string \&password="""")}{readFile(std::ostream &os, const std::string &password="")}}]{\setlength{\rightskip}{0pt plus 5cm}ostream \& dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{os, }
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga2139dc65cb701db211a8fe4970232307}{}\label{group___utility_module_ga2139dc65cb701db211a8fe4970232307}
+
+
+Reads the current file from the archive into an output stream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The output stream to read the data into. \\
+\hline
+\mbox{\tt in}  & {\em password} & Password for the file if it was encrypted. If the password is incorrect, an exception will be thrown. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Reference to the output stream.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!read\+File@{read\+File}}
+\index{read\+File@{read\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{read\+File(const std\+::string \&password="""")}{readFile(const std::string &password="")}}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ uint8\+\_\+t $>$ dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaf6c3c8e93c73b827d8dcd06c7b0aa1f8}{}\label{group___utility_module_gaf6c3c8e93c73b827d8dcd06c7b0aa1f8}
+
+
+Reads the current file from the archive into a vector. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em password} & Password for the file if it was encrypted. If the password is incorrect, an exception will be thrown. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A vector containing the file\textquotesingle{}s data.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!read\+File\+To\+String@{read\+File\+To\+String}}
+\index{read\+File\+To\+String@{read\+File\+To\+String}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{read\+File\+To\+String(const std\+::string \&password="""")}{readFileToString(const std::string &password="")}}]{\setlength{\rightskip}{0pt plus 5cm}string dg\+::deepcore\+::\+Un\+Zip\+File\+::read\+File\+To\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{password = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaff912e76c9566cf07f198acc2df1decc}{}\label{group___utility_module_gaff912e76c9566cf07f198acc2df1decc}
+
+
+Reads the current file from the archive into a string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em password} & Password for the file if it was encrypted. If the password is incorrect, an exception will be thrown. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A string containing the file\textquotesingle{}s data.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The archive must be open. If it\textquotesingle{}s closed an exception will be thrown. 
+\end{DoxyNote}
+\index{Utility@{Utility}!read\+Masked\+Input\+From\+Console@{read\+Masked\+Input\+From\+Console}}
+\index{read\+Masked\+Input\+From\+Console@{read\+Masked\+Input\+From\+Console}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{read\+Masked\+Input\+From\+Console()}{readMaskedInputFromConsole()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string dg\+::deepcore\+::read\+Masked\+Input\+From\+Console (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga3d0cf89b2a18e61bc8c07ae4006c9744}{}\label{group___utility_module_ga3d0cf89b2a18e61bc8c07ae4006c9744}
+
+
+Initializes a getline that is masked for the purposes of hiding the user input of a password. 
+
+\begin{DoxyReturn}{Returns}
+The password entered by the user 
+\end{DoxyReturn}
+\index{Utility@{Utility}!remove\+Sink@{remove\+Sink}}
+\index{remove\+Sink@{remove\+Sink}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{remove\+Sink(boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&sink)}{removeSink(boost::shared_ptr< sinks::sink > const &sink)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::log\+::remove\+Sink (
+\begin{DoxyParamCaption}
+\item[{boost\+::shared\+\_\+ptr$<$ sinks\+::sink $>$ const \&}]{sink}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga6b5b9a8a9fb82aab4e0a9e4eaa77a4b9}{}\label{group___utility_module_ga6b5b9a8a9fb82aab4e0a9e4eaa77a4b9}
+
+
+remove a log sink 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em sink} & the sink to remove\\
+\hline
+\end{DoxyParams}
+If any sinks were added and all are removed, the logger uses a default sink \index{Utility@{Utility}!start@{start}}
+\index{start@{start}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{start()}{start()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Multi\+Progress\+Display\+::start (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaa7547dfd4650dc8a0f761b174ce24450}{}\label{group___utility_module_gaa7547dfd4650dc8a0f761b174ce24450}
+
+
+Starts and displays the progress meter(s). 
+
+\index{Utility@{Utility}!stop@{stop}}
+\index{stop@{stop}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{stop()}{stop()}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Multi\+Progress\+Display\+::stop (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga2f43542bd34ad2f51b7c368d4e94e650}{}\label{group___utility_module_ga2f43542bd34ad2f51b7c368d4e94e650}
+
+
+Stops the progress meter(s). 
+
+\index{Utility@{Utility}!string\+To\+Level@{string\+To\+Level}}
+\index{string\+To\+Level@{string\+To\+Level}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{string\+To\+Level(const std\+::string \&str)}{stringToLevel(const std::string &str)}}]{\setlength{\rightskip}{0pt plus 5cm}level\+\_\+t dg\+::deepcore\+::log\+::string\+To\+Level (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gafb8296927e835cd0399664adc12a5be8}{}\label{group___utility_module_gafb8296927e835cd0399664adc12a5be8}
+
+
+Convert a string representation of logging level to enum. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em str} & The string representation of logging level. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The enum representation of logging level. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!thread\+Logger@{thread\+Logger}}
+\index{thread\+Logger@{thread\+Logger}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{thread\+Logger()}{threadLogger()}}]{\setlength{\rightskip}{0pt plus 5cm}Logger \& dg\+::deepcore\+::log\+::thread\+Logger (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga94a3335f72a1830e58c8386c35015b2b}{}\label{group___utility_module_ga94a3335f72a1830e58c8386c35015b2b}
+
+
+get the global static instance 
+
+\index{Utility@{Utility}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(std\+::istream \&is)}{UnZipFile(std::istream &is)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{std\+::istream \&}]{is}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gac32fa3973017fa76647d90ab64bbceae}{}\label{group___utility_module_gac32fa3973017fa76647d90ab64bbceae}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given input stream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em is} & The input stream to read from. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} does not take ownership of this object, so lifetime must be greater than the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File}\textquotesingle{}s instance lifetime. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(const std\+::vector$<$ uint8\+\_\+t $>$ \&buf)}{UnZipFile(const std::vector< uint8_t > &buf)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::vector$<$ uint8\+\_\+t $>$ \&}]{buf}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga64e2c80586cc8429067c15ab1fa39e08}{}\label{group___utility_module_ga64e2c80586cc8429067c15ab1fa39e08}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given vector. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em buf} & The input vector to read from. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} does not take ownership of this object or make a copy, so lifetime must be greater than the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File}\textquotesingle{}s instance lifetime. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(const uint8\+\_\+t $\ast$buf, size\+\_\+t size)}{UnZipFile(const uint8_t *buf, size_t size)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga1efd284e3fbbef3d57a598c47a7cc73b}{}\label{group___utility_module_ga1efd284e3fbbef3d57a598c47a7cc73b}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a given memory buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em buf} & The input buffer to read from. \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} does not take ownership of this object or make a copy, so lifetime must be greater than the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File}\textquotesingle{}s instance lifetime. \\
+\hline
+\mbox{\tt in}  & {\em size} & Size of the input buffer. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Un\+Zip\+File@{Un\+Zip\+File}}
+\index{Un\+Zip\+File@{Un\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Un\+Zip\+File(const std\+::string \&file\+Name)}{UnZipFile(const std::string &fileName)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{file\+Name}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga4418028e98c6031359ace40625987864}{}\label{group___utility_module_ga4418028e98c6031359ace40625987864}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} from a file on disk. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file\+Name} & Path to the zip file. Must exist and be readable. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!update@{update}}
+\index{update@{update}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{update(size\+\_\+t category\+Id, float progress)}{update(size_t categoryId, float progress)}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::\+Multi\+Progress\+Display\+::update (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{category\+Id, }
+\item[{float}]{progress}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gadbcb8e02b7d21ce799baa34e93bc9fee}{}\label{group___utility_module_gadbcb8e02b7d21ce799baa34e93bc9fee}
+
+
+Updateds progress. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em category\+Id} & Index of the progress category to update. Must be \\
+\hline
+\mbox{\tt in}  & {\em progress} & \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!what@{what}}
+\index{what@{what}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{what() const noexceptoverride}{what() const noexceptoverride}}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ dg\+::deepcore\+::\+Error\+::what (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{group___utility_module_ga7dff6b319144bcfcf602e0124fb0fb01}{}\label{group___utility_module_ga7dff6b319144bcfcf602e0124fb0fb01}
+
+
+Returns the error description in format \char`\"{}\{message\} in \{function\}, file\+: \{file\}, line\+: \{line\}.\char`\"{}. 
+
+\begin{DoxyReturn}{Returns}
+The error description. 
+\end{DoxyReturn}
+\index{Utility@{Utility}!Zip\+File@{Zip\+File}}
+\index{Zip\+File@{Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Zip\+File(std\+::ostream \&os)}{ZipFile(std::ostream &os)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{os}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gaeb5b4a5bdcfb3401601b79d5b2b8d67f}{}\label{group___utility_module_gaeb5b4a5bdcfb3401601b79d5b2b8d67f}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} to write the given output stream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em os} & The output stream to write to. \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} does not take ownership of this object, so lifetime must be greater than the \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File}\textquotesingle{}s instance lifetime. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!Zip\+File@{Zip\+File}}
+\index{Zip\+File@{Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{Zip\+File(const std\+::string \&file\+Name)}{ZipFile(const std::string &fileName)}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Zip\+File\+::\+Zip\+File (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{file\+Name}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gafa1ff9f05e738574c7ab39179c553a10}{}\label{group___utility_module_gafa1ff9f05e738574c7ab39179c553a10}
+
+
+Constructs a \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} that creates or overwrites a file on disk. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em file\+Name} & Path to the zip file to create. Must be in a writable location. \\
+\hline
+\end{DoxyParams}
+\index{Utility@{Utility}!````~Multi\+Progress\+Display@{$\sim$\+Multi\+Progress\+Display}}
+\index{````~Multi\+Progress\+Display@{$\sim$\+Multi\+Progress\+Display}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{$\sim$\+Multi\+Progress\+Display()}{~MultiProgressDisplay()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Multi\+Progress\+Display\+::$\sim$\+Multi\+Progress\+Display (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_gae12a350c3384d98843cd2851dcaa10fe}{}\label{group___utility_module_gae12a350c3384d98843cd2851dcaa10fe}
+
+
+The destructor. 
+
+\index{Utility@{Utility}!````~Un\+Zip\+File@{$\sim$\+Un\+Zip\+File}}
+\index{````~Un\+Zip\+File@{$\sim$\+Un\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{$\sim$\+Un\+Zip\+File()}{~UnZipFile()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Un\+Zip\+File\+::$\sim$\+Un\+Zip\+File (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga325131b751ccc5a391367afb09084036}{}\label{group___utility_module_ga325131b751ccc5a391367afb09084036}
+
+
+Destructs the \hyperlink{classdg_1_1deepcore_1_1_un_zip_file}{Un\+Zip\+File} object and closes the zip file. 
+
+\index{Utility@{Utility}!````~Zip\+File@{$\sim$\+Zip\+File}}
+\index{````~Zip\+File@{$\sim$\+Zip\+File}!Utility@{Utility}}
+\subsubsection[{\texorpdfstring{$\sim$\+Zip\+File()}{~ZipFile()}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::\+Zip\+File\+::$\sim$\+Zip\+File (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{group___utility_module_ga4a3d14bf12cdc92d728b1bee2ef3afbe}{}\label{group___utility_module_ga4a3d14bf12cdc92d728b1bee2ef3afbe}
+
+
+Destructs the \hyperlink{classdg_1_1deepcore_1_1_zip_file}{Zip\+File} object and closes the zip file. 
+

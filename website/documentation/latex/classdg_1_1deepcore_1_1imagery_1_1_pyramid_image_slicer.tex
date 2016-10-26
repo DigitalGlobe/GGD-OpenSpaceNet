@@ -1,0 +1,147 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Pyramid\+Image\+Slicer Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer}\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+
+
+Slices an image into windows defined by a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window}.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Pyramid\+Image\+Slicer.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_image}{Pyramid\+Image} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a6a2ca5ffdf4ce25771ce96dec3be678a}{value\+\_\+type}
+\item 
+typedef const \hyperlink{structdg_1_1deepcore_1_1imagery_1_1_pyramid_image}{Pyramid\+Image} \& \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae420ea4b1c5ecc7801eb1a827cfa6252}{const\+\_\+reference}
+\item 
+typedef \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_iterator}{Pyramid\+Image\+Slicer\+Iterator} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae7aff5a41f1137d54f566127aa2bb957}{const\+\_\+iterator}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_afda636f2eb248c25c5fb6272a4f429f3}{Pyramid\+Image\+Slicer} ()=default
+\item 
+\hyperlink{group___imagery_module_gaaebf1aa82f6ff98fd3eb8c65544c7ce1}{Pyramid\+Image\+Slicer} (const cv\+::\+Mat \&\hyperlink{group___imagery_module_ga90b67bc2fa06b73b89d73c8216931bc9}{image}, const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \&\hyperlink{group___imagery_module_ga7558b54bb237cddcf03b4442471c06ef}{pyramid\+Sliding\+Window}, const cv\+::\+Size \&\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a45ac8a7e2c3eb4941f3aabf7d8dd6165}{window\+Size}=\{\})
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer}{Pyramid\+Image\+Slicer}. \end{DoxyCompactList}\item 
+const cv\+::\+Mat \& \hyperlink{group___imagery_module_ga90b67bc2fa06b73b89d73c8216931bc9}{image} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the image. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window} \& \hyperlink{group___imagery_module_ga7558b54bb237cddcf03b4442471c06ef}{pyramid\+Sliding\+Window} () const noexcept
+\begin{DoxyCompactList}\small\item\em Returns the pyramid sliding window. \end{DoxyCompactList}\item 
+const cv\+::\+Size \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a45ac8a7e2c3eb4941f3aabf7d8dd6165}{window\+Size} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the override window size. \end{DoxyCompactList}\item 
+float \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a80fbcced5b4df71aae2b04cc60373757}{min} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the image\textquotesingle{}s spectral range minimum value. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a514054e5768ca0d3e034454c70a43849}{set\+Min} (float min\+Value) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the image\textquotesingle{}s spectral range minimum value. \end{DoxyCompactList}\item 
+float \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a7f180e86e5eb7c9c28a8a7e6531efd29}{max} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the image\textquotesingle{}s spectral range maximum value. \end{DoxyCompactList}\item 
+void \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_aab02ead48c78b47f43dd00626e9d9d1f}{set\+Max} (float max\+Value) noexcept
+\begin{DoxyCompactList}\small\item\em Sets the image\textquotesingle{}s spectral range maximum value. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae7aff5a41f1137d54f566127aa2bb957}{const\+\_\+iterator} \hyperlink{group___imagery_module_gac100b1de973af8ac0c9a5e1c3dc8d755}{begin} () const 
+\begin{DoxyCompactList}\small\item\em Returns the beginning \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_iterator}{Pyramid\+Image\+Slicer\+Iterator}. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae7aff5a41f1137d54f566127aa2bb957}{const\+\_\+iterator} \hyperlink{group___imagery_module_ga6956abd01339df9e8c60963702ce3543}{end} () const 
+\begin{DoxyCompactList}\small\item\em Returns the ending \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_iterator}{Pyramid\+Image\+Slicer\+Iterator}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Slices an image into windows defined by a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_pyramid_sliding_window}{Pyramid\+Sliding\+Window}. 
+
+\subsection{Member Typedef Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!const\+\_\+iterator@{const\+\_\+iterator}}
+\index{const\+\_\+iterator@{const\+\_\+iterator}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{const\+\_\+iterator}{const_iterator}}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf Pyramid\+Image\+Slicer\+Iterator} {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::const\+\_\+iterator}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae7aff5a41f1137d54f566127aa2bb957}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae7aff5a41f1137d54f566127aa2bb957}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!const\+\_\+reference@{const\+\_\+reference}}
+\index{const\+\_\+reference@{const\+\_\+reference}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{const\+\_\+reference}{const_reference}}]{\setlength{\rightskip}{0pt plus 5cm}typedef const {\bf Pyramid\+Image}\& {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::const\+\_\+reference}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae420ea4b1c5ecc7801eb1a827cfa6252}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_ae420ea4b1c5ecc7801eb1a827cfa6252}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!value\+\_\+type@{value\+\_\+type}}
+\index{value\+\_\+type@{value\+\_\+type}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{value\+\_\+type}{value_type}}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf Pyramid\+Image} {\bf dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::value\+\_\+type}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a6a2ca5ffdf4ce25771ce96dec3be678a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a6a2ca5ffdf4ce25771ce96dec3be678a}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!Pyramid\+Image\+Slicer@{Pyramid\+Image\+Slicer}}
+\index{Pyramid\+Image\+Slicer@{Pyramid\+Image\+Slicer}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{Pyramid\+Image\+Slicer()=default}{PyramidImageSlicer()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::\+Pyramid\+Image\+Slicer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_afda636f2eb248c25c5fb6272a4f429f3}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_afda636f2eb248c25c5fb6272a4f429f3}
+
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!max@{max}}
+\index{max@{max}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{max() const noexcept}{max() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}float dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::max (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a7f180e86e5eb7c9c28a8a7e6531efd29}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a7f180e86e5eb7c9c28a8a7e6531efd29}
+
+
+Gets the image\textquotesingle{}s spectral range maximum value. 
+
+\begin{DoxyReturn}{Returns}
+The maximum value. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!min@{min}}
+\index{min@{min}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{min() const noexcept}{min() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}float dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::min (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a80fbcced5b4df71aae2b04cc60373757}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a80fbcced5b4df71aae2b04cc60373757}
+
+
+Gets the image\textquotesingle{}s spectral range minimum value. 
+
+\begin{DoxyReturn}{Returns}
+The minimum value. 
+\end{DoxyReturn}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!set\+Max@{set\+Max}}
+\index{set\+Max@{set\+Max}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{set\+Max(float max\+Value) noexcept}{setMax(float maxValue) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::set\+Max (
+\begin{DoxyParamCaption}
+\item[{float}]{max\+Value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_aab02ead48c78b47f43dd00626e9d9d1f}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_aab02ead48c78b47f43dd00626e9d9d1f}
+
+
+Sets the image\textquotesingle{}s spectral range maximum value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em max\+Value} & The maximum value. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!set\+Min@{set\+Min}}
+\index{set\+Min@{set\+Min}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{set\+Min(float min\+Value) noexcept}{setMin(float minValue) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::set\+Min (
+\begin{DoxyParamCaption}
+\item[{float}]{min\+Value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a514054e5768ca0d3e034454c70a43849}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a514054e5768ca0d3e034454c70a43849}
+
+
+Sets the image\textquotesingle{}s spectral range minimum value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em min\+Value} & The minimum value. \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}!window\+Size@{window\+Size}}
+\index{window\+Size@{window\+Size}!dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer@{dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer}}
+\subsubsection[{\texorpdfstring{window\+Size() const noexcept}{windowSize() const noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}const cv\+::\+Size dg\+::deepcore\+::imagery\+::\+Pyramid\+Image\+Slicer\+::window\+Size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a45ac8a7e2c3eb4941f3aabf7d8dd6165}{}\label{classdg_1_1deepcore_1_1imagery_1_1_pyramid_image_slicer_a45ac8a7e2c3eb4941f3aabf7d8dd6165}
+
+
+Gets the override window size. 
+
+\begin{DoxyReturn}{Returns}
+The override window size. 
+\end{DoxyReturn}

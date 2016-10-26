@@ -1,0 +1,93 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Spatial\+Reference Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}\index{dg\+::deepcore\+::imagery\+::\+Spatial\+Reference@{dg\+::deepcore\+::imagery\+::\+Spatial\+Reference}}
+
+
+Represents a geographic or projected coordinate system.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Spatial\+Reference.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Spatial\+Reference\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=315pt]{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___imagery_module_ga2e25c945785b2ff07d5d74799e7f6bf2}{Spatial\+Reference} ()
+\begin{DoxyCompactList}\small\item\em Constructs a default \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} with a local coordinate system. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga452d78706b3707b85196d436524990ce}{Spatial\+Reference} (const O\+G\+R\+Spatial\+Reference \&ogr\+Sr)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} for a O\+G\+R\+Spatial\+Reference. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_ga7a9a85f737572787a550c16479d81a71}{Spatial\+Reference} (O\+G\+R\+Spatial\+Reference $\ast$ogr\+Sr)
+\begin{DoxyCompactList}\small\item\em Constructs a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} for a O\+G\+R\+Spatial\+Reference. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gabc2eddb1ac0a4675ae9a26afc6f217e9}{Spatial\+Reference} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&rhs)
+\begin{DoxyCompactList}\small\item\em The copy constructor. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference_a71f3d2ded7756f76859b6f709566690a}{Spatial\+Reference} (\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&\&)=default
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \& \hyperlink{group___imagery_module_ga57789396d3366fae0ec1fdc83832ee5b}{operator=} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&rhs)
+\begin{DoxyCompactList}\small\item\em The copy assignment operator. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga2fcc958cf2ef9ab876162ac40df35913}{is\+Geographic} () const 
+\begin{DoxyCompactList}\small\item\em Gets whether this is a geographic coordinate system. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga0344d276d07a4f5a0ae3ae113a89026d}{is\+Projected} () const 
+\begin{DoxyCompactList}\small\item\em Gets whether this is a projected coordinate system. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_gad4b4d9d82c2ab268d523048576a1655e}{is\+Local} () const 
+\begin{DoxyCompactList}\small\item\em Gets whether this is a local coordinate system. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___imagery_module_gac88786aa96148f649fc063229cebba89}{units} () const 
+\begin{DoxyCompactList}\small\item\em Gets the projection units. \end{DoxyCompactList}\item 
+double \hyperlink{group___imagery_module_gab96d28b4a4fc932393d3fc3d536e6a80}{units\+Coefficient} () const 
+\begin{DoxyCompactList}\small\item\em Gets the multiplier to convert the projection units to meters for linear units and radians for angular units. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___imagery_module_ga8654dc584206ce3675ee3330a94c06c9}{wkt} () const 
+\begin{DoxyCompactList}\small\item\em Gets the W\+KT string describing this \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference}. \end{DoxyCompactList}\item 
+bool \hyperlink{group___imagery_module_ga2c033f8a8c0c70c1db52343f66cc3245}{operator==} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&rhs) const 
+\begin{DoxyCompactList}\small\item\em The equality operator. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_gad8d72dd386f86fd70fcd71197e408dfd}{to\+Lat\+Lon} (const cv\+::\+Point2d \&proj) const 
+\begin{DoxyCompactList}\small\item\em Converts a coordinate to W\+G\+S84 lat/lon. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_gab9474c2105f1354b4139d5a905699f36}{from\+Lat\+Lon} (const cv\+::\+Point2d \&ll) const 
+\begin{DoxyCompactList}\small\item\em Convert a coordinate from W\+G\+S84 lat/lon. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___imagery_module_ga9d0268dbc9fbd5210fb0487915340737}{to\+Lat\+Lon} (const cv\+::\+Rect2d proj) const 
+\begin{DoxyCompactList}\small\item\em Converts a cv\+::\+Rect to W\+G\+S84 lat/lon. \end{DoxyCompactList}\item 
+cv\+::\+Rect2d \hyperlink{group___imagery_module_gaae5267f1271d5753680b57c8f2f99690}{from\+Lat\+Lon} (const cv\+::\+Rect2d \&ll) const 
+\begin{DoxyCompactList}\small\item\em Convert a cv\+::\+Rect from W\+G\+S84 lat/lon. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_ga93813925a96518f8253c1cad40192013}{to} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&proj, const cv\+::\+Point2d \&coord) const 
+\begin{DoxyCompactList}\small\item\em Converts a coordinate to another coordinate system. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_ga40b0fcb6642f08c38ae1f48b1369a631}{from} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&proj, const cv\+::\+Point2d \&coord) const 
+\begin{DoxyCompactList}\small\item\em Converts a coordinate from another coordinate system. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_ga417fb1f2ed62599e7e321d47b3f12121}{from\+Epsg} (int epsg)
+\begin{DoxyCompactList}\small\item\em Creates a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} from an E\+P\+SG code. \end{DoxyCompactList}\item 
+static \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_ga42fc95755f822f64974facd09edcd716}{from\+Wkt} (const std\+::string \&\hyperlink{group___imagery_module_ga8654dc584206ce3675ee3330a94c06c9}{wkt})
+\begin{DoxyCompactList}\small\item\em Creates a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} from a W\+KT string. \end{DoxyCompactList}\item 
+static \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_ga095e8735cdb0a9a8f72fbb1351e86d95}{from\+Urn} (const std\+::string \&urn)
+\begin{DoxyCompactList}\small\item\em Creates a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} from a U\+RN string. i.\+e. \char`\"{}urn\+:ogc\+:def\+:crs\+:\+E\+P\+S\+G\+::4326\char`\"{}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_gaf868e08b25599956326615463649b0fa}{W\+G\+S84} = \hyperlink{group___imagery_module_ga417fb1f2ed62599e7e321d47b3f12121}{Spatial\+Reference\+::from\+Epsg}(4326)
+\begin{DoxyCompactList}\small\item\em W\+G\+S84 geographic coordinate system (E\+P\+SG\+:4326) \end{DoxyCompactList}\item 
+static const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_ga66b2040219d82bc89193cc0a0bba177a}{W\+E\+B\+\_\+\+M\+E\+R\+C\+A\+T\+OR} = \hyperlink{group___imagery_module_ga417fb1f2ed62599e7e321d47b3f12121}{Spatial\+Reference\+::from\+Epsg}(3857)
+\begin{DoxyCompactList}\small\item\em W\+GS 84 / Pseudo-\/\+Mercator projected coordinate system (E\+P\+SG\+:3857) \end{DoxyCompactList}\item 
+static const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{group___imagery_module_gaed40593efc83af9c4cebe9510256401b}{W\+O\+R\+L\+D\+\_\+\+M\+E\+R\+C\+A\+T\+OR} = \hyperlink{group___imagery_module_ga417fb1f2ed62599e7e321d47b3f12121}{Spatial\+Reference\+::from\+Epsg}(3395)
+\begin{DoxyCompactList}\small\item\em W\+GS 84 / World Mercator projected coordinate system (E\+P\+SG\+:3395) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a geographic or projected coordinate system. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Spatial\+Reference@{dg\+::deepcore\+::imagery\+::\+Spatial\+Reference}!Spatial\+Reference@{Spatial\+Reference}}
+\index{Spatial\+Reference@{Spatial\+Reference}!dg\+::deepcore\+::imagery\+::\+Spatial\+Reference@{dg\+::deepcore\+::imagery\+::\+Spatial\+Reference}}
+\subsubsection[{\texorpdfstring{Spatial\+Reference(\+Spatial\+Reference \&\&)=default}{SpatialReference(SpatialReference &&)=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Spatial\+Reference\+::\+Spatial\+Reference (
+\begin{DoxyParamCaption}
+\item[{{\bf Spatial\+Reference} \&\&}]{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference_a71f3d2ded7756f76859b6f709566690a}{}\label{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference_a71f3d2ded7756f76859b6f709566690a}

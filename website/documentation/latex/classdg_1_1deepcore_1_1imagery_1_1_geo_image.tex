@@ -1,0 +1,80 @@
+\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_geo_image}{}\section{dg\+:\+:deepcore\+:\+:imagery\+:\+:Geo\+Image Class Reference}
+\label{classdg_1_1deepcore_1_1imagery_1_1_geo_image}\index{dg\+::deepcore\+::imagery\+::\+Geo\+Image@{dg\+::deepcore\+::imagery\+::\+Geo\+Image}}
+
+
+An abstract base class for geo-\/registered images.  
+
+
+
+
+{\ttfamily \#include $<$imagery/\+Geo\+Image.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:imagery\+:\+:Geo\+Image\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=315pt]{classdg_1_1deepcore_1_1imagery_1_1_geo_image__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_geo_image_aa5426043b9d179eebee34651a2c4fba2}{Geo\+Image} ()=default
+\item 
+\hyperlink{group___imagery_module_ga68f769446764180ec082de155fd2a7af}{Geo\+Image} (const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&sr)
+\begin{DoxyCompactList}\small\item\em Construct a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_geo_image}{Geo\+Image}. \end{DoxyCompactList}\item 
+\hyperlink{group___imagery_module_gab093ef27cf8008d6ce61679a374f9fe8}{Geo\+Image} (\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \&\&sr)
+\begin{DoxyCompactList}\small\item\em Construct a \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_geo_image}{Geo\+Image}. \end{DoxyCompactList}\item 
+const \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \& \hyperlink{group___imagery_module_ga5a6179a2654ef54bf2605ad9e8dbd55a}{spatial\+Reference} ()
+\begin{DoxyCompactList}\small\item\em Gets the image\textquotesingle{}s spatial reference system. \end{DoxyCompactList}\item 
+cv\+::\+Point2d \hyperlink{group___imagery_module_gaee0adba3fd2460a68400cc7f0df8881b}{pixel\+To\+LL} (const cv\+::\+Point \&pixel\+Coord) const 
+\begin{DoxyCompactList}\small\item\em Convert an image pixel coordinate to the W\+G\+S84 lat/lon coordinate. \end{DoxyCompactList}\item 
+cv\+::\+Point \hyperlink{group___imagery_module_ga4f8b895c73c1088b06d62035f6fab687}{ll\+To\+Pixel} (const cv\+::\+Point2d \&ll\+Coord) const 
+\begin{DoxyCompactList}\small\item\em Convert a W\+G\+S84 lat/lon coordinate to the image pixel coordinate. \end{DoxyCompactList}\item 
+virtual cv\+::\+Size \hyperlink{group___imagery_module_gaac80b110347bd25c8fbdefef229d89c6}{size} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the image\textquotesingle{}s pixel size. \end{DoxyCompactList}\item 
+virtual cv\+::\+Point2d \hyperlink{group___imagery_module_ga6dff2792da9db73d8d80e5841edce606}{origin} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the origin in the image\textquotesingle{}s native coordinate system. The origin is the north-\/west corner. \end{DoxyCompactList}\item 
+virtual cv\+::\+Size2d \hyperlink{group___imagery_module_ga11359d5f53eff7d8ac2e661f31eb4f1a}{pixel\+Size} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the pixel size in the image\textquotesingle{}s native coordinate system. \end{DoxyCompactList}\item 
+virtual cv\+::\+Size \hyperlink{group___imagery_module_ga02738a1beaa1dd55f6d06593fe9a4c6f}{block\+Size} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the image block size. \end{DoxyCompactList}\item 
+virtual int \hyperlink{group___imagery_module_ga27b0bde15551e580dc658947d7d29f61}{num\+Bands} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the number of raster bands in the image. \end{DoxyCompactList}\item 
+virtual int \hyperlink{group___imagery_module_ga3cb616a1de3ee19bebfdf14957d90d7c}{pixel\+Type} () const =0
+\begin{DoxyCompactList}\small\item\em Gets the image pixel type as a cv\+::\+Mat type i.\+e. C\+V\+\_\+8U, C\+V\+\_\+8S, C\+V\+\_\+32F, etc. \end{DoxyCompactList}\item 
+virtual cv\+::\+Point2d \hyperlink{group___imagery_module_ga6ef753bbb1d8a5dfa56a72de21af4f08}{pixel\+To\+Proj} (cv\+::\+Point pixel\+Coord) const =0
+\begin{DoxyCompactList}\small\item\em Convert a pixel coordinate to the image\textquotesingle{}s coordinate system. \end{DoxyCompactList}\item 
+virtual cv\+::\+Point \hyperlink{group___imagery_module_ga4935502553685c597c803da24f706b99}{proj\+To\+Pixel} (cv\+::\+Point2d proj\+Coord) const =0
+\begin{DoxyCompactList}\small\item\em Convert a coordinate in the image\textquotesingle{}s coordinate system to a pixel coordiante. \end{DoxyCompactList}\item 
+virtual cv\+::\+Mat \hyperlink{group___imagery_module_ga58e7e5d070e788600714a331c5bdaf02}{read\+Image} (\hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) const =0
+\begin{DoxyCompactList}\small\item\em Reads the image into a cv\+::\+Mat. \end{DoxyCompactList}\item 
+virtual std\+::future$<$ bool $>$ \hyperlink{group___imagery_module_ga546feafefa76af28c13edab7a92e1cee}{read\+Image\+Async} (\hyperlink{group___imagery_module_ga2238c2ef34502f68956ddef1f477ad95}{Block\+Read\+Func} read\+Func, \hyperlink{group___utility_module_ga6763018df79e4bdbcd8cd14cea5342b2}{Simple\+Progress} progress\+Func=nullptr) const =0
+\begin{DoxyCompactList}\small\item\em Reades the image asynchronously. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classdg_1_1deepcore_1_1imagery_1_1_spatial_reference}{Spatial\+Reference} \hyperlink{classdg_1_1deepcore_1_1imagery_1_1_geo_image_ae349f896afc816932b94bbafd135a7ea}{sr\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+An abstract base class for geo-\/registered images. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Geo\+Image@{dg\+::deepcore\+::imagery\+::\+Geo\+Image}!Geo\+Image@{Geo\+Image}}
+\index{Geo\+Image@{Geo\+Image}!dg\+::deepcore\+::imagery\+::\+Geo\+Image@{dg\+::deepcore\+::imagery\+::\+Geo\+Image}}
+\subsubsection[{\texorpdfstring{Geo\+Image()=default}{GeoImage()=default}}]{\setlength{\rightskip}{0pt plus 5cm}dg\+::deepcore\+::imagery\+::\+Geo\+Image\+::\+Geo\+Image (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [default]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_geo_image_aa5426043b9d179eebee34651a2c4fba2}{}\label{classdg_1_1deepcore_1_1imagery_1_1_geo_image_aa5426043b9d179eebee34651a2c4fba2}
+
+
+\subsection{Member Data Documentation}
+\index{dg\+::deepcore\+::imagery\+::\+Geo\+Image@{dg\+::deepcore\+::imagery\+::\+Geo\+Image}!sr\+\_\+@{sr\+\_\+}}
+\index{sr\+\_\+@{sr\+\_\+}!dg\+::deepcore\+::imagery\+::\+Geo\+Image@{dg\+::deepcore\+::imagery\+::\+Geo\+Image}}
+\subsubsection[{\texorpdfstring{sr\+\_\+}{sr_}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Spatial\+Reference} dg\+::deepcore\+::imagery\+::\+Geo\+Image\+::sr\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1imagery_1_1_geo_image_ae349f896afc816932b94bbafd135a7ea}{}\label{classdg_1_1deepcore_1_1imagery_1_1_geo_image_ae349f896afc816932b94bbafd135a7ea}

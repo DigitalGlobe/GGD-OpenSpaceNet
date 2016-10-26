@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classdg_1_1deepcore_1_1classification_1_1_model_metadata.html" title="Contains model metadata. " alt="" coords="5,39,187,80"/>
+<area shape="rect" id="node2" href="$classdg_1_1deepcore_1_1classification_1_1_model_metadata_t.html" title="A template class implementing some default constructors and ModelMetadata::copy in terms of operator=..." alt="" coords="280,5,461,47"/>
+<area shape="rect" id="node3" href="$classdg_1_1deepcore_1_1classification_1_1_model_metadata_t.html" title="dg::deepcore::classification\l::ModelMetadataT\&lt; CaffeModelMetadata \&gt;" alt="" coords="235,71,507,112"/>
+<area shape="rect" id="node4" href="$structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata.html" title="Contains Caffe model metadata. " alt="" coords="555,71,736,112"/>
+</map>

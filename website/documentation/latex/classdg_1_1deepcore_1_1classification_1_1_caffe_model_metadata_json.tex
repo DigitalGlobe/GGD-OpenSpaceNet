@@ -1,0 +1,90 @@
+\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json}{}\section{dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Model\+Metadata\+Json Class Reference}
+\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json}\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json}}
+
+
+Converts between \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata} and J\+S\+ON.  
+
+
+
+
+{\ttfamily \#include $<$classification/\+Caffe\+Model\+Metadata\+Json.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:classification\+:\+:Caffe\+Model\+Metadata\+Json\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static const std\+::vector$<$ std\+::string $>$ \hyperlink{group___classification_module_gafcf3ba2ab411e7a7a232dcb4d8be8bcd}{field\+Names} ()
+\begin{DoxyCompactList}\small\item\em Gets the metadata field names specific to Caffe model type. \end{DoxyCompactList}\item 
+static const std\+::map$<$ std\+::string, std\+::string $>$ \hyperlink{group___classification_module_ga902389ddc019d347447a900ad76cf8f3}{field\+To\+Option} ()
+\begin{DoxyCompactList}\small\item\em Gets the metadata field names specific to Caffe model type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+Json\+::\+Value \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_ab32a3ef2b1d3345b0c1bfedc12b04e87}{to\+Json\+Internal} (const \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} \&metadata) override
+\begin{DoxyCompactList}\small\item\em Model-\/type-\/specific \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} to J\+S\+ON conversion. Must call Model\+Metadata\+::to\+Json\+Base. \end{DoxyCompactList}\item 
+\hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} $\ast$ \hyperlink{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_a1070ed25d3b4c95c83fab0896000fd44}{from\+Json\+Internal} (const Json\+::\+Value \&root, std\+::vector$<$ std\+::string $>$ \&missing\+Fields) override
+\begin{DoxyCompactList}\small\item\em Model-\/type-\/specific J\+S\+ON to \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} conversion. Must call Model\+Metadata\+::from\+Json\+Base. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Converts between \hyperlink{structdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata}{Caffe\+Model\+Metadata} and J\+S\+ON. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json}!from\+Json\+Internal@{from\+Json\+Internal}}
+\index{from\+Json\+Internal@{from\+Json\+Internal}!dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json}}
+\subsubsection[{\texorpdfstring{from\+Json\+Internal(const Json\+::\+Value \&root, std\+::vector$<$ std\+::string $>$ \&missing\+Fields) override}{fromJsonInternal(const Json::Value &root, std::vector< std::string > &missingFields) override}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Model\+Metadata} $\ast$ dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json\+::from\+Json\+Internal (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{root, }
+\item[{std\+::vector$<$ std\+::string $>$ \&}]{missing\+Fields}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_a1070ed25d3b4c95c83fab0896000fd44}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_a1070ed25d3b4c95c83fab0896000fd44}
+
+
+Model-\/type-\/specific J\+S\+ON to \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} conversion. Must call Model\+Metadata\+::from\+Json\+Base. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em root} & The root of the J\+S\+ON structure containing the model metadata. \\
+\hline
+\mbox{\tt in,out}  & {\em missing\+Fields} & List of metadata fields that were missing from J\+S\+ON. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The model metadata. Caller takes ownership of the pointer. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata_json_a7193c5debd5f94777159a77fb82e9225}{dg\+::deepcore\+::classification\+::\+Model\+Metadata\+Json}.
+
+\index{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json}!to\+Json\+Internal@{to\+Json\+Internal}}
+\index{to\+Json\+Internal@{to\+Json\+Internal}!dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json@{dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json}}
+\subsubsection[{\texorpdfstring{to\+Json\+Internal(const Model\+Metadata \&metadata) override}{toJsonInternal(const ModelMetadata &metadata) override}}]{\setlength{\rightskip}{0pt plus 5cm}Json\+::\+Value dg\+::deepcore\+::classification\+::\+Caffe\+Model\+Metadata\+Json\+::to\+Json\+Internal (
+\begin{DoxyParamCaption}
+\item[{const {\bf Model\+Metadata} \&}]{metadata}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_ab32a3ef2b1d3345b0c1bfedc12b04e87}{}\label{classdg_1_1deepcore_1_1classification_1_1_caffe_model_metadata_json_ab32a3ef2b1d3345b0c1bfedc12b04e87}
+
+
+Model-\/type-\/specific \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata}{Model\+Metadata} to J\+S\+ON conversion. Must call Model\+Metadata\+::to\+Json\+Base. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em metadata} & The metadata to convert. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The Json\+::\+Value representing the metadata J\+S\+ON root. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classdg_1_1deepcore_1_1classification_1_1_model_metadata_json_a64da517601cb67872352a34e8b804c15}{dg\+::deepcore\+::classification\+::\+Model\+Metadata\+Json}.
+

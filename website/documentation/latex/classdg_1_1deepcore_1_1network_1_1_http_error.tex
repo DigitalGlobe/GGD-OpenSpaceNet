@@ -1,0 +1,47 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_http_error}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Http\+Error Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_http_error}\index{dg\+::deepcore\+::network\+::\+Http\+Error@{dg\+::deepcore\+::network\+::\+Http\+Error}}
+
+
+Represents an H\+T\+TP error response.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Http\+Error.\+h$>$}
+
+
+
+Collaboration diagram for dg\+:\+:deepcore\+:\+:network\+:\+:Http\+Error\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{classdg_1_1deepcore_1_1network_1_1_http_error__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___network_module_ga14eeb0f4441dfb8f75d82c0cd940c0ec}{Http\+Error} ()
+\begin{DoxyCompactList}\small\item\em The default constructor. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga03929fda967c6a3609d28953ac0fad55}{Http\+Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___network_module_ga979dcee6ab51c4f6be456ae242c8f90b}{url}, int \hyperlink{group___network_module_ga7dcace94fa3fc37b1f0f6881438c6446}{code}, const std\+::vector$<$ uint8\+\_\+t $>$ \&\hyperlink{group___network_module_gac1cbcd7696b0048a61231953d2aad0d7}{response})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_error}{Http\+Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_gaacf30b407e830bcfc3a15b14c6bcda3f}{Http\+Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___network_module_ga979dcee6ab51c4f6be456ae242c8f90b}{url}, int \hyperlink{group___network_module_ga7dcace94fa3fc37b1f0f6881438c6446}{code}, std\+::vector$<$ uint8\+\_\+t $>$ \&\&\hyperlink{group___network_module_gac1cbcd7696b0048a61231953d2aad0d7}{response})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_error}{Http\+Error}. \end{DoxyCompactList}\item 
+\hyperlink{group___network_module_ga45854282cc688af939cbe7d7242661a3}{Http\+Error} (const char $\ast$\hyperlink{group___utility_module_ga0b75e32780cb8534179ff3c060739496}{file}, const unsigned int \hyperlink{group___utility_module_ga13437b5caffe754b7a32fc3c514907e5}{line}, const char $\ast$\hyperlink{group___utility_module_gaa69c98222c56544a9094154a8eab4db9}{function}, const std\+::string \&\hyperlink{group___network_module_ga979dcee6ab51c4f6be456ae242c8f90b}{url}, int \hyperlink{group___network_module_ga7dcace94fa3fc37b1f0f6881438c6446}{code}, std\+::istream \&\hyperlink{group___network_module_gac1cbcd7696b0048a61231953d2aad0d7}{response})
+\begin{DoxyCompactList}\small\item\em Constructs an \hyperlink{classdg_1_1deepcore_1_1network_1_1_http_error}{Http\+Error}. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___network_module_ga979dcee6ab51c4f6be456ae242c8f90b}{url} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the request U\+RL. \end{DoxyCompactList}\item 
+int \hyperlink{group___network_module_ga7dcace94fa3fc37b1f0f6881438c6446}{code} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the H\+T\+TP result code. \end{DoxyCompactList}\item 
+const std\+::string \& \hyperlink{group___network_module_gadaf5c8fe0e843d50fa5f55a83f6bb0d6}{status} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the description of the H\+T\+TP status code. \end{DoxyCompactList}\item 
+const std\+::vector$<$ uint8\+\_\+t $>$ \& \hyperlink{group___network_module_gac1cbcd7696b0048a61231953d2aad0d7}{response} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the response body. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{group___network_module_ga0768820112e9c0d089a04b9d98bb5bf2}{response\+As\+String} () const noexcept
+\begin{DoxyCompactList}\small\item\em Gets the response body as an std\+::string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Represents an H\+T\+TP error response. 

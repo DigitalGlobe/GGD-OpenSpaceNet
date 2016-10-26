@@ -1,0 +1,117 @@
+\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server}{}\section{dg\+:\+:deepcore\+:\+:network\+:\+:Json\+Rpc\+Server Class Reference}
+\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server}\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+
+
+A virtual class to handle J\+S\+O\+N-\/\+R\+PC interaction.  
+
+
+
+
+{\ttfamily \#include $<$network/\+Json\+Rpc\+Server.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_afdf48f480c38c0323ede59f0a4f34a46}{on\+Request\+String} (const std\+::string \&request, Json\+::\+Value \&rpc\+Response) noexcept
+\item 
+bool \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1223e51df1a94dbfc4f191a6d40bf7b8}{on\+Request} (const Json\+::\+Value \&request, Json\+::\+Value \&rpc\+Response) noexcept
+\item 
+virtual void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1cd378978887971fb20ae14b09b08d2c}{on\+Http\+Request} (Http\+Server\+::\+Response \&response, std\+::shared\+\_\+ptr$<$ Http\+Server\+::\+Request $>$ request) noexcept
+\item 
+std\+::function$<$ void(typename Http\+Server\+::\+Response \&, std\+::shared\+\_\+ptr$<$ typename Http\+Server\+::\+Request $>$)$>$ \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a9066e03b8dd9ef6e781447e6fbf90a78}{make\+Http\+Hook} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae4f695ab15a787b286e30e9597273cd4}{on\+Request} (const \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_request}{Json\+Rpc\+Request} \&request, \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}{Json\+Rpc\+Response} \&rpc\+Response)
+\item 
+virtual void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_adc423962543d5b9c49124415bbeef6e1}{handle\+Request} (const std\+::string \&method, const Json\+::\+Value \&params, \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_response}{Json\+Rpc\+Response} \&response)=0
+\begin{DoxyCompactList}\small\item\em Handle a request that is received. \end{DoxyCompactList}\item 
+virtual void \hyperlink{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae5d3b1476f87a044ee883420ae6d2c2d}{handle\+Notification} (const std\+::string \&method, const Json\+::\+Value \&params)=0
+\begin{DoxyCompactList}\small\item\em Handle a notification that is received. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A virtual class to handle J\+S\+O\+N-\/\+R\+PC interaction. 
+
+\subsection{Member Function Documentation}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!handle\+Notification@{handle\+Notification}}
+\index{handle\+Notification@{handle\+Notification}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{handle\+Notification(const std\+::string \&method, const Json\+::\+Value \&params)=0}{handleNotification(const std::string &method, const Json::Value &params)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::handle\+Notification (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{method, }
+\item[{const Json\+::\+Value \&}]{params}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [pure virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae5d3b1476f87a044ee883420ae6d2c2d}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae5d3b1476f87a044ee883420ae6d2c2d}
+
+
+Handle a notification that is received. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em method} & The method to invoke \\
+\hline
+\mbox{\tt in}  & {\em params} & The paramaters with which to invoke the method \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!handle\+Request@{handle\+Request}}
+\index{handle\+Request@{handle\+Request}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{handle\+Request(const std\+::string \&method, const Json\+::\+Value \&params, Json\+Rpc\+Response \&response)=0}{handleRequest(const std::string &method, const Json::Value &params, JsonRpcResponse &response)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::handle\+Request (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{method, }
+\item[{const Json\+::\+Value \&}]{params, }
+\item[{{\bf Json\+Rpc\+Response} \&}]{response}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [pure virtual]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_adc423962543d5b9c49124415bbeef6e1}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_adc423962543d5b9c49124415bbeef6e1}
+
+
+Handle a request that is received. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em method} & The method to invoke \\
+\hline
+\mbox{\tt in}  & {\em params} & The paramaters with which to invoke the method \\
+\hline
+\mbox{\tt out}  & {\em response} & A response object in which to populate either an error or a result (other fields will be populated by the framework). \\
+\hline
+\end{DoxyParams}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!make\+Http\+Hook@{make\+Http\+Hook}}
+\index{make\+Http\+Hook@{make\+Http\+Hook}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{make\+Http\+Hook()}{makeHttpHook()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::function$<$ void(typename Http\+Server\+::\+Response \&, std\+::shared\+\_\+ptr$<$ typename Http\+Server\+::\+Request $>$)$>$ dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::make\+Http\+Hook (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a9066e03b8dd9ef6e781447e6fbf90a78}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a9066e03b8dd9ef6e781447e6fbf90a78}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!on\+Http\+Request@{on\+Http\+Request}}
+\index{on\+Http\+Request@{on\+Http\+Request}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{on\+Http\+Request(\+Http\+Server\+::\+Response \&response, std\+::shared\+\_\+ptr$<$ Http\+Server\+::\+Request $>$ request) noexcept}{onHttpRequest(HttpServer::Response &response, std::shared_ptr< HttpServer::Request > request) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}void dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::on\+Http\+Request (
+\begin{DoxyParamCaption}
+\item[{Http\+Server\+::\+Response \&}]{response, }
+\item[{std\+::shared\+\_\+ptr$<$ Http\+Server\+::\+Request $>$}]{request}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}, {\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1cd378978887971fb20ae14b09b08d2c}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1cd378978887971fb20ae14b09b08d2c}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!on\+Request@{on\+Request}}
+\index{on\+Request@{on\+Request}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{on\+Request(const Json\+::\+Value \&request, Json\+::\+Value \&rpc\+Response) noexcept}{onRequest(const Json::Value &request, Json::Value &rpcResponse) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::on\+Request (
+\begin{DoxyParamCaption}
+\item[{const Json\+::\+Value \&}]{request, }
+\item[{Json\+::\+Value \&}]{rpc\+Response}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1223e51df1a94dbfc4f191a6d40bf7b8}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_a1223e51df1a94dbfc4f191a6d40bf7b8}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!on\+Request@{on\+Request}}
+\index{on\+Request@{on\+Request}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{on\+Request(const Json\+Rpc\+Request \&request, Json\+Rpc\+Response \&rpc\+Response)}{onRequest(const JsonRpcRequest &request, JsonRpcResponse &rpcResponse)}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::on\+Request (
+\begin{DoxyParamCaption}
+\item[{const {\bf Json\+Rpc\+Request} \&}]{request, }
+\item[{{\bf Json\+Rpc\+Response} \&}]{rpc\+Response}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae4f695ab15a787b286e30e9597273cd4}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_ae4f695ab15a787b286e30e9597273cd4}
+\index{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}!on\+Request\+String@{on\+Request\+String}}
+\index{on\+Request\+String@{on\+Request\+String}!dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server@{dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server}}
+\subsubsection[{\texorpdfstring{on\+Request\+String(const std\+::string \&request, Json\+::\+Value \&rpc\+Response) noexcept}{onRequestString(const std::string &request, Json::Value &rpcResponse) noexcept}}]{\setlength{\rightskip}{0pt plus 5cm}bool dg\+::deepcore\+::network\+::\+Json\+Rpc\+Server\+::on\+Request\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{request, }
+\item[{Json\+::\+Value \&}]{rpc\+Response}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [noexcept]}}\hypertarget{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_afdf48f480c38c0323ede59f0a4f34a46}{}\label{classdg_1_1deepcore_1_1network_1_1_json_rpc_server_afdf48f480c38c0323ede59f0a4f34a46}
