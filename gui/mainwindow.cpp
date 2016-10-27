@@ -512,6 +512,7 @@ void MainWindow::enableRunButton(){
 }
 
 void MainWindow::updateProgressBox(QString updateText){
+    std::clog << updateText.toStdString() << std::endl;
     if(boost::contains(updateText.toStdString(), "0%")){
         whichProgress++;
         progressCount = 0;
@@ -525,7 +526,7 @@ void MainWindow::updateProgressBox(QString updateText){
             progressWindow.updateProgressBarDetect(progressCount);
         }
     }
-    else if(!boost::contains(updateText.toStdString(), "0%") && !boost::contains(updateText.toStdString(), "|----")) {
+    else if(!boost::contains(updateText.toStdString(), "0%") && !boost::contains(updateText.toStdString(), "|----") && !boost::contains(updateText.toStdString(), "found star")) {
         progressWindow.getUI().progressDisplay->append(updateText);
     }
 }
