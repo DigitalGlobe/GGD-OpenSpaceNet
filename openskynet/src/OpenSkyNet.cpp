@@ -38,6 +38,7 @@
 #include <deque>
 #include <imagery/CvToLog.h>
 #include <imagery/GdalImage.h>
+#include <imagery/InitGdalData.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
@@ -194,6 +195,7 @@ void OpenSkyNet::initLocalImage()
 
 void OpenSkyNet::initMapServiceImage()
 {
+    initGdalData();
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
     bool wmts = true;
