@@ -51,7 +51,13 @@ protected:
         if (v == '\n' || v == '*')
         {
             //log_window->append(m_string.c_str());
-            emit updateProgressText(QString::fromStdString(m_string.c_str()));
+            if (v == '*'){
+                emit updateProgressText(QString::fromStdString("*"));
+            }
+            else
+            {
+                emit updateProgressText(QString::fromStdString(m_string.c_str()));
+            }
             m_string.erase(m_string.begin(), m_string.end());
         }
         else
