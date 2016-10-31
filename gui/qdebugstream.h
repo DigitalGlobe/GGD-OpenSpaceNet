@@ -88,7 +88,6 @@ protected:
                 std::string tmp(m_string.begin(), m_string.begin() + posStar);
                 //log_window->append(tmp.c_str());
                 emit updateProgressText(QString::fromStdString(m_string.c_str()));
-                emit updateProgressText(QString::fromStdString("found star"));
                 m_string.erase(m_string.begin(), m_string.begin() + posStar + 1);
             }
         }
