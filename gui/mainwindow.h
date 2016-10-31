@@ -19,6 +19,7 @@
 #include <QCloseEvent>
 #include <QStatusBar>
 #include <QProgressBar>
+#include <imagery/MapServiceClient.h>
 
 namespace Ui {
 class MainWindow;
@@ -126,6 +127,9 @@ private:
 
     int progressCount = 0;
     int whichProgress = 0;
+
+    //web services client
+    std::unique_ptr<dg::deepcore::imagery::MapServiceClient> validationClient;
 
     //bbox input validator
     std::unique_ptr<QRegularExpressionValidator> doubleValidator;

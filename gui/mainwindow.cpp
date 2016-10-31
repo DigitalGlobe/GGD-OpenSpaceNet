@@ -2,11 +2,15 @@
 #include "ui_mainwindow.h"
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
+#include "qdebugstream.h"
+#include <QStandardPaths>
 #include <boost/filesystem.hpp>
 #include <boost/core/null_deleter.hpp>
-#include "qdebugstream.h"
 #include <boost/algorithm/string.hpp>
-#include <QStandardPaths>
+#include <boost/make_unique.hpp>
+#include <imagery/MapBoxClient.h>
+#include <imagery/DgcsClient.h>
+#include <imagery/EvwhsClient.h>
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -65,7 +69,7 @@ void MainWindow::setUpLogging(){
 void MainWindow::initValidation()
 {
     //bbox double validator
-    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+");
+    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+\\");
     doubleValidator = std::unique_ptr<QRegularExpressionValidator>(new QRegularExpressionValidator(doubleRegExp, 0));
 
     ui->bboxWestLineEdit->setValidator(doubleValidator.get());
@@ -120,6 +124,10 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->localImageFileLineEdit->setEnabled(false);
         ui->localImageFileBrowseButton->setEnabled(false);
 
+        //set the style of the local image file field to default
+        ui->localImageFileLineEdit->clear();
+        ui->localImageFileLineEdit->setStyleSheet("color: default");
+
         //token
         ui->tokenLabel->setEnabled(true);
         ui->tokenLineEdit->setEnabled(true);
@@ -152,7 +160,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
 
         //downloads
         ui->downloadsLabel->setEnabled(true);
-        ui->downloadsSpinBox->setEnabled(true);       
+        ui->downloadsSpinBox->setEnabled(true);
     }
     else{
     	//bbox
@@ -189,6 +197,9 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->usernameLineEdit->setEnabled(false);
         ui->passwordLabel->setEnabled(false);
         ui->passwordLineEdit->setEnabled(false);
+
+        //validate the old imagepath
+        on_imagepathLineEditLostFocus();
     }
 }
 
@@ -462,8 +473,9 @@ void MainWindow::on_runPushButton_clicked(){
     //Local image specific validation
     if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
         validJob = false;
-        std::clog << "valid local " << hasValidLocalImagePath << std::endl;
-
+        error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+        ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                  "border: 1px solid red;");
     }
 
     //Image source agnostic validation
@@ -471,11 +483,6 @@ void MainWindow::on_runPushButton_clicked(){
         validJob = false;
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
-        if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
-            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-            ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
-        }
         if(!hasValidModel){
             error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
             ui->modelFileLineEdit->setStyleSheet("color: red;"
@@ -487,11 +494,34 @@ void MainWindow::on_runPushButton_clicked(){
                                                       "border: 1px solid red;");
         }
         if(!hasValidOutputPath) {
-            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n";
+            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
             ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
         }
     }
+
+    if(osnArgs.source != dg::openskynet::Source::LOCAL)
+    {
+        if(imageSource == "DGCS"){
+                validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
+        }
+        else if(imageSource == "EVWHS"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(osnArgs.token, osnArgs.credentials);
+        }
+        else if(imageSource == "MapsAPI"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.token, osnArgs.credentials);
+        }
+        try {
+            validationClient->connect();
+        }
+        catch(dg::deepcore::Error e)
+        {
+            std::clog << e.what() << std::endl;
+            error += "Invalid web service credentials--make sure your token (and username/password, if applicable) is correct\n\n";
+            validJob = false;
+        }
+    }
+
 
     if(!validJob){
         QMessageBox::critical(
