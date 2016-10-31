@@ -17,6 +17,8 @@
 #include "qdebugstream.h"
 #include <QValidator>
 #include <QCloseEvent>
+#include <QStatusBar>
+#include <QProgressBar>
 
 namespace Ui {
 class MainWindow;
@@ -137,6 +139,8 @@ private:
     //tracks the last-accessed directory for the image and model file browsers
     QString lastAccessedDirectory;
 
+    QProgressBar *statusProgressBar;
+    QString featuresDetected;
 };
 
 #endif // MAINWINDOW_H
