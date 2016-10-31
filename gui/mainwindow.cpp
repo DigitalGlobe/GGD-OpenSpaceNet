@@ -653,6 +653,22 @@ void MainWindow::on_closePushButton_clicked()
     if(!thread.isFinished()) {
         thread.quit();
     }
+    qout.eraseString();
+    sout.eraseString();
+
     progressWindow.close();
-    QApplication::quit();
+
+    exit(1);
+}
+
+void MainWindow::closeEvent (QCloseEvent *event) {
+
+    if(!thread.isFinished()) {
+        thread.quit();
+    }
+    qout.eraseString();
+    sout.eraseString();
+
+    progressWindow.close();
+    exit(1);
 }
