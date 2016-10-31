@@ -16,6 +16,7 @@
 #include <sstream>
 #include "qdebugstream.h"
 #include <QValidator>
+#include <QCloseEvent>
 
 namespace Ui {
 class MainWindow;
@@ -111,6 +112,8 @@ private:
     void setUpLogging();
     void initValidation();
     void resetProgressWindow();
+
+    void closeEvent(QCloseEvent *event);
 
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
     std::stringstream buffer_;
