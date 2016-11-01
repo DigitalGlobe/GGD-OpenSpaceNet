@@ -85,7 +85,7 @@
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="1" column="1">
@@ -182,7 +182,7 @@
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_7">
        <item row="4" column="2">
@@ -352,7 +352,7 @@
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="7">
@@ -496,7 +496,7 @@
        </size>
       </property>
       <property name="title">
-       <string>Bounding Box:</string>
+       <string>Bounding Box</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -679,7 +679,7 @@
        <string>Action</string>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -754,7 +754,7 @@
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="1" column="1">
@@ -917,7 +917,7 @@
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="1" colspan="5">
