@@ -64,6 +64,8 @@ void MainWindow::setUpLogging(){
 
 
     statusProgressBar = new QProgressBar;
+
+    statusBar()->setStyleSheet("QStatusBar{border-top: 1px outset grey;}");
 }
 
 void MainWindow::initValidation()
@@ -535,7 +537,7 @@ void MainWindow::on_runPushButton_clicked(){
 
     resetProgressWindow();
 
-    //progressWindow.show();
+    progressWindow.show();
 
     statusBar()->addPermanentWidget(statusProgressBar, 0);
     statusProgressBar->setValue(0);
@@ -547,7 +549,7 @@ void MainWindow::on_runPushButton_clicked(){
 
 void MainWindow::enableRunButton(){
     ui->runPushButton->setEnabled(true);
-    //progressWindow.updateProgressText("OpenSkyNet is complete.");
+    progressWindow.updateProgressText("OpenSpaceNet is complete.");
     statusBar()->removeWidget(statusProgressBar);
     statusBar()->showMessage("Complete. " + featuresDetected);
 }
@@ -564,16 +566,16 @@ void MainWindow::updateProgressBox(QString updateText){
     if(boost::contains(updateText.toStdString(), "*")){
         progressCount += 2;
         if(whichProgress == 1) {
-            //progressWindow.updateProgressBar(progressCount);
+            progressWindow.updateProgressBar(progressCount);
             statusProgressBar->setValue(progressCount);
         }
         else if(whichProgress == 2){
-            //progressWindow.updateProgressBarDetect(progressCount);
+            progressWindow.updateProgressBarDetect(progressCount);
             statusProgressBar->setValue(progressCount);
         }
     }
     else if(!boost::contains(updateText.toStdString(), "0%") && !boost::contains(updateText.toStdString(), "|----") && !boost::contains(updateText.toStdString(), "found star")) {
-        //progressWindow.getUI().progressDisplay->append(updateText);
+        progressWindow.getUI().progressDisplay->append(updateText);
         if(!boost::contains(updateText.toStdString(), "\n")) {
             statusBar()->showMessage(updateText);
         }
@@ -677,12 +679,12 @@ void MainWindow::on_outputPathLineEditCursorPositionChanged(){
 void MainWindow::resetProgressWindow(){
     progressCount = 0;
     whichProgress = 0;
-    //progressWindow.setWindowTitle("OpenSkyNet Progress");
-    //progressWindow.updateProgressText("Running OpenSkyNet...");
-    //progressWindow.getUI().progressDisplay->clear();
-    //progressWindow.updateProgressBar(0);
-    //progressWindow.updateProgressBarDetect(0);
-    //progressWindow.getUI().cancelPushButton->setVisible(false);
+    progressWindow.setWindowTitle("OpenSpaceNet Progress");
+    progressWindow.updateProgressText("Running OpenSpaceNet...");
+    progressWindow.getUI().progressDisplay->clear();
+    progressWindow.updateProgressBar(0);
+    progressWindow.updateProgressBarDetect(0);
+    progressWindow.getUI().cancelPushButton->setVisible(false);
 
 }
 
@@ -705,7 +707,7 @@ void MainWindow::on_closePushButton_clicked()
     qout.eraseString();
     sout.eraseString();
 
-    //progressWindow.close();
+    progressWindow.close();
 
     exit(1);
 }
@@ -718,6 +720,6 @@ void MainWindow::closeEvent (QCloseEvent *event) {
     qout.eraseString();
     sout.eraseString();
 
-    //progressWindow.close();
+    progressWindow.close();
     exit(1);
 }
