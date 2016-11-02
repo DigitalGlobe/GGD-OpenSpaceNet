@@ -43,7 +43,6 @@ void MainWindow::connectSignalsAndSlots()
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
-    connect(statusBar(), SIGNAL(clicked()), this, SLOT(statusBarClicked()));
 
     //Connections that change the color of the filepath line edits
     connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
@@ -682,7 +681,6 @@ void MainWindow::on_outputPathLineEditCursorPositionChanged(){
 void MainWindow::resetProgressWindow(){
     progressCount = 0;
     whichProgress = 0;
-    progressWindow.setWindowTitle("OpenSpaceNet Progress");
     progressWindow.updateProgressText("Running OpenSpaceNet...");
     progressWindow.getUI().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
@@ -725,10 +723,6 @@ void MainWindow::closeEvent (QCloseEvent *event) {
 
     progressWindow.close();
     exit(1);
-}
-
-void MainWindow::statusBarClicked(){
-    progressWindow.show();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
