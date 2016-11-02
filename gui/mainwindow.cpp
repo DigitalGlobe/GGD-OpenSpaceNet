@@ -552,6 +552,7 @@ void MainWindow::on_runPushButton_clicked(){
 void MainWindow::enableRunButton(){
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgressText("OpenSpaceNet is complete.");
+    progressWindow.getUI().progressDisplay->append("Complete.");
     statusBar()->removeWidget(statusProgressBar);
     statusBar()->showMessage("Complete. " + featuresDetected);
 }
