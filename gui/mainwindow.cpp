@@ -513,7 +513,7 @@ void MainWindow::on_runPushButton_clicked(){
             validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(osnArgs.token, osnArgs.credentials);
         }
         else if(imageSource == "MapsAPI"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.token, osnArgs.credentials);
+            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.mapId, osnArgs.token);
         }
         try {
             validationClient->connect();
