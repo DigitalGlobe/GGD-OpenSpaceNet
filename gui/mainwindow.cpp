@@ -25,8 +25,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setUpLogging();
     initValidation();
 
-    statusBar()->showMessage(tr("Ready"));
+    progressWindow.getUI().cancelPushButton->setVisible(false);
 
+    statusBar()->showMessage(tr("Ready"));
+    statusBar()->installEventFilter(this);
     //Set the file browsers' initial location to the user's home directory
     lastAccessedDirectory = QDir::homePath();
 }
@@ -41,6 +43,7 @@ void MainWindow::connectSignalsAndSlots()
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
+    connect(statusBar(), SIGNAL(clicked()), this, SLOT(statusBarClicked()));
 
     //Connections that change the color of the filepath line edits
     connect(ui->localImageFileLineEdit, SIGNAL(editingFinished()), this, SLOT(on_imagepathLineEditLostFocus()));
@@ -684,7 +687,7 @@ void MainWindow::resetProgressWindow(){
     progressWindow.getUI().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
     progressWindow.updateProgressBarDetect(0);
-    progressWindow.getUI().cancelPushButton->setVisible(false);
+
 
 }
 
@@ -722,4 +725,17 @@ void MainWindow::closeEvent (QCloseEvent *event) {
 
     progressWindow.close();
     exit(1);
+}
+
+void MainWindow::statusBarClicked(){
+    progressWindow.show();
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+        progressWindow.show();
+    }
+    return false;
 }
