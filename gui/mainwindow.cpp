@@ -503,7 +503,8 @@ void MainWindow::on_runPushButton_clicked(){
                                                       "border: 1px solid red;");
         }
     }
-
+    ui->runPushButton->setEnabled(false);
+    statusBar()->showMessage("Checking credentials");
     if(osnArgs.source != dg::openskynet::Source::LOCAL)
     {
         if(imageSource == "DGCS"){
@@ -525,17 +526,17 @@ void MainWindow::on_runPushButton_clicked(){
             validJob = false;
         }
     }
-
+    statusBar()->clearMessage();
 
     if(!validJob){
         QMessageBox::critical(
             this,
             tr("Error"),
             error);
+        ui->runPushButton->setEnabled(true);
         return;
     }
 
-    ui->runPushButton->setEnabled(false);
 
     resetProgressWindow();
 
