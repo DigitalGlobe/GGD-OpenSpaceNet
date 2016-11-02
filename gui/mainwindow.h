@@ -145,6 +145,8 @@ private:
 
     QProgressBar *statusProgressBar;
     QString featuresDetected;
+
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // MAINWINDOW_H
