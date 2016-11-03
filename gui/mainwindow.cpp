@@ -553,7 +553,7 @@ void MainWindow::on_runPushButton_clicked(){
                  error += "Invalid Map Id\n\n";
             }
             else{
-                error += "Unknown service authenication error occurred\n\n";
+                error += "Unknown web service authentication error occurred\n\n";
             }
             validJob = false;
         }
