@@ -315,6 +315,9 @@ void MainWindow::on_runPushButton_clicked(){
     if(ui->mapIdLineEdit->text() != ""){
         osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
     }
+    else{
+        osnArgs.mapId = MAPSAPI_MAPID;
+    }
 
     //Parse and set the image path
     localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
@@ -482,7 +485,7 @@ void MainWindow::on_runPushButton_clicked(){
     bool validJob = true;
 
     hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
-    QString error("Cannot run process:\n\n");
+    QString error("");
 
     //Local image specific validation
     if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
@@ -533,8 +536,25 @@ void MainWindow::on_runPushButton_clicked(){
         }
         catch(dg::deepcore::Error e)
         {
-            std::clog << e.what() << std::endl;
-            error += "Invalid web service credentials--make sure your token (and username/password, if applicable) is correct\n\n";
+            std::string serverMessage(e.what());
+            std::clog << serverMessage << std::endl;
+            //check for invalid token message, first from DGCS, then from MapsAPI
+            if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
+                serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
+                serverMessage.find("Not Authorized - No Token") != std::string::npos){
+                error += "Invalid web service token\n\n";
+            }
+            //check for invalid username/password message
+            else if (serverMessage.find("This request requires HTTP authentication") != std::string::npos){
+                error += "Invalid web service username and/or password\n\n";
+            }
+            //check for invalid map id
+            else if (serverMessage.find("Not Found") != std::string::npos){
+                 error += "Invalid Map Id\n\n";
+            }
+            else{
+                error += "Unknown service authenication error occurred\n\n";
+            }
             validJob = false;
         }
     }
