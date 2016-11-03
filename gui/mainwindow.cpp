@@ -146,6 +146,11 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         	ui->usernameLineEdit->setEnabled(false);
         	ui->passwordLabel->setEnabled(false);
         	ui->passwordLineEdit->setEnabled(false);
+
+        	if(ui->zoomSpinBox->value() > 20){
+        	    ui->zoomSpinBox->setValue(20);
+            }
+            ui->zoomSpinBox->setMaximum(20);
         }
         else{
         	ui->mapIdLabel->setEnabled(false);
@@ -156,6 +161,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         	ui->usernameLineEdit->setEnabled(true);
         	ui->passwordLabel->setEnabled(true);
         	ui->passwordLineEdit->setEnabled(true);
+        	ui->zoomSpinBox->setMaximum(22);
         }
 
         //zoom
@@ -503,6 +509,8 @@ void MainWindow::on_runPushButton_clicked(){
                                                       "border: 1px solid red;");
         }
     }
+
+
     ui->runPushButton->setEnabled(false);
     statusBar()->showMessage("Checking credentials");
     if(osnArgs.source != dg::openskynet::Source::LOCAL)
