@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     statusBar()->showMessage(tr("Ready"));
     statusBar()->installEventFilter(this);
+
+    ui->bboxOverrideCheckBox->hide();
     //Set the file browsers' initial location to the user's home directory
     lastAccessedDirectory = QDir::homePath();
 }
@@ -117,7 +119,7 @@ void MainWindow::on_modelFileBrowseButton_clicked(){
 void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source){
     if(source != "Local Image File"){
         //bbox
-        ui->bboxOverrideCheckBox->hide();
+        //ui->bboxOverrideCheckBox->hide();
         ui->bboxNorthLineEdit->setEnabled(true);
         ui->bboxSouthLineEdit->setEnabled(true);
         ui->bboxEastLineEdit->setEnabled(true);
@@ -174,7 +176,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
     }
     else{
     	//bbox
-        ui->bboxOverrideCheckBox->show();
+        //ui->bboxOverrideCheckBox->show();
         bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
         ui->bboxNorthLineEdit->setEnabled(bboxOverridden);
         ui->bboxSouthLineEdit->setEnabled(bboxOverridden);
