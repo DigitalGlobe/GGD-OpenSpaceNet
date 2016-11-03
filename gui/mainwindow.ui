@@ -723,11 +723,6 @@
            <string>Detect</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>Landcover</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>
