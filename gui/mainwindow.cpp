@@ -356,6 +356,8 @@ void MainWindow::on_runPushButton_clicked(){
     bboxEast = ui->bboxEastLineEdit->text().toStdString();
     bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
+    osnArgs.bbox = NULL;
+
     if(imageSource != "Local Image File"){
         osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
                                                       cv::Point2d(stod(bboxEast), stod(bboxNorth)));
