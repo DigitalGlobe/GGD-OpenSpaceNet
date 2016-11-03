@@ -258,22 +258,12 @@
          </item>
          <item>
           <property name="text">
-           <string>Elastic Search</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
            <string>GeoJSON</string>
           </property>
          </item>
          <item>
           <property name="text">
            <string>KML</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>PostGIS</string>
           </property>
          </item>
         </widget>
