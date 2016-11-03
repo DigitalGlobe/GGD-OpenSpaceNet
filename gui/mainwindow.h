@@ -60,6 +60,14 @@ private slots:
 
     void on_imagepathLineEditLostFocus();
 
+    void on_mapIdLineEditCursorPositionChanged();
+
+    void on_tokenLineEditCursorPositionChanged();
+
+    void on_passwordLineEditCursorPositionChanged();
+
+    void on_usernameLineEditCursorPositionChanged();
+
     void on_outputLocationLineEditLostFocus();
 
     void on_localImagePathLineEditCursorPositionChanged();

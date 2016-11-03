@@ -56,6 +56,14 @@ void MainWindow::connectSignalsAndSlots()
     connect(ui->modelFileLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_modelpathLineEditCursorPositionChanged()));
     connect(ui->outputFilenameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputFilenameLineEditCursorPositionChanged()));
     connect(ui->outputLocationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_outputPathLineEditCursorPositionChanged()));
+
+    //Connections that change the error color of the web services widgets back to the default
+    connect(ui->usernameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_usernameLineEditCursorPositionChanged()));
+    connect(ui->usernameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_passwordLineEditCursorPositionChanged()));
+    connect(ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_passwordLineEditCursorPositionChanged()));
+    connect(ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_usernameLineEditCursorPositionChanged()));
+    connect(ui->mapIdLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_mapIdLineEditCursorPositionChanged()));
+    connect(ui->tokenLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_tokenLineEditCursorPositionChanged()));
 }
 
 void MainWindow::setUpLogging(){
@@ -543,14 +551,22 @@ void MainWindow::on_runPushButton_clicked(){
                 serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
                 serverMessage.find("Not Authorized - No Token") != std::string::npos){
                 error += "Invalid web service token\n\n";
+                ui->tokenLineEdit->setStyleSheet("color: red;"
+                                                 "border: 1px solid red;");
             }
             //check for invalid username/password message
             else if (serverMessage.find("This request requires HTTP authentication") != std::string::npos){
                 error += "Invalid web service username and/or password\n\n";
+                ui->passwordLineEdit->setStyleSheet("color: red;"
+                                                    "border: 1px solid red;");
+                ui->usernameLineEdit->setStyleSheet("color: red;"
+                                                    "border: 1px solid red;");
             }
             //check for invalid map id
             else if (serverMessage.find("Not Found") != std::string::npos){
                  error += "Invalid Map Id\n\n";
+                 ui->mapIdLineEdit->setStyleSheet("color: red;"
+                                                           "border: 1px solid red;");
             }
             else{
                 error += "Unknown web service authentication error occurred\n\n";
@@ -710,6 +726,22 @@ void MainWindow::on_outputFilenameLineEditCursorPositionChanged()
 
 void MainWindow::on_outputPathLineEditCursorPositionChanged(){
     ui->outputLocationLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_mapIdLineEditCursorPositionChanged(){
+    ui->mapIdLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_tokenLineEditCursorPositionChanged(){
+    ui->tokenLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_passwordLineEditCursorPositionChanged(){
+    ui->passwordLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_usernameLineEditCursorPositionChanged(){
+    ui->usernameLineEdit->setStyleSheet("color: default");
 }
 
 void MainWindow::resetProgressWindow(){
