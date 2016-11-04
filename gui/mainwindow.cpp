@@ -11,6 +11,7 @@
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <imagery/GdalImage.h>
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -496,11 +497,26 @@ void MainWindow::on_runPushButton_clicked(){
     QString error("");
 
     //Local image specific validation
-    if(osnArgs.source == dg::openskynet::Source::LOCAL && !hasValidLocalImagePath){
-        validJob = false;
-        error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-        ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                  "border: 1px solid red;");
+    if(osnArgs.source == dg::openskynet::Source::LOCAL){
+        if (!hasValidLocalImagePath){
+            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+            ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
+            validJob = false;
+        }
+        //The filepath is valid
+        else {
+            //Only geo-registered images can be processed
+            if (!hasGeoRegLocalImage){
+                std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
+                error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+                ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                          "border: 1px solid red;");
+                validJob = false;
+            }
+        }
+
+
     }
 
     //Image source agnostic validation
@@ -679,10 +695,29 @@ void MainWindow::on_imagepathLineEditLostFocus(){
                                                   "border: 1px solid red;");
         hasValidLocalImagePath = false;
     }
-    //Valid input
+    //Valid image path
     else {
         ui->localImageFileLineEdit->setStyleSheet("color: default");
         hasValidLocalImagePath = true;
+        //only geo-regeistered images are valid
+        try {
+            auto image = boost::make_unique<dg::deepcore::imagery::GdalImage>(imagepath);
+            auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
+            ui->bboxWestLineEdit->setText(QString::number(imageBbox.x));
+            ui->bboxSouthLineEdit->setText(QString::number(imageBbox.y));
+            ui->bboxEastLineEdit->setText(QString::number(imageBbox.x + imageBbox.width));
+            ui->bboxNorthLineEdit->setText(QString::number(imageBbox.y + imageBbox.height));
+            hasGeoRegLocalImage = true;
+        }catch(dg::deepcore::Error e) {
+            std::cerr << "Image \'" << imagepath << "\' is not geo-registered" << std::endl;
+            ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
+            hasGeoRegLocalImage = false;
+            QMessageBox::critical(
+                this,
+                tr("Error"),
+                "Selected image is not geo-registered and cannot be processed");
+        }
     }
 }
 
