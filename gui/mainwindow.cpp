@@ -119,6 +119,8 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     po::variables_map config_vm;
     po::options_description desc;
     desc.add_options()
+            ("action", po::value<std::string>())
+
             ("service", po::value<std::string>())
             ("token", po::value<std::string>())
             ("credentials", po::value<std::string>())
@@ -127,12 +129,29 @@ void MainWindow::on_loadConfigPushButton_clicked(){
             ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
 
             ("confidence", po::value<float>()->default_value(osnArgs.confidence))
-            ("step-size", po::value<float>());
+            ("step-size", po::value<float>())
+            ("pyramid", po::value<bool>())
+            ("nms", po::value<float>()->default_value(osnArgs.overlap));
 
     std::ifstream configFile(path.toStdString());
 
     po::store(po::parse_config_file<char>(configFile, desc, true), config_vm);
     po::notify(config_vm);
+
+    //action
+    if (config_vm.find("action") != end(config_vm)){
+        std::string action = config_vm["action"].as<std::string>();
+        int actionIndex;
+        if (action == "detect"){
+            actionIndex = ui->modeComboBox->findText("Detect");
+            ui->modeComboBox->setCurrentIndex(actionIndex);
+        }
+        else if (action == "landcover"){
+            actionIndex = ui->imageSourceComboBox->findText("Landcover");
+            ui->modeComboBox->setCurrentIndex(actionIndex);
+        }
+    }
+
 
     //service
     int sourceIndex;
@@ -187,6 +206,15 @@ void MainWindow::on_loadConfigPushButton_clicked(){
         ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
     }
 
+    //pyramid
+    if (config_vm.find("pyramid") != end(config_vm)){
+        ui->pyramidCheckBox->setChecked(config_vm["pyramid"].as<bool>());
+    }
+
+    //non-maximum suppression
+    float nmsValue = config_vm["nms"].as<float>();
+    ui->nmsCheckBox->setChecked(nmsValue > 0);
+    ui->nmsSpinBox->setValue(nmsValue);
 
     configFile.close();
 }
