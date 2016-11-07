@@ -72,6 +72,7 @@ public:
     std::string outputPath;
     std::string layerName;
     bool producerInfo = false;
+    bool append = false;
 
     // Processing options
     bool useCpu = false;
