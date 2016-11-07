@@ -131,6 +131,7 @@ ParseCLIArgs::ParseCLIArgs() :
             ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
              "Output geometry type.  Currently only point and polygon are valid.")
             ("producer-info", "Add user name, application name, and application version to the output feature set.")
+            ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
             ;
 
     processingOptions_.add_options()
@@ -649,6 +650,7 @@ void ParseCLIArgs::readOutputArgs(variables_map vm, bool splitArgs)
         DG_ERROR_THROW("Invalid geometry type: %s", typeStr.c_str());
     }
 
+    osnArgs.append = vm.find("append") != end(vm);
     osnArgs.producerInfo = vm.find("producer-info") != end(vm);
 }
 
