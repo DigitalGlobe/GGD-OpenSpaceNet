@@ -253,7 +253,10 @@ void OpenSkyNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
+    //featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
+    VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
+
+    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
 }
 
 void OpenSkyNet::processConcurrent()
