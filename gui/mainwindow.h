@@ -34,6 +34,10 @@ public:
     ~MainWindow();
 
 private slots:
+    void on_loadConfigPushButton_clicked();
+
+    void on_saveConfigPushButton_clicked();
+
     void on_runPushButton_clicked();
 
     void on_localImageFileBrowseButton_clicked();

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>637</width>
-    <height>907</height>
+    <height>932</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,23 +26,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="10" column="3">
-     <widget class="QPushButton" name="runPushButton">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="toolTip">
-       <string>Run the job</string>
-      </property>
-      <property name="text">
-       <string>Run</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QPushButton" name="helpPushButton">
       <property name="minimumSize">
        <size>
@@ -58,7 +42,7 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0" colspan="4">
+    <item row="6" column="0" colspan="5">
      <widget class="QGroupBox" name="modelGroupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -161,7 +145,23 @@
       </layout>
      </widget>
     </item>
-    <item row="8" column="0" colspan="4">
+    <item row="11" column="4">
+     <widget class="QPushButton" name="runPushButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Run the job</string>
+      </property>
+      <property name="text">
+       <string>Run</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" colspan="5">
      <widget class="QGroupBox" name="outputOptionsGroupBox_2">
       <property name="minimumSize">
        <size>
@@ -321,7 +321,7 @@
       </layout>
      </widget>
     </item>
-    <item row="9" column="0" colspan="4">
+    <item row="10" column="0" colspan="5">
      <widget class="QGroupBox" name="processingOptionsGroupBox">
       <property name="minimumSize">
        <size>
@@ -471,7 +471,7 @@
       </layout>
      </widget>
     </item>
-    <item row="7" column="0" colspan="4">
+    <item row="8" column="0" colspan="5">
      <widget class="QGroupBox" name="outputOptionsGroupBox">
       <property name="minimumSize">
        <size>
@@ -651,74 +651,7 @@
       <zorder>bboxOverrideCheckBox</zorder>
      </widget>
     </item>
-    <item row="0" column="0" colspan="4">
-     <widget class="QGroupBox" name="actionGroupBox">
-      <property name="minimumSize">
-       <size>
-        <width>619</width>
-        <height>84</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>84</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Action</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="modeLabel">
-         <property name="minimumSize">
-          <size>
-           <width>595</width>
-           <height>15</height>
-          </size>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <property name="text">
-          <string>Mode:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QComboBox" name="modeComboBox">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>The mode the job will use</string>
-         </property>
-         <property name="statusTip">
-          <string/>
-         </property>
-         <item>
-          <property name="text">
-           <string>Detect</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="4">
+    <item row="7" column="0" colspan="5">
      <widget class="QGroupBox" name="featureDetectionOptionsGroupBox">
       <property name="minimumSize">
        <size>
@@ -862,7 +795,7 @@
       </layout>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="11" column="1">
      <spacer name="helpRunSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -875,7 +808,84 @@
       </property>
      </spacer>
     </item>
-    <item row="4" column="0" colspan="4">
+    <item row="11" column="3">
+     <widget class="QPushButton" name="closePushButton">
+      <property name="toolTip">
+       <string>Close OpenSpaceNet</string>
+      </property>
+      <property name="text">
+       <string>Close</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="5">
+     <widget class="QGroupBox" name="actionGroupBox">
+      <property name="minimumSize">
+       <size>
+        <width>619</width>
+        <height>84</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>84</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Action</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="modeLabel">
+         <property name="minimumSize">
+          <size>
+           <width>595</width>
+           <height>15</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="text">
+          <string>Mode:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="modeComboBox">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>The mode the job will use</string>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+         <item>
+          <property name="text">
+           <string>Detect</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="5">
      <widget class="QGroupBox" name="sourceOptionsGroupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -1270,13 +1280,23 @@
       </layout>
      </widget>
     </item>
-    <item row="10" column="2">
-     <widget class="QPushButton" name="closePushButton">
+    <item row="0" column="4">
+     <widget class="QPushButton" name="saveConfigPushButton">
       <property name="toolTip">
-       <string>Close OpenSpaceNet</string>
+       <string>Save the current options to a config file</string>
       </property>
       <property name="text">
-       <string>Close</string>
+       <string>Save Config</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QPushButton" name="loadConfigPushButton">
+      <property name="toolTip">
+       <string>Load options from a config file</string>
+      </property>
+      <property name="text">
+       <string>Load Config</string>
       </property>
      </widget>
     </item>
@@ -1288,7 +1308,7 @@
      <x>0</x>
      <y>0</y>
      <width>637</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

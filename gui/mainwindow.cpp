@@ -13,8 +13,16 @@
 #include <imagery/EvwhsClient.h>
 #include <imagery/GdalImage.h>
 
+
+#include <boost/tokenizer.hpp>
+#include <boost/program_options.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <fstream>
+
 using std::unique_ptr;
 using boost::filesystem::path;
+namespace po = boost::program_options;
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -91,6 +99,75 @@ void MainWindow::initValidation()
     ui->bboxSouthLineEdit->setValidator(doubleValidator.get());
     ui->bboxEastLineEdit->setValidator(doubleValidator.get());
     ui->bboxNorthLineEdit->setValidator(doubleValidator.get());
+}
+
+void MainWindow::on_loadConfigPushButton_clicked(){
+    QString path = QFileDialog::getOpenFileName(this,
+                                                tr("Select Config File"),
+                                                lastAccessedDirectory,
+                                                tr("Config files (*.cfg);;All files (*.*)"));
+
+    //Setting the last image directory to an empty string ensures that the browser will open
+    //in the last directory it accessed the last time it was opened
+    lastAccessedDirectory = "";
+
+    //the user clicked cancel in the file dialog
+    if (path.isEmpty()){
+        return;
+    }
+
+    po::variables_map config_vm;
+    po::options_description desc;
+    desc.add_options()
+            ("service", po::value<std::string>())
+            ("token", po::value<std::string>())
+            ("credentials", po::value<std::string>());
+
+    std::ifstream configFile(path.toStdString());
+
+    po::store(po::parse_config_file<char>(configFile, desc), config_vm);
+    po::notify(config_vm);
+
+    //service
+    int sourceIndex;
+    std::string service = config_vm["service"].as<std::string>();
+    if (service == "dgcs")
+    {
+        sourceIndex = ui->imageSourceComboBox->findText("DGCS");
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+    }
+    else if (service == "evwhs"){
+        sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+    }
+    else if (service == "mapsapi"){
+        sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+    }
+    ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+
+    //token
+    QString token = QString::fromStdString(config_vm["token"].as<std::string>());
+    ui->tokenLineEdit->setText(token);
+
+    //credentials
+    if (service != "mapsapi"){
+        std::string storedCredentials = config_vm["credentials"].as<std::string>();
+        std::vector<std::string> credentials;
+        boost::split(credentials, storedCredentials, boost::is_any_of(":"));
+        ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
+        ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
+    }
+
+    configFile.close();
+}
+
+void MainWindow::on_saveConfigPushButton_clicked()
+{
+    QMessageBox::information(
+        this,
+        tr("Save Config"),
+        tr("Saving to config file is currently not supported."));
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
