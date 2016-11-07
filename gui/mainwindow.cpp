@@ -124,11 +124,14 @@ void MainWindow::on_loadConfigPushButton_clicked(){
             ("credentials", po::value<std::string>())
             ("zoom", po::value<int>()->default_value(osnArgs.zoom))
             ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
-            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId));
+            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
+
+            ("confidence", po::value<float>()->default_value(osnArgs.confidence))
+            ("step-size", po::value<float>());
 
     std::ifstream configFile(path.toStdString());
 
-    po::store(po::parse_config_file<char>(configFile, desc), config_vm);
+    po::store(po::parse_config_file<char>(configFile, desc, true), config_vm);
     po::notify(config_vm);
 
     //service
@@ -175,6 +178,15 @@ void MainWindow::on_loadConfigPushButton_clicked(){
             ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
         }
     }
+
+    //confidence
+    ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
+
+    //step size
+    if (config_vm.find("step-size") != end(config_vm)){
+        ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
+    }
+
 
     configFile.close();
 }
