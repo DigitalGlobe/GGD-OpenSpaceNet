@@ -121,7 +121,10 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     desc.add_options()
             ("service", po::value<std::string>())
             ("token", po::value<std::string>())
-            ("credentials", po::value<std::string>());
+            ("credentials", po::value<std::string>())
+            ("zoom", po::value<int>()->default_value(osnArgs.zoom))
+            ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
+            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId));
 
     std::ifstream configFile(path.toStdString());
 
@@ -140,7 +143,7 @@ void MainWindow::on_loadConfigPushButton_clicked(){
         sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
     }
-    else if (service == "mapsapi"){
+    else if (service == "maps-api"){
         sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
     }
@@ -151,12 +154,26 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     ui->tokenLineEdit->setText(token);
 
     //credentials
-    if (service != "mapsapi"){
+    if (service != "maps-api"){
         std::string storedCredentials = config_vm["credentials"].as<std::string>();
         std::vector<std::string> credentials;
         boost::split(credentials, storedCredentials, boost::is_any_of(":"));
         ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
         ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
+    }
+
+    //zoom
+    ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
+
+    //downloads
+    ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
+
+    //map id
+    if (service == "maps-api"){
+        //don't show the default map id in the UI
+        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
+            ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
+        }
     }
 
     configFile.close();
