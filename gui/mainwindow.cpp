@@ -13,7 +13,7 @@
 #include <imagery/EvwhsClient.h>
 #include <imagery/GdalImage.h>
 
-
+#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -134,7 +134,17 @@ void MainWindow::on_loadConfigPushButton_clicked(){
             ("confidence", po::value<float>()->default_value(osnArgs.confidence))
             ("step-size", po::value<float>())
             ("pyramid", po::value<bool>())
-            ("nms", po::value<float>()->default_value(osnArgs.overlap));
+            ("nms", po::value<float>()->default_value(osnArgs.overlap))
+
+            ("format", po::value<std::string>())
+            ("type", po::value<std::string>())
+            ("output-name", po::value<std::string>())
+            ("output-location", po::value<std::string>())
+            ("producer-info", po::value<bool>())
+
+            ("cpu", po::value<bool>())
+            ("max-utilization", po::value<float>())
+            ("window-size", po::value<std::string>());
 
     std::ifstream configFile(path.toStdString());
 
@@ -237,6 +247,82 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     float nmsValue = config_vm["nms"].as<float>();
     ui->nmsCheckBox->setChecked(nmsValue > 0);
     ui->nmsSpinBox->setValue(nmsValue);
+
+    //output format
+    if (config_vm.find("format") != end(config_vm)){
+        int formatIndex;
+        std::string format = config_vm["format"].as<std::string>();
+        if (format == "shp") {
+            formatIndex = ui->outputFormatComboBox->findText("Shapefile");
+        }
+        else if (format == "geojson"){
+            formatIndex = ui->outputFormatComboBox->findText("GeoJSON");
+        }
+        else if (format == "kml"){
+            formatIndex = ui->outputFormatComboBox->findText("KML");
+        }
+        ui->outputFormatComboBox->setCurrentIndex(formatIndex);
+    }
+
+    //output type
+    if (config_vm.find("type") != end(config_vm)){
+        int typeIndex;
+        std::string type = config_vm["type"].as<std::string>();
+        if (type == "polygon") {
+            typeIndex = ui->geometryTypeComboBox->findText("Polygon");
+        }
+        else if (type == "point"){
+            typeIndex = ui->geometryTypeComboBox->findText("Point");
+        }
+        ui->geometryTypeComboBox->setCurrentIndex(typeIndex);
+    }
+
+    //output name
+    if (config_vm.find("output-name") != end(config_vm)){
+        std::string outputName = config_vm["output-name"].as<std::string>();
+        ui->outputFilenameLineEdit->setText(QString::fromStdString(outputName));
+    }
+
+    //output location
+    if (config_vm.find("output-location") != end(config_vm)){
+        std::string outputLocation = config_vm["output-location"].as<std::string>();
+        ui->outputLocationLineEdit->setText(QString::fromStdString(outputLocation));
+        //ensure that the path from the config file is still valid
+        on_outputLocationLineEditLostFocus();
+    }
+
+    //output layer
+    if (config_vm.find("output-layer") != end(config_vm)){
+        std::string outputLayer = config_vm["output-layer"].as<std::string>();
+        ui->outputLayerLineEdit->setText(QString::fromStdString(outputLayer));
+    }
+
+    //producer info
+    if (config_vm.find("producer-info") != end(config_vm)){
+        ui->producerInfoCheckBox->setChecked(config_vm["producer-info"].as<bool>());
+    }
+
+    //cpu
+    if (config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == true){
+        int cpuIndex = ui->processingModeComboBox->findText("CPU");
+        ui->processingModeComboBox->setCurrentIndex(cpuIndex);
+    }
+
+    //max utilization
+    if (config_vm.find("max-utilization") != end(config_vm)){
+        ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
+    }
+
+    //window size
+    if (config_vm.find("window-size") != end(config_vm)){
+        std::string windowSize = config_vm["window-size"].as<std::string>();
+        std::vector<std::string> dimensions;
+
+        boost::split(dimensions, windowSize, boost::is_any_of(" "));
+
+        ui->windowSizeSpinBox1->setValue(boost::lexical_cast<int>(dimensions[0]));
+        ui->windowSizeSpinBox2->setValue(boost::lexical_cast<int>(dimensions[1]));
+    }
 
     configFile.close();
 }
