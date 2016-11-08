@@ -136,6 +136,8 @@ void MainWindow::on_loadConfigPushButton_clicked(){
             ("pyramid", po::value<bool>())
             ("nms", po::value<float>()->default_value(osnArgs.overlap))
 
+            ("bbox", po::value<std::string>())
+
             ("format", po::value<std::string>())
             ("type", po::value<std::string>())
             ("output-name", po::value<std::string>())
@@ -247,6 +249,17 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     float nmsValue = config_vm["nms"].as<float>();
     ui->nmsCheckBox->setChecked(nmsValue > 0);
     ui->nmsSpinBox->setValue(nmsValue);
+
+    //bounding box
+    if (config_vm.find("bbox") != end(config_vm)){
+        std::string storedCoords = config_vm["bbox"].as<std::string>();
+        std::vector<std::string> bbox;
+        boost::split(bbox, storedCoords, boost::is_any_of(" "));
+        ui->bboxWestLineEdit->setText(QString::fromStdString(bbox[0]));
+        ui->bboxSouthLineEdit->setText(QString::fromStdString(bbox[1]));
+        ui->bboxEastLineEdit->setText(QString::fromStdString(bbox[2]));
+        ui->bboxNorthLineEdit->setText(QString::fromStdString(bbox[3]));
+    }
 
     //output format
     if (config_vm.find("format") != end(config_vm)){
