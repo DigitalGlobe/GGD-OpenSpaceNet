@@ -160,6 +160,8 @@ private:
     QString featuresDetected;
 
     bool eventFilter(QObject *obj, QEvent *event);
+
+    void importConfig(QString configFile);
 };
 
 #endif // MAINWINDOW_H

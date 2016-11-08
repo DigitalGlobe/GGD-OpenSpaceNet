@@ -8,16 +8,13 @@
 #include <boost/core/null_deleter.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/make_unique.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/program_options.hpp>
+#include <fstream>
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
 #include <imagery/GdalImage.h>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/program_options.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <fstream>
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -116,228 +113,7 @@ void MainWindow::on_loadConfigPushButton_clicked(){
         return;
     }
 
-    po::variables_map config_vm;
-    po::options_description desc;
-    desc.add_options()
-            ("action", po::value<std::string>())
-
-            ("image", po::value<std::string>())
-            ("service", po::value<std::string>())
-            ("token", po::value<std::string>())
-            ("credentials", po::value<std::string>())
-            ("zoom", po::value<int>()->default_value(osnArgs.zoom))
-            ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
-            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
-
-            ("model", po::value<std::string>())
-
-            ("confidence", po::value<float>()->default_value(osnArgs.confidence))
-            ("step-size", po::value<float>())
-            ("pyramid", po::value<bool>())
-            ("nms", po::value<float>()->default_value(osnArgs.overlap))
-
-            ("bbox", po::value<std::string>())
-
-            ("format", po::value<std::string>())
-            ("type", po::value<std::string>())
-            ("output-name", po::value<std::string>())
-            ("output-location", po::value<std::string>())
-            ("producer-info", po::value<bool>())
-
-            ("cpu", po::value<bool>())
-            ("max-utilization", po::value<float>())
-            ("window-size", po::value<std::string>());
-
-    std::ifstream configFile(path.toStdString());
-
-    po::store(po::parse_config_file<char>(configFile, desc, true), config_vm);
-    po::notify(config_vm);
-
-    //action
-    if (config_vm.find("action") != end(config_vm)){
-        std::string action = config_vm["action"].as<std::string>();
-        int actionIndex;
-        if (action == "detect"){
-            actionIndex = ui->modeComboBox->findText("Detect");
-            ui->modeComboBox->setCurrentIndex(actionIndex);
-        }
-        else if (action == "landcover"){
-            actionIndex = ui->imageSourceComboBox->findText("Landcover");
-            ui->modeComboBox->setCurrentIndex(actionIndex);
-        }
-    }
-
-    //image
-    if (config_vm.find("image") != end(config_vm)){
-
-        int sourceIndex = ui->imageSourceComboBox->findText("Local Image File");
-        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-
-        ui->localImageFileLineEdit->setText(QString::fromStdString(config_vm["image"].as<std::string>()));
-        //run validation to ensure that the image is still there
-        on_imagepathLineEditLostFocus();
-    }
-
-    //service
-    std::string service;
-    if (config_vm.find("service") != end(config_vm)){
-        int sourceIndex;
-        service = config_vm["service"].as<std::string>();
-        if (service == "dgcs") {
-            sourceIndex = ui->imageSourceComboBox->findText("DGCS");
-            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-        }
-        else if (service == "evwhs"){
-            sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
-            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-        }
-        else if (service == "maps-api"){
-            sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
-            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-        }
-        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-    }
-
-    //token
-    QString token = QString::fromStdString(config_vm["token"].as<std::string>());
-    ui->tokenLineEdit->setText(token);
-
-    //credentials
-    if (service != "maps-api"){
-        std::string storedCredentials = config_vm["credentials"].as<std::string>();
-        std::vector<std::string> credentials;
-        boost::split(credentials, storedCredentials, boost::is_any_of(":"));
-        ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
-        ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
-    }
-
-    //zoom
-    ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
-
-    //downloads
-    ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
-
-    //map id
-    if (service == "maps-api"){
-        //don't show the default map id in the UI
-        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
-            ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
-        }
-    }
-
-    //model
-    if (config_vm.find("model") != end(config_vm)){
-        ui->modelFileLineEdit->setText(QString::fromStdString(config_vm["model"].as<std::string>()));
-        //run validation to ensure that the model file is still there
-        on_modelpathLineEditLostFocus();
-    }
-
-    //confidence
-    ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
-
-    //step size
-    if (config_vm.find("step-size") != end(config_vm)){
-        ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
-    }
-
-    //pyramid
-    if (config_vm.find("pyramid") != end(config_vm)){
-        ui->pyramidCheckBox->setChecked(config_vm["pyramid"].as<bool>());
-    }
-
-    //non-maximum suppression
-    float nmsValue = config_vm["nms"].as<float>();
-    ui->nmsCheckBox->setChecked(nmsValue > 0);
-    ui->nmsSpinBox->setValue(nmsValue);
-
-    //bounding box
-    if (config_vm.find("bbox") != end(config_vm)){
-        std::string storedCoords = config_vm["bbox"].as<std::string>();
-        std::vector<std::string> bbox;
-        boost::split(bbox, storedCoords, boost::is_any_of(" "));
-        ui->bboxWestLineEdit->setText(QString::fromStdString(bbox[0]));
-        ui->bboxSouthLineEdit->setText(QString::fromStdString(bbox[1]));
-        ui->bboxEastLineEdit->setText(QString::fromStdString(bbox[2]));
-        ui->bboxNorthLineEdit->setText(QString::fromStdString(bbox[3]));
-    }
-
-    //output format
-    if (config_vm.find("format") != end(config_vm)){
-        int formatIndex;
-        std::string format = config_vm["format"].as<std::string>();
-        if (format == "shp") {
-            formatIndex = ui->outputFormatComboBox->findText("Shapefile");
-        }
-        else if (format == "geojson"){
-            formatIndex = ui->outputFormatComboBox->findText("GeoJSON");
-        }
-        else if (format == "kml"){
-            formatIndex = ui->outputFormatComboBox->findText("KML");
-        }
-        ui->outputFormatComboBox->setCurrentIndex(formatIndex);
-    }
-
-    //output type
-    if (config_vm.find("type") != end(config_vm)){
-        int typeIndex;
-        std::string type = config_vm["type"].as<std::string>();
-        if (type == "polygon") {
-            typeIndex = ui->geometryTypeComboBox->findText("Polygon");
-        }
-        else if (type == "point"){
-            typeIndex = ui->geometryTypeComboBox->findText("Point");
-        }
-        ui->geometryTypeComboBox->setCurrentIndex(typeIndex);
-    }
-
-    //output name
-    if (config_vm.find("output-name") != end(config_vm)){
-        std::string outputName = config_vm["output-name"].as<std::string>();
-        ui->outputFilenameLineEdit->setText(QString::fromStdString(outputName));
-    }
-
-    //output location
-    if (config_vm.find("output-location") != end(config_vm)){
-        std::string outputLocation = config_vm["output-location"].as<std::string>();
-        ui->outputLocationLineEdit->setText(QString::fromStdString(outputLocation));
-        //ensure that the path from the config file is still valid
-        on_outputLocationLineEditLostFocus();
-    }
-
-    //output layer
-    if (config_vm.find("output-layer") != end(config_vm)){
-        std::string outputLayer = config_vm["output-layer"].as<std::string>();
-        ui->outputLayerLineEdit->setText(QString::fromStdString(outputLayer));
-    }
-
-    //producer info
-    if (config_vm.find("producer-info") != end(config_vm)){
-        ui->producerInfoCheckBox->setChecked(config_vm["producer-info"].as<bool>());
-    }
-
-    //cpu
-    if (config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == true){
-        int cpuIndex = ui->processingModeComboBox->findText("CPU");
-        ui->processingModeComboBox->setCurrentIndex(cpuIndex);
-    }
-
-    //max utilization
-    if (config_vm.find("max-utilization") != end(config_vm)){
-        ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
-    }
-
-    //window size
-    if (config_vm.find("window-size") != end(config_vm)){
-        std::string windowSize = config_vm["window-size"].as<std::string>();
-        std::vector<std::string> dimensions;
-
-        boost::split(dimensions, windowSize, boost::is_any_of(" "));
-
-        ui->windowSizeSpinBox1->setValue(boost::lexical_cast<int>(dimensions[0]));
-        ui->windowSizeSpinBox2->setValue(boost::lexical_cast<int>(dimensions[1]));
-    }
-
-    configFile.close();
+    importConfig(path);
 }
 
 void MainWindow::on_saveConfigPushButton_clicked()
@@ -1088,4 +864,230 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         progressWindow.show();
     }
     return false;
+}
+
+void MainWindow::importConfig(QString configPath)
+{
+    po::variables_map config_vm;
+    po::options_description desc;
+    desc.add_options()
+            ("action", po::value<std::string>())
+
+            ("image", po::value<std::string>())
+            ("service", po::value<std::string>())
+            ("token", po::value<std::string>())
+            ("credentials", po::value<std::string>())
+            ("zoom", po::value<int>()->default_value(osnArgs.zoom))
+            ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
+            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
+
+            ("model", po::value<std::string>())
+
+            ("confidence", po::value<float>()->default_value(osnArgs.confidence))
+            ("step-size", po::value<float>())
+            ("pyramid", po::value<bool>())
+            ("nms", po::value<float>()->default_value(osnArgs.overlap))
+
+            ("bbox", po::value<std::string>())
+
+            ("format", po::value<std::string>())
+            ("type", po::value<std::string>())
+            ("output-name", po::value<std::string>())
+            ("output-location", po::value<std::string>())
+            ("producer-info", po::value<bool>())
+
+            ("cpu", po::value<bool>())
+            ("max-utilization", po::value<float>())
+            ("window-size", po::value<std::string>());
+
+    std::ifstream configFile(configPath.toStdString());
+
+    po::store(po::parse_config_file<char>(configFile, desc, true), config_vm);
+    po::notify(config_vm);
+
+    //action
+    if (config_vm.find("action") != end(config_vm)){
+        std::string action = config_vm["action"].as<std::string>();
+        int actionIndex;
+        if (action == "detect"){
+            actionIndex = ui->modeComboBox->findText("Detect");
+            ui->modeComboBox->setCurrentIndex(actionIndex);
+        }
+        else if (action == "landcover"){
+            actionIndex = ui->imageSourceComboBox->findText("Landcover");
+            ui->modeComboBox->setCurrentIndex(actionIndex);
+        }
+    }
+
+    //image
+    if (config_vm.find("image") != end(config_vm)){
+
+        int sourceIndex = ui->imageSourceComboBox->findText("Local Image File");
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+
+        ui->localImageFileLineEdit->setText(QString::fromStdString(config_vm["image"].as<std::string>()));
+        //run validation to ensure that the image is still there
+        on_imagepathLineEditLostFocus();
+    }
+
+    //service
+    std::string service;
+    if (config_vm.find("service") != end(config_vm)){
+        int sourceIndex;
+        service = config_vm["service"].as<std::string>();
+        if (service == "dgcs") {
+            sourceIndex = ui->imageSourceComboBox->findText("DGCS");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
+        else if (service == "evwhs"){
+            sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
+        else if (service == "maps-api"){
+            sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+    }
+
+    //token
+    QString token = QString::fromStdString(config_vm["token"].as<std::string>());
+    ui->tokenLineEdit->setText(token);
+
+    //credentials
+    if (service != "maps-api"){
+        std::string storedCredentials = config_vm["credentials"].as<std::string>();
+        std::vector<std::string> credentials;
+        boost::split(credentials, storedCredentials, boost::is_any_of(":"));
+        ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
+        ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
+    }
+
+    //zoom
+    ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
+
+    //downloads
+    ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
+
+    //map id
+    if (service == "maps-api"){
+        //don't show the default map id in the UI
+        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
+            ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
+        }
+    }
+
+    //model
+    if (config_vm.find("model") != end(config_vm)){
+        ui->modelFileLineEdit->setText(QString::fromStdString(config_vm["model"].as<std::string>()));
+        //run validation to ensure that the model file is still there
+        on_modelpathLineEditLostFocus();
+    }
+
+    //confidence
+    ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
+
+    //step size
+    if (config_vm.find("step-size") != end(config_vm)){
+        ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
+    }
+
+    //pyramid
+    if (config_vm.find("pyramid") != end(config_vm)){
+        ui->pyramidCheckBox->setChecked(config_vm["pyramid"].as<bool>());
+    }
+
+    //non-maximum suppression
+    float nmsValue = config_vm["nms"].as<float>();
+    ui->nmsCheckBox->setChecked(nmsValue > 0);
+    ui->nmsSpinBox->setValue(nmsValue);
+
+    //bounding box
+    if (config_vm.find("bbox") != end(config_vm)){
+        std::string storedCoords = config_vm["bbox"].as<std::string>();
+        std::vector<std::string> bbox;
+        boost::split(bbox, storedCoords, boost::is_any_of(" "));
+        ui->bboxWestLineEdit->setText(QString::fromStdString(bbox[0]));
+        ui->bboxSouthLineEdit->setText(QString::fromStdString(bbox[1]));
+        ui->bboxEastLineEdit->setText(QString::fromStdString(bbox[2]));
+        ui->bboxNorthLineEdit->setText(QString::fromStdString(bbox[3]));
+    }
+
+    //output format
+    if (config_vm.find("format") != end(config_vm)){
+        int formatIndex;
+        std::string format = config_vm["format"].as<std::string>();
+        if (format == "shp") {
+            formatIndex = ui->outputFormatComboBox->findText("Shapefile");
+        }
+        else if (format == "geojson"){
+            formatIndex = ui->outputFormatComboBox->findText("GeoJSON");
+        }
+        else if (format == "kml"){
+            formatIndex = ui->outputFormatComboBox->findText("KML");
+        }
+        ui->outputFormatComboBox->setCurrentIndex(formatIndex);
+    }
+
+    //output type
+    if (config_vm.find("type") != end(config_vm)){
+        int typeIndex;
+        std::string type = config_vm["type"].as<std::string>();
+        if (type == "polygon") {
+            typeIndex = ui->geometryTypeComboBox->findText("Polygon");
+        }
+        else if (type == "point"){
+            typeIndex = ui->geometryTypeComboBox->findText("Point");
+        }
+        ui->geometryTypeComboBox->setCurrentIndex(typeIndex);
+    }
+
+    //output name
+    if (config_vm.find("output-name") != end(config_vm)){
+        std::string outputName = config_vm["output-name"].as<std::string>();
+        ui->outputFilenameLineEdit->setText(QString::fromStdString(outputName));
+    }
+
+    //output location
+    if (config_vm.find("output-location") != end(config_vm)){
+        std::string outputLocation = config_vm["output-location"].as<std::string>();
+        ui->outputLocationLineEdit->setText(QString::fromStdString(outputLocation));
+        //ensure that the path from the config file is still valid
+        on_outputLocationLineEditLostFocus();
+    }
+
+    //output layer
+    if (config_vm.find("output-layer") != end(config_vm)){
+        std::string outputLayer = config_vm["output-layer"].as<std::string>();
+        ui->outputLayerLineEdit->setText(QString::fromStdString(outputLayer));
+    }
+
+    //producer info
+    if (config_vm.find("producer-info") != end(config_vm)){
+        ui->producerInfoCheckBox->setChecked(config_vm["producer-info"].as<bool>());
+    }
+
+    //cpu
+    if (config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == true){
+        int cpuIndex = ui->processingModeComboBox->findText("CPU");
+        ui->processingModeComboBox->setCurrentIndex(cpuIndex);
+    }
+
+    //max utilization
+    if (config_vm.find("max-utilization") != end(config_vm)){
+        ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
+    }
+
+    //window size
+    if (config_vm.find("window-size") != end(config_vm)){
+        std::string windowSize = config_vm["window-size"].as<std::string>();
+        std::vector<std::string> dimensions;
+
+        boost::split(dimensions, windowSize, boost::is_any_of(" "));
+
+        ui->windowSizeSpinBox1->setValue(boost::lexical_cast<int>(dimensions[0]));
+        ui->windowSizeSpinBox2->setValue(boost::lexical_cast<int>(dimensions[1]));
+    }
+
+    configFile.close();
 }
