@@ -121,12 +121,15 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     desc.add_options()
             ("action", po::value<std::string>())
 
+            ("image", po::value<std::string>())
             ("service", po::value<std::string>())
             ("token", po::value<std::string>())
             ("credentials", po::value<std::string>())
             ("zoom", po::value<int>()->default_value(osnArgs.zoom))
             ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
             ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
+
+            ("model", po::value<std::string>())
 
             ("confidence", po::value<float>()->default_value(osnArgs.confidence))
             ("step-size", po::value<float>())
@@ -152,24 +155,36 @@ void MainWindow::on_loadConfigPushButton_clicked(){
         }
     }
 
+    //image
+    if (config_vm.find("image") != end(config_vm)){
+
+        int sourceIndex = ui->imageSourceComboBox->findText("Local Image File");
+        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+
+        ui->localImageFileLineEdit->setText(QString::fromStdString(config_vm["image"].as<std::string>()));
+        //run validation to ensure that the image is still there
+        on_imagepathLineEditLostFocus();
+    }
 
     //service
-    int sourceIndex;
-    std::string service = config_vm["service"].as<std::string>();
-    if (service == "dgcs")
-    {
-        sourceIndex = ui->imageSourceComboBox->findText("DGCS");
+    std::string service;
+    if (config_vm.find("service") != end(config_vm)){
+        int sourceIndex;
+        service = config_vm["service"].as<std::string>();
+        if (service == "dgcs") {
+            sourceIndex = ui->imageSourceComboBox->findText("DGCS");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
+        else if (service == "evwhs"){
+            sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
+        else if (service == "maps-api"){
+            sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
+            ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
+        }
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
     }
-    else if (service == "evwhs"){
-        sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
-        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-    }
-    else if (service == "maps-api"){
-        sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
-        ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-    }
-    ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
 
     //token
     QString token = QString::fromStdString(config_vm["token"].as<std::string>());
@@ -196,6 +211,13 @@ void MainWindow::on_loadConfigPushButton_clicked(){
         if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
             ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
         }
+    }
+
+    //model
+    if (config_vm.find("model") != end(config_vm)){
+        ui->modelFileLineEdit->setText(QString::fromStdString(config_vm["model"].as<std::string>()));
+        //run validation to ensure that the model file is still there
+        on_modelpathLineEditLostFocus();
     }
 
     //confidence
