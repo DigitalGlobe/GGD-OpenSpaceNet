@@ -165,6 +165,7 @@ private:
 
     cv::Size blockSize_;
     std::unique_ptr<dg::deepcore::imagery::GeoImage> geoImage;
+    void importConfig(QString configFile);
 };
 
 #endif // MAINWINDOW_H
