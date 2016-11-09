@@ -669,7 +669,12 @@ void MainWindow::on_runPushButton_clicked(){
     statusBar()->clearMessage();
 
     if(hasValidBboxSize == false){
-        error += "The entered bounding box is too large\n\n";
+        if(osnArgs.source != dg::openskynet::Source::LOCAL) {
+            error += "The entered bounding box is too large\n\n";
+        }
+        else{
+            error += "The entered image is too large\n\n";
+        }
         validJob = false;
     }
 
