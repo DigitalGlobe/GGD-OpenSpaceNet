@@ -17,10 +17,16 @@
 #include <boost/tokenizer.hpp>
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <fstream>
+#include <limits>
 
 using std::unique_ptr;
 using boost::filesystem::path;
+using boost::format;
+using std::string;
+using boost::lexical_cast;
 namespace po = boost::program_options;
 
 
@@ -702,6 +708,7 @@ void MainWindow::on_runPushButton_clicked(){
     statusBar()->showMessage("Checking credentials");
     if(osnArgs.source != dg::openskynet::Source::LOCAL)
     {
+        bool wmts = true;
         if(imageSource == "DGCS"){
                 validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
         }
@@ -710,9 +717,41 @@ void MainWindow::on_runPushButton_clicked(){
         }
         else if(imageSource == "MapsAPI"){
             validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.mapId, osnArgs.token);
+            wmts = false;
         }
         try {
             validationClient->connect();
+            statusBar()->showMessage("Validating Bounding Box");
+            if(wmts) {
+                validationClient->setImageFormat("image/jpeg");
+                validationClient->setLayer("DigitalGlobe:ImageryTileService");
+                validationClient->setTileMatrixSet("EPSG:3857");
+                validationClient->setTileMatrixId((format("EPSG:3857:%1d") % osnArgs.zoom).str());
+            } else {
+                validationClient->setTileMatrixId(lexical_cast<string>(osnArgs.zoom));
+            }
+
+            validationClient->setMaxConnections(osnArgs.maxConnections);
+            blockSize_ = validationClient->tileMatrix().tileSize;
+
+            auto projBbox = validationClient->spatialReference().fromLatLon(*osnArgs.bbox);
+            geoImage.reset(validationClient->imageFromArea(projBbox, osnArgs.action != dg::openskynet::Action::LANDCOVER));
+
+            std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
+            std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
+
+            std::clog << "Total size: " << (uint64_t)geoImage->size().width*geoImage->size().height << std::endl;
+
+            if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()){
+
+                std::clog << "Pixel size is too large" << std::endl;
+                hasValidBboxSize = false;
+            }
+            else{
+                hasValidBboxSize = true;
+            }
+
+
         }
         catch(dg::deepcore::Error e)
         {
@@ -747,6 +786,11 @@ void MainWindow::on_runPushButton_clicked(){
         }
     }
     statusBar()->clearMessage();
+
+    if(hasValidBboxSize == false){
+        error += "The entered bounding box is too large\n\n";
+        validJob = false;
+    }
 
     if(!validJob){
         QMessageBox::critical(
@@ -864,6 +908,17 @@ void MainWindow::on_imagepathLineEditLostFocus(){
             ui->bboxEastLineEdit->setText(QString::number(imageBbox.x + imageBbox.width));
             ui->bboxNorthLineEdit->setText(QString::number(imageBbox.y + imageBbox.height));
             hasGeoRegLocalImage = true;
+            std::clog << "Local Pixel is: " << (uint64_t)image->size().width*image->size().height << std::endl;
+            if((uint64_t)image->size().width*image->size().height > std::numeric_limits<int>::max()){
+
+                std::clog << "Local Pixel size is too large" << std::endl;
+                std::clog << "Local Pixel is: " << (uint64_t)image->size().width*image->size().height << std::endl;
+                hasValidBboxSize = false;
+            }
+            else{
+                hasValidBboxSize = true;
+            }
+
         }catch(dg::deepcore::Error e) {
             std::cerr << "Image \'" << imagepath << "\' is not geo-registered" << std::endl;
             ui->localImageFileLineEdit->setStyleSheet("color: red;"

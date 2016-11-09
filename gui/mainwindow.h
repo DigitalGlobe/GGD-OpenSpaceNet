@@ -20,6 +20,7 @@
 #include <QStatusBar>
 #include <QProgressBar>
 #include <imagery/MapServiceClient.h>
+#include <opencv2/core/types.hpp>
 
 namespace Ui {
 class MainWindow;
@@ -152,6 +153,7 @@ private:
     bool hasValidOutputPath = false;
     bool hasValidLocalImagePath = false;
     bool hasGeoRegLocalImage = false;
+    bool hasValidBboxSize = false;
 
     //tracks the last-accessed directory for the image and model file browsers
     QString lastAccessedDirectory;
@@ -160,6 +162,9 @@ private:
     QString featuresDetected;
 
     bool eventFilter(QObject *obj, QEvent *event);
+
+    cv::Size blockSize_;
+    std::unique_ptr<dg::deepcore::imagery::GeoImage> geoImage;
 };
 
 #endif // MAINWINDOW_H
