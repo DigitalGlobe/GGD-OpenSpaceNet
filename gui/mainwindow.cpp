@@ -590,6 +590,7 @@ void MainWindow::on_runPushButton_clicked(){
     if(osnArgs.source != dg::openskynet::Source::LOCAL)
     {
         bool wmts = true;
+        hasValidBboxSize = true;
         if(imageSource == "DGCS"){
                 validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
         }
