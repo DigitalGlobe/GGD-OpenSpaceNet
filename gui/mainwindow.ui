@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>637</width>
-    <height>932</height>
+    <height>934</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -946,7 +946,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>The API token for the selected web service</string>
+          <string>The MapsAPI map Id</string>
          </property>
         </widget>
        </item>
@@ -1276,7 +1276,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>The MapsAPI map Id</string>
+          <string>The API token for the selected web service</string>
          </property>
         </widget>
        </item>
@@ -1311,7 +1311,7 @@
      <x>0</x>
      <y>0</y>
      <width>637</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
