@@ -129,6 +129,8 @@ private:
     void initValidation();
     void resetProgressWindow();
 
+    bool validateUI(QString *error);
+
     void closeEvent(QCloseEvent *event);
 
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;

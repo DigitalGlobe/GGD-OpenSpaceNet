@@ -130,10 +130,56 @@ void MainWindow::on_loadConfigPushButton_clicked(){
 
 void MainWindow::on_saveConfigPushButton_clicked()
 {
-    QMessageBox::information(
+    //TODO: validate all fields
+
+    std::string filepath = QFileDialog::getSaveFileName(this,
+                                                tr("Save to Config File"),
+                                                lastAccessedDirectory,
+                                                tr("Config file (.cfg)")).toStdString();
+    //user cancelled out of save file dialog
+    if (filepath == ""){
+        return;
+    }
+
+    std::stringstream configContents;
+    std::ofstream configFile;
+    configFile.open(filepath + ".cfg");
+
+    //Mode
+    std::string key;
+    QString index = ui->modeComboBox->currentText();
+    if (index == "Detect"){
+        key = "detect";
+    }
+    else {
+        key = "landcover";
+    }
+    configContents << "action=" << key << "\n";
+
+    //Image Source
+    index = ui->imageSourceComboBox->currentText();
+    if (index == "Local Image File"){
+        configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
+    }
+    else if (index == "DGCS"){
+        configContents << "service=dgcs\n";
+    }
+    else if (index == "EVWHS"){
+        configContents << "service=evwhs\n";
+    }
+    else if (index == "MapsAPI"){
+        configContents << "service=maps-api\n";
+    }
+
+
+    //write the stringstream contents to the file
+    configFile << configContents.rdbuf();
+
+    configFile.close();
+    /*QMessageBox::information(
         this,
         tr("Save Config"),
-        tr("Saving to config file is currently not supported."));
+        tr("Saving to config file is currently not supported."));*/
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
@@ -534,156 +580,14 @@ void MainWindow::on_runPushButton_clicked(){
     std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
     //Validation checks
-    bool validJob = true;
-
-    hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
-    QString error("");
-
-    //Local image specific validation
-    if(osnArgs.source == dg::openskynet::Source::LOCAL){
-        if (!hasValidLocalImagePath){
-            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-            ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
-            validJob = false;
-        }
-        //The filepath is valid
-        else {
-            //Only geo-registered images can be processed
-            if (!hasGeoRegLocalImage){
-                std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
-                error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-                ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                          "border: 1px solid red;");
-                validJob = false;
-            }
-        }
-
-
-    }
-
-    //Image source agnostic validation
-    if(!hasValidOutputFilename || !hasValidOutputPath || !hasValidModel){
-        validJob = false;
-        std::clog << "valid model " << hasValidModel << std::endl;
-        std::clog << "valid output " << hasValidOutputPath << std::endl;
-        if(!hasValidModel){
-            error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
-            ui->modelFileLineEdit->setStyleSheet("color: red;"
-                                                 "border: 1px solid red;");
-        }
-        if(ui->outputFilenameLineEdit->text().trimmed() == "") {
-            error += "Missing output filename\n\n";
-            ui->outputFilenameLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
-        }
-        if(!hasValidOutputPath) {
-            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
-            ui->outputLocationLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
-        }
-    }
-
-
-    ui->runPushButton->setEnabled(false);
-    statusBar()->showMessage("Checking credentials");
-    if(osnArgs.source != dg::openskynet::Source::LOCAL)
-    {
-        bool wmts = true;
-        hasValidBboxSize = true;
-        if(imageSource == "DGCS"){
-                validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
-        }
-        else if(imageSource == "EVWHS"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(osnArgs.token, osnArgs.credentials);
-        }
-        else if(imageSource == "MapsAPI"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.mapId, osnArgs.token);
-            wmts = false;
-        }
-        try {
-            validationClient->connect();
-            statusBar()->showMessage("Validating Bounding Box");
-            if(wmts) {
-                validationClient->setImageFormat("image/jpeg");
-                validationClient->setLayer("DigitalGlobe:ImageryTileService");
-                validationClient->setTileMatrixSet("EPSG:3857");
-                validationClient->setTileMatrixId((format("EPSG:3857:%1d") % osnArgs.zoom).str());
-            } else {
-                validationClient->setTileMatrixId(lexical_cast<string>(osnArgs.zoom));
-            }
-
-            validationClient->setMaxConnections(osnArgs.maxConnections);
-            blockSize_ = validationClient->tileMatrix().tileSize;
-
-            auto projBbox = validationClient->spatialReference().fromLatLon(*osnArgs.bbox);
-            geoImage.reset(validationClient->imageFromArea(projBbox, osnArgs.action != dg::openskynet::Action::LANDCOVER));
-
-            std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
-            std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
-
-            std::clog << "Total size: " << (uint64_t)geoImage->size().width*geoImage->size().height << std::endl;
-
-            if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()){
-
-                std::clog << "Pixel size is too large" << std::endl;
-                hasValidBboxSize = false;
-            }
-            else{
-                hasValidBboxSize = true;
-            }
-
-
-        }
-        catch(dg::deepcore::Error e)
-        {
-            std::string serverMessage(e.what());
-            std::clog << serverMessage << std::endl;
-            //check for invalid token message, first from DGCS, then from MapsAPI
-            if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
-                serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
-                serverMessage.find("Not Authorized - No Token") != std::string::npos){
-                error += "Invalid web service token\n\n";
-                ui->tokenLineEdit->setStyleSheet("color: red;"
-                                                 "border: 1px solid red;");
-            }
-            //check for invalid username/password message
-            else if (serverMessage.find("This request requires HTTP authentication") != std::string::npos){
-                error += "Invalid web service username and/or password\n\n";
-                ui->passwordLineEdit->setStyleSheet("color: red;"
-                                                    "border: 1px solid red;");
-                ui->usernameLineEdit->setStyleSheet("color: red;"
-                                                    "border: 1px solid red;");
-            }
-            //check for invalid map id
-            else if (serverMessage.find("Not Found") != std::string::npos){
-                 error += "Invalid Map Id\n\n";
-                 ui->mapIdLineEdit->setStyleSheet("color: red;"
-                                                           "border: 1px solid red;");
-            }
-            else{
-                error += "Unknown web service authentication error occurred\n\n";
-            }
-            validJob = false;
-        }
-    }
-    statusBar()->clearMessage();
-
-    if(hasValidBboxSize == false){
-        if(osnArgs.source != dg::openskynet::Source::LOCAL) {
-            error += "The entered bounding box is too large\n\n";
-        }
-        else{
-            error += "The entered image is too large\n\n";
-        }
-        validJob = false;
-    }
+    QString errorBuffer;
+    bool validJob = validateUI(&errorBuffer);
 
     if(!validJob){
         QMessageBox::critical(
             this,
             tr("Error"),
-            error);
+            errorBuffer);
         ui->runPushButton->setEnabled(true);
         return;
     }
@@ -828,7 +732,8 @@ void MainWindow::on_outputLocationLineEditLostFocus(){
     //but don't register the empty string as valid input
     if(outputPath == "")
     {
-        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        ui->outputLocationLineEdit->setStyleSheet("color: red;"
+                                                  "border: 1px solid red;");
         hasValidOutputPath = false;
     }
     //Specified file either doesn't exist or isn't a directory
@@ -1022,7 +927,8 @@ void MainWindow::importConfig(QString configPath)
     ui->tokenLineEdit->setText(token);
 
     //credentials
-    if (service != "maps-api"){
+    //testing for service != "" prevents the UI from requiring credentials when parsing a local image config file
+    if (service != "maps-api" && service != ""){
         std::string storedCredentials = config_vm["credentials"].as<std::string>();
         std::vector<std::string> credentials;
         boost::split(credentials, storedCredentials, boost::is_any_of(":"));
@@ -1157,4 +1063,154 @@ void MainWindow::importConfig(QString configPath)
     }
 
     configFile.close();
+}
+
+
+bool MainWindow::validateUI(QString *error)
+{
+    //Validation checks
+    bool validJob = true;
+
+    hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
+
+    //Local image specific validation
+    if(osnArgs.source == dg::openskynet::Source::LOCAL){
+        if (!hasValidLocalImagePath){
+            *error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+            ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
+            validJob = false;
+        }
+        //The filepath is valid
+        else {
+            //Only geo-registered images can be processed
+            if (!hasGeoRegLocalImage){
+                std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
+                *error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+                ui->localImageFileLineEdit->setStyleSheet("color: red;"
+                                                          "border: 1px solid red;");
+                validJob = false;
+            }
+        }
+
+
+    }
+
+    //Image source agnostic validation
+    if(!hasValidOutputFilename || !hasValidOutputPath || !hasValidModel){
+        validJob = false;
+        std::clog << "valid model " << hasValidModel << std::endl;
+        std::clog << "valid output " << hasValidOutputPath << std::endl;
+        if(!hasValidModel){
+            *error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
+            ui->modelFileLineEdit->setStyleSheet("color: red;"
+                                                 "border: 1px solid red;");
+        }
+        if(ui->outputFilenameLineEdit->text().trimmed() == "") {
+            *error += "Missing output filename\n\n";
+            ui->outputFilenameLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
+        }
+        if(!hasValidOutputPath) {
+            *error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
+            ui->outputLocationLineEdit->setStyleSheet("color: red;"
+                                                      "border: 1px solid red;");
+        }
+    }
+
+
+    ui->runPushButton->setEnabled(false);
+    statusBar()->showMessage("Checking credentials");
+    if(osnArgs.source != dg::openskynet::Source::LOCAL)
+    {
+        bool wmts = true;
+        hasValidBboxSize = true;
+        if(imageSource == "DGCS"){
+                validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
+        }
+        else if(imageSource == "EVWHS"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(osnArgs.token, osnArgs.credentials);
+        }
+        else if(imageSource == "MapsAPI"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.mapId, osnArgs.token);
+            wmts = false;
+        }
+        try {
+            validationClient->connect();
+            statusBar()->showMessage("Validating Bounding Box");
+            if(wmts) {
+                validationClient->setImageFormat("image/jpeg");
+                validationClient->setLayer("DigitalGlobe:ImageryTileService");
+                validationClient->setTileMatrixSet("EPSG:3857");
+                validationClient->setTileMatrixId((format("EPSG:3857:%1d") % osnArgs.zoom).str());
+            } else {
+                validationClient->setTileMatrixId(lexical_cast<string>(osnArgs.zoom));
+            }
+
+            validationClient->setMaxConnections(osnArgs.maxConnections);
+            blockSize_ = validationClient->tileMatrix().tileSize;
+
+            auto projBbox = validationClient->spatialReference().fromLatLon(*osnArgs.bbox);
+            geoImage.reset(validationClient->imageFromArea(projBbox, osnArgs.action != dg::openskynet::Action::LANDCOVER));
+
+            std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
+            std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
+
+            std::clog << "Total size: " << (uint64_t)geoImage->size().width*geoImage->size().height << std::endl;
+
+            if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()){
+
+                std::clog << "Pixel size is too large" << std::endl;
+                hasValidBboxSize = false;
+            }
+            else{
+                hasValidBboxSize = true;
+            }
+
+
+        }
+        catch(dg::deepcore::Error e)
+        {
+            std::string serverMessage(e.what());
+            std::clog << serverMessage << std::endl;
+            //check for invalid token message, first from DGCS, then from MapsAPI
+            if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
+                serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
+                serverMessage.find("Not Authorized - No Token") != std::string::npos){
+                *error += "Invalid web service token\n\n";
+                ui->tokenLineEdit->setStyleSheet("color: red;"
+                                                 "border: 1px solid red;");
+            }
+            //check for invalid username/password message
+            else if (serverMessage.find("This request requires HTTP authentication") != std::string::npos){
+                *error += "Invalid web service username and/or password\n\n";
+                ui->passwordLineEdit->setStyleSheet("color: red;"
+                                                    "border: 1px solid red;");
+                ui->usernameLineEdit->setStyleSheet("color: red;"
+                                                    "border: 1px solid red;");
+            }
+            //check for invalid map id
+            else if (serverMessage.find("Not Found") != std::string::npos){
+                 *error += "Invalid Map Id\n\n";
+                 ui->mapIdLineEdit->setStyleSheet("color: red;"
+                                                           "border: 1px solid red;");
+            }
+            else{
+                *error += "Unknown web service authentication error occurred\n\n";
+            }
+            validJob = false;
+        }
+    }
+    statusBar()->clearMessage();
+
+    if(hasValidBboxSize == false){
+        if(osnArgs.source != dg::openskynet::Source::LOCAL) {
+            *error += "The entered bounding box is too large\n\n";
+        }
+        else{
+            *error += "The entered image is too large\n\n";
+        }
+        validJob = false;
+    }
+    return validJob;
 }
