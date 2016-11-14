@@ -129,7 +129,7 @@ private:
     void initValidation();
     void resetProgressWindow();
 
-    bool validateUI(QString *error);
+    bool validateUI(QString &error);
 
     void closeEvent(QCloseEvent *event);
 

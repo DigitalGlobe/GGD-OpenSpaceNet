@@ -130,7 +130,8 @@ void MainWindow::on_loadConfigPushButton_clicked(){
 
 void MainWindow::on_saveConfigPushButton_clicked()
 {
-    //TODO: validate all fields
+    QString errorBuffer;
+    validateUI(errorBuffer);
 
     std::string filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Save to Config File"),
@@ -581,7 +582,7 @@ void MainWindow::on_runPushButton_clicked(){
 
     //Validation checks
     QString errorBuffer;
-    bool validJob = validateUI(&errorBuffer);
+    bool validJob = validateUI(errorBuffer);
 
     if(!validJob){
         QMessageBox::critical(
@@ -923,24 +924,34 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //token
-    QString token = QString::fromStdString(config_vm["token"].as<std::string>());
-    ui->tokenLineEdit->setText(token);
+    QString token;
+    if (config_vm.find("token") != end(config_vm)){
+        token = QString::fromStdString(config_vm["token"].as<std::string>());
+        ui->tokenLineEdit->setText(token);
+    }
 
     //credentials
-    //testing for service != "" prevents the UI from requiring credentials when parsing a local image config file
-    if (service != "maps-api" && service != ""){
-        std::string storedCredentials = config_vm["credentials"].as<std::string>();
-        std::vector<std::string> credentials;
-        boost::split(credentials, storedCredentials, boost::is_any_of(":"));
-        ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
-        ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
+    //only check for credentials if the service key is present in the config file, and doesn't have maps-api as its value
+    if (config_vm.find("service") != end(config_vm) && service != "maps-api"){
+        if (config_vm.find("credentials") != end(config_vm))
+        {
+            std::string storedCredentials = config_vm["credentials"].as<std::string>();
+            std::vector<std::string> credentials;
+            boost::split(credentials, storedCredentials, boost::is_any_of(":"));
+            ui->usernameLineEdit->setText(QString::fromStdString(credentials[0]));
+            ui->passwordLineEdit->setText(QString::fromStdString(credentials[1]));
+        }
     }
 
     //zoom
-    ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
+    if (config_vm.find("zoom") != end(config_vm)){
+        ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
+    }
 
     //downloads
-    ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
+    if (config_vm.find("num-downloads") != end(config_vm)){
+        ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
+    }
 
     //map id
     if (service == "maps-api"){
@@ -958,7 +969,9 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //confidence
-    ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
+    if (config_vm.find("confidence") != end(config_vm)){
+        ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
+    }
 
     //step size
     if (config_vm.find("step-size") != end(config_vm)){
@@ -971,9 +984,11 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //non-maximum suppression
-    float nmsValue = config_vm["nms"].as<float>();
-    ui->nmsCheckBox->setChecked(nmsValue > 0);
-    ui->nmsSpinBox->setValue(nmsValue);
+    if (config_vm.find("nms") != end(config_vm)){
+        float nmsValue = config_vm["nms"].as<float>();
+        ui->nmsCheckBox->setChecked(nmsValue > 0);
+        ui->nmsSpinBox->setValue(nmsValue);
+    }
 
     //bounding box
     if (config_vm.find("bbox") != end(config_vm)){
@@ -1066,7 +1081,7 @@ void MainWindow::importConfig(QString configPath)
 }
 
 
-bool MainWindow::validateUI(QString *error)
+bool MainWindow::validateUI(QString &error)
 {
     //Validation checks
     bool validJob = true;
@@ -1076,7 +1091,7 @@ bool MainWindow::validateUI(QString *error)
     //Local image specific validation
     if(osnArgs.source == dg::openskynet::Source::LOCAL){
         if (!hasValidLocalImagePath){
-            *error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
             validJob = false;
@@ -1086,7 +1101,7 @@ bool MainWindow::validateUI(QString *error)
             //Only geo-registered images can be processed
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
-                *error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+                error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
                 ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                           "border: 1px solid red;");
                 validJob = false;
@@ -1102,17 +1117,17 @@ bool MainWindow::validateUI(QString *error)
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(!hasValidModel){
-            *error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
+            error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
             ui->modelFileLineEdit->setStyleSheet("color: red;"
                                                  "border: 1px solid red;");
         }
         if(ui->outputFilenameLineEdit->text().trimmed() == "") {
-            *error += "Missing output filename\n\n";
+            error += "Missing output filename\n\n";
             ui->outputFilenameLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
         }
         if(!hasValidOutputPath) {
-            *error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
+            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
             ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
         }
@@ -1177,13 +1192,13 @@ bool MainWindow::validateUI(QString *error)
             if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
                 serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
                 serverMessage.find("Not Authorized - No Token") != std::string::npos){
-                *error += "Invalid web service token\n\n";
+                error += "Invalid web service token\n\n";
                 ui->tokenLineEdit->setStyleSheet("color: red;"
                                                  "border: 1px solid red;");
             }
             //check for invalid username/password message
             else if (serverMessage.find("This request requires HTTP authentication") != std::string::npos){
-                *error += "Invalid web service username and/or password\n\n";
+                error += "Invalid web service username and/or password\n\n";
                 ui->passwordLineEdit->setStyleSheet("color: red;"
                                                     "border: 1px solid red;");
                 ui->usernameLineEdit->setStyleSheet("color: red;"
@@ -1191,12 +1206,12 @@ bool MainWindow::validateUI(QString *error)
             }
             //check for invalid map id
             else if (serverMessage.find("Not Found") != std::string::npos){
-                 *error += "Invalid Map Id\n\n";
+                 error += "Invalid Map Id\n\n";
                  ui->mapIdLineEdit->setStyleSheet("color: red;"
                                                            "border: 1px solid red;");
             }
             else{
-                *error += "Unknown web service authentication error occurred\n\n";
+                error += "Unknown web service authentication error occurred\n\n";
             }
             validJob = false;
         }
@@ -1205,10 +1220,10 @@ bool MainWindow::validateUI(QString *error)
 
     if(hasValidBboxSize == false){
         if(osnArgs.source != dg::openskynet::Source::LOCAL) {
-            *error += "The entered bounding box is too large\n\n";
+            error += "The entered bounding box is too large\n\n";
         }
         else{
-            *error += "The entered image is too large\n\n";
+            error += "The entered image is too large\n\n";
         }
         validJob = false;
     }
