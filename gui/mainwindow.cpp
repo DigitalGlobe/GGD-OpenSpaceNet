@@ -92,7 +92,6 @@ void MainWindow::setUpLogging(){
     qout.setOptions(*stringStreamUI);
     sout.setOptions(stringStreamStdout);
 
-
     statusProgressBar = new QProgressBar;
 
     statusBar()->setStyleSheet("QStatusBar{border-top: 1px outset grey;}");
@@ -131,13 +130,23 @@ void MainWindow::on_loadConfigPushButton_clicked(){
 void MainWindow::on_saveConfigPushButton_clicked()
 {
     QString errorBuffer;
-    if (!validateUI(errorBuffer)){
+    bool valid = validateUI(errorBuffer);
+    ui->runPushButton->setEnabled(true);
+    if(!valid){
+
+        //have to have this here to prevent run button from being disabled by validation checks
+        //this is only here because the run button state is mixed into the validation logic
+        ui->runPushButton->setEnabled(true);
+
         QMessageBox::critical(
                 this,
                 tr("Cannot Save Config"),
-                tr("Config files cannot be created from missing/incomplete data"));
+                errorBuffer);
+
         return;
     }
+
+
 
     std::string filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Save to Config File"),
@@ -277,9 +286,8 @@ void MainWindow::on_localImageFileBrowseButton_clicked(){
                                                 tr("Select Image File"),
                                                 lastAccessedDirectory,
                                                 tr("Image files (*.tif *.jpg *.JPEG *.png *.bmp);;All files (*.*)"));
-    //Setting the last image directory to an empty string ensures that the browser will open
-    //in the last directory it accessed the last time it was opened
     lastAccessedDirectory = "";
+
     if(!path.isEmpty() && !path.isNull()){
         ui->localImageFileLineEdit->setText(path);
         //manually invoke the slot to check the new filepath
@@ -452,6 +460,19 @@ void MainWindow::on_helpPushButton_clicked(){
 
 void MainWindow::on_runPushButton_clicked(){
 
+    QString errorBuffer;
+    bool validJob = validateUI(errorBuffer);
+
+    if(!validJob){
+        QMessageBox::critical(
+            this,
+            tr("Error"),
+            errorBuffer);
+        ui->runPushButton->setEnabled(true);
+        return;
+    }
+
+
     //Parse and set the Action
     action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect"){
@@ -470,26 +491,26 @@ void MainWindow::on_runPushButton_clicked(){
         osnArgs.source = dg::openskynet::Source::LOCAL;
     }
     else if(imageSource == "DGCS"){
-    	osnArgs.source = dg::openskynet::Source::DGCS;
-    	hasValidLocalImagePath = true;
+        osnArgs.source = dg::openskynet::Source::DGCS;
+        hasValidLocalImagePath = true;
     }
     else if(imageSource == "EVWHS"){
-    	osnArgs.source = dg::openskynet::Source::EVWHS;
+        osnArgs.source = dg::openskynet::Source::EVWHS;
         hasValidLocalImagePath = true;
     }
     else if(imageSource == "MapsAPI"){
-    	osnArgs.source = dg::openskynet::Source::MAPS_API;
+        osnArgs.source = dg::openskynet::Source::MAPS_API;
         hasValidLocalImagePath = true;
     }
     else{
-    	osnArgs.source = dg::openskynet::Source::UNKNOWN;
+        osnArgs.source = dg::openskynet::Source::UNKNOWN;
     }
 
     //Parse and set web service token
     osnArgs.token = ui->tokenLineEdit->text().toStdString();
 
     //Parse and set the credentials, format is username:password
-    osnArgs.credentials = ui->usernameLineEdit->text().toStdString() 
+    osnArgs.credentials = ui->usernameLineEdit->text().toStdString()
                           + ":"
                           + ui->passwordLineEdit->text().toStdString();
 
@@ -668,7 +689,8 @@ void MainWindow::on_runPushButton_clicked(){
     std::clog << "Max Utilization: " << maxUtilization << std::endl;
     std::clog << "Window Size 1: " << windowSize1 << std::endl;
     std::clog << "Window Size 2: " << windowSize2 << std::endl;
-
+/*
+    //Validation checks
     //Validation checks
     bool validJob = true;
     QString error = "";
@@ -824,7 +846,7 @@ void MainWindow::on_runPushButton_clicked(){
         ui->runPushButton->setEnabled(true);
         return;
     }
-
+*/
 
     resetProgressWindow();
 
@@ -1314,240 +1336,13 @@ void MainWindow::importConfig(QString configPath)
 
 bool MainWindow::validateUI(QString &error)
 {
-    //Parse and set the Action
-    action = ui->modeComboBox->currentText().toStdString();
-    if(action == "Detect"){
-        osnArgs.action = dg::openskynet::Action::DETECT;
-    }
-    else if(action == "Landcover"){
-        osnArgs.action = dg::openskynet::Action::LANDCOVER;
-    }
-    else{
-        osnArgs.action = dg::openskynet::Action::UNKNOWN;
-    }
-
-    //Parse and set the image source
-    imageSource = ui->imageSourceComboBox->currentText().toStdString();
-    if(imageSource == "Local Image File"){
-        osnArgs.source = dg::openskynet::Source::LOCAL;
-    }
-    else if(imageSource == "DGCS"){
-        osnArgs.source = dg::openskynet::Source::DGCS;
-        hasValidLocalImagePath = true;
-    }
-    else if(imageSource == "EVWHS"){
-        osnArgs.source = dg::openskynet::Source::EVWHS;
-        hasValidLocalImagePath = true;
-    }
-    else if(imageSource == "MapsAPI"){
-        osnArgs.source = dg::openskynet::Source::MAPS_API;
-        hasValidLocalImagePath = true;
-    }
-    else{
-        osnArgs.source = dg::openskynet::Source::UNKNOWN;
-    }
-
-    //Parse and set web service token
-    osnArgs.token = ui->tokenLineEdit->text().toStdString();
-
-    //Parse and set the credentials, format is username:password
-    osnArgs.credentials = ui->usernameLineEdit->text().toStdString()
-                          + ":"
-                          + ui->passwordLineEdit->text().toStdString();
-
-    //Parse and set the zoom level
-    osnArgs.zoom = ui->zoomSpinBox->value();
-
-    //Parse and set the max downloads
-    osnArgs.maxConnections = ui->downloadsSpinBox->value();
-
-    //Parse and set the map id
-    if(ui->mapIdLineEdit->text() != ""){
-        osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
-    }
-    else{
-        osnArgs.mapId = MAPSAPI_MAPID;
-    }
-
-    //Parse and set the image path
-    localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
-    osnArgs.image = localImageFilePath;
-
-    //Parse and set the model path
-    modelFilePath = ui->modelFileLineEdit->text().toStdString();
-    osnArgs.modelPath = modelFilePath;
-
-    //Parse and set the confidence value
-    confidence = ui->confidenceSpinBox->value();
-    osnArgs.confidence = (float)confidence;
-
-    //Parse and set the step size
-    stepSize = ui->stepSizeSpinBox->value();
-    osnArgs.stepSize = boost::make_unique<cv::Point>(stepSize, stepSize);
-
-    //Parse and set the pyramid value
-    pyramid = ui->pyramidCheckBox->isChecked();
-    if(pyramid == true){
-        osnArgs.pyramid = true;
-    }
-    else{
-        osnArgs.pyramid = false;
-    }
-
-    //Parse and set NMS
-    NMS = ui->nmsCheckBox->isChecked();
-    if(NMS == true){
-        osnArgs.nms = true;
-        nmsThreshold = ui->nmsSpinBox->value();
-        osnArgs.overlap = (float)nmsThreshold;
-    }
-    else{
-        osnArgs.nms = false;
-    }
-
-    //bbox parsing to be set up when web services are implemented
-    bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
-    bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
-    bboxEast = ui->bboxEastLineEdit->text().toStdString();
-    bboxWest = ui->bboxWestLineEdit->text().toStdString();
-
-    osnArgs.bbox = NULL;
-
-    if(imageSource != "Local Image File"){
-        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
-    }
-
-    //Output filename parsing and setting
-    outputFilename = ui->outputFilenameLineEdit->text().toStdString();
-
-    //Output path setting
-    outputLocation = ui->outputLocationLineEdit->text().toStdString();
-
-    //Output format parsing and setting
-    outputFormat = ui->outputFormatComboBox->currentText().toStdString();
-    if(outputFormat == "Shapefile"){
-        osnArgs.outputFormat = "shp";
-        //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
-        osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "Elastic Search"){
-        osnArgs.outputFormat = "elasticsearch";
-        osnArgs.outputPath = outputLocation;
-    }
-    else if(outputFormat == "GeoJSON"){
-        osnArgs.outputFormat = "geojson";
-        //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
-        osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "KML"){
-        osnArgs.outputFormat = "kml";
-        //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
-        osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "PostGIS"){
-        osnArgs.outputFormat = "postgis";
-        osnArgs.outputPath = outputLocation;
-    }
-
-    //Geometry type parsing and setting
-    geometryType = ui->geometryTypeComboBox->currentText().toStdString();
-    if(geometryType == "Polygon"){
-        osnArgs.geometryType = dg::deepcore::vector::GeometryType::POLYGON;
-    }
-    else{
-        osnArgs.geometryType = dg::deepcore::vector::GeometryType::POINT;
-    }
-
-    //layer name parsing and setting
-    outputLayer = ui->outputLayerLineEdit->text().toStdString();
-    osnArgs.layerName = path(osnArgs.outputPath).stem().filename().string();
-
-    //producer info parsing
-    producerInfo = ui->producerInfoCheckBox->isChecked();
-    if(producerInfo == true){
-        osnArgs.producerInfo = true;
-    }
-    else{
-        osnArgs.producerInfo = false;
-    }
-
-    //Processing mode parsing and setting
-    processingMode = ui->processingModeComboBox->currentText().toStdString();
-    if(processingMode == "GPU"){
-        osnArgs.useCpu = false;
-    }
-    else{
-        osnArgs.useCpu = true;
-    }
-
-    //max utilization parsing and setting
-    maxUtilization = ui->maxUtilizationSpinBox->value();
-    osnArgs.maxUtilization = (float)maxUtilization;
-
-    windowSize1 = ui->windowSizeSpinBox1->value();
-    windowSize2 = ui->windowSizeSpinBox2->value();
-    osnArgs.windowSize = unique_ptr<cv::Size>();
-
-    std::clog << "Mode: " << action << std::endl;
-
-    std::clog << "Image Source: " << imageSource << std::endl;
-    std::clog << "Local Image File Path: " << localImageFilePath << std::endl;
-
-    std::clog << "Web Service Token: " << osnArgs.token << std::endl;
-    std::clog << "Web Service Credentials: " << osnArgs.credentials << std::endl;
-    std::clog << "Zoom Level: " << osnArgs.zoom << std::endl;
-    std::clog << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
-    std::clog << "Map Id: " << osnArgs.mapId << std::endl;
-
-    std::clog << "Model File Path: " << modelFilePath << std::endl;
-
-    std::clog << "Confidence: " << confidence << std::endl;
-    std::clog << "Step Size: " << stepSize << std::endl;
-    std::clog << "Pyramid: " << pyramid << std::endl;
-    std::clog << "NMS: " << NMS << " Threshold: " << nmsThreshold << std::endl;
-
-    std::clog << "BBOX North: " << bboxNorth << std::endl;
-    std::clog << "BBOX South: " << bboxSouth << std::endl;
-    std::clog << "BBOX East: " << bboxEast << std::endl;
-    std::clog << "BBOX West: " << bboxWest << std::endl;
-
-    std::clog << "Output Filename: " << outputFilename << std::endl;
-    std::clog << "Output Filepath: " << outputFilepath << std::endl;
-    std::clog << "Output Format: " << outputFormat << std::endl;
-    std::clog << "Geometry Type: " << geometryType << std::endl;
-    std::clog << "Output Location: " << outputLocation << std::endl;
-    std::clog << "Output Layer: " << outputLayer << std::endl;
-    std::clog << "Producer Info:  " << producerInfo << std::endl;
-
-    std::clog << "Processing Mode: " << processingMode << std::endl;
-    std::clog << "Max Utilization: " << maxUtilization << std::endl;
-    std::clog << "Window Size 1: " << windowSize1 << std::endl;
-    std::clog << "Window Size 2: " << windowSize2 << std::endl;
-
-
-
-
-
-
-
-
-
-
-
     //Validation checks
     bool validJob = true;
 
     hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
 
     //Local image specific validation
-    if(osnArgs.source == dg::openskynet::Source::LOCAL){
+    if(ui->imageSourceComboBox->currentText() == "Local Image File"){
         if (!hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
@@ -1565,7 +1360,6 @@ bool MainWindow::validateUI(QString &error)
                 validJob = false;
             }
         }
-
 
     }
 
@@ -1593,40 +1387,56 @@ bool MainWindow::validateUI(QString &error)
 
 
     ui->runPushButton->setEnabled(false);
-    statusBar()->showMessage("Checking credentials");
+    statusBar()->showMessage("Checking credentials...");
 
-    if(osnArgs.source != dg::openskynet::Source::LOCAL)
+    if(ui->imageSourceComboBox->currentText() != "Local Image File")
     {
+        QString webservice = ui->imageSourceComboBox->currentText();
         bool wmts = true;
         hasValidBboxSize = true;
-        if(imageSource == "DGCS"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(osnArgs.token, osnArgs.credentials);
+        std::string token = ui->tokenLineEdit->text().toStdString();
+        std::string credentials = ui->usernameLineEdit->text().toStdString() + ":" + ui->passwordLineEdit->text().toStdString();
+        std::string mapId = ui->mapIdLineEdit->text().toStdString();
+        if(webservice == "DGCS"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(token, credentials);
         }
-        else if(imageSource == "EVWHS"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(osnArgs.token, osnArgs.credentials);
+        else if(webservice == "EVWHS"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(token, credentials);
         }
-        else if(imageSource == "MapsAPI"){
-            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(osnArgs.mapId, osnArgs.token);
+        else if(webservice == "MapsAPI"){
+            validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(mapId, token);
             wmts = false;
-        } else
+        }
 
         try {
             validationClient->connect();
-            statusBar()->showMessage("Validating Bounding Box");
+            statusBar()->showMessage("Validating Bounding Box...");
             if(wmts) {
                 validationClient->setImageFormat("image/jpeg");
                 validationClient->setLayer("DigitalGlobe:ImageryTileService");
                 validationClient->setTileMatrixSet("EPSG:3857");
-                validationClient->setTileMatrixId((format("EPSG:3857:%1d") % osnArgs.zoom).str());
+                validationClient->setTileMatrixId((format("EPSG:3857:%1d") % ui->zoomSpinBox->value()).str());
             } else {
-                validationClient->setTileMatrixId(lexical_cast<string>(osnArgs.zoom));
+                validationClient->setTileMatrixId(lexical_cast<string>(ui->zoomSpinBox->value()));
             }
 
-            validationClient->setMaxConnections(osnArgs.maxConnections);
+            validationClient->setMaxConnections(ui->downloadsSpinBox->value());
             blockSize_ = validationClient->tileMatrix().tileSize;
 
-            auto projBbox = validationClient->spatialReference().fromLatLon(*osnArgs.bbox);
-            geoImage.reset(validationClient->imageFromArea(projBbox, osnArgs.action != dg::openskynet::Action::LANDCOVER));
+
+            bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
+            bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
+            bboxEast = ui->bboxEastLineEdit->text().toStdString();
+            bboxWest = ui->bboxWestLineEdit->text().toStdString();
+
+            std::unique_ptr<cv::Rect2d> bbox = nullptr;
+
+            if(imageSource != "Local Image File"){
+                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                              cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+            }
+            auto projBbox = validationClient->spatialReference().fromLatLon(*bbox);
+            geoImage.reset(validationClient->imageFromArea(projBbox, ui->modeComboBox->currentText() != "landcover"));
 
             std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
             std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
@@ -1678,11 +1488,12 @@ bool MainWindow::validateUI(QString &error)
     }
     statusBar()->clearMessage();
 
+
     if(hasValidBboxSize == false){
-        if(osnArgs.source != dg::openskynet::Source::LOCAL) {
+        if(ui->imageSourceComboBox->currentText() != "Local Image File") {
             error += "The entered bounding box is too large\n\n";
         }
-        else{
+        else if (ui->imageSourceComboBox->currentText() != "Local Image File" && ui->localImageFileLineEdit->text() != ""){
             error += "The entered image is too large\n\n";
         }
         validJob = false;
