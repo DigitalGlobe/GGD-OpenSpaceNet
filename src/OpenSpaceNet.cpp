@@ -210,6 +210,12 @@ void OpenSpaceNet::initMapServiceImage()
             client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
             break;
 
+        case Source::TILE_JSON:
+            OSN_LOG(info) << "Connecting to TileJSON...";
+            client_ = make_unique<TileJsonClient>(args_.url, args_.credentials, args_.useTiles);
+            wmts = false;
+            break;
+
         default:
             OSN_LOG(info) << "Connecting to DGCS..." ;
             client_ = make_unique<DgcsClient>(args_.token, args_.credentials);
