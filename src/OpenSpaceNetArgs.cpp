@@ -107,12 +107,17 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
 
     webOptions_.add_options()
         ("service", po::value<string>()->value_name("SERVICE"),
-         "Web service that will be the source of input. Valid values are: dgcs, evwhs, and maps-api.")
+         "Web service that will be the source of input. Valid values are: dgcs, evwhs, maps-api, and tile-json.")
         ("token", po::value<string>()->value_name("TOKEN"),
          "API token used for licensing. This is the connectId for WMTS services or the API key for the Web Maps API.")
         ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
-         "Credentials for the map service. Not required for Web Maps API. If password is not specified, you will be "
+         "Credentials for the map service. Not required for Web Maps API, optional for TileJSON. If password is not specified, you will be "
          "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
+        ("url", po::value<string>()->value_name("URL"),
+         "TileJSON server URL. This is only required for the tile-json service.")
+        ("use-tiles",
+         "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
+         "is to derive the service address from the provided URL.")
         ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", zoom)), "Zoom level.")
         ("mapId", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
         ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
@@ -391,6 +396,8 @@ static Source parseService(string service)
         return Source::EVWHS;
     } else if(service == "maps-api") {
         return Source::MAPS_API;
+    } else if(service == "tile-json") {
+        return Source::TILE_JSON;
     }
 
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
@@ -475,6 +482,8 @@ void OpenSpaceNetArgs::validateArgs()
     bool requireToken = false;
     bool unusedCredentials = false;
     bool requireCredentials = false;
+    bool requireUrl = false;
+    bool unusedUseTiles = true;
     string sourceName;
 
     switch (source) {
@@ -501,6 +510,15 @@ void OpenSpaceNetArgs::validateArgs()
             sourceName = "dgcs or evwhs";
             break;
 
+        case Source::TILE_JSON:
+            requireBbox = true;
+            requireToken = false;
+            unusedCredentials = false;
+            requireUrl = true;
+            unusedUseTiles = false;
+            sourceName = "tile-json";
+            break;
+
         default:
             DG_ERROR_THROW("Source is unknown or unspecified");
     }
@@ -525,6 +543,16 @@ void OpenSpaceNetArgs::validateArgs()
         DG_ERROR_THROW("Argument --bbox is required for %s.", sourceName.c_str());
     }
 
+    if (unusedUseTiles && useTiles) {
+        OSN_LOG(warning) << "Argument --use-tiles is unused for " << sourceName << '.';
+    }
+
+
+    if(requireUrl && url.empty()) {
+        DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
+    } else if(!requireUrl && !url.empty()) {
+        OSN_LOG(warning) << "Argument --url is unused for " << sourceName << '.';
+    }
 
     // validate model and detection
     if (modelPath.empty()) {
@@ -632,6 +660,8 @@ void OpenSpaceNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
     mapIdSet |= readVariable("mapId", vm, mapId);
     readVariable("token", vm, token);
     readVariable("credentials", vm, credentials);
+    readVariable("url", vm, url);
+    useTiles = vm.find("use-tiles") != vm.end();
     readVariable("zoom", vm, zoom);
     readVariable("num-downloads", vm, maxConnections);
 }

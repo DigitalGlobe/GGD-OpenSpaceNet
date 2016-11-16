@@ -40,7 +40,8 @@ enum class Source
     LOCAL,
     DGCS,
     EVWHS,
-    MAPS_API
+    MAPS_API,
+    TILE_JSON
 };
 
 enum class Action
@@ -67,6 +68,9 @@ public:
     int zoom = 18;
     int maxConnections = 10;
     std::string mapId = MAPSAPI_MAPID;
+    std::string url;
+    bool useTiles=false;
+
 
     // Output options
     deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::POLYGON;
