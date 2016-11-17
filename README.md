@@ -6,11 +6,15 @@ OpenSpaceNet is an open-source application to perform object or terrain detectio
 
 OpenSpaceNet takes a pre-trained neural network and applies it to imagery.  It can use local files from your computer, or connect to DigitalGlobe servers to download maps.  OpenSpaceNet uses your DigitalGlobe account to download the maps, so it can only use maps that you have already purchased.  This guide will explain the basic usage of OpenSpaceNet.
 
+# Linux Instructions
+
 ## Train a model
 Train a model with Caffe.  OpenSpaceNet only supports Caffe models for the time being.  Once you have a trained model, you will need to package it as a gbdxm file, which is an archive format used by OpenSpaceNet.
 
-## Convert model to GBDXM
-The GBDXM format stores a model in a compressed file which OSN uses.  The `gbdxm` module acts as a link between caffe and OSN.  The executable is available on the [DeepCore webpage](https://digitalglobe.github.io/DeepCore/).  You will need to make it executable before you can run it `chmod u+x gbdxm`.  Then you can convert your Caffe model to gbdxm format:
+## Store a model in GBDXM format
+OpenSpaceNet uses a container format so you can pass your model as a single file.  You can create a GMDXM file using the `gbdxm` module.  
+
+The `gbdxm` module acts as a link between caffe and OSN.  The executable is available on the [DeepCore webpage](https://digitalglobe.github.io/DeepCore/).  You will need to make it executable before you can run it `chmod u+x gbdxm`.  Then you can convert your Caffe model to gbdxm format:
 
 ```bash 
 $ ./gbdxm pack -f out.gbdxm --caffe-model deploy.prototxt --caffe-trained model.caffemodel \
@@ -20,10 +24,11 @@ $ ./gbdxm pack -f out.gbdxm --caffe-model deploy.prototxt --caffe-trained model.
 
 For detailed documentation of the command line arguments, run `./gbdxm help` or just `./gbdxm` at the terminal.
 
-## Run with OpenSpaceNet
+## Use OpenSpaceNet to apply your model to DigitalGlobe data
+Now you can use OSN with your `.gbdxm` model.  OSN 
 1. Make sure CUDA 7.5 is installed ([instructions](http://www.r-tutor.com/gpu-computing/cuda-installation/cuda7.5-ubuntu)). We are working on OSN for CUDA 8, but it will only run with 7.5 for now.  
 
-2. Download OpenSpaceNet executable [by clicking the link in the right column](https://digitalglobe.github.io/DeepCore/).  You do not need to install DeepCore if you use the pre-compiled executable.  
+2. Download OpenSpaceNet executable [by clicking the link in the right column](https://digitalglobe.github.io/DeepCore/).  You will need to make it executable `chmod u+x OpenSpaceNet`
 
 3. Use OpenSpaceNet to apply models to map data
 
@@ -32,7 +37,7 @@ For descriptions of the command line arguments, consult the [documentation](http
 If you have the images that you want to search in an image file, then you can use the `--image` option.  This does not require any access keys.
 
 ### Using a local file
-```
+```bash
 $ ./OpenSpaceNet detect --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp \
   --nms --step-size 30 --image INPUT_IMAGE_FILENAME
 ```  
@@ -40,7 +45,7 @@ $ ./OpenSpaceNet detect --model MODEL.gbdxm --type POLYGON --format shp --output
 ### Using the API  
 If you access DigitalGlobe API, then you can use your token to download maps.  DeepCore will handle the maps for you, so all you need to provide is the API token, and the bounding box that you want to search in.
 
-```
+```bash
 $ ./OpenSpaceNet detect --bbox -84.44579 33.63404 -84.40601 33.64583  --model MODEL.gbdxm \
   --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms \
   --step-size 25 --num-downloads 200 --token API_TOKEN  --service maps-api
@@ -49,7 +54,7 @@ $ ./OpenSpaceNet detect --bbox -84.44579 33.63404 -84.40601 33.64583  --model MO
 ### Using DigitalGlobe Cloud Services (DGCS)
 If you have access to DigitalGlobe Cloud Services, then OpenSpaceNet can access maps using your account.  You need to provide your username, password, and the appropriate token for the type of maps that you want to use.  You can find information about the kinds of maps offered by DigitalGlobe of is available on [our webpage](https://www.digitalglobe.com/products/basemap-suite).
 
-```
+```bash
 $ ./OpenSpaceNet detect --bbox -84.44579 33.63404 -84.40601 33.64583 --model MODEL.gbdxm \
   --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms \
   --step-size 15 --num-downloads 200 --token MAP_TOKEN --credentials USER:PASS --service dgcs
