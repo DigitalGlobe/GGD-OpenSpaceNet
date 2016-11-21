@@ -1,26 +1,31 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <string>
+#include <iostream>
+#include <sstream>
+
+#include <boost/make_unique.hpp>
+
+#include <opencv2/core/types.hpp>
+
 #include <QMainWindow>
 #include <QDebug>
 #include <QFileDialog>
-#include <string>
-#include <iostream>
 #include <QTextStream>
 #include <QMessageBox>
-#include <OpenSkyNetArgs.h>
-#include <OpenSkyNet.h>
-#include <boost/make_unique.hpp>
-#include <processthread.h>
-#include "progresswindow.h"
-#include <sstream>
-#include "qdebugstream.h"
 #include <QValidator>
 #include <QCloseEvent>
 #include <QStatusBar>
 #include <QProgressBar>
+
+#include <OpenSkyNetArgs.h>
+#include <OpenSkyNet.h>
+#include <processthread.h>
 #include <imagery/MapServiceClient.h>
-#include <opencv2/core/types.hpp>
+
+#include "progresswindow.h"
+#include "qdebugstream.h"
 
 namespace Ui {
 class MainWindow;
@@ -88,6 +93,18 @@ private slots:
     void cancelThread();
 
 private:
+    void connectSignalsAndSlots();
+    void setUpLogging();
+    void initValidation();
+
+    void resetProgressWindow();
+    void closeEvent(QCloseEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
+
+    bool validateUI(QString &error);
+    void importConfig(QString configFile);
+    void exportConfig(const QString &filepath);
+
     dg::openskynet::OpenSkyNetArgs osnArgs;
     ProcessThread thread;
     ProgressWindow progressWindow;
@@ -124,15 +141,6 @@ private:
     int windowSize1;
     int windowSize2;
 
-    void connectSignalsAndSlots();
-    void setUpLogging();
-    void initValidation();
-    void resetProgressWindow();
-
-    bool validateUI(QString &error);
-
-    void closeEvent(QCloseEvent *event);
-
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
     std::stringstream buffer_;
     boost::shared_ptr<std::ostream> stringStreamUI;
@@ -155,19 +163,17 @@ private:
     bool hasValidOutputPath = false;
     bool hasValidLocalImagePath = false;
     bool hasGeoRegLocalImage = false;
-    bool hasValidBboxSize = false;
+    bool hasValidBbox = false;      //whether the bbox is a valid set of lat/lon coords
+    bool hasValidBboxSize = false;  //whether the bbox is too large for OSN to handle
 
-    //tracks the last-accessed directory for the image and model file browsers
+    //tracks the last-accessed directory for the file browser dialogs
     QString lastAccessedDirectory;
 
     QProgressBar *statusProgressBar;
     QString featuresDetected;
 
-    bool eventFilter(QObject *obj, QEvent *event);
-
     cv::Size blockSize_;
     std::unique_ptr<dg::deepcore::imagery::GeoImage> geoImage;
-    void importConfig(QString configFile);
 };
 
 #endif // MAINWINDOW_H

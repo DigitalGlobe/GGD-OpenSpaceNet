@@ -17,9 +17,7 @@
 #include <imagery/GdalImage.h>
 
 
-#include <boost/tokenizer.hpp>
 #include <boost/program_options.hpp>
-#include <boost/program_options/parsers.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
@@ -48,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->showMessage(tr("Ready"));
     statusBar()->installEventFilter(this);
 
-    ui->bboxOverrideCheckBox->hide();
+    //ui->bboxOverrideCheckBox->hide();
     //Set the file browsers' initial location to the user's home directory
     lastAccessedDirectory = QDir::homePath();
 }
@@ -152,137 +150,11 @@ void MainWindow::on_saveConfigPushButton_clicked()
 
 
 
-    std::string filepath = QFileDialog::getSaveFileName(this,
-                                                tr("Save to Config File"),
-                                                lastAccessedDirectory,
-                                                tr("Config file (.cfg)")).toStdString();
-    std::stringstream configContents;
-    std::ofstream configFile;
-    configFile.open(filepath + ".cfg");
-
-    //Mode
-    std::string key;
-    QString index = ui->modeComboBox->currentText();
-    if (index == "Detect"){
-        key = "detect";
-    }
-    else {
-        key = "landcover";
-    }
-    configContents << "action=" << key << "\n";
-
-    //Image Source
-    index = ui->imageSourceComboBox->currentText();
-    if (index == "Local Image File"){
-        configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
-    }
-    else if (index == "DGCS"){
-        configContents << "service=dgcs\n";
-    }
-    else if (index == "EVWHS"){
-        configContents << "service=evwhs\n";
-    }
-    else if (index == "MapsAPI"){
-        configContents << "service=maps-api\n";
-    }
-
-    //Credentials
-    if (ui->usernameLineEdit->isEnabled() && ui->passwordLineEdit->isEnabled()){
-        configContents << "credentials=" << ui->usernameLineEdit->text().toStdString() << ":" << ui->passwordLineEdit->text().toStdString() << "\n";
-    }
-
-    //zoom level
-    if (ui->zoomSpinBox->isEnabled()){
-        configContents << "zoom=" << ui->zoomSpinBox->value() << "\n";
-    }
-
-    //token
-    if (ui->tokenLineEdit->isEnabled()){
-        configContents << "token=" << ui->tokenLineEdit->text().toStdString() << "\n";
-    }
-
-    //map id
-    if (ui->mapIdLineEdit->isEnabled()){
-        configContents << "map-id=" << ui->mapIdLineEdit->text().toStdString() << "\n";
-    }
-
-    //model file
-    configContents << "model=" << ui->modelFileLineEdit->text().toStdString() << "\n";
-
-    //confidence
-    configContents << "confidence=" << ui->confidenceSpinBox->value() << "\n";
-
-    //step size
-    configContents << "step-size=" << ui->stepSizeSpinBox->value() << "\n";
-
-    //pyramid
-    if (ui->pyramidCheckBox->isChecked()){
-        configContents << "pyramid=true\n";
-    }
-
-    //nms
-    if (ui->nmsCheckBox->isChecked()){
-        configContents << "nms=" << ui->nmsSpinBox->value() << "\n";
-    }
-
-    //bounding box
-    configContents << "bbox=" << ui->bboxWestLineEdit->text().toStdString() << " " <<
-                                 ui->bboxSouthLineEdit->text().toStdString() << " " <<
-                                 ui->bboxEastLineEdit->text().toStdString() << " " <<
-                                 ui->bboxNorthLineEdit->text().toStdString() << "\n";
-
-    //output format
-    configContents << "format=";
-    index = ui->outputFormatComboBox->currentText();
-    if (index == "Shapefile"){
-        configContents << "shp\n";
-    }
-    else if (index == "GeoJSON"){
-        configContents << "geojson\n";
-    }
-    else if (index == "KML"){
-        configContents << "kml\n";
-    }
-
-    //output filename
-    configContents << "output-name=" << ui->outputFilenameLineEdit->text().toStdString() << "\n";
-
-    //output location
-    configContents << "output-location=" << ui->outputLocationLineEdit->text().toStdString() << "\n";
-
-    //output layer
-    configContents << "output-layer=" << ui->outputLayerLineEdit->text().toStdString() << "\n";
-
-    //geometry type
-    configContents << "type=";
-    index = ui->geometryTypeComboBox->currentText();
-    if (index == "Polygon"){
-        configContents << "point\n";
-    }
-    else if (index == "Point"){
-        configContents << "point\n";
-    }
-
-    //producer infor
-    if (ui->producerInfoCheckBox->isChecked()){
-        configContents << "producer-info=true\n";
-    }
-
-    //cpu
-    if (ui->processingModeComboBox->currentText() == "CPU"){
-        configContents << "cpu=true\n";
-    }
-
-    //max utilization
-    configContents << "max-utilization=" << ui->maxUtilizationSpinBox->value() << "\n";
-
-    //window size
-    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << " " << ui->windowSizeSpinBox2->value() << "\n";
-
-    //write the stringstream contents to the file
-    configFile << configContents.rdbuf();
-
-    configFile.close();
+    QString filepath = QFileDialog::getSaveFileName(this,
+                                                    tr("Save to Config File"),
+                                                    lastAccessedDirectory,
+                                                    tr("Config file (.cfg)"));
+    exportConfig(filepath);
 }
 
 void MainWindow::on_localImageFileBrowseButton_clicked(){
@@ -439,6 +311,11 @@ void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked){
         ui->bboxWestLineEdit->setEnabled(true);
     }
     else{
+        //set bbox values back to the local image's bounding box
+        if (hasValidLocalImagePath){
+            on_imagepathLineEditLostFocus();
+        }
+
         ui->bboxNorthLineEdit->setEnabled(false);
         ui->bboxSouthLineEdit->setEnabled(false);
         ui->bboxEastLineEdit->setEnabled(false);
@@ -830,8 +707,6 @@ void MainWindow::on_outputLocationLineEditLostFocus(){
     bool exists = boost::filesystem::exists(outputPath);
     bool isDirectory = boost::filesystem::is_directory(outputPath);
 
-    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
-    //but don't register the empty string as valid input
     if(outputPath == "")
     {
         ui->outputLocationLineEdit->setStyleSheet("color: red;"
@@ -933,8 +808,7 @@ void MainWindow::closeEvent (QCloseEvent *event) {
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress)
-    {
+    if(event->type() == QEvent::MouseButtonPress){
         progressWindow.show();
     }
     return false;
@@ -951,16 +825,16 @@ void MainWindow::importConfig(QString configPath)
             ("service", po::value<std::string>())
             ("token", po::value<std::string>())
             ("credentials", po::value<std::string>())
-            ("zoom", po::value<int>()->default_value(osnArgs.zoom))
-            ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
-            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
+            ("zoom", po::value<int>())
+            ("num-downloads", po::value<int>())
+            ("mapId", po::value<std::string>())
 
             ("model", po::value<std::string>())
 
-            ("confidence", po::value<float>()->default_value(osnArgs.confidence))
+            ("confidence", po::value<float>())
             ("step-size", po::value<float>())
             ("pyramid", po::value<bool>())
-            ("nms", po::value<float>()->default_value(osnArgs.overlap))
+            ("nms", po::value<float>())
 
             ("bbox", po::value<std::string>())
 
@@ -980,7 +854,7 @@ void MainWindow::importConfig(QString configPath)
     po::notify(config_vm);
 
     //action
-    if (config_vm.find("action") != end(config_vm)){
+    if(config_vm.find("action") != end(config_vm)){
         std::string action = config_vm["action"].as<std::string>();
         int actionIndex;
         if (action == "detect"){
@@ -994,7 +868,7 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //image
-    if (config_vm.find("image") != end(config_vm)){
+    if(config_vm.find("image") != end(config_vm)){
 
         int sourceIndex = ui->imageSourceComboBox->findText("Local Image File");
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
@@ -1006,7 +880,7 @@ void MainWindow::importConfig(QString configPath)
 
     //service
     std::string service;
-    if (config_vm.find("service") != end(config_vm)){
+    if(config_vm.find("service") != end(config_vm)){
         int sourceIndex;
         service = config_vm["service"].as<std::string>();
         if (service == "dgcs") {
@@ -1026,14 +900,14 @@ void MainWindow::importConfig(QString configPath)
 
     //token
     QString token;
-    if (config_vm.find("token") != end(config_vm)){
+    if(config_vm.find("token") != end(config_vm)){
         token = QString::fromStdString(config_vm["token"].as<std::string>());
         ui->tokenLineEdit->setText(token);
     }
 
     //credentials
     //only check for credentials if the service key is present in the config file, and doesn't have maps-api as its value
-    if (config_vm.find("service") != end(config_vm) && service != "maps-api"){
+    if(config_vm.find("service") != end(config_vm) && service != "maps-api"){
         if (config_vm.find("credentials") != end(config_vm))
         {
             std::string storedCredentials = config_vm["credentials"].as<std::string>();
@@ -1045,17 +919,17 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //zoom
-    if (config_vm.find("zoom") != end(config_vm)){
+    if(config_vm.find("zoom") != end(config_vm)){
         ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
     }
 
     //downloads
-    if (config_vm.find("num-downloads") != end(config_vm)){
+    if(config_vm.find("num-downloads") != end(config_vm)){
         ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
     }
 
     //map id
-    if (service == "maps-api"){
+    if(service == "maps-api"){
         //don't show the default map id in the UI
         if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
             ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
@@ -1063,36 +937,36 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //model
-    if (config_vm.find("model") != end(config_vm)){
+    if(config_vm.find("model") != end(config_vm)){
         ui->modelFileLineEdit->setText(QString::fromStdString(config_vm["model"].as<std::string>()));
         //run validation to ensure that the model file is still there
         on_modelpathLineEditLostFocus();
     }
 
     //confidence
-    if (config_vm.find("confidence") != end(config_vm)){
+    if(config_vm.find("confidence") != end(config_vm)){
         ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
     }
 
     //step size
-    if (config_vm.find("step-size") != end(config_vm)){
+    if(config_vm.find("step-size") != end(config_vm)){
         ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
     }
 
     //pyramid
-    if (config_vm.find("pyramid") != end(config_vm)){
+    if(config_vm.find("pyramid") != end(config_vm)){
         ui->pyramidCheckBox->setChecked(config_vm["pyramid"].as<bool>());
     }
 
     //non-maximum suppression
-    if (config_vm.find("nms") != end(config_vm)){
+    if(config_vm.find("nms") != end(config_vm)){
         float nmsValue = config_vm["nms"].as<float>();
         ui->nmsCheckBox->setChecked(nmsValue > 0);
         ui->nmsSpinBox->setValue(nmsValue);
     }
 
     //bounding box
-    if (config_vm.find("bbox") != end(config_vm)){
+    if(config_vm.find("bbox") != end(config_vm)){
         std::string storedCoords = config_vm["bbox"].as<std::string>();
         std::vector<std::string> bbox;
         boost::split(bbox, storedCoords, boost::is_any_of(" "));
@@ -1103,7 +977,7 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output format
-    if (config_vm.find("format") != end(config_vm)){
+    if(config_vm.find("format") != end(config_vm)){
         int formatIndex;
         std::string format = config_vm["format"].as<std::string>();
         if (format == "shp") {
@@ -1119,7 +993,7 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output type
-    if (config_vm.find("type") != end(config_vm)){
+    if(config_vm.find("type") != end(config_vm)){
         int typeIndex;
         std::string type = config_vm["type"].as<std::string>();
         if (type == "polygon") {
@@ -1132,13 +1006,13 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output name
-    if (config_vm.find("output-name") != end(config_vm)){
+    if(config_vm.find("output-name") != end(config_vm)){
         std::string outputName = config_vm["output-name"].as<std::string>();
         ui->outputFilenameLineEdit->setText(QString::fromStdString(outputName));
     }
 
     //output location
-    if (config_vm.find("output-location") != end(config_vm)){
+    if(config_vm.find("output-location") != end(config_vm)){
         std::string outputLocation = config_vm["output-location"].as<std::string>();
         ui->outputLocationLineEdit->setText(QString::fromStdString(outputLocation));
         //ensure that the path from the config file is still valid
@@ -1146,13 +1020,13 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output layer
-    if (config_vm.find("output-layer") != end(config_vm)){
+    if(config_vm.find("output-layer") != end(config_vm)){
         std::string outputLayer = config_vm["output-layer"].as<std::string>();
         ui->outputLayerLineEdit->setText(QString::fromStdString(outputLayer));
     }
 
     //producer info
-    if (config_vm.find("producer-info") != end(config_vm)){
+    if(config_vm.find("producer-info") != end(config_vm)){
         ui->producerInfoCheckBox->setChecked(config_vm["producer-info"].as<bool>());
     }
 
@@ -1163,12 +1037,12 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //max utilization
-    if (config_vm.find("max-utilization") != end(config_vm)){
+    if(config_vm.find("max-utilization") != end(config_vm)){
         ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
     }
 
     //window size
-    if (config_vm.find("window-size") != end(config_vm)){
+    if(config_vm.find("window-size") != end(config_vm)){
         std::string windowSize = config_vm["window-size"].as<std::string>();
         std::vector<std::string> dimensions;
 
@@ -1183,28 +1057,63 @@ void MainWindow::importConfig(QString configPath)
 
 bool MainWindow::validateUI(QString &error)
 {
-    //Validation checks
+    //assume job is valid until a validation check fails
     bool validJob = true;
 
     hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
 
     //Local image specific validation
     if(ui->imageSourceComboBox->currentText() == "Local Image File"){
-        if (!hasValidLocalImagePath){
+        if(!hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
             validJob = false;
         }
-        //The filepath is valid
         else {
-            //Only geo-registered images can be processed
+            //The 'hasGeoRegLocalImage' flag is automatically updated every time the user selects a new image
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
                 error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
                 ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                           "border: 1px solid red;");
                 validJob = false;
+            }
+
+
+            //only validate the bbox if the override checkbox is checked
+            if(ui->bboxOverrideCheckBox->isChecked()) {
+                bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
+                bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
+                bboxEast = ui->bboxEastLineEdit->text().toStdString();
+                bboxWest = ui->bboxWestLineEdit->text().toStdString();
+                std::unique_ptr<cv::Rect2d> bbox = nullptr;
+                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+                unique_ptr<dg::deepcore::imagery::GdalImage> image;
+                image = boost::make_unique<dg::deepcore::imagery::GdalImage>(ui->localImageFileLineEdit->text().toStdString());
+                auto projBbox = image->spatialReference().fromLatLon(*bbox);
+                auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
+                auto intersect = projBbox & imageBbox;
+                try {
+                    DG_CHECK(!dg::deepcore::almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+                    hasValidBbox = true;
+                }
+                catch(dg::deepcore::Error e){
+                    std::clog << e.what() << std::endl;
+                    error += "Input image and the provided bounding box do not intersect\n\n";
+                    validJob = false;
+                }
+
+                if(hasValidBbox && !dg::deepcore::almostEq(intersect, imageBbox)) {
+                    auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
+                    image->setBbox(pixelBbox);
+                }
+
+                if(hasValidBbox && !dg::deepcore::almostEq(imageBbox, projBbox)) {
+                    auto llIntersect = image->spatialReference().toLatLon(intersect);
+                    std::cout << "Bounding box adjusted" << std::endl;
+                }
             }
         }
 
@@ -1257,7 +1166,7 @@ bool MainWindow::validateUI(QString &error)
         try {
             validationClient->connect();
             statusBar()->showMessage("Validating Bounding Box...");
-            if(wmts) {
+            if(wmts){
                 validationClient->setImageFormat("image/jpeg");
                 validationClient->setLayer("DigitalGlobe:ImageryTileService");
                 validationClient->setTileMatrixSet("EPSG:3857");
@@ -1276,11 +1185,8 @@ bool MainWindow::validateUI(QString &error)
             bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
             std::unique_ptr<cv::Rect2d> bbox = nullptr;
-
-            if(imageSource != "Local Image File"){
-                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                              cv::Point2d(stod(bboxEast), stod(bboxNorth)));
-            }
+            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                  cv::Point2d(stod(bboxEast), stod(bboxNorth)));
             auto projBbox = validationClient->spatialReference().fromLatLon(*bbox);
             geoImage.reset(validationClient->imageFromArea(projBbox, ui->modeComboBox->currentText() != "landcover"));
 
@@ -1346,4 +1252,135 @@ bool MainWindow::validateUI(QString &error)
     }
 
     return validJob;
+}
+
+void MainWindow::exportConfig(const QString &filepath)
+{
+    std::stringstream configContents;
+    std::ofstream configFile;
+    configFile.open(filepath.toStdString() + ".cfg");
+
+    //Mode
+    std::string key;
+    QString index = ui->modeComboBox->currentText();
+    if (index == "Detect"){
+        key = "detect";
+    }
+    else {
+        key = "landcover";
+    }
+    configContents << "action=" << key << "\n";
+
+    //Image Source
+    index = ui->imageSourceComboBox->currentText();
+    if (index == "Local Image File"){
+        configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
+    }
+    else if (index == "DGCS"){
+        configContents << "service=dgcs\n";
+    }
+    else if (index == "EVWHS"){
+        configContents << "service=evwhs\n";
+    }
+    else if (index == "MapsAPI"){
+        configContents << "service=maps-api\n";
+    }
+
+    //Credentials
+    if (ui->usernameLineEdit->isEnabled() && ui->passwordLineEdit->isEnabled()){
+        configContents << "credentials=" << ui->usernameLineEdit->text().toStdString() << ":" << ui->passwordLineEdit->text().toStdString() << "\n";
+    }
+
+    //zoom level
+    if (ui->zoomSpinBox->isEnabled()){
+        configContents << "zoom=" << ui->zoomSpinBox->value() << "\n";
+    }
+
+    //token
+    if (ui->tokenLineEdit->isEnabled()){
+        configContents << "token=" << ui->tokenLineEdit->text().toStdString() << "\n";
+    }
+
+    //map id
+    if (ui->mapIdLineEdit->isEnabled()){
+        configContents << "map-id=" << ui->mapIdLineEdit->text().toStdString() << "\n";
+    }
+
+    //model file
+    configContents << "model=" << ui->modelFileLineEdit->text().toStdString() << "\n";
+
+    //confidence
+    configContents << "confidence=" << ui->confidenceSpinBox->value() << "\n";
+
+    //step size
+    configContents << "step-size=" << ui->stepSizeSpinBox->value() << "\n";
+
+    //pyramid
+    if (ui->pyramidCheckBox->isChecked()){
+        configContents << "pyramid=true\n";
+    }
+
+    //nms
+    if (ui->nmsCheckBox->isChecked()){
+        configContents << "nms=" << ui->nmsSpinBox->value() << "\n";
+    }
+
+    //bounding box
+    configContents << "bbox=" << ui->bboxWestLineEdit->text().toStdString() << " " <<
+                                 ui->bboxSouthLineEdit->text().toStdString() << " " <<
+                                 ui->bboxEastLineEdit->text().toStdString() << " " <<
+                                 ui->bboxNorthLineEdit->text().toStdString() << "\n";
+
+    //output format
+    configContents << "format=";
+    index = ui->outputFormatComboBox->currentText();
+    if (index == "Shapefile"){
+        configContents << "shp\n";
+    }
+    else if (index == "GeoJSON"){
+        configContents << "geojson\n";
+    }
+    else if (index == "KML"){
+        configContents << "kml\n";
+    }
+
+    //output filename
+    configContents << "output-name=" << ui->outputFilenameLineEdit->text().toStdString() << "\n";
+
+    //output location
+    configContents << "output-location=" << ui->outputLocationLineEdit->text().toStdString() << "\n";
+
+    //output layer
+    configContents << "output-layer=" << ui->outputLayerLineEdit->text().toStdString() << "\n";
+
+    //geometry type
+    configContents << "type=";
+    index = ui->geometryTypeComboBox->currentText();
+    if (index == "Polygon"){
+        configContents << "point\n";
+    }
+    else if (index == "Point"){
+        configContents << "point\n";
+    }
+
+    //producer infor
+    if (ui->producerInfoCheckBox->isChecked()){
+        configContents << "producer-info=true\n";
+    }
+
+    //cpu
+    if (ui->processingModeComboBox->currentText() == "CPU"){
+        configContents << "cpu=true\n";
+    }
+
+    //max utilization
+    configContents << "max-utilization=" << ui->maxUtilizationSpinBox->value() << "\n";
+
+    //window size
+    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << " " << ui->windowSizeSpinBox2->value() << "\n";
+
+    //write the stringstream contents to the file
+    configFile << configContents.rdbuf();
+
+    configFile.close();
 }
