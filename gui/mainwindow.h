@@ -110,11 +110,11 @@ private:
     ProgressWindow progressWindow;
     Ui::ProgressWindow *progressUi;
     Ui::MainWindow *ui;
+
     std::string action;
 
     std::string imageSource;
     std::string localImageFilePath;
-
     std::string modelFilePath;
 
     double confidence;
