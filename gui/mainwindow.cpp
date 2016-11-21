@@ -20,14 +20,12 @@
 #include "ui_progresswindow.h"
 #include "qdebugstream.h"
 
-
 using std::unique_ptr;
 using boost::filesystem::path;
 using boost::format;
 using std::string;
 using boost::lexical_cast;
 namespace po = boost::program_options;
-
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -190,7 +188,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
 {
     if(source != "Local Image File") {
         //bbox
-        //ui->bboxOverrideCheckBox->hide();
+        ui->bboxOverrideCheckBox->hide();
         ui->bboxNorthLineEdit->setEnabled(true);
         ui->bboxSouthLineEdit->setEnabled(true);
         ui->bboxEastLineEdit->setEnabled(true);
@@ -247,7 +245,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
     }
     else {
     	//bbox
-        //ui->bboxOverrideCheckBox->show();
+        ui->bboxOverrideCheckBox->show();
         bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
         ui->bboxNorthLineEdit->setEnabled(bboxOverridden);
         ui->bboxSouthLineEdit->setEnabled(bboxOverridden);
@@ -1131,6 +1129,31 @@ bool MainWindow::validateUI(QString &error)
             }
         }
 
+    }
+
+    //validate that bbox coordinates are in valid range
+    if(ui->bboxOverrideCheckBox->isChecked() || ui->imageSourceComboBox->currentText() != "Local Image File") {
+        double north = ui->bboxNorthLineEdit->text().toDouble();
+        double south = ui->bboxSouthLineEdit->text().toDouble();
+        double east = ui->bboxEastLineEdit->text().toDouble();
+        double west = ui->bboxWestLineEdit->text().toDouble();
+
+        if(abs(north) >= 90.0) {
+            error += "North bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            validJob = false;
+        }
+        if(abs(south) >= 90.0) {
+            error += "South bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            validJob = false;
+        }
+        if(abs(east) >= 180.0) {
+            error += "East bounding box coordinate is invalid: must be in range (-180,180)\n\n";
+            validJob = false;
+        }
+        if(abs(west) >= 180.0) {
+            error += "West bounding box coordinate is invalid: must be in range (-180,180(])\n\n";
+            validJob = false;
+        }
     }
 
     //Image source agnostic validation
