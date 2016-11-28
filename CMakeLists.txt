@@ -7,5 +7,6 @@ project(OpenSkyNet CXX)
 add_subdirectory(openskynet)
 add_subdirectory(cli)
 add_subdirectory(gui)
+add_subdirectory(gui/tests)
 
 
