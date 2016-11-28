@@ -1,29 +1,24 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "progresswindow.h"
-#include "ui_progresswindow.h"
-#include "qdebugstream.h"
-#include <QStandardPaths>
+#include <fstream>
+#include <limits>
+
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <boost/core/null_deleter.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
-#include <fstream>
+
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
 #include <imagery/GdalImage.h>
 
-
-#include <boost/tokenizer.hpp>
-#include <boost/program_options.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <fstream>
-#include <limits>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include "progresswindow.h"
+#include "ui_progresswindow.h"
+#include "qdebugstream.h"
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -32,10 +27,8 @@ using std::string;
 using boost::lexical_cast;
 namespace po = boost::program_options;
 
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow){    
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+{
     ui->setupUi(this);
     setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
 
@@ -48,12 +41,12 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->showMessage(tr("Ready"));
     statusBar()->installEventFilter(this);
 
-    ui->bboxOverrideCheckBox->hide();
     //Set the file browsers' initial location to the user's home directory
     lastAccessedDirectory = QDir::homePath();
 }
 
-MainWindow::~MainWindow(){
+MainWindow::~MainWindow()
+{
     delete ui;
 }
 
@@ -84,7 +77,8 @@ void MainWindow::connectSignalsAndSlots()
     connect(ui->tokenLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_tokenLineEditCursorPositionChanged()));
 }
 
-void MainWindow::setUpLogging(){
+void MainWindow::setUpLogging()
+{
     boost::shared_ptr<std::ostream> stringStream(&buffer_, boost::null_deleter());
     stringSink_ = dg::deepcore::log::addStreamSink(stringStream, dg::deepcore::level_t::info);
 
@@ -109,7 +103,8 @@ void MainWindow::initValidation()
     ui->bboxNorthLineEdit->setValidator(doubleValidator.get());
 }
 
-void MainWindow::on_loadConfigPushButton_clicked(){
+void MainWindow::on_loadConfigPushButton_clicked()
+{
     QString path = QFileDialog::getOpenFileName(this,
                                                 tr("Select Config File"),
                                                 lastAccessedDirectory,
@@ -120,7 +115,7 @@ void MainWindow::on_loadConfigPushButton_clicked(){
     lastAccessedDirectory = "";
 
     //the user clicked cancel in the file dialog
-    if (path.isEmpty()){
+    if(path.isEmpty()) {
         return;
     }
 
@@ -136,8 +131,7 @@ void MainWindow::on_saveConfigPushButton_clicked()
     bool valid = validateUI(errorBuffer);
     ui->runPushButton->setEnabled(true);
 
-    if(!valid){
-
+    if(!valid) {
         //have to have this here to prevent run button from being disabled by validation checks
         //this is only here because the run button state is mixed into the validation logic
         ui->runPushButton->setEnabled(true);
@@ -150,156 +144,30 @@ void MainWindow::on_saveConfigPushButton_clicked()
         return;
     }
 
-
-
-    std::string filepath = QFileDialog::getSaveFileName(this,
-                                                tr("Save to Config File"),
-                                                lastAccessedDirectory,
-                                                tr("Config file (.cfg)")).toStdString();
-    std::stringstream configContents;
-    std::ofstream configFile;
-    configFile.open(filepath + ".cfg");
-
-    //Mode
-    std::string key;
-    QString index = ui->modeComboBox->currentText();
-    if (index == "Detect"){
-        key = "detect";
-    }
-    else {
-        key = "landcover";
-    }
-    configContents << "action=" << key << "\n";
-
-    //Image Source
-    index = ui->imageSourceComboBox->currentText();
-    if (index == "Local Image File"){
-        configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
-    }
-    else if (index == "DGCS"){
-        configContents << "service=dgcs\n";
-    }
-    else if (index == "EVWHS"){
-        configContents << "service=evwhs\n";
-    }
-    else if (index == "MapsAPI"){
-        configContents << "service=maps-api\n";
-    }
-
-    //Credentials
-    if (ui->usernameLineEdit->isEnabled() && ui->passwordLineEdit->isEnabled()){
-        configContents << "credentials=" << ui->usernameLineEdit->text().toStdString() << ":" << ui->passwordLineEdit->text().toStdString() << "\n";
-    }
-
-    //zoom level
-    if (ui->zoomSpinBox->isEnabled()){
-        configContents << "zoom=" << ui->zoomSpinBox->value() << "\n";
-    }
-
-    //token
-    if (ui->tokenLineEdit->isEnabled()){
-        configContents << "token=" << ui->tokenLineEdit->text().toStdString() << "\n";
-    }
-
-    //map id
-    if (ui->mapIdLineEdit->isEnabled()){
-        configContents << "map-id=" << ui->mapIdLineEdit->text().toStdString() << "\n";
-    }
-
-    //model file
-    configContents << "model=" << ui->modelFileLineEdit->text().toStdString() << "\n";
-
-    //confidence
-    configContents << "confidence=" << ui->confidenceSpinBox->value() << "\n";
-
-    //step size
-    configContents << "step-size=" << ui->stepSizeSpinBox->value() << "\n";
-
-    //pyramid
-    if (ui->pyramidCheckBox->isChecked()){
-        configContents << "pyramid=true\n";
-    }
-
-    //nms
-    if (ui->nmsCheckBox->isChecked()){
-        configContents << "nms=" << ui->nmsSpinBox->value() << "\n";
-    }
-
-    //bounding box
-    configContents << "bbox=" << ui->bboxWestLineEdit->text().toStdString() << " " <<
-                                 ui->bboxSouthLineEdit->text().toStdString() << " " <<
-                                 ui->bboxEastLineEdit->text().toStdString() << " " <<
-                                 ui->bboxNorthLineEdit->text().toStdString() << "\n";
-
-    //output format
-    configContents << "format=";
-    index = ui->outputFormatComboBox->currentText();
-    if (index == "Shapefile"){
-        configContents << "shp\n";
-    }
-    else if (index == "GeoJSON"){
-        configContents << "geojson\n";
-    }
-    else if (index == "KML"){
-        configContents << "kml\n";
-    }
-
-    //output filename
-    configContents << "output-name=" << ui->outputFilenameLineEdit->text().toStdString() << "\n";
-
-    //output location
-    configContents << "output-location=" << ui->outputLocationLineEdit->text().toStdString() << "\n";
-
-    //output layer
-    configContents << "output-layer=" << ui->outputLayerLineEdit->text().toStdString() << "\n";
-
-    //geometry type
-    configContents << "type=";
-    index = ui->geometryTypeComboBox->currentText();
-    if (index == "Polygon"){
-        configContents << "point\n";
-    }
-    else if (index == "Point"){
-        configContents << "point\n";
-    }
-
-    //producer infor
-    if (ui->producerInfoCheckBox->isChecked()){
-        configContents << "producer-info=true\n";
-    }
-
-    //cpu
-    if (ui->processingModeComboBox->currentText() == "CPU"){
-        configContents << "cpu=true\n";
-    }
-
-    //max utilization
-    configContents << "max-utilization=" << ui->maxUtilizationSpinBox->value() << "\n";
-
-    //window size
-    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << " " << ui->windowSizeSpinBox2->value() << "\n";
-
-    //write the stringstream contents to the file
-    configFile << configContents.rdbuf();
-
-    configFile.close();
+    QString filepath = QFileDialog::getSaveFileName(this,
+                                                    tr("Save to Config File"),
+                                                    lastAccessedDirectory,
+                                                    tr("Config file (.cfg)"));
+    exportConfig(filepath);
 }
 
-void MainWindow::on_localImageFileBrowseButton_clicked(){
+void MainWindow::on_localImageFileBrowseButton_clicked()
+{
     QString path = QFileDialog::getOpenFileName(this,
                                                 tr("Select Image File"),
                                                 lastAccessedDirectory,
                                                 tr("Image files (*.tif *.jpg *.JPEG *.png *.bmp);;All files (*.*)"));
     lastAccessedDirectory = "";
 
-    if(!path.isEmpty() && !path.isNull()){
+    if(!path.isEmpty() && !path.isNull()) {
         ui->localImageFileLineEdit->setText(path);
         //manually invoke the slot to check the new filepath
         on_imagepathLineEditLostFocus();
     }
 }
 
-void MainWindow::on_modelFileBrowseButton_clicked(){
+void MainWindow::on_modelFileBrowseButton_clicked()
+{
     QString path = QFileDialog::getOpenFileName(this,
                                                 tr("Select Model File"),
                                                 lastAccessedDirectory,
@@ -309,17 +177,18 @@ void MainWindow::on_modelFileBrowseButton_clicked(){
     lastAccessedDirectory = "";
 
     //The directory path string will be empty if the user presses cancel in the QFileDialog
-    if(!path.isEmpty() && !path.isNull()){
+    if(!path.isEmpty() && !path.isNull()) {
         ui->modelFileLineEdit->setText(path);
         //manually invoke the slot to check the new filepath
         on_modelpathLineEditLostFocus();
     }
 }
 
-void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source){
-    if(source != "Local Image File"){
+void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &source)
+{
+    if(source != "Local Image File") {
         //bbox
-        //ui->bboxOverrideCheckBox->hide();
+        ui->bboxOverrideCheckBox->hide();
         ui->bboxNorthLineEdit->setEnabled(true);
         ui->bboxSouthLineEdit->setEnabled(true);
         ui->bboxEastLineEdit->setEnabled(true);
@@ -339,7 +208,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->tokenLineEdit->setEnabled(true);
 
         //map id
-        if(source == "MapsAPI"){
+        if(source == "MapsAPI") {
         	ui->mapIdLabel->setEnabled(true);
         	ui->mapIdLineEdit->setEnabled(true);
 
@@ -349,12 +218,12 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         	ui->passwordLabel->setEnabled(false);
         	ui->passwordLineEdit->setEnabled(false);
 
-        	if(ui->zoomSpinBox->value() > 20){
+            if(ui->zoomSpinBox->value() > 20) {
         	    ui->zoomSpinBox->setValue(20);
             }
             ui->zoomSpinBox->setMaximum(20);
         }
-        else{
+        else {
         	ui->mapIdLabel->setEnabled(false);
         	ui->mapIdLineEdit->setEnabled(false);
 
@@ -374,9 +243,9 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->downloadsLabel->setEnabled(true);
         ui->downloadsSpinBox->setEnabled(true);
     }
-    else{
+    else {
     	//bbox
-        //ui->bboxOverrideCheckBox->show();
+        ui->bboxOverrideCheckBox->show();
         bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
         ui->bboxNorthLineEdit->setEnabled(bboxOverridden);
         ui->bboxSouthLineEdit->setEnabled(bboxOverridden);
@@ -415,30 +284,38 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
     }
 }
 
-void MainWindow::on_viewMetadataButton_clicked(){
+void MainWindow::on_viewMetadataButton_clicked()
+{
     QMessageBox::information(
         this,
         tr("Metadata"),
         tr("Viewing Metadata is currently not supported."));
 }
 
-void MainWindow::on_nmsCheckBox_toggled(bool checked){
-    if(checked){
+void MainWindow::on_nmsCheckBox_toggled(bool checked)
+{
+    if(checked) {
         ui->nmsSpinBox->setEnabled(true);
     }
-    else{
+    else {
         ui->nmsSpinBox->setEnabled(false);
     }
 }
 
-void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked){
-    if(checked){
+void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked)
+{
+    if(checked) {
         ui->bboxNorthLineEdit->setEnabled(true);
         ui->bboxSouthLineEdit->setEnabled(true);
         ui->bboxEastLineEdit->setEnabled(true);
         ui->bboxWestLineEdit->setEnabled(true);
     }
-    else{
+    else {
+        //set bbox values back to the local image's bounding box
+        if(hasValidLocalImagePath) {
+            on_imagepathLineEditLostFocus();
+        }
+
         ui->bboxNorthLineEdit->setEnabled(false);
         ui->bboxSouthLineEdit->setEnabled(false);
         ui->bboxEastLineEdit->setEnabled(false);
@@ -446,29 +323,31 @@ void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked){
     }
 }
 
-void MainWindow::on_outputLocationBrowseButton_clicked(){
+void MainWindow::on_outputLocationBrowseButton_clicked()
+{
     QString path = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
-    if(!path.isEmpty() && !path.isNull()){
+    if(!path.isEmpty() && !path.isNull()) {
         ui->outputLocationLineEdit->setText(path);
         //manually invoke the slot to check the new directory path
         on_outputLocationLineEditLostFocus();
     }
 }
 
-void MainWindow::on_helpPushButton_clicked(){
+void MainWindow::on_helpPushButton_clicked()
+{
     QMessageBox::information(
         this,
         tr("Help"),
         tr("Help is currently not supported."));
 }
 
-void MainWindow::on_runPushButton_clicked(){
-
+void MainWindow::on_runPushButton_clicked()
+{
     QString errorBuffer;
     ui->runPushButton->setEnabled(false);
     bool validJob = validateUI(errorBuffer);
 
-    if(!validJob){
+    if(!validJob) {
         ui->runPushButton->setEnabled(true);
         QMessageBox::critical(
             this,
@@ -477,37 +356,36 @@ void MainWindow::on_runPushButton_clicked(){
         return;
     }
 
-
     //Parse and set the Action
     action = ui->modeComboBox->currentText().toStdString();
-    if(action == "Detect"){
+    if(action == "Detect") {
         osnArgs.action = dg::openskynet::Action::DETECT;
     }
-    else if(action == "Landcover"){
+    else if(action == "Landcover") {
         osnArgs.action = dg::openskynet::Action::LANDCOVER;
     }
-    else{
+    else {
         osnArgs.action = dg::openskynet::Action::UNKNOWN;
     }
 
     //Parse and set the image source
     imageSource = ui->imageSourceComboBox->currentText().toStdString();
-    if(imageSource == "Local Image File"){
+    if(imageSource == "Local Image File") {
         osnArgs.source = dg::openskynet::Source::LOCAL;
     }
-    else if(imageSource == "DGCS"){
+    else if(imageSource == "DGCS") {
         osnArgs.source = dg::openskynet::Source::DGCS;
         hasValidLocalImagePath = true;
     }
-    else if(imageSource == "EVWHS"){
+    else if(imageSource == "EVWHS") {
         osnArgs.source = dg::openskynet::Source::EVWHS;
         hasValidLocalImagePath = true;
     }
-    else if(imageSource == "MapsAPI"){
+    else if(imageSource == "MapsAPI") {
         osnArgs.source = dg::openskynet::Source::MAPS_API;
         hasValidLocalImagePath = true;
     }
-    else{
+    else {
         osnArgs.source = dg::openskynet::Source::UNKNOWN;
     }
 
@@ -526,10 +404,10 @@ void MainWindow::on_runPushButton_clicked(){
     osnArgs.maxConnections = ui->downloadsSpinBox->value();
 
     //Parse and set the map id
-    if(ui->mapIdLineEdit->text() != ""){
+    if(ui->mapIdLineEdit->text() != "") {
         osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
     }
-    else{
+    else {
         osnArgs.mapId = MAPSAPI_MAPID;
     }
 
@@ -551,21 +429,21 @@ void MainWindow::on_runPushButton_clicked(){
 
     //Parse and set the pyramid value
     pyramid = ui->pyramidCheckBox->isChecked();
-    if(pyramid == true){
+    if(pyramid == true) {
         osnArgs.pyramid = true;
     }
-    else{
+    else {
         osnArgs.pyramid = false;
     }
 
     //Parse and set NMS
     NMS = ui->nmsCheckBox->isChecked();
-    if(NMS == true){
+    if(NMS == true) {
         osnArgs.nms = true;
         nmsThreshold = ui->nmsSpinBox->value();
         osnArgs.overlap = (float)nmsThreshold;
     }
-    else{
+    else {
         osnArgs.nms = false;
     }
 
@@ -577,7 +455,7 @@ void MainWindow::on_runPushButton_clicked(){
 
     osnArgs.bbox = NULL;
 
-    if(imageSource != "Local Image File"){
+    if(imageSource != "Local Image File") {
         osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
                                                       cv::Point2d(stod(bboxEast), stod(bboxNorth)));
     }
@@ -590,42 +468,42 @@ void MainWindow::on_runPushButton_clicked(){
 
     //Output format parsing and setting
     outputFormat = ui->outputFormatComboBox->currentText().toStdString();
-    if(outputFormat == "Shapefile"){
+    if(outputFormat == "Shapefile") {
         osnArgs.outputFormat = "shp";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }
-    else if(outputFormat == "Elastic Search"){
+    else if(outputFormat == "Elastic Search") {
         osnArgs.outputFormat = "elasticsearch";
         osnArgs.outputPath = outputLocation;
     }
-    else if(outputFormat == "GeoJSON"){
+    else if(outputFormat == "GeoJSON") {
         osnArgs.outputFormat = "geojson";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }
-    else if(outputFormat == "KML"){
+    else if(outputFormat == "KML") {
         osnArgs.outputFormat = "kml";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }
-    else if(outputFormat == "PostGIS"){
+    else if(outputFormat == "PostGIS") {
         osnArgs.outputFormat = "postgis";
         osnArgs.outputPath = outputLocation;
     }
 
     //Geometry type parsing and setting
     geometryType = ui->geometryTypeComboBox->currentText().toStdString();
-    if(geometryType == "Polygon"){
+    if(geometryType == "Polygon") {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POLYGON;
     }
-    else{
+    else {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POINT;
     }
 
@@ -635,19 +513,19 @@ void MainWindow::on_runPushButton_clicked(){
 
     //producer info parsing
     producerInfo = ui->producerInfoCheckBox->isChecked();
-    if(producerInfo == true){
+    if(producerInfo == true) {
         osnArgs.producerInfo = true;
     }
-    else{
+    else {
         osnArgs.producerInfo = false;
     }
 
     //Processing mode parsing and setting
     processingMode = ui->processingModeComboBox->currentText().toStdString();
-    if(processingMode == "GPU"){
+    if(processingMode == "GPU") {
         osnArgs.useCpu = false;
     }
-    else{
+    else {
         osnArgs.useCpu = true;
     }
 
@@ -707,7 +585,8 @@ void MainWindow::on_runPushButton_clicked(){
     thread.start();
 }
 
-void MainWindow::enableRunButton(){
+void MainWindow::enableRunButton()
+{
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgressText("OpenSpaceNet is complete.");
     progressWindow.getUI().progressDisplay->append("Complete.");
@@ -715,27 +594,30 @@ void MainWindow::enableRunButton(){
     statusBar()->showMessage("Complete. " + featuresDetected);
 }
 
-void MainWindow::updateProgressBox(QString updateText){
+void MainWindow::updateProgressBox(QString updateText)
+{
     std::clog << updateText.toStdString() << std::endl;
-    if(boost::contains(updateText.toStdString(), "features detected.")){
+    if(boost::contains(updateText.toStdString(), "features detected.")) {
         featuresDetected = updateText;
     }
-    if(boost::contains(updateText.toStdString(), "0%")){
+    if(boost::contains(updateText.toStdString(), "0%")) {
         whichProgress++;
         progressCount = 0;
     }
-    if(boost::contains(updateText.toStdString(), "*")){
+    if(boost::contains(updateText.toStdString(), "*")) {
         progressCount += 2;
         if(whichProgress == 1) {
             progressWindow.updateProgressBar(progressCount);
             statusProgressBar->setValue(progressCount);
         }
-        else if(whichProgress == 2){
+        else if(whichProgress == 2) {
             progressWindow.updateProgressBarDetect(progressCount);
             statusProgressBar->setValue(progressCount);
         }
     }
-    else if(!boost::contains(updateText.toStdString(), "0%") && !boost::contains(updateText.toStdString(), "|----") && !boost::contains(updateText.toStdString(), "found star")) {
+    else if(!boost::contains(updateText.toStdString(), "0%") &&
+            !boost::contains(updateText.toStdString(), "|----") &&
+            !boost::contains(updateText.toStdString(), "found star")) {
         progressWindow.getUI().progressDisplay->append(updateText);
         if(!boost::contains(updateText.toStdString(), "\n")) {
             statusBar()->showMessage(updateText);
@@ -743,15 +625,15 @@ void MainWindow::updateProgressBox(QString updateText){
     }
 }
 
-void MainWindow::on_modelpathLineEditLostFocus(){
+void MainWindow::on_modelpathLineEditLostFocus()
+{
     std::string modelpath = ui->modelFileLineEdit->text().toStdString();
     bool exists = boost::filesystem::exists(modelpath);
     bool isDirectory = boost::filesystem::is_directory(modelpath);
 
     //For blank input (user erased all text, or hasn't entered any yet), set style to default,
     //but don't register the empty string as valid input
-    if (modelpath == "")
-    {
+    if(modelpath == "") {
         ui->modelFileLineEdit->setStyleSheet("color: default");
         hasValidModel = false;
     }
@@ -769,7 +651,8 @@ void MainWindow::on_modelpathLineEditLostFocus(){
     }
 }
 
-void MainWindow::on_imagepathLineEditLostFocus(){
+void MainWindow::on_imagepathLineEditLostFocus()
+{
     std::string imagepath = ui->localImageFileLineEdit->text().toStdString();
     bool exists = boost::filesystem::exists(imagepath);
     bool isDirectory = boost::filesystem::is_directory(imagepath);
@@ -812,7 +695,8 @@ void MainWindow::on_imagepathLineEditLostFocus(){
                 hasValidBboxSize = true;
             }
 
-        }catch(dg::deepcore::Error e) {
+        }
+        catch(dg::deepcore::Error e) {
             std::cerr << "Image \'" << imagepath << "\' is not geo-registered" << std::endl;
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
@@ -825,21 +709,19 @@ void MainWindow::on_imagepathLineEditLostFocus(){
     }
 }
 
-void MainWindow::on_outputLocationLineEditLostFocus(){
+void MainWindow::on_outputLocationLineEditLostFocus()
+{
     std::string outputPath = ui->outputLocationLineEdit->text().toStdString();
     bool exists = boost::filesystem::exists(outputPath);
     bool isDirectory = boost::filesystem::is_directory(outputPath);
 
-    //For blank input (user erased all text, or hasn't entered any yet), set style to default,
-    //but don't register the empty string as valid input
-    if(outputPath == "")
-    {
+    if(outputPath == "") {
         ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                   "border: 1px solid red;");
         hasValidOutputPath = false;
     }
     //Specified file either doesn't exist or isn't a directory
-    else if(!exists || !isDirectory){
+    else if(!exists || !isDirectory) {
         std::cerr << "Error: specified output directory does not exist." << std::endl;
         ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                   "border: 1px solid red;");
@@ -851,11 +733,13 @@ void MainWindow::on_outputLocationLineEditLostFocus(){
     }
 }
 
-void MainWindow::on_localImagePathLineEditCursorPositionChanged(){
+void MainWindow::on_localImagePathLineEditCursorPositionChanged()
+{
     ui->localImageFileLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_modelpathLineEditCursorPositionChanged(){
+void MainWindow::on_modelpathLineEditCursorPositionChanged()
+{
     ui->modelFileLineEdit->setStyleSheet("color: default");
 }
 
@@ -864,38 +748,43 @@ void MainWindow::on_outputFilenameLineEditCursorPositionChanged()
     ui->outputFilenameLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_outputPathLineEditCursorPositionChanged(){
+void MainWindow::on_outputPathLineEditCursorPositionChanged()
+{
     ui->outputLocationLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_mapIdLineEditCursorPositionChanged(){
+void MainWindow::on_mapIdLineEditCursorPositionChanged()
+{
     ui->mapIdLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_tokenLineEditCursorPositionChanged(){
+void MainWindow::on_tokenLineEditCursorPositionChanged()
+{
     ui->tokenLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_passwordLineEditCursorPositionChanged(){
+void MainWindow::on_passwordLineEditCursorPositionChanged()
+{
     ui->passwordLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::on_usernameLineEditCursorPositionChanged(){
+void MainWindow::on_usernameLineEditCursorPositionChanged()
+{
     ui->usernameLineEdit->setStyleSheet("color: default");
 }
 
-void MainWindow::resetProgressWindow(){
+void MainWindow::resetProgressWindow()
+{
     progressCount = 0;
     whichProgress = 0;
     progressWindow.updateProgressText("Running OpenSpaceNet...");
     progressWindow.getUI().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
     progressWindow.updateProgressBarDetect(0);
-
-
 }
 
-void MainWindow::cancelThread() {
+void MainWindow::cancelThread()
+{
     ui->runPushButton->setEnabled(true);
     progressWindow.close();
     qout.eraseString();
@@ -919,8 +808,8 @@ void MainWindow::on_closePushButton_clicked()
     exit(1);
 }
 
-void MainWindow::closeEvent (QCloseEvent *event) {
-
+void MainWindow::closeEvent (QCloseEvent *event)
+{
     if(!thread.isFinished()) {
         thread.quit();
     }
@@ -933,8 +822,7 @@ void MainWindow::closeEvent (QCloseEvent *event) {
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress)
-    {
+    if(event->type() == QEvent::MouseButtonPress) {
         progressWindow.show();
     }
     return false;
@@ -951,16 +839,16 @@ void MainWindow::importConfig(QString configPath)
             ("service", po::value<std::string>())
             ("token", po::value<std::string>())
             ("credentials", po::value<std::string>())
-            ("zoom", po::value<int>()->default_value(osnArgs.zoom))
-            ("num-downloads", po::value<int>()->default_value(osnArgs.maxConnections))
-            ("mapId", po::value<std::string>()->default_value(osnArgs.mapId))
+            ("zoom", po::value<int>())
+            ("num-downloads", po::value<int>())
+            ("mapId", po::value<std::string>())
 
             ("model", po::value<std::string>())
 
-            ("confidence", po::value<float>()->default_value(osnArgs.confidence))
+            ("confidence", po::value<float>())
             ("step-size", po::value<float>())
             ("pyramid", po::value<bool>())
-            ("nms", po::value<float>()->default_value(osnArgs.overlap))
+            ("nms", po::value<float>())
 
             ("bbox", po::value<std::string>())
 
@@ -980,22 +868,21 @@ void MainWindow::importConfig(QString configPath)
     po::notify(config_vm);
 
     //action
-    if (config_vm.find("action") != end(config_vm)){
+    if(config_vm.find("action") != end(config_vm)) {
         std::string action = config_vm["action"].as<std::string>();
         int actionIndex;
-        if (action == "detect"){
+        if(action == "detect"){
             actionIndex = ui->modeComboBox->findText("Detect");
             ui->modeComboBox->setCurrentIndex(actionIndex);
         }
-        else if (action == "landcover"){
+        else if(action == "landcover") {
             actionIndex = ui->imageSourceComboBox->findText("Landcover");
             ui->modeComboBox->setCurrentIndex(actionIndex);
         }
     }
 
     //image
-    if (config_vm.find("image") != end(config_vm)){
-
+    if(config_vm.find("image") != end(config_vm)) {
         int sourceIndex = ui->imageSourceComboBox->findText("Local Image File");
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
 
@@ -1006,18 +893,18 @@ void MainWindow::importConfig(QString configPath)
 
     //service
     std::string service;
-    if (config_vm.find("service") != end(config_vm)){
+    if(config_vm.find("service") != end(config_vm)) {
         int sourceIndex;
         service = config_vm["service"].as<std::string>();
-        if (service == "dgcs") {
+        if(service == "dgcs") {
             sourceIndex = ui->imageSourceComboBox->findText("DGCS");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
         }
-        else if (service == "evwhs"){
+        else if(service == "evwhs") {
             sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
         }
-        else if (service == "maps-api"){
+        else if(service == "maps-api") {
             sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
         }
@@ -1026,16 +913,15 @@ void MainWindow::importConfig(QString configPath)
 
     //token
     QString token;
-    if (config_vm.find("token") != end(config_vm)){
+    if(config_vm.find("token") != end(config_vm)) {
         token = QString::fromStdString(config_vm["token"].as<std::string>());
         ui->tokenLineEdit->setText(token);
     }
 
     //credentials
     //only check for credentials if the service key is present in the config file, and doesn't have maps-api as its value
-    if (config_vm.find("service") != end(config_vm) && service != "maps-api"){
-        if (config_vm.find("credentials") != end(config_vm))
-        {
+    if(config_vm.find("service") != end(config_vm) && service != "maps-api") {
+        if(config_vm.find("credentials") != end(config_vm)) {
             std::string storedCredentials = config_vm["credentials"].as<std::string>();
             std::vector<std::string> credentials;
             boost::split(credentials, storedCredentials, boost::is_any_of(":"));
@@ -1045,54 +931,54 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //zoom
-    if (config_vm.find("zoom") != end(config_vm)){
+    if(config_vm.find("zoom") != end(config_vm)) {
         ui->zoomSpinBox->setValue(config_vm["zoom"].as<int>());
     }
 
     //downloads
-    if (config_vm.find("num-downloads") != end(config_vm)){
+    if(config_vm.find("num-downloads") != end(config_vm)) {
         ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
     }
 
     //map id
-    if (service == "maps-api"){
+    if(service == "maps-api") {
         //don't show the default map id in the UI
-        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID){
+        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID) {
             ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
         }
     }
 
     //model
-    if (config_vm.find("model") != end(config_vm)){
+    if(config_vm.find("model") != end(config_vm)) {
         ui->modelFileLineEdit->setText(QString::fromStdString(config_vm["model"].as<std::string>()));
         //run validation to ensure that the model file is still there
         on_modelpathLineEditLostFocus();
     }
 
     //confidence
-    if (config_vm.find("confidence") != end(config_vm)){
+    if(config_vm.find("confidence") != end(config_vm)) {
         ui->confidenceSpinBox->setValue(config_vm["confidence"].as<float>());
     }
 
     //step size
-    if (config_vm.find("step-size") != end(config_vm)){
+    if(config_vm.find("step-size") != end(config_vm)) {
         ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
     }
 
     //pyramid
-    if (config_vm.find("pyramid") != end(config_vm)){
+    if(config_vm.find("pyramid") != end(config_vm)) {
         ui->pyramidCheckBox->setChecked(config_vm["pyramid"].as<bool>());
     }
 
     //non-maximum suppression
-    if (config_vm.find("nms") != end(config_vm)){
+    if(config_vm.find("nms") != end(config_vm)) {
         float nmsValue = config_vm["nms"].as<float>();
         ui->nmsCheckBox->setChecked(nmsValue > 0);
         ui->nmsSpinBox->setValue(nmsValue);
     }
 
     //bounding box
-    if (config_vm.find("bbox") != end(config_vm)){
+    if(config_vm.find("bbox") != end(config_vm)) {
         std::string storedCoords = config_vm["bbox"].as<std::string>();
         std::vector<std::string> bbox;
         boost::split(bbox, storedCoords, boost::is_any_of(" "));
@@ -1103,23 +989,23 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output format
-    if (config_vm.find("format") != end(config_vm)){
+    if(config_vm.find("format") != end(config_vm)) {
         int formatIndex;
         std::string format = config_vm["format"].as<std::string>();
         if (format == "shp") {
             formatIndex = ui->outputFormatComboBox->findText("Shapefile");
         }
-        else if (format == "geojson"){
+        else if(format == "geojson") {
             formatIndex = ui->outputFormatComboBox->findText("GeoJSON");
         }
-        else if (format == "kml"){
+        else if(format == "kml") {
             formatIndex = ui->outputFormatComboBox->findText("KML");
         }
         ui->outputFormatComboBox->setCurrentIndex(formatIndex);
     }
 
     //output type
-    if (config_vm.find("type") != end(config_vm)){
+    if(config_vm.find("type") != end(config_vm)) {
         int typeIndex;
         std::string type = config_vm["type"].as<std::string>();
         if (type == "polygon") {
@@ -1132,13 +1018,13 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output name
-    if (config_vm.find("output-name") != end(config_vm)){
+    if(config_vm.find("output-name") != end(config_vm)) {
         std::string outputName = config_vm["output-name"].as<std::string>();
         ui->outputFilenameLineEdit->setText(QString::fromStdString(outputName));
     }
 
     //output location
-    if (config_vm.find("output-location") != end(config_vm)){
+    if(config_vm.find("output-location") != end(config_vm)) {
         std::string outputLocation = config_vm["output-location"].as<std::string>();
         ui->outputLocationLineEdit->setText(QString::fromStdString(outputLocation));
         //ensure that the path from the config file is still valid
@@ -1146,29 +1032,29 @@ void MainWindow::importConfig(QString configPath)
     }
 
     //output layer
-    if (config_vm.find("output-layer") != end(config_vm)){
+    if(config_vm.find("output-layer") != end(config_vm)) {
         std::string outputLayer = config_vm["output-layer"].as<std::string>();
         ui->outputLayerLineEdit->setText(QString::fromStdString(outputLayer));
     }
 
     //producer info
-    if (config_vm.find("producer-info") != end(config_vm)){
+    if(config_vm.find("producer-info") != end(config_vm)) {
         ui->producerInfoCheckBox->setChecked(config_vm["producer-info"].as<bool>());
     }
 
     //cpu
-    if (config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == true){
+    if(config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == true) {
         int cpuIndex = ui->processingModeComboBox->findText("CPU");
         ui->processingModeComboBox->setCurrentIndex(cpuIndex);
     }
 
     //max utilization
-    if (config_vm.find("max-utilization") != end(config_vm)){
+    if(config_vm.find("max-utilization") != end(config_vm)) {
         ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
     }
 
     //window size
-    if (config_vm.find("window-size") != end(config_vm)){
+    if(config_vm.find("window-size") != end(config_vm)) {
         std::string windowSize = config_vm["window-size"].as<std::string>();
         std::vector<std::string> dimensions;
 
@@ -1183,22 +1069,21 @@ void MainWindow::importConfig(QString configPath)
 
 bool MainWindow::validateUI(QString &error)
 {
-    //Validation checks
+    //assume job is valid until a validation check fails
     bool validJob = true;
 
     hasValidOutputFilename = ui->outputFilenameLineEdit->text().trimmed() != "";
 
     //Local image specific validation
-    if(ui->imageSourceComboBox->currentText() == "Local Image File"){
-        if (!hasValidLocalImagePath){
+    if(ui->imageSourceComboBox->currentText() == "Local Image File") {
+        if(!hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
             validJob = false;
         }
-        //The filepath is valid
         else {
-            //Only geo-registered images can be processed
+            //The 'hasGeoRegLocalImage' flag is automatically updated every time the user selects a new image
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
                 error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
@@ -1206,16 +1091,77 @@ bool MainWindow::validateUI(QString &error)
                                                           "border: 1px solid red;");
                 validJob = false;
             }
+
+
+            //only validate the bbox if the override checkbox is checked
+            if(ui->bboxOverrideCheckBox->isChecked()) {
+                bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
+                bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
+                bboxEast = ui->bboxEastLineEdit->text().toStdString();
+                bboxWest = ui->bboxWestLineEdit->text().toStdString();
+                std::unique_ptr<cv::Rect2d> bbox = nullptr;
+                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+                unique_ptr<dg::deepcore::imagery::GdalImage> image;
+                image = boost::make_unique<dg::deepcore::imagery::GdalImage>(ui->localImageFileLineEdit->text().toStdString());
+                auto projBbox = image->spatialReference().fromLatLon(*bbox);
+                auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
+                auto intersect = projBbox & imageBbox;
+                try {
+                    DG_CHECK(!dg::deepcore::almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+                    hasValidBbox = true;
+                }
+                catch(dg::deepcore::Error e) {
+                    std::clog << e.what() << std::endl;
+                    error += "Input image and the provided bounding box do not intersect\n\n";
+                    validJob = false;
+                }
+
+                if(hasValidBbox && !dg::deepcore::almostEq(intersect, imageBbox)) {
+                    auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
+                    image->setBbox(pixelBbox);
+                }
+
+                if(hasValidBbox && !dg::deepcore::almostEq(imageBbox, projBbox)) {
+                    auto llIntersect = image->spatialReference().toLatLon(intersect);
+                    std::cout << "Bounding box adjusted" << std::endl;
+                }
+            }
         }
 
     }
 
+    //validate that bbox coordinates are in valid range
+    if(ui->bboxOverrideCheckBox->isChecked() || ui->imageSourceComboBox->currentText() != "Local Image File") {
+        double north = ui->bboxNorthLineEdit->text().toDouble();
+        double south = ui->bboxSouthLineEdit->text().toDouble();
+        double east = ui->bboxEastLineEdit->text().toDouble();
+        double west = ui->bboxWestLineEdit->text().toDouble();
+
+        if(abs(north) >= 90.0) {
+            error += "North bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            validJob = false;
+        }
+        if(abs(south) >= 90.0) {
+            error += "South bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            validJob = false;
+        }
+        if(abs(east) >= 180.0) {
+            error += "East bounding box coordinate is invalid: must be in range (-180,180)\n\n";
+            validJob = false;
+        }
+        if(abs(west) >= 180.0) {
+            error += "West bounding box coordinate is invalid: must be in range (-180,180(])\n\n";
+            validJob = false;
+        }
+    }
+
     //Image source agnostic validation
-    if(!hasValidOutputFilename || !hasValidOutputPath || !hasValidModel){
+    if(!hasValidOutputFilename || !hasValidOutputPath || !hasValidModel) {
         validJob = false;
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
-        if(!hasValidModel){
+        if(!hasValidModel) {
             error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
             ui->modelFileLineEdit->setStyleSheet("color: red;"
                                                  "border: 1px solid red;");
@@ -1235,21 +1181,20 @@ bool MainWindow::validateUI(QString &error)
 
     statusBar()->showMessage("Checking credentials...");
 
-    if(ui->imageSourceComboBox->currentText() != "Local Image File")
-    {
+    if(ui->imageSourceComboBox->currentText() != "Local Image File") {
         QString webservice = ui->imageSourceComboBox->currentText();
         bool wmts = true;
         hasValidBboxSize = true;
         std::string token = ui->tokenLineEdit->text().toStdString();
         std::string credentials = ui->usernameLineEdit->text().toStdString() + ":" + ui->passwordLineEdit->text().toStdString();
         std::string mapId = ui->mapIdLineEdit->text().toStdString();
-        if(webservice == "DGCS"){
+        if(webservice == "DGCS") {
             validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(token, credentials);
         }
-        else if(webservice == "EVWHS"){
+        else if(webservice == "EVWHS") {
             validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(token, credentials);
         }
-        else if(webservice == "MapsAPI"){
+        else if(webservice == "MapsAPI") {
             validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(mapId, token);
             wmts = false;
         }
@@ -1262,13 +1207,13 @@ bool MainWindow::validateUI(QString &error)
                 validationClient->setLayer("DigitalGlobe:ImageryTileService");
                 validationClient->setTileMatrixSet("EPSG:3857");
                 validationClient->setTileMatrixId((format("EPSG:3857:%1d") % ui->zoomSpinBox->value()).str());
-            } else {
+            }
+            else {
                 validationClient->setTileMatrixId(lexical_cast<string>(ui->zoomSpinBox->value()));
             }
 
             validationClient->setMaxConnections(ui->downloadsSpinBox->value());
             blockSize_ = validationClient->tileMatrix().tileSize;
-
 
             bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
             bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
@@ -1276,44 +1221,36 @@ bool MainWindow::validateUI(QString &error)
             bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
             std::unique_ptr<cv::Rect2d> bbox = nullptr;
-
-            if(imageSource != "Local Image File"){
-                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                              cv::Point2d(stod(bboxEast), stod(bboxNorth)));
-            }
+            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                  cv::Point2d(stod(bboxEast), stod(bboxNorth)));
             auto projBbox = validationClient->spatialReference().fromLatLon(*bbox);
             geoImage.reset(validationClient->imageFromArea(projBbox, ui->modeComboBox->currentText() != "landcover"));
 
             std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
             std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
-
             std::clog << "Total size: " << (uint64_t)geoImage->size().width*geoImage->size().height << std::endl;
 
-            if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()){
-
+            if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()) {
                 std::clog << "Pixel size is too large" << std::endl;
                 hasValidBboxSize = false;
             }
-            else{
+            else {
                 hasValidBboxSize = true;
             }
-
-
         }
-        catch(dg::deepcore::Error e)
-        {
+        catch(dg::deepcore::Error e) {
             std::string serverMessage(e.what());
             std::clog << serverMessage << std::endl;
             //check for invalid token message, first from DGCS, then from MapsAPI
             if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
                 serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
-                serverMessage.find("Not Authorized - No Token") != std::string::npos){
+                serverMessage.find("Not Authorized - No Token") != std::string::npos) {
                 error += "Invalid web service token\n\n";
                 ui->tokenLineEdit->setStyleSheet("color: red;"
                                                  "border: 1px solid red;");
             }
             //check for invalid username/password message
-            else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos){
+            else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos) {
                 error += "Invalid web service username and/or password\n\n";
                 ui->passwordLineEdit->setStyleSheet("color: red;"
                                                     "border: 1px solid red;");
@@ -1321,12 +1258,12 @@ bool MainWindow::validateUI(QString &error)
                                                     "border: 1px solid red;");
             }
             //check for invalid map id
-            else if(serverMessage.find("Not Found") != std::string::npos){
+            else if(serverMessage.find("Not Found") != std::string::npos) {
                  error += "Invalid Map Id\n\n";
                  ui->mapIdLineEdit->setStyleSheet("color: red;"
                                                            "border: 1px solid red;");
             }
-            else{
+            else {
                 error += "Unknown web service authentication error occurred\n\n";
             }
             validJob = false;
@@ -1334,16 +1271,146 @@ bool MainWindow::validateUI(QString &error)
     }
     statusBar()->clearMessage();
 
-
     if(hasValidBboxSize == false){
         if(ui->imageSourceComboBox->currentText() != "Local Image File") {
             error += "The entered bounding box is too large\n\n";
         }
-        else if(ui->imageSourceComboBox->currentText() == "Local Image File" && hasValidLocalImagePath){
+        else if(ui->imageSourceComboBox->currentText() == "Local Image File" && hasValidLocalImagePath) {
             error += "The entered image is too large\n\n";
         }
         validJob = false;
     }
 
     return validJob;
+}
+
+void MainWindow::exportConfig(const QString &filepath)
+{
+    std::stringstream configContents;
+    std::ofstream configFile;
+    configFile.open(filepath.toStdString() + ".cfg");
+
+    //Mode
+    std::string key;
+    QString index = ui->modeComboBox->currentText();
+    if(index == "Detect") {
+        key = "detect";
+    }
+    else {
+        key = "landcover";
+    }
+    configContents << "action=" << key << "\n";
+
+    //Image Source
+    index = ui->imageSourceComboBox->currentText();
+    if(index == "Local Image File") {
+        configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
+    }
+    else if(index == "DGCS") {
+        configContents << "service=dgcs\n";
+    }
+    else if(index == "EVWHS") {
+        configContents << "service=evwhs\n";
+    }
+    else if(index == "MapsAPI") {
+        configContents << "service=maps-api\n";
+    }
+
+    //Credentials
+    if(ui->usernameLineEdit->isEnabled() && ui->passwordLineEdit->isEnabled()) {
+        configContents << "credentials=" << ui->usernameLineEdit->text().toStdString() << ":" << ui->passwordLineEdit->text().toStdString() << "\n";
+    }
+
+    //zoom level
+    if(ui->zoomSpinBox->isEnabled()) {
+        configContents << "zoom=" << ui->zoomSpinBox->value() << "\n";
+    }
+
+    //token
+    if(ui->tokenLineEdit->isEnabled()) {
+        configContents << "token=" << ui->tokenLineEdit->text().toStdString() << "\n";
+    }
+
+    //map id
+    if(ui->mapIdLineEdit->isEnabled()) {
+        configContents << "map-id=" << ui->mapIdLineEdit->text().toStdString() << "\n";
+    }
+
+    //model file
+    configContents << "model=" << ui->modelFileLineEdit->text().toStdString() << "\n";
+
+    //confidence
+    configContents << "confidence=" << ui->confidenceSpinBox->value() << "\n";
+
+    //step size
+    configContents << "step-size=" << ui->stepSizeSpinBox->value() << "\n";
+
+    //pyramid
+    if (ui->pyramidCheckBox->isChecked()) {
+        configContents << "pyramid=true\n";
+    }
+
+    //nms
+    if(ui->nmsCheckBox->isChecked()) {
+        configContents << "nms=" << ui->nmsSpinBox->value() << "\n";
+    }
+
+    //bounding box
+    configContents << "bbox=" << ui->bboxWestLineEdit->text().toStdString() << " " <<
+                                 ui->bboxSouthLineEdit->text().toStdString() << " " <<
+                                 ui->bboxEastLineEdit->text().toStdString() << " " <<
+                                 ui->bboxNorthLineEdit->text().toStdString() << "\n";
+
+    //output format
+    configContents << "format=";
+    index = ui->outputFormatComboBox->currentText();
+    if(index == "Shapefile") {
+        configContents << "shp\n";
+    }
+    else if(index == "GeoJSON") {
+        configContents << "geojson\n";
+    }
+    else if(index == "KML") {
+        configContents << "kml\n";
+    }
+
+    //output filename
+    configContents << "output-name=" << ui->outputFilenameLineEdit->text().toStdString() << "\n";
+
+    //output location
+    configContents << "output-location=" << ui->outputLocationLineEdit->text().toStdString() << "\n";
+
+    //output layer
+    configContents << "output-layer=" << ui->outputLayerLineEdit->text().toStdString() << "\n";
+
+    //geometry type
+    configContents << "type=";
+    index = ui->geometryTypeComboBox->currentText();
+    if(index == "Polygon") {
+        configContents << "point\n";
+    }
+    else if(index == "Point") {
+        configContents << "point\n";
+    }
+
+    //producer infor
+    if(ui->producerInfoCheckBox->isChecked()) {
+        configContents << "producer-info=true\n";
+    }
+
+    //cpu
+    if(ui->processingModeComboBox->currentText() == "CPU") {
+        configContents << "cpu=true\n";
+    }
+
+    //max utilization
+    configContents << "max-utilization=" << ui->maxUtilizationSpinBox->value() << "\n";
+
+    //window size
+    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << " " << ui->windowSizeSpinBox2->value() << "\n";
+
+    //write the stringstream contents to the file
+    configFile << configContents.rdbuf();
+
+    configFile.close();
 }
