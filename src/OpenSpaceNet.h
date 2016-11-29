@@ -63,10 +63,11 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
-    cv::Size blockSize_;
     cv::Point stepSize_;
     cv::Size windowSize_;
     bool concurrent_ = false;
+    cv::Rect bbox_;
+    std::unique_ptr<deepcore::imagery::Transformation> pixelToLL_;
 };
 
 } } // namespace dg { namespace osn {
