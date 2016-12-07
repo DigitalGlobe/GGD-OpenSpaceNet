@@ -465,7 +465,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
-            featureSet_->addFeature(PointFeature(point, fields));
+            featureSet_->addFeature(Feature(new Point(point), fields));
         }
             break;
 
@@ -485,7 +485,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            featureSet_->addFeature(PolygonFeature(llPoints, fields));
+            featureSet_->addFeature(Feature(new Polygon(LinearRing(llPoints)), fields));
         }
             break;
 
