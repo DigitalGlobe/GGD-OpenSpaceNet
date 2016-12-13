@@ -186,7 +186,7 @@ void OpenSpaceNet::initLocalImage()
         image_->pixelToProj().inverse()
     };
 
-    pixelToLL_.reset(llToPixel.inverse());
+    pixelToLL_ = llToPixel.inverse();
 
     if(args_.bbox) {
         auto bbox = llToPixel.transformToInt(*args_.bbox);
@@ -250,9 +250,7 @@ void OpenSpaceNet::initMapServiceImage()
 
     unique_ptr<Transformation> projToPixel(image_->pixelToProj().inverse());
     bbox_ = projToPixel->transformToInt(projBbox);
-
-    TransformationChain llToPixel { llToProj.release(), projToPixel.release() };
-    pixelToLL_.reset(llToPixel.inverse());
+    pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
 
     auto msImage = dynamic_cast<MapServiceImage*>(image_.get());
     msImage->setMaxConnections(args_.maxConnections);
