@@ -67,7 +67,7 @@ private:
     cv::Size windowSize_;
     bool concurrent_ = false;
     cv::Rect bbox_;
-    std::unique_ptr<deepcore::imagery::Transformation> pixelToLL_;
+    std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
 };
 
 } } // namespace dg { namespace osn {
