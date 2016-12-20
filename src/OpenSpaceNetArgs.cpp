@@ -33,7 +33,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
 #include <fstream>
-#include <imagery/cv_program_options.hpp>
+#include <geometry/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
 #include <utility/program_options.hpp>

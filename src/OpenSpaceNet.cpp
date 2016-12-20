@@ -38,13 +38,13 @@
 #include <classification/FilterLabels.h>
 #include <deque>
 #include <future>
-#include <imagery/AffineTransformation.h>
-#include <imagery/CvToLog.h>
+#include <geometry/AffineTransformation.h>
+#include <geometry/CvToLog.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <imagery/TransformationChain.h>
+#include <geometry/TransformationChain.h>
 #include <mutex>
 #include <opencv2/core/mat.hpp>
 #include <sstream>
