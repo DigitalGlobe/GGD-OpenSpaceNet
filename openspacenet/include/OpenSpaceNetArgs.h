@@ -21,16 +21,16 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#ifndef OPENSKYNET_OPENSKYNETARGS_H
-#define OPENSKYNET_OPENSKYNETARGS_H
+#ifndef OPENSPACENET_OPENSPACENETARGS_H
+#define OPENSPACENET_OPENSPACENETARGS_H
 
 #include <vector/Feature.h>
 
-#define OSN_LOG(sev) DG_LOG(OpenSkyNet, sev)
+#define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
 
 
-namespace dg { namespace openskynet {
+namespace dg { namespace osn {
 
 enum class Source
 {
@@ -38,7 +38,8 @@ enum class Source
     LOCAL,
     DGCS,
     EVWHS,
-    MAPS_API
+    MAPS_API,
+    TILE_JSON
 };
 
 enum class Action
@@ -49,7 +50,7 @@ enum class Action
     LANDCOVER
 };
 
-class OpenSkyNetArgs
+class OpenSpaceNetArgs
 {
 public:
     // Input options
@@ -65,6 +66,8 @@ public:
     int zoom = 18;
     int maxConnections = 10;
     std::string mapId = MAPSAPI_MAPID;
+    std::string url;
+    bool useTiles=false;
 
     // Output options
     deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::POLYGON;
@@ -97,4 +100,4 @@ public:
 
 } } // namespace dg { namespace osn {
 
-#endif //OPENSKYNET_OPENSKYNETARGS_H
+#endif //OPENSPACENET_OPENSPACENETARGS_H

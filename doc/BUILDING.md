@@ -1,3 +1,3 @@
-# Building OpenSkyNet
+# Building OpenSpaceNet
 
-To build OpenSkyNet DeepCore and DeepCoreDependencies libraries must be installed and configured.
+To build OpenSpaceNet DeepCore and DeepCoreDependencies libraries must be installed and configured.

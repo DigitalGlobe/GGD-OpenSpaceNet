@@ -48,6 +48,6 @@ INSTALL(TARGETS gui
 
 
 # Use the Widgets module from Qt 5.
-include_directories(../openskynet/include)
-link_directories(openskynet)
-target_link_libraries(gui Qt5::Widgets openskynet)
+include_directories(../openspacenet/include)
+link_directories(openspacenet)
+target_link_libraries(gui Qt5::Widgets openspacenet)

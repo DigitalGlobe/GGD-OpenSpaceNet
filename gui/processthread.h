@@ -1,17 +1,17 @@
 #ifndef PROCESSTHREAD_H
 #define PROCESSTHREAD_H
-#include <OpenSkyNetArgs.h>
-#include <OpenSkyNet.h>
+#include <OpenSpaceNetArgs.h>
+#include <OpenSpaceNet.h>
 #include <QThread>
 
 class ProcessThread : public QThread
 {
     Q_OBJECT
 public:
-    void setArgs(dg::openskynet::OpenSkyNetArgs& osnArgsInput);
+    void setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput);
 private:
     void run();
-    dg::openskynet::OpenSkyNetArgs *osnArgs;
+    dg::osn::OpenSpaceNetArgs *osnArgs;
 signals:
     void processFinished();
 };

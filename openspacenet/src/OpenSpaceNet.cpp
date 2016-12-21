@@ -21,9 +21,10 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#include "OpenSkyNet.h"
-#include <../OpenSkyNetVersion.h>
+#include "OpenSpaceNet.h"
+#include <../OpenSpaceNetVersion.h>
 
+#include <atomic>
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
@@ -36,20 +37,23 @@
 #include <classification/SlidingWindowDetector.h>
 #include <classification/FilterLabels.h>
 #include <deque>
-#include <imagery/CvToLog.h>
+#include <future>
+#include <geometry/AffineTransformation.h>
+#include <geometry/CvToLog.h>
 #include <imagery/GdalImage.h>
-#include <imagery/InitGdalData.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <geometry/TransformationChain.h>
 #include <mutex>
 #include <opencv2/core/mat.hpp>
 #include <sstream>
 #include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
+#include <utility/Semaphore.h>
 #include <utility/User.h>
 
-namespace dg { namespace openskynet {
+namespace dg { namespace osn {
 
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::imagery;
@@ -65,29 +69,30 @@ using boost::posix_time::to_simple_string;
 using boost::progress_display;
 using boost::property_tree::json_parser::write_json;
 using boost::property_tree::ptree;
+using std::atomic;
 using std::async;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
-using std::condition_variable;
 using std::cout;
 using std::deque;
 using std::endl;
 using std::launch;
+using std::lock_guard;
 using std::make_pair;
 using std::map;
 using std::move;
-using std::mutex;
+using std::recursive_mutex;
 using std::ostringstream;
 using std::pair;
 using std::string;
 using std::vector;
-using std::unique_lock;
 using std::unique_ptr;
 using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
+using dg::deepcore::Semaphore;
 using dg::deepcore::MultiProgressDisplay;
 
-OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
+OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
 {
     if(args_.source > Source::LOCAL) {
@@ -95,7 +100,7 @@ OpenSkyNet::OpenSkyNet(const OpenSkyNetArgs &args) :
     }
 }
 
-void OpenSkyNet::process()
+void OpenSpaceNet::process()
 {
     if(args_.source > Source::LOCAL) {
         initMapServiceImage();
@@ -119,7 +124,7 @@ void OpenSkyNet::process()
     featureSet_.reset();
 }
 
-void OpenSkyNet::initModel()
+void OpenSpaceNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
 
@@ -139,12 +144,14 @@ void OpenSkyNet::initModel()
 
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
-        if(blockSize_.width % windowSize_.width == 0 && blockSize_.height % windowSize_.height == 0) {
+        const auto& blockSize = image_->blockSize();
+        if(blockSize.width % windowSize_.width == 0 && blockSize.height % windowSize_.height == 0) {
+            bbox_ = { cv::Point {0, 0} , image_->size() };
             concurrent_ = true;
         } else {
             cv::Size xySize;
-            xySize.width = (int)ceilf((float)blockSize_.width / windowSize_.width);
-            xySize.height = (int)ceilf((float)blockSize_.height / windowSize_.height);
+            xySize.width = (int)ceilf((float)blockSize.width / windowSize_.width);
+            xySize.height = (int)ceilf((float)blockSize.height / windowSize_.height);
         }
         stepSize_ = windowSize_;
     } else if(args_.action == Action::DETECT) {
@@ -166,36 +173,38 @@ void OpenSkyNet::initModel()
     slidingWindowDetector.setConfidence(confidence);
 }
 
-void OpenSkyNet::initLocalImage()
+void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
-    auto image = make_unique<GdalImage>(args_.image);
-    DG_CHECK(!image->spatialReference().isLocal(), "Input image is not geo-registered");
+    image_ = make_unique<GdalImage>(args_.image);
+    DG_CHECK(!image_->spatialReference().isLocal(), "Input image is not geo-registered");
+
+    bbox_ = cv::Rect{ { 0, 0 }, image_->size() };
+
+    TransformationChain llToPixel {
+        image_->spatialReference().fromLatLon(),
+        image_->pixelToProj().inverse()
+    };
+
+    pixelToLL_ = llToPixel.inverse();
 
     if(args_.bbox) {
-        auto projBbox = image->spatialReference().fromLatLon(*args_.bbox);
-        auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
-        auto intersect = projBbox & imageBbox;
-        DG_CHECK(!almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+        auto bbox = llToPixel.transformToInt(*args_.bbox);
 
-        if(!almostEq(intersect, imageBbox)) {
-            auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
-            image->setBbox(pixelBbox);
-        }
+        auto intersect = bbox_ & (cv::Rect)bbox;
+        DG_CHECK(intersect.width && intersect.height, "Input image and the provided bounding box do not intersect");
 
-        if(!almostEq(imageBbox, projBbox)) {
-            auto llIntersect = image->spatialReference().toLatLon(intersect);
+        if(bbox != intersect) {
+            auto llIntersect = pixelToLL_->transform(intersect);
             OSN_LOG(info) << "Bounding box adjusted to " << llIntersect.tl() << " : " << llIntersect.br();
         }
-    }
 
-    blockSize_ = image->blockSize();
-    image_.reset(image.release());
+        bbox_ = intersect;
+    }
 }
 
-void OpenSkyNet::initMapServiceImage()
+void OpenSpaceNet::initMapServiceImage()
 {
-    initGdalData();
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
     bool wmts = true;
@@ -210,6 +219,12 @@ void OpenSkyNet::initMapServiceImage()
         case Source ::EVWHS:
             OSN_LOG(info) << "Connecting to EVWHS..." ;
             client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
+            break;
+
+        case Source::TILE_JSON:
+            OSN_LOG(info) << "Connecting to TileJSON...";
+            client_ = make_unique<TileJsonClient>(args_.url, args_.credentials, args_.useTiles);
+            wmts = false;
             break;
 
         default:
@@ -229,14 +244,19 @@ void OpenSkyNet::initMapServiceImage()
         client_->setTileMatrixId(lexical_cast<string>(args_.zoom));
     }
 
-    client_->setMaxConnections(args_.maxConnections);
-    blockSize_ = client_->tileMatrix().tileSize;
+    unique_ptr<Transformation> llToProj(client_->spatialReference().fromLatLon());
+    auto projBbox = llToProj->transform(*args_.bbox);
+    image_.reset(client_->imageFromArea(projBbox));
 
-    auto projBbox = client_->spatialReference().fromLatLon(*args_.bbox);
-    image_.reset(client_->imageFromArea(projBbox, args_.action != Action::LANDCOVER));
+    unique_ptr<Transformation> projToPixel(image_->pixelToProj().inverse());
+    bbox_ = projToPixel->transformToInt(projBbox);
+    pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
+
+    auto msImage = dynamic_cast<MapServiceImage*>(image_.get());
+    msImage->setMaxConnections(args_.maxConnections);
 }
 
-void OpenSkyNet::initFeatureSet()
+void OpenSpaceNet::initFeatureSet()
 {
     OSN_LOG(info) << "Initializing the output feature set..." ;
 
@@ -253,58 +273,62 @@ void OpenSkyNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
-    //featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions);
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
 }
 
-void OpenSkyNet::processConcurrent()
+void OpenSpaceNet::processConcurrent()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
 
     auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
 
-    mutex queueMutex;
-    condition_variable cv;
+    recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
-    bool done = false;
+    Semaphore haveWork;
+    atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
 
     MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
     if(!args_.quiet) {
         progressDisplay.start();
     }
 
-    auto producerFuture = image_->readImageAsync([&blockQueue, &queueMutex, &cv](const cv::Point& origin, cv::Mat&& block) -> bool {
-        unique_lock<mutex> lock(queueMutex);
-        blockQueue.push_front(make_pair(origin, std::move(block)));
-        queueMutex.unlock();
-        cv.notify_all();
-        return true;
-    }, [&progressDisplay](float progress) -> bool {
-        progressDisplay.update(0, progress);
+    auto numBlocks = image_->numBlocks().area();
+    size_t curBlockRead = 0;
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &progressDisplay](const cv::Point& origin, cv::Mat&& block) -> bool {
+        {
+            lock_guard<recursive_mutex> lock(queueMutex);
+            blockQueue.push_front(make_pair(origin, std::move(block)));
+        }
+
+        progressDisplay.update(0, (float)++curBlockRead / numBlocks);
+        haveWork.notify();
+
         return true;
     });
 
-    auto numBlocks = (size_t)ceilf((float)image_->size().width / image_->blockSize().width) *
-                     (size_t)ceilf((float)image_->size().height / image_->blockSize().height);
-    size_t curBlock = 0;
+    image_->setOnError([&cancelled, &haveWork](std::exception_ptr) {
+        cancelled.store(true);
+        haveWork.notify();
+    });
 
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &cv, &done, &slidingWindowDetector, &progressDisplay, numBlocks, &curBlock]() {
-        while(true) {
+    image_->readBlocksInAoi();
+
+    size_t curBlockClass = 0;
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &slidingWindowDetector, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass]() {
+        while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
-                unique_lock<mutex> lock(queueMutex);
+                lock_guard<recursive_mutex> lock(queueMutex);
                 if(!blockQueue.empty()) {
                     item = blockQueue.back();
                     blockQueue.pop_back();
-                } else if(!done) {
-                    queueMutex.unlock();
-                    cv.wait(lock);
-                    continue;
                 } else {
-                    break;
+                    queueMutex.unlock();
+                    haveWork.wait();
+                    continue;
                 }
             }
 
@@ -329,34 +353,32 @@ void OpenSkyNet::processConcurrent()
                 addFeature(prediction.window, prediction.predictions);
             }
 
-            progressDisplay.update(1, (float)curBlock / numBlocks);
-            curBlock++;
+            progressDisplay.update(1, (float)++curBlockClass / numBlocks);
         }
     });
 
-    producerFuture.get();
-    progressDisplay.update(0, 1.0F);
-
-    {
-        unique_lock<mutex> lock(queueMutex);
-        done = true;
-        queueMutex.unlock();
-        cv.notify_all();
-    }
-
     consumerFuture.wait();
-    progressDisplay.update(1, 1.0F);
     progressDisplay.stop();
+
+    image_->rethrowIfError();
 
     skipLine();
 }
 
-void OpenSkyNet::processSerial()
+void OpenSpaceNet::processSerial()
 {
     auto& detector = model_->detector();
     DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
 
     auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
+
+    // Adjust the transformation to shift to the bounding box
+    auto& pixelToLL = dynamic_cast<TransformationChain&>(*pixelToLL_);
+    pixelToLL.chain.push_front(new AffineTransformation {
+        (double) bbox_.x, 1.0, 0.0,
+        (double) bbox_.y, 0.0, 1.0
+    });
+    pixelToLL.compact();
 
     skipLine();
     OSN_LOG(info)  << "Reading image...";
@@ -367,7 +389,7 @@ void OpenSkyNet::processSerial()
     }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = image_->readImage([&openProgress](float progress) -> bool {
+    auto mat = GeoImage::readImage(*image_, bbox_, [&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress && openProgress->count() < curProgress) {
             *openProgress += curProgress - openProgress->count();
@@ -428,20 +450,19 @@ void OpenSkyNet::processSerial()
     }
 }
 
-void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
 {
     if(predictions.empty()) {
         return;
     }
 
-    auto fields = createFeatureFields(predictions);
-
     switch (args_.geometryType) {
         case GeometryType::POINT:
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
-            auto point = image_->pixelToLL(center);
-            featureSet_->addFeature(PointFeature(point, fields));
+            auto point = pixelToLL_->transform(center);
+            featureSet_->addFeature(Feature(new Point(point),
+                                            move(createFeatureFields(predictions))));
         }
             break;
 
@@ -457,11 +478,12 @@ void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &pr
 
             std::vector<cv::Point2d> llPoints;
             for(const auto& point : points) {
-                auto llPoint = image_->pixelToLL(point);
+                auto llPoint = pixelToLL_->transform(point);
                 llPoints.push_back(llPoint);
             }
 
-            featureSet_->addFeature(PolygonFeature(llPoints, fields));
+            featureSet_->addFeature(Feature(new Polygon(LinearRing(llPoints)),
+                                            move(createFeatureFields(predictions))));
         }
             break;
 
@@ -470,7 +492,7 @@ void OpenSkyNet::addFeature(const cv::Rect &window, const vector<Prediction> &pr
     }
 }
 
-Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
+Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
             { "top_score", { FieldType ::REAL, predictions[0].confidence } },
@@ -489,14 +511,14 @@ Fields OpenSkyNet::createFeatureFields(const vector<Prediction> &predictions) {
 
     if(args_.producerInfo) {
         fields["username"] = { FieldType ::STRING, loginUser() };
-        fields["app"] = { FieldType::STRING, "OpenSkyNet"};
-        fields["app_ver"] =  { FieldType::STRING, OPENSKYNET_VERSION_STRING };
+        fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
+        fields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
 
     return std::move(fields);
 }
 
-void OpenSkyNet::printModel()
+void OpenSpaceNet::printModel()
 {
     skipLine();
 
@@ -516,27 +538,27 @@ void OpenSkyNet::printModel()
     skipLine();
 }
 
-void OpenSkyNet::skipLine() const
+void OpenSpaceNet::skipLine() const
 {
     if(!args_.quiet) {
         cout << endl;
     }
 }
 
-Pyramid OpenSkyNet::calcPyramid() const
+Pyramid OpenSpaceNet::calcPyramid() const
 {
     Pyramid pyramid;
     if(args_.pyramidWindowSizes.empty()) {
         if(args_.pyramid) {
-            pyramid = Pyramid(image_->size(), windowSize_, stepSize_, 2.0);
+            pyramid = Pyramid(bbox_.size(), windowSize_, stepSize_, 2.0);
         } else {
-            pyramid = Pyramid({ { image_->size(), stepSize_ } });
+            pyramid = Pyramid({ { bbox_.size(), stepSize_ } });
         }
     } else {
         // Sanity check, should've been caught before
         DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
 
-        auto imageSize = image_->size();
+        auto imageSize = bbox_.size();
         const auto& metadata = model_->metadata();
 
         for(size_t i = 0; i < args_.pyramidWindowSizes.size(); ++i) {

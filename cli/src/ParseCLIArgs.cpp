@@ -29,11 +29,13 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
 #include <fstream>
-#include <imagery/cv_program_options.hpp>
+#include <geometry/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
+#include <utility/program_options.hpp>
+#include <vector/FeatureSet.h>
 
-namespace dg { namespace openskynet {
+namespace dg { namespace osn {
 
 namespace po = boost::program_options;
 
@@ -67,22 +69,22 @@ using vector::GeometryType;
 
 static const string OSN_USAGE =
         "Usage:\n"
-                "  OpenSkyNet <action> <input options> <output options> <processing options>\n"
-                "  OpenSkyNet --config <configuration file> [other options]\n\n"
+                "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
+                "  OpenSpaceNet --config <configuration file> [other options]\n\n"
                 "Actions:\n"
                 "  help     \t\t\t Show this help message\n"
                 "  detect   \t\t\t Perform feature detection\n"
                 "  landcover\t\t\t Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
-        "Run OpenSkyNet in feature detection mode.\n\n"
+        "Run OpenSpaceNet in feature detection mode.\n\n"
                 "Usage:\n"
-                "  OpenSkyNet detect <input options> <output options> <processing options>\n\n";
+                "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
 
 static const string OSN_LANDCOVER_USAGE =
-        "Run OpenSkyNet in landcover classification mode.\n\n"
+        "Run OpenSpaceNet in landcover classification mode.\n\n"
                 "Usage:\n"
-                "  OpenSkyNet landcover <input options> <output options> <processing options>\n\n";
+                "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
 ParseCLIArgs::ParseCLIArgs() :
         localOptions_("Local Image Input Options"),
@@ -101,12 +103,17 @@ ParseCLIArgs::ParseCLIArgs() :
 
     webOptions_.add_options()
             ("service", po::value<string>()->value_name("SERVICE"),
-             "Web service that will be the source of input. Valid values are: dgcs, evwhs, and maps-api.")
+             "Web service that will be the source of input. Valid values are: dgcs, evwhs, maps-api, and tile-json.")
             ("token", po::value<string>()->value_name("TOKEN"),
              "API token used for licensing. This is the connectId for WMTS services or the API key for the Web Maps API.")
             ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
              "Credentials for the map service. Not required for Web Maps API. If password is not specified, you will be "
-                     "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
+             "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
+            ("url", po::value<string>()->value_name("URL"),
+             "TileJSON server URL. This is only required for the tile-json service.")
+            ("use-tiles",
+             "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
+             "is to derive the service address from the provided URL.")
             ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", osnArgs.zoom)), "Zoom level.")
             ("mapId", po::value<string>()->value_name(name_with_default("MAPID", osnArgs.mapId)), "MapsAPI map id to use.")
             ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", osnArgs.maxConnections)),
@@ -245,7 +252,7 @@ void ParseCLIArgs::parseArgsAndProcess(int argc, const char* const* argv)
 
     setupLogging();
 
-    OpenSkyNet osn(osnArgs);
+    OpenSpaceNet osn(osnArgs);
     osn.process();
 }
 
@@ -385,6 +392,8 @@ static Source parseService(string service)
         return Source::EVWHS;
     } else if(service == "maps-api") {
         return Source::MAPS_API;
+    } else if(service == "tile-json") {
+        return Source::TILE_JSON;
     }
 
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
@@ -469,6 +478,8 @@ void ParseCLIArgs::validateArgs()
     bool requireToken = false;
     bool unusedCredentials = false;
     bool requireCredentials = false;
+    bool requireUrl = false;
+    bool unusedUseTiles = true;
     string sourceName;
 
     switch (osnArgs.source) {
@@ -493,6 +504,14 @@ void ParseCLIArgs::validateArgs()
             requireCredentials = true;
             unusedMapId = true;
             sourceName = "dgcs or evwhs";
+            break;
+        case Source::TILE_JSON:
+            requireBbox = true;
+            requireToken = false;
+            unusedCredentials = false;
+            requireUrl = true;
+            unusedUseTiles = false;
+            sourceName = "tile-json";
             break;
 
         default:
@@ -519,6 +538,16 @@ void ParseCLIArgs::validateArgs()
         DG_ERROR_THROW("Argument --bbox is required for %s.", sourceName.c_str());
     }
 
+    if (unusedUseTiles && osnArgs.useTiles) {
+        OSN_LOG(warning) << "Argument --use-tiles is unused for " << sourceName << '.';
+    }
+
+
+    if(requireUrl && osnArgs.url.empty()) {
+        DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
+    } else if(!requireUrl && !osnArgs.url.empty()) {
+        OSN_LOG(warning) << "Argument --url is unused for " << sourceName << '.';
+    }
 
     // validate model and detection
     if (osnArgs.modelPath.empty()) {
@@ -626,6 +655,8 @@ void ParseCLIArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
     mapIdSet |= readVariable("mapId", vm, osnArgs.mapId);
     readVariable("token", vm, osnArgs.token);
     readVariable("credentials", vm, osnArgs.credentials);
+    readVariable("url", vm, osnArgs.url);
+    osnArgs.useTiles = vm.find("use-tiles") != vm.end();
     readVariable("zoom", vm, osnArgs.zoom);
     readVariable("num-downloads", vm, osnArgs.maxConnections);
 }

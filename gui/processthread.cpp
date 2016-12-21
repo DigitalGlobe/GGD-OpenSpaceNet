@@ -2,12 +2,12 @@
 
 void ProcessThread::run()
 {
-    dg::openskynet::OpenSkyNet osn(*osnArgs);
+    dg::osn::OpenSpaceNet osn(*osnArgs);
     osn.process();
     emit processFinished();
 }
 
-void ProcessThread::setArgs(dg::openskynet::OpenSkyNetArgs& osnArgsInput)
+void ProcessThread::setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput)
 {
     osnArgs = &osnArgsInput;
 }

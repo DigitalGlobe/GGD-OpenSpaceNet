@@ -21,14 +21,14 @@
 * DEALINGS IN THE SOFTWARE.
 ********************************************************************************/
 
-#ifndef OPENSKYNET_PARSECLIARGS_H
-#define OPENSKYNET_PARSECLIARGS_H
+#ifndef OPENSPACENET_PARSECLIARGS_H
+#define OPENSPACENET_PARSECLIARGS_H
 
-#include <OpenSkyNetArgs.h>
-#include <OpenSkyNet.h>
+#include <OpenSpaceNetArgs.h>
+#include <OpenSpaceNet.h>
 #include <boost/program_options.hpp>
 
-namespace dg { namespace openskynet {
+namespace dg { namespace osn {
 
 class ParseCLIArgs
 {
@@ -42,23 +42,23 @@ public:
     void parseArgsAndProcess(int argc, const char *const *argv);
 
 private:
-    OpenSkyNetArgs osnArgs;
+    OpenSpaceNetArgs osnArgs;
     bool confidenceSet = false;
     bool mapIdSet = false;
     bool displayHelp = false;
 
     void setupInitialLogging();
     void setupLogging();
-    void parseArgs(int argc, const char *const *argv);
+    void parseArgs(int argc, const char* const* argv);
     void maybeDisplayHelp(boost::program_options::variables_map vm);
-    void printUsage(Action action = Action::UNKNOWN) const;
-    void readArgs(boost::program_options::variables_map vm, bool splitArgs = false);
-    void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs = false);
+    void printUsage(Action action=Action::UNKNOWN) const;
+    void readArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void promptForPassword();
-    void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs = false);
-    void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs = false);
-    void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs = false);
-    void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs = false);
+    void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
 
     void validateArgs();
 
@@ -81,4 +81,4 @@ private:
 };
 
 } } // namespace dg { namespace osn {
-#endif //OPENSKYNET_PARSECLIARGS_H
+#endif //OPENSPACENET_PARSECLIARGS_H

@@ -19,8 +19,8 @@
 #include <QStatusBar>
 #include <QProgressBar>
 
-#include <OpenSkyNetArgs.h>
-#include <OpenSkyNet.h>
+#include <OpenSpaceNetArgs.h>
+#include <OpenSpaceNet.h>
 #include <processthread.h>
 #include <imagery/MapServiceClient.h>
 
@@ -105,7 +105,7 @@ private:
     void importConfig(QString configFile);
     void exportConfig(const QString &filepath);
 
-    dg::openskynet::OpenSkyNetArgs osnArgs;
+    dg::osn::OpenSpaceNetArgs osnArgs;
     ProcessThread thread;
     ProgressWindow progressWindow;
     Ui::ProgressWindow *progressUi;

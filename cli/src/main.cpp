@@ -22,9 +22,9 @@
 ********************************************************************************/
 
 #include "ParseCLIArgs.h"
-#include <OpenSkyNetVersion.h>
+#include <OpenSpaceNetVersion.h>
 
-using namespace dg::openskynet;
+using namespace dg::osn;
 using namespace dg::deepcore;
 
 using std::cout;
@@ -33,13 +33,15 @@ using std::string;
 
 static const string OSN_LOGO =
     "DigitalGlobe, Inc.\n"
-        "   ___                   ____  _          _   _      _         \n"
-        "  / _ \\ _ __   ___ _ __ / ___|| | ___   _| \\ | | ___| |_       \n"
-        " | | | | '_ \\ / _ \\ '_ \\\\___ \\| |/ / | | |  \\| |/ _ \\ __|      \n"
-        " | |_| | |_) |  __/ | | |___) |   <| |_| | |\\  |  __/ |_ _ _ _ \n"
-        "  \\___/| .__/ \\___|_| |_|____/|_|\\_\\\\__, |_| \\_|\\___|\\__(_|_|_)\n"
-        "       |_|                          |___/                                     \n\n"
-        "Version: " OPENSKYNET_VERSION_STRING "\n\n";
+        "   ____                    _____                      _   _      _          \n"
+        "  / __ \\                  / ____|                    | \\ | |    | |         \n"
+        " | |  | |_ __   ___ _ __ | (___  _ __   __ _  ___ ___|  \\| | ___| |_        \n"
+        " | |  | | '_ \\ / _ \\ '_ \\ \\___ \\| '_ \\ / _` |/ __/ _ \\ . ` |/ _ \\ __|       \n"
+        " | |__| | |_) |  __/ | | |____) | |_) | (_| | (_|  __/ |\\  |  __/ |_ _ _ _  \n"
+        "  \\____/| .__/ \\___|_| |_|_____/| .__/ \\__,_|\\___\\___|_| \\_|\\___|\\__(_|_|_) \n"
+        "        | |                     | |                                         \n"
+        "        |_|                     |_|                                         \n\n"
+        "Version: " OPENSPACENET_VERSION_STRING "\n\n";
 
 int main (int argc, const char* const* argv)
 {
@@ -48,7 +50,7 @@ int main (int argc, const char* const* argv)
         ParseCLIArgs osnCLIArgs;
         osnCLIArgs.parseArgsAndProcess(argc, argv);
     } catch (const Error& e) {
-        DG_ERROR_LOG(OpenSkyNet, e);
+        DG_ERROR_LOG(OpenSpaceNet, e);
         return 1;
     } catch (const exception &e) {
         OSN_LOG(error) << e.what();

@@ -22,10 +22,10 @@
 ********************************************************************************/
 
 
-#ifndef OPENSKYNET_OPENSKYNET_H
-#define OPENSKYNET_OPENSKYNET_H
+#ifndef OPENSPACENET_OPENSPACENET_H
+#define OPENSPACENET_OPENSPACENET_H
 
-#include "OpenSkyNetArgs.h"
+#include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <classification/Prediction.h>
 #include <imagery/GeoImage.h>
@@ -36,12 +36,12 @@
 #include <vector/FeatureSet.h>
 #include <utility/Logging.h>
 
-namespace dg { namespace openskynet {
+namespace dg { namespace osn {
 
-class OpenSkyNet
+class OpenSpaceNet
 {
 public:
-    OpenSkyNet(const OpenSkyNetArgs& args);
+    OpenSpaceNet(const OpenSpaceNetArgs& args);
     void process();
 
 private:
@@ -57,18 +57,19 @@ private:
     void skipLine() const;
     deepcore::imagery::Pyramid calcPyramid() const;
 
-    const OpenSkyNetArgs& args_;
+    const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     std::unique_ptr<deepcore::classification::Model> model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
-    cv::Size blockSize_;
     cv::Point stepSize_;
     cv::Size windowSize_;
     bool concurrent_ = false;
+    cv::Rect bbox_;
+    std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
 };
 
-} } // namespace dg { namespace openskynet {
+} } // namespace dg { namespace osn {
 
-#endif //OPENSKYNET_LIBOPENSKYNET_H
+#endif //OPENSPACENET_LIBOPENSPACENET_H

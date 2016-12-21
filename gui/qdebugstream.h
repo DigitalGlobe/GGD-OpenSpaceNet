@@ -1,5 +1,5 @@
-#ifndef OPENSKYNET_QDEBUGSTREAM_H
-#define OPENSKYNET_QDEBUGSTREAM_H
+#ifndef OPENSPACENET_QDEBUGSTREAM_H
+#define OPENSPACENET_QDEBUGSTREAM_H
 
 #include <iostream>
 #include <streambuf>
@@ -106,4 +106,4 @@ signals:
 
 };
 
-#endif //OPENSKYNET_QDEBUGSTREAM_H
+#endif //OPENPACENET_QDEBUGSTREAM_H

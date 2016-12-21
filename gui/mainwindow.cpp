@@ -14,6 +14,8 @@
 #include <imagery/EvwhsClient.h>
 #include <imagery/GdalImage.h>
 
+#include <geometry/TransformationChain.h>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "progresswindow.h"
@@ -359,34 +361,34 @@ void MainWindow::on_runPushButton_clicked()
     //Parse and set the Action
     action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect") {
-        osnArgs.action = dg::openskynet::Action::DETECT;
+        osnArgs.action = dg::osn::Action::DETECT;
     }
     else if(action == "Landcover") {
-        osnArgs.action = dg::openskynet::Action::LANDCOVER;
+        osnArgs.action = dg::osn::Action::LANDCOVER;
     }
     else {
-        osnArgs.action = dg::openskynet::Action::UNKNOWN;
+        osnArgs.action = dg::osn::Action::UNKNOWN;
     }
 
     //Parse and set the image source
     imageSource = ui->imageSourceComboBox->currentText().toStdString();
     if(imageSource == "Local Image File") {
-        osnArgs.source = dg::openskynet::Source::LOCAL;
+        osnArgs.source = dg::osn::Source::LOCAL;
     }
     else if(imageSource == "DGCS") {
-        osnArgs.source = dg::openskynet::Source::DGCS;
+        osnArgs.source = dg::osn::Source::DGCS;
         hasValidLocalImagePath = true;
     }
     else if(imageSource == "EVWHS") {
-        osnArgs.source = dg::openskynet::Source::EVWHS;
+        osnArgs.source = dg::osn::Source::EVWHS;
         hasValidLocalImagePath = true;
     }
     else if(imageSource == "MapsAPI") {
-        osnArgs.source = dg::openskynet::Source::MAPS_API;
+        osnArgs.source = dg::osn::Source::MAPS_API;
         hasValidLocalImagePath = true;
     }
     else {
-        osnArgs.source = dg::openskynet::Source::UNKNOWN;
+        osnArgs.source = dg::osn::Source::UNKNOWN;
     }
 
     //Parse and set web service token
@@ -678,11 +680,15 @@ void MainWindow::on_imagepathLineEditLostFocus()
         //only geo-regeistered images are valid
         try {
             auto image = boost::make_unique<dg::deepcore::imagery::GdalImage>(imagepath);
-            auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
-            ui->bboxWestLineEdit->setText(QString::number(imageBbox.x));
-            ui->bboxSouthLineEdit->setText(QString::number(imageBbox.y));
-            ui->bboxEastLineEdit->setText(QString::number(imageBbox.x + imageBbox.width));
-            ui->bboxNorthLineEdit->setText(QString::number(imageBbox.y + imageBbox.height));
+            auto imageBbox = cv::Rect{ { 0, 0 }, image->size() };
+
+            auto pixelToLL = dg::deepcore::geometry::TransformationChain { image->pixelToProj().clone(), image->spatialReference().toLatLon() };
+            auto bbox = pixelToLL.transform(imageBbox);
+
+            ui->bboxWestLineEdit->setText(QString::number(bbox.x));
+            ui->bboxSouthLineEdit->setText(QString::number(bbox.y));
+            ui->bboxEastLineEdit->setText(QString::number(bbox.x + bbox.width));
+            ui->bboxNorthLineEdit->setText(QString::number(bbox.y + bbox.height));
             hasGeoRegLocalImage = true;
             std::clog << "Local Pixel is: " << (uint64_t)image->size().width*image->size().height << std::endl;
             if((uint64_t)image->size().width*image->size().height > std::numeric_limits<int>::max()){
@@ -1099,16 +1105,28 @@ bool MainWindow::validateUI(QString &error)
                 bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
                 bboxEast = ui->bboxEastLineEdit->text().toStdString();
                 bboxWest = ui->bboxWestLineEdit->text().toStdString();
-                std::unique_ptr<cv::Rect2d> bbox = nullptr;
-                bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+
                 unique_ptr<dg::deepcore::imagery::GdalImage> image;
                 image = boost::make_unique<dg::deepcore::imagery::GdalImage>(ui->localImageFileLineEdit->text().toStdString());
-                auto projBbox = image->spatialReference().fromLatLon(*bbox);
-                auto imageBbox = cv::Rect2d { image->pixelToProj({0, 0}), image->pixelToProj((cv::Point)image->origSize()) };
-                auto intersect = projBbox & imageBbox;
+
+                cv::Rect imageBbox;
+                imageBbox = cv::Rect{ { 0, 0 }, image->size() };
+
+                std::unique_ptr<cv::Rect2d> bbox_entered = nullptr;
+                bbox_entered = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
+                                                              cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+
+                dg::deepcore::geometry::TransformationChain llToPixel {
+                    image->spatialReference().fromLatLon(),
+                    image->pixelToProj().inverse()
+                };
+
+                std::unique_ptr<dg::deepcore::geometry::Transformation> pixelToLL_ = llToPixel.inverse();
+
+                auto bbox = llToPixel.transformToInt(*bbox_entered);
+                auto intersect = imageBbox & (cv::Rect)bbox;
                 try {
-                    DG_CHECK(!dg::deepcore::almostEq(intersect.area(), 0.0), "Input image and the provided bounding box do not intersect");
+                    DG_CHECK(intersect.width && intersect.height, "Input image and the provided bounding box do not intersect");
                     hasValidBbox = true;
                 }
                 catch(dg::deepcore::Error e) {
@@ -1117,13 +1135,8 @@ bool MainWindow::validateUI(QString &error)
                     validJob = false;
                 }
 
-                if(hasValidBbox && !dg::deepcore::almostEq(intersect, imageBbox)) {
-                    auto pixelBbox = cv::Rect { image->projToPixel(intersect.tl()), image->projToPixel(intersect.br()) };
-                    image->setBbox(pixelBbox);
-                }
-
-                if(hasValidBbox && !dg::deepcore::almostEq(imageBbox, projBbox)) {
-                    auto llIntersect = image->spatialReference().toLatLon(intersect);
+                if(hasValidBbox && bbox != intersect) {
+                    auto llIntersect = pixelToLL_->transform(intersect);
                     std::cout << "Bounding box adjusted" << std::endl;
                 }
             }
@@ -1187,7 +1200,14 @@ bool MainWindow::validateUI(QString &error)
         hasValidBboxSize = true;
         std::string token = ui->tokenLineEdit->text().toStdString();
         std::string credentials = ui->usernameLineEdit->text().toStdString() + ":" + ui->passwordLineEdit->text().toStdString();
-        std::string mapId = ui->mapIdLineEdit->text().toStdString();
+        std::string mapId;
+        //Parse and set the map id
+        if(ui->mapIdLineEdit->text() != "") {
+            mapId = ui->mapIdLineEdit->text().toStdString();
+        }
+        else {
+            mapId = MAPSAPI_MAPID;
+        }
         if(webservice == "DGCS") {
             validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(token, credentials);
         }
@@ -1212,9 +1232,6 @@ bool MainWindow::validateUI(QString &error)
                 validationClient->setTileMatrixId(lexical_cast<string>(ui->zoomSpinBox->value()));
             }
 
-            validationClient->setMaxConnections(ui->downloadsSpinBox->value());
-            blockSize_ = validationClient->tileMatrix().tileSize;
-
             bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
             bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
             bboxEast = ui->bboxEastLineEdit->text().toStdString();
@@ -1223,8 +1240,17 @@ bool MainWindow::validateUI(QString &error)
             std::unique_ptr<cv::Rect2d> bbox = nullptr;
             bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
                                                   cv::Point2d(stod(bboxEast), stod(bboxNorth)));
-            auto projBbox = validationClient->spatialReference().fromLatLon(*bbox);
-            geoImage.reset(validationClient->imageFromArea(projBbox, ui->modeComboBox->currentText() != "landcover"));
+
+            unique_ptr<dg::deepcore::geometry::Transformation> llToProj(validationClient->spatialReference().fromLatLon());
+            auto projBbox = llToProj->transform(*bbox);
+            geoImage.reset(validationClient->imageFromArea(projBbox));
+
+            unique_ptr<dg::deepcore::geometry::Transformation> projToPixel(geoImage->pixelToProj().inverse());
+            *bbox = projToPixel->transformToInt(projBbox);
+            std::unique_ptr<dg::deepcore::geometry::Transformation> pixelToLL_ = dg::deepcore::geometry::TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
+
+            auto msImage = dynamic_cast<dg::deepcore::imagery::MapServiceImage*>(geoImage.get());
+            msImage->setMaxConnections(ui->downloadsSpinBox->value());
 
             std::clog << "Pixel Size width: " << geoImage->size().width << std::endl;
             std::clog << "Pixel Size height: " << geoImage->size().height << std::endl;
