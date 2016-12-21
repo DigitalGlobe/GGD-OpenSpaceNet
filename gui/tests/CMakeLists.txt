@@ -55,5 +55,5 @@ INSTALL(TARGETS tests
 # Use the Widgets module from Qt 5.
 include_directories(../../openspacenet/include)
 include_directories(..)
-link_directories(openskynet)
-target_link_libraries(tests Qt5::Widgets openskynet Qt5::Test)
+link_directories(openspacenet)
+target_link_libraries(tests Qt5::Widgets openspacenet Qt5::Test)
