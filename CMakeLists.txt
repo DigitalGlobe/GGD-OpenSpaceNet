@@ -33,10 +33,8 @@ else()
 endif()
 
 # Initialize version.h
-configure_file(src/version.h.in OpenSpaceNetVersion.h)
-
-# Set up include directory for local builds
-include_directories(${PROJECT_BINARY_DIR})
+configure_file(src/version.h.in include/OpenSpaceNetVersion.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 
 find_package(DeepCore REQUIRED)
