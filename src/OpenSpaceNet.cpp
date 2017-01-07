@@ -53,6 +53,8 @@
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 
+#include <ogr_spatialref.h>
+
 namespace dg { namespace osn {
 
 using namespace dg::deepcore::classification;
@@ -275,7 +277,11 @@ void OpenSpaceNet::initFeatureSet()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
+    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
+    OGRSpatialReference* sr = new OGRSpatialReference();
+    sr->SetWellKnownGeogCS("WGS84");
+    
+    featureSet_->createLayer(args_.layerName, SpatialReference(sr), args_.geometryType, definitions);
 }
 
 void OpenSpaceNet::processConcurrent()
@@ -450,7 +456,7 @@ void OpenSpaceNet::processSerial()
     }
 }
 
-void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions, const string& layerName)
 {
     if(predictions.empty()) {
         return;
@@ -461,8 +467,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
-            featureSet_->addFeature(Feature(new Point(point),
-                                    move(createFeatureFields(predictions))));
+            featureSet_->layer(layerName).addFeature(Feature(new Point(point),
+                                          move(createFeatureFields(predictions))));
         }
             break;
 
@@ -482,8 +488,50 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            featureSet_->addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                            move(createFeatureFields(predictions))));
+            featureSet_->layer(layerName).addFeature(Feature(new Polygon(LinearRing(llPoints)),
+                                                     move(createFeatureFields(predictions))));
+        }
+            break;
+
+        default:
+            DG_ERROR_THROW("Invalid output type");
+    }
+}
+
+void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions, int index)
+{
+    if(predictions.empty()) {
+        return;
+    }
+
+    switch (args_.geometryType) {
+        case GeometryType::POINT:
+        {
+            cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+            auto point = pixelToLL_->transform(center);
+            featureSet_->layer(index).addFeature(Feature(new Point(point),
+                                                 move(createFeatureFields(predictions))));
+        }
+            break;
+
+        case GeometryType::POLYGON:
+        {
+            std::vector<cv::Point> points = {
+                    window.tl(),
+                    { window.x + window.width, window.y },
+                    window.br(),
+                    { window.x, window.y + window.height },
+                    window.tl()
+            };
+
+            std::vector<cv::Point2d> llPoints;
+            for(const auto& point : points) {
+                auto llPoint = pixelToLL_->transform(point);
+                llPoints.push_back(llPoint);
+            }
+
+            featureSet_->layer(index).addFeature(Feature(new Polygon(LinearRing(llPoints)),
+                                                 move(createFeatureFields(predictions))));
         }
             break;
 

@@ -51,7 +51,8 @@ private:
     void initFeatureSet();
     void processConcurrent();
     void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions);
+    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions, const std::string& layerName);
+    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions, int index = 0);
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
     void printModel();
     void skipLine() const;
