@@ -165,14 +165,19 @@ void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     image_ = make_unique<GdalImage>(args_.image);
-    DG_CHECK(!image_->spatialReference().isLocal(), "Input image is not geo-registered");
 
     bbox_ = cv::Rect{ { 0, 0 }, image_->size() };
 
-    TransformationChain llToPixel {
-        image_->spatialReference().fromLatLon(),
-        image_->pixelToProj().inverse()
-    };
+    TransformationChain llToPixel;
+    if (!image_->spatialReference().isLocal()) {
+        llToPixel = {
+                image_->spatialReference().fromLatLon(),
+                image_->pixelToProj().inverse()
+        };
+        sr_ = SpatialReference::WGS84;
+    } else {
+        llToPixel = { image_->pixelToProj().inverse() };
+    }
 
     pixelToLL_ = llToPixel.inverse();
 
@@ -264,7 +269,8 @@ void OpenSpaceNet::initFeatureSet()
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
-    layer_ = featureSet_->createLayer(args_.layerName, SpatialReference::WGS84, args_.geometryType, definitions);
+    featureSet_->setSpatialReference(sr_);
+    layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
 }
 
 void OpenSpaceNet::processConcurrent()

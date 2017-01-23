@@ -28,6 +28,7 @@
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <classification/Prediction.h>
+#include <geometry/SpatialReference.h>
 #include <imagery/GeoImage.h>
 #include <imagery/MapServiceClient.h>
 #include <imagery/SlidingWindow.h>
@@ -70,6 +71,7 @@ private:
     cv::Rect bbox_;
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
     deepcore::vector::Layer layer_;
+    deepcore::geometry::SpatialReference sr_;
 };
 
 } } // namespace dg { namespace osn {
