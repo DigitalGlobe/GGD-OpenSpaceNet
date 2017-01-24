@@ -34,6 +34,7 @@
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
+#include <vector/Layer.h>
 #include <utility/Logging.h>
 
 namespace dg { namespace osn {
@@ -68,6 +69,7 @@ private:
     bool concurrent_ = false;
     cv::Rect bbox_;
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
+    deepcore::vector::Layer layer_;
 };
 
 } } // namespace dg { namespace osn {

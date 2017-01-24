@@ -263,7 +263,8 @@ void OpenSpaceNet::initFeatureSet()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
+    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
+    layer_ = featureSet_->createLayer(args_.layerName, SpatialReference::WGS84, args_.geometryType, definitions);
 }
 
 void OpenSpaceNet::processConcurrent()
@@ -459,8 +460,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
-            featureSet_->addFeature(Feature(new Point(point),
-                                    move(createFeatureFields(predictions))));
+            layer_.addFeature(Feature(new Point(point),
+                              move(createFeatureFields(predictions))));
         }
             break;
 
@@ -480,8 +481,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            featureSet_->addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                            move(createFeatureFields(predictions))));
+            layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
+                                      move(createFeatureFields(predictions))));
         }
             break;
 
