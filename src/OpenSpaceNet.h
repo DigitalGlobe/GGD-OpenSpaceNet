@@ -30,7 +30,7 @@
 #include <classification/Prediction.h>
 #include <imagery/GeoImage.h>
 #include <imagery/MapServiceClient.h>
-#include <imagery/Pyramid.h>
+#include <imagery/SlidingWindow.h>
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
@@ -56,7 +56,7 @@ private:
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
     void printModel();
     void skipLine() const;
-    deepcore::imagery::Pyramid calcPyramid() const;
+    deepcore::imagery::SizeSteps calcSizes() const;
 
     const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
