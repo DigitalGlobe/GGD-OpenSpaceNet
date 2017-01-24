@@ -34,6 +34,7 @@
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
+#include <vector/Layer.h>
 #include <utility/Logging.h>
 
 namespace dg { namespace osn {
@@ -51,8 +52,7 @@ private:
     void initFeatureSet();
     void processConcurrent();
     void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions, const std::string& layerName);
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions, int index = 0);
+    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions);
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
     void printModel();
     void skipLine() const;
@@ -69,6 +69,7 @@ private:
     bool concurrent_ = false;
     cv::Rect bbox_;
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
+    deepcore::vector::Layer layer_;
 };
 
 } } // namespace dg { namespace osn {
