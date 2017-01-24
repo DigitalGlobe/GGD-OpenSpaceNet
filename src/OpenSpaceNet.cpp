@@ -167,6 +167,7 @@ void OpenSpaceNet::initLocalImage()
     image_ = make_unique<GdalImage>(args_.image);
 
     bbox_ = cv::Rect{ { 0, 0 }, image_->size() };
+    bool ignoreArgsBbox = false;
 
     TransformationChain llToPixel;
     if (!image_->spatialReference().isLocal()) {
@@ -176,12 +177,24 @@ void OpenSpaceNet::initLocalImage()
         };
         sr_ = SpatialReference::WGS84;
     } else {
+        OSN_LOG(warning) << "Image has geometric metadata which cannot be converted to WGS84.  "
+                         << "Output will be in native space, and some output formats will fail.";
+
+        if (args_.bbox) {
+            OSN_LOG(warning) << "Supplying the --bbox option implicitly requests a conversion from "
+                             << "WGS84 to pixel space however there is no conversion from WGS84 to "
+                             << "pixel space.";
+            OSN_LOG(warning) << "Ignoring user-supplied bounding box";
+
+            ignoreArgsBbox = true;
+        }
+
         llToPixel = { image_->pixelToProj().inverse() };
     }
 
     pixelToLL_ = llToPixel.inverse();
 
-    if(args_.bbox) {
+    if(args_.bbox && !ignoreArgsBbox) {
         auto bbox = llToPixel.transformToInt(*args_.bbox);
 
         auto intersect = bbox_ & (cv::Rect)bbox;
