@@ -282,7 +282,6 @@ void OpenSpaceNet::initFeatureSet()
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
-    featureSet_->setSpatialReference(sr_);
     layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
 }
 
