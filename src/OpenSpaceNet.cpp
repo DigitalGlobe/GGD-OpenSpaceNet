@@ -178,12 +178,12 @@ void OpenSpaceNet::initLocalImage()
         sr_ = SpatialReference::WGS84;
     } else {
         OSN_LOG(warning) << "Image has geometric metadata which cannot be converted to WGS84.  "
-                         << "Output will be in native space, and some output formats will fail.";
+                            "Output will be in native space, and some output formats will fail.";
 
         if (args_.bbox) {
             OSN_LOG(warning) << "Supplying the --bbox option implicitly requests a conversion from "
-                             << "WGS84 to pixel space however there is no conversion from WGS84 to "
-                             << "pixel space.";
+                                "WGS84 to pixel space however there is no conversion from WGS84 to "
+                                "pixel space.";
             OSN_LOG(warning) << "Ignoring user-supplied bounding box";
 
             ignoreArgsBbox = true;
