@@ -165,18 +165,36 @@ void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     image_ = make_unique<GdalImage>(args_.image);
-    DG_CHECK(!image_->spatialReference().isLocal(), "Input image is not geo-registered");
 
     bbox_ = cv::Rect{ { 0, 0 }, image_->size() };
+    bool ignoreArgsBbox = false;
 
-    TransformationChain llToPixel {
-        image_->spatialReference().fromLatLon(),
-        image_->pixelToProj().inverse()
-    };
+    TransformationChain llToPixel;
+    if (!image_->spatialReference().isLocal()) {
+        llToPixel = {
+                image_->spatialReference().fromLatLon(),
+                image_->pixelToProj().inverse()
+        };
+        sr_ = SpatialReference::WGS84;
+    } else {
+        OSN_LOG(warning) << "Image has geometric metadata which cannot be converted to WGS84.  "
+                            "Output will be in native space, and some output formats will fail.";
+
+        if (args_.bbox) {
+            OSN_LOG(warning) << "Supplying the --bbox option implicitly requests a conversion from "
+                                "WGS84 to pixel space however there is no conversion from WGS84 to "
+                                "pixel space.";
+            OSN_LOG(warning) << "Ignoring user-supplied bounding box";
+
+            ignoreArgsBbox = true;
+        }
+
+        llToPixel = { image_->pixelToProj().inverse() };
+    }
 
     pixelToLL_ = llToPixel.inverse();
 
-    if(args_.bbox) {
+    if(args_.bbox && !ignoreArgsBbox) {
         auto bbox = llToPixel.transformToInt(*args_.bbox);
 
         auto intersect = bbox_ & (cv::Rect)bbox;
@@ -264,7 +282,7 @@ void OpenSpaceNet::initFeatureSet()
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
-    layer_ = featureSet_->createLayer(args_.layerName, SpatialReference::WGS84, args_.geometryType, definitions);
+    layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
 }
 
 void OpenSpaceNet::processConcurrent()
