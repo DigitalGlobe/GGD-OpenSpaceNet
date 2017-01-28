@@ -131,7 +131,7 @@ void OpenSpaceNet::initModel()
 
     OSN_LOG(info) << "Reading model..." ;
 
-    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100));
+    model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
 
     if(args_.windowSize) {
         model_->setOverrideSize(windowSize_);
