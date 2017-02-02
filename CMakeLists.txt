@@ -5,6 +5,7 @@ project(OpenSpaceNet)
 # OpenSpaceNet version
 set(OpenSpaceNet_VERSION_MAJOR 0)
 set(OpenSpaceNet_VERSION_MINOR 3)
+set(OpenSpaceNet_VERSION_PATCH 0)
 
 
 cmake_policy(SET CMP0015 NEW)
