@@ -290,7 +290,7 @@ void OpenSpaceNet::initFeatureSet()
 void OpenSpaceNet::initFilter()
 {
     if (args_.filterDefinition.size()) {
-        regionFilter_ = make_unique<MaskedRegionFilter>(*(args_.bbox), *(args_.stepSize), MaskedRegionFilter::FilterMethod::ANY);
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
             std::vector<Polygon> filterPolys;

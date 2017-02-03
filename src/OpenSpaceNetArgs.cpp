@@ -802,7 +802,7 @@ void OpenSpaceNetArgs::parseFilterArgs(const std::vector<string>& filterList)
     if (finalEntry == "include" || finalEntry == "exclude") {
         DG_ERROR_THROW("Argument to %s region without file input", finalEntry.c_str());
     }
-    if (!filterDefinition.empty()) {
+    if (!filterActionFileSet.empty()) {
         filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
     }
 }
