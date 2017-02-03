@@ -110,8 +110,8 @@ void OpenSpaceNet::process()
 
     initModel();
     printModel();
-    initFeatureSet();
     initFilter();
+    initFeatureSet();
 
     if(concurrent_) {
         processConcurrent();
