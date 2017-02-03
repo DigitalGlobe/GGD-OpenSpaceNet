@@ -40,6 +40,7 @@
 #include <geometry/CvToLog.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
+#include <imagery/BasicRegionFilter.h>
 #include <imagery/PassthroughRegionFilter.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
@@ -289,8 +290,9 @@ void OpenSpaceNet::initFeatureSet()
 
 void OpenSpaceNet::initFilter()
 {
+    auto imageSr = image_->spatialReference();
     if (args_.filterDefinition.size()) {
-        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::NONE);
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
             std::vector<Polygon> filterPolys;
@@ -301,24 +303,18 @@ void OpenSpaceNet::initFilter()
                         if (feature.type() != GeometryType::POLYGON) {
                             DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
                         }
-
-                        filterPolys.emplace_back(*(dynamic_cast<Polygon*>(feature.geometry.get())));
+                        auto mapToPixel = image_->pixelToProj().inverse();
+                        auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)), 
+                                                               std::move(mapToPixel) };
+                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
+                        filterPolys.emplace_back(std::move(*poly));
                     }
                 }
             }
-
             if (action == "include") {
-                if (filterPolys.size() == 1) {
-                    regionFilter_->includeRegion(filterPolys.front());
-                } else {
-                    regionFilter_->includeRegions(filterPolys);
-                }
+                regionFilter_->includeRegions(filterPolys);
             } else if (action == "exclude") {
-                if (filterPolys.size() == 1) {
-                    regionFilter_->excludeRegion(filterPolys.front());
-                } else {
-                    regionFilter_->excludeRegions(filterPolys);
-                }
+                regionFilter_->excludeRegions(filterPolys);
             } else {
                 DG_ERROR_THROW("Unknown filtering action \"%s\"", action);
             }
