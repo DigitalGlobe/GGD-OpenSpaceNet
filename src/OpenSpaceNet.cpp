@@ -111,7 +111,7 @@ void OpenSpaceNet::process()
 
     initModel();
     printModel();
-    initFilter();
+    initFilter();    
     initFeatureSet();
 
     if(concurrent_) {
@@ -290,6 +290,7 @@ void OpenSpaceNet::initFeatureSet()
 
 void OpenSpaceNet::initFilter()
 {
+    OSN_LOG(info) << "Initializing the region filter..." ;
     auto imageSr = image_->spatialReference();
     if (args_.filterDefinition.size()) {
         regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::NONE);
@@ -303,9 +304,8 @@ void OpenSpaceNet::initFilter()
                         if (feature.type() != GeometryType::POLYGON) {
                             DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
                         }
-                        auto mapToPixel = image_->pixelToProj().inverse();
                         auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)), 
-                                                               std::move(mapToPixel) };
+                                                               std::move(image_->pixelToProj().inverse())};
                         auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
                         filterPolys.emplace_back(std::move(*poly));
                     }
