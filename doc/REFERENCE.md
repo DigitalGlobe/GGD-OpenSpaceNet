@@ -82,14 +82,14 @@ required to keep inputs together.
 This option will cause _OpenSpaceNet_ to build a filter to skip over any windows that touch 
 the geometry defined by the input path prior to model detection(see `--format` for supported formats).
 By default, no regions are included within the region filter.
-`--include-region` will add the geometries contained within the supplied path(s) to region fillter.
-`--exclude-region` will remove geometries contained within the supplied path(s) from the region filter.
-This option has no effect if `--include-region PATH` or `--region include PATH` have not first been supplied.
+`--include-region` will remove the geometries contained within the supplied path(s) to region filter.
+This option has no effect if `--exclude-region PATH` or `--region exclude PATH` have not first been supplied.
+`--exclude-region` will add geometries contained within the supplied path(s) to the region filter.
 `--region` can be used to chain together includes and excludes
-i.e. `--region include northwest.shp northeast.shp exclude truenorth.shp` will function exactly the same as
-`--include-region northwest.shp northeast.shp --exclude-region truenorth.shp`,
-first adding the geometry defined by northwest.shp to the filter, then adding the geometry 
-defined by northeast.shp(through geometric union), then removing the geometry defined by
+i.e. `--region exclude northwest.shp northeast.shp include truenorth.shp` will function exactly the same as
+`--exclude-region northwest.shp northeast.shp --include-region truenorth.shp`,
+first excluding the geometry defined by northwest.shp to the filter, then excluding the geometry 
+defined by northeast.shp(through geometric union), then including the geometry defined by
 truenorth.shp(through geometric difference).
 
 <a name="landcover" />
@@ -482,7 +482,7 @@ Output Options:
                                         geojson, kml, postgis, shp.
   --output PATH                         Output location with file name and path
                                         or URL.
-  --output-layer NAME (=skynetdetects)  The output layer name, index name, or 
+  --output-layer NAME (=osndetects)     The output layer name, index name, or 
                                         table name.
   --type TYPE (=polygon)                Output geometry type.  Currently only 
                                         point and polygon are valid.
@@ -537,11 +537,10 @@ Feature Detection Options:
                                         argument must be present and have the 
                                         same number of values.
   --include-region PATH                 Path to a file prescribing regions to 
-                                        include in the filtering process
+                                        include in the detection process.
+                                        Recommended to have previously excluded regions.
   --exclude-region PATH                 Path to a file prescribing regions to 
-                                        exclude in the filtering process. 
-                                        Recommended to have previously filtered
-                                        regions.
+                                        exclude from the detection process.
   --region (include/exclude) PATH [(include/exclude) PATH...]
                                         Paths to files including and excluding 
                                         regions.

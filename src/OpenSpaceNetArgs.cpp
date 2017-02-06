@@ -139,7 +139,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          outputDescription.c_str())
         ("output", po::value<string>()->value_name("PATH"),
          "Output location with file name and path or URL.")
-        ("output-layer", po::value<string>()->value_name(name_with_default("NAME", "skynetdetects")),
+        ("output-layer", po::value<string>()->value_name(name_with_default("NAME", "osndetects")),
          "The output layer name, index name, or table name.")
         ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
          "Output geometry type.  Currently only point and polygon are valid.")
@@ -579,7 +579,7 @@ void OpenSpaceNetArgs::validateArgs()
         }
         layerName = path(outputPath).stem().filename().string();
     } else if(layerName.empty()) {
-        layerName = "skynetdetects";
+        layerName = "osndetects";
     }
 
     DG_CHECK(pyramidWindowSizes.size() == pyramidStepSizes.size(),
