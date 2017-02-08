@@ -429,7 +429,7 @@ void OpenSpaceNet::processSerial()
     }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, [&openProgress](float progress) -> bool {
+    auto mat = GeoImage::readImage(*image_, regionFilter_.get(), bbox_, [&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress && openProgress->count() < curProgress) {
             *openProgress += curProgress - openProgress->count();
