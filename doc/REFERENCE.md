@@ -78,7 +78,19 @@ inclusion and an exclusion list at the same time.
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
 required to keep inputs together.
 
-Arguments specified here are additive between the environment, configuration files, and command line.
+##### --include-region / --exclude-region / --region
+This option will cause _OpenSpaceNet_ to build a filter to skip over any windows that touch 
+the geometry defined by the input path prior to model detection(see `--format` for supported formats).
+By default, no regions are included within the region filter.
+`--include-region` will remove the geometries contained within the supplied path(s) to region filter.
+This option has no effect if `--exclude-region PATH` or `--region exclude PATH` have not first been supplied.
+`--exclude-region` will add geometries contained within the supplied path(s) to the region filter.
+`--region` can be used to chain together includes and excludes
+i.e. `--region exclude northwest.shp northeast.shp include truenorth.shp` will function exactly the same as
+`--exclude-region northwest.shp northeast.shp --include-region truenorth.shp`,
+first excluding the geometry defined by northwest.shp to the filter, then excluding the geometry 
+defined by northeast.shp(through geometric union), then including the geometry defined by
+truenorth.shp(through geometric difference).
 
 <a name="landcover" />
 ### landcover
@@ -414,7 +426,7 @@ Alternatively, we can use the configuration file from previous example to run a 
 ```
 Usage:
   OpenSpaceNet <action> <input options> <output options> <processing options>
-  OpenSpaceNet <configuration file>
+  OpenSpaceNet --config <configuration file> [other options]
 
 Actions:
   help     			 Show this help message
@@ -433,18 +445,27 @@ Local Image Input Options:
 Web Service Input Options:
   --service SERVICE                     Web service that will be the source of 
                                         input. Valid values are: dgcs, evwhs, 
-                                        and maps-api.
+                                        maps-api, and tile-json.
   --token TOKEN                         API token used for licensing. This is 
                                         the connectId for WMTS services or the 
                                         API key for the Web Maps API.
   --credentials USERNAME[:PASSWORD]     Credentials for the map service. Not 
-                                        required for Web Maps API. If password 
-                                        is not specified, you will be prompted 
-                                        to enter it. The credentials can also 
-                                        be set by setting the OSN_CREDENTIALS 
-                                        environment variable.
+                                        required for Web Maps API, optional for
+                                        TileJSON. If password is not specified,
+                                        you will be prompted to enter it. The 
+                                        credentials can also be set by setting 
+                                        the OSN_CREDENTIALS environment 
+                                        variable.
+  --url URL                             TileJSON server URL. This is only 
+                                        required for the tile-json service.
+  --use-tiles                           If set, the "tiles" field in TileJSON 
+                                        metadata will be used as the tile 
+                                        service address. The default behavioris
+                                        to derive the service address from the 
+                                        provided URL.
   --zoom ZOOM (=18)                     Zoom level.
-  --mapId arg (=digitalglobe.nal0g75k)  MapsAPI map id to use.
+  --mapId MAPID (=digitalglobe.nal0g75k)
+                                        MapsAPI map id to use.
   --num-downloads NUM (=10)             Used to speed up downloads by allowing 
                                         multiple concurrent downloads to happen
                                         at once.
@@ -461,13 +482,16 @@ Output Options:
                                         geojson, kml, postgis, shp.
   --output PATH                         Output location with file name and path
                                         or URL.
-  --output-layer NAME (=skynetdetects)  The output layer name, index name, or 
+  --output-layer NAME (=osndetects)     The output layer name, index name, or 
                                         table name.
   --type TYPE (=polygon)                Output geometry type.  Currently only 
                                         point and polygon are valid.
   --producer-info                       Add user name, application name, and 
                                         application version to the output 
                                         feature set.
+  --append                              Append to an existing vector set. If 
+                                        the output does not exist, it will be 
+                                        created.
 
 Processing Options:
   --cpu                                 Use the CPU for processing, the default
@@ -496,17 +520,33 @@ Feature Detection Options:
                                         WARNING: This will result in much 
                                         longer run times, but may result in 
                                         additional features being detected.
-  --nms [PERCENT (=30)]                 Perform non-maximum suppression on the 
+  --nms PERCENT (=30)                   Perform non-maximum suppression on the 
                                         output. You can optionally specify the 
                                         overlap threshold percentage for 
                                         non-maximum suppression calculation.
-  --include-labels LABEL [LABEL...]     Filter results to only include
+  --include-labels LABEL [LABEL...]     Filter results to only include 
                                         specified labels.
-  --exclude-labels LABEL [LABEL...]     Filter results to exclude specified
+  --exclude-labels LABEL [LABEL...]     Filter results to exclude specified 
                                         labels.
+  --pyramid-window-sizes SIZE [SIZE...] Sliding window sizes to match to 
+                                        pyramid levels. --pyramid-step-sizes 
+                                        argument must be present and have the 
+                                        same number of values.
+  --pyramid-step-sizes SIZE [SIZE...]   Sliding window step sizes to match to 
+                                        pyramid levels. --pyramid-window-sizes 
+                                        argument must be present and have the 
+                                        same number of values.
+  --include-region PATH                 Path to a file prescribing regions to 
+                                        include in the detection process.
+                                        Recommended to have previously excluded regions.
+  --exclude-region PATH                 Path to a file prescribing regions to 
+                                        exclude from the detection process.
+  --region (include/exclude) PATH [(include/exclude) PATH...]
+                                        Paths to files including and excluding 
+                                        regions.
 
 Logging Options:
-  --log [LEVEL (=info)] PATH            Log to a file, a file name preceded by 
+  --log [LEVEL (=debug)] PATH           Log to a file, a file name preceded by 
                                         an optional log level must be 
                                         specified. Permitted values for log 
                                         level are: trace, debug, info, warning,

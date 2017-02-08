@@ -40,6 +40,8 @@
 #include <geometry/CvToLog.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
+#include <imagery/BasicRegionFilter.h>
+#include <imagery/PassthroughRegionFilter.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
@@ -109,6 +111,7 @@ void OpenSpaceNet::process()
 
     initModel();
     printModel();
+    initFilter();    
     initFeatureSet();
 
     if(concurrent_) {
@@ -285,6 +288,42 @@ void OpenSpaceNet::initFeatureSet()
     layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
 }
 
+void OpenSpaceNet::initFilter()
+{
+    OSN_LOG(info) << "Initializing the region filter..." ;
+    auto imageSr = image_->spatialReference();
+    if (args_.filterDefinition.size()) {
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::NOT_ALL);
+        for (const auto& filterAction : args_.filterDefinition) {
+            string action = filterAction.first;
+            std::vector<Polygon> filterPolys;
+            for (const auto& filterFile : filterAction.second) {
+                FeatureSet filter(filterFile);
+                for (auto& layer : filter) {
+                    for (const auto& feature: layer) {
+                        if (feature.type() != GeometryType::POLYGON) {
+                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
+                        }
+                        auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)), 
+                                                               std::move(image_->pixelToProj().inverse())};
+                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
+                        filterPolys.emplace_back(std::move(*poly));
+                    }
+                }
+            }
+            if (action == "include") {
+                regionFilter_->includeRegions(filterPolys);
+            } else if (action == "exclude") {
+                regionFilter_->excludeRegions(filterPolys);
+            } else {
+                DG_ERROR_THROW("Unknown filtering action \"%s\"", action);
+            }
+        }
+    } else {
+        regionFilter_ = make_unique<PassthroughRegionFilter>();
+    }
+}
+
 void OpenSpaceNet::processConcurrent()
 {
     recursive_mutex queueMutex;
@@ -334,7 +373,7 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
+            SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, move(regionFilter_->clone()));
 
             Subsets subsets;
             copy(slicer, back_inserter(subsets));
@@ -409,7 +448,7 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_);
+    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), move(regionFilter_->clone()), windowSize_);
     auto it = slicer.begin();
     std::vector<WindowPrediction> predictions;
     int progress = 0;
