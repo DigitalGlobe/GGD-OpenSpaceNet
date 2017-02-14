@@ -1,29 +1,24 @@
 /********************************************************************************
-* Copyright 2016 DigitalGlobe, Inc.
+* Copyright 2017 DigitalGlobe, Inc.
 * Author: Aleksey Vitebskiy
 *
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation
-* the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
+*    http://www.apache.org/licenses/LICENSE-2.0
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-* DEALINGS IN THE SOFTWARE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 ********************************************************************************/
 #include "ParseCLIArgs.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -68,123 +63,123 @@ using vector::FeatureSet;
 using vector::GeometryType;
 
 static const string OSN_USAGE =
-        "Usage:\n"
-                "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
-                "  OpenSpaceNet --config <configuration file> [other options]\n\n"
-                "Actions:\n"
-                "  help     \t\t\t Show this help message\n"
-                "  detect   \t\t\t Perform feature detection\n"
-                "  landcover\t\t\t Perform land cover classification\n";
+    "Usage:\n"
+        "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
+        "  OpenSpaceNet --config <configuration file> [other options]\n\n"
+        "Actions:\n"
+        "  help     \t\t\t Show this help message\n"
+        "  detect   \t\t\t Perform feature detection\n"
+        "  landcover\t\t\t Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
-        "Run OpenSpaceNet in feature detection mode.\n\n"
-                "Usage:\n"
-                "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
+    "Run OpenSpaceNet in feature detection mode.\n\n"
+    "Usage:\n"
+        "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
 
 static const string OSN_LANDCOVER_USAGE =
-        "Run OpenSpaceNet in landcover classification mode.\n\n"
-                "Usage:\n"
-                "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
+    "Run OpenSpaceNet in landcover classification mode.\n\n"
+        "Usage:\n"
+        "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
 ParseCLIArgs::ParseCLIArgs() :
-        localOptions_("Local Image Input Options"),
-        webOptions_("Web Service Input Options"),
-        outputOptions_("Output Options"),
-        processingOptions_("Processing Options"),
-        detectOptions_("Feature Detection Options"),
-        loggingOptions_("Logging Options"),
-        generalOptions_("General Options"),
-        supportedFormats_(FeatureSet::supportedFormats())
+    localOptions_("Local Image Input Options"),
+    webOptions_("Web Service Input Options"),
+    outputOptions_("Output Options"),
+    processingOptions_("Processing Options"),
+    detectOptions_("Feature Detection Options"),
+    loggingOptions_("Logging Options"),
+    generalOptions_("General Options"),
+    supportedFormats_(FeatureSet::supportedFormats())
 {
     localOptions_.add_options()
-            ("image", po::value<string>()->value_name("PATH"),
-             "If this is specified, the input will be taken from a local image.")
-            ;
+        ("image", po::value<string>()->value_name("PATH"),
+         "If this is specified, the input will be taken from a local image.")
+        ;
 
     webOptions_.add_options()
-            ("service", po::value<string>()->value_name("SERVICE"),
-             "Web service that will be the source of input. Valid values are: dgcs, evwhs, maps-api, and tile-json.")
-            ("token", po::value<string>()->value_name("TOKEN"),
-             "API token used for licensing. This is the connectId for WMTS services or the API key for the Web Maps API.")
-            ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
-             "Credentials for the map service. Not required for Web Maps API. If password is not specified, you will be "
-             "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
-            ("url", po::value<string>()->value_name("URL"),
-             "TileJSON server URL. This is only required for the tile-json service.")
-            ("use-tiles",
-             "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
-             "is to derive the service address from the provided URL.")
-            ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", osnArgs.zoom)), "Zoom level.")
-            ("mapId", po::value<string>()->value_name(name_with_default("MAPID", osnArgs.mapId)), "MapsAPI map id to use.")
-            ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", osnArgs.maxConnections)),
-             "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
-            ;
+        ("service", po::value<string>()->value_name("SERVICE"),
+         "Web service that will be the source of input. Valid values are: dgcs, evwhs, maps-api, and tile-json.")
+        ("token", po::value<string>()->value_name("TOKEN"),
+         "API token used for licensing. This is the connectId for WMTS services or the API key for the Web Maps API.")
+        ("credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
+         "Credentials for the map service. Not required for Web Maps API, optional for TileJSON. If password is not specified, you will be "
+         "prompted to enter it. The credentials can also be set by setting the OSN_CREDENTIALS environment variable.")
+        ("url", po::value<string>()->value_name("URL"),
+         "TileJSON server URL. This is only required for the tile-json service.")
+        ("use-tiles",
+         "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
+         "is to derive the service address from the provided URL.")
+        ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", osnArgs.zoom)), "Zoom level.")
+        ("mapId", po::value<string>()->value_name(name_with_default("MAPID", osnArgs.mapId)), "MapsAPI map id to use.")
+        ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", osnArgs.maxConnections)),
+         "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
+        ;
 
     string outputDescription = "Output file format for the results. Valid values are: ";
     outputDescription += join(supportedFormats_, ", ") + ".";
 
     auto formatNotifier = function<void(const string&)>([this](const string& format) {
         DG_CHECK(find(supportedFormats_.begin(), supportedFormats_.end(), to_lower_copy(format)) != end(supportedFormats_),
-                 "Invalid output format: %s.", format.c_str());
+            "Invalid output format: %s.", format.c_str());
     });
 
     outputOptions_.add_options()
-            ("format", po::value<string>()->value_name(name_with_default("FORMAT", osnArgs.outputFormat))->notifier(formatNotifier),
-             outputDescription.c_str())
-            ("output", po::value<string>()->value_name("PATH"),
-             "Output location with file name and path or URL.")
-            ("output-layer", po::value<string>()->value_name(name_with_default("NAME", "skynetdetects")),
-             "The output layer name, index name, or table name.")
-            ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
-             "Output geometry type.  Currently only point and polygon are valid.")
-            ("producer-info", "Add user name, application name, and application version to the output feature set.")
-            ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
-            ;
+        ("format", po::value<string>()->value_name(name_with_default("FORMAT", osnArgs.outputFormat))->notifier(formatNotifier),
+         outputDescription.c_str())
+        ("output", po::value<string>()->value_name("PATH"),
+         "Output location with file name and path or URL.")
+        ("output-layer", po::value<string>()->value_name(name_with_default("NAME", "skynetdetects")),
+         "The output layer name, index name, or table name.")
+        ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
+         "Output geometry type.  Currently only point and polygon are valid.")
+        ("producer-info", "Add user name, application name, and application version to the output feature set.")
+        ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
+        ;
 
     processingOptions_.add_options()
-            ("cpu", "Use the CPU for processing, the default it to use the GPU.")
-            ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.maxUtilization)),
-             "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
-            ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
-            ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-             "Overrides the original model's window size. Window size can be specified in either one or two dimensions. If "
-                     "only one dimension is specified, the window will be square. This parameter is optional and not recommended.")
-            ;
+        ("cpu", "Use the CPU for processing, the default it to use the GPU.")
+        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.maxUtilization)),
+         "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
+        ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
+        ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
+         "Overrides the original model's window size. Window size can be specified in either one or two dimensions. If "
+         "only one dimension is specified, the window will be square. This parameter is optional and not recommended.")
+        ;
 
     detectOptions_.add_options()
-            ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
-             "Minimum percent score for results to be included in the output.")
-            ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-             "Sliding window step size. Default value is log2 of the model window size. Step size can be specified in "
-                     "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
-            ("pyramid",
-             "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
-                     "in additional features being detected.")
-            ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
-             "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
-                     "for non-maximum suppression calculation.")
-            ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
-             "Filter results to only include specified labels.")
-            ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
-             "Filter results to exclude specified labels.")
-            ("pyramid-window-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-             "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
-            ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-             "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
-            ;
+        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
+         "Minimum percent score for results to be included in the output.")
+        ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
+         "Sliding window step size. Default value is log2 of the model window size. Step size can be specified in "
+         "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
+        ("pyramid",
+         "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
+             "in additional features being detected.")
+        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
+         "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
+         "for non-maximum suppression calculation.")
+        ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+         "Filter results to only include specified labels.")
+        ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
+         "Filter results to exclude specified labels.")
+        ("pyramid-window-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
+        ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
+        ;
 
     loggingOptions_.add_options()
-            ("log", po::bounded_value<std::vector<string>>()->min_tokens(1)->max_tokens(2)->value_name("[LEVEL (=debug)] PATH"),
-             "Log to a file, a file name preceded by an optional log level must be specified. Permitted values for log "
-                     "level are: trace, debug, info, warning, error, fatal.")
-            ("quiet", "If set, no output will be sent to console, only a log file, if specified.")
-            ;
+        ("log", po::bounded_value<std::vector<string>>()->min_tokens(1)->max_tokens(2)->value_name("[LEVEL (=debug)] PATH"),
+         "Log to a file, a file name preceded by an optional log level must be specified. Permitted values for log "
+         "level are: trace, debug, info, warning, error, fatal.")
+        ("quiet", "If set, no output will be sent to console, only a log file, if specified.")
+        ;
 
     generalOptions_.add_options()
-            ("config", po::value<std::vector<string>>()->value_name("PATH")->multitoken(),
-             "Use options from a configuration file.")
-            ("help", "Show this help message")
-            ;
+        ("config", po::value<std::vector<string>>()->value_name("PATH")->multitoken(),
+         "Use options from a configuration file.")
+        ("help", "Show this help message")
+        ;
 
     // Build the options used for processing
     optionsDescription_.add(localOptions_);
@@ -196,25 +191,25 @@ ParseCLIArgs::ParseCLIArgs() :
     optionsDescription_.add(generalOptions_);
 
     optionsDescription_.add_options()
-            ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
-            ("help-topic", po::value<string>()->value_name("TOPIC"), "Help topic.")
-            ("debug", "Switch console output to \"debug\" log level.")
-            ("trace", "Switch console output to \"trace\" log level.")
-            // This bbox argument works for both local and web options, but we have duplicated bbox argument
-            // description in the usage display
-            ("bbox", po::cvRect2d_value())
-            ;
+        ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
+        ("help-topic", po::value<string>()->value_name("TOPIC"), "Help topic.")
+        ("debug", "Switch console output to \"debug\" log level.")
+        ("trace", "Switch console output to \"trace\" log level.")
+        // This bbox argument works for both local and web options, but we have duplicated bbox argument
+        // description in the usage display
+        ("bbox", po::cvRect2d_value())
+        ;
 
     // Add the bbox argumet to both local and web options (duplication is not allowed when parsing the arguments)
     localOptions_.add_options()
-            ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
-             "Optional bounding box for image subset, optional for local images. Coordinates are specified in the "
-                     "following order: west longitude, south latitude, east longitude, and north latitude.");
+        ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
+         "Optional bounding box for image subset, optional for local images. Coordinates are specified in the "
+         "following order: west longitude, south latitude, east longitude, and north latitude.");
 
     webOptions_.add_options()
-            ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
-             "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
-                     "specified in the following order: west longitude, south latitude, east longitude, and north latitude.");
+        ("bbox", po::cvRect2d_value()->value_name("WEST SOUTH EAST NORTH"),
+         "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
+         "specified in the following order: west longitude, south latitude, east longitude, and north latitude.");
 
     visibleOptions_.add(localOptions_);
     visibleOptions_.add(webOptions_);
@@ -261,10 +256,10 @@ void ParseCLIArgs::setupInitialLogging()
     log::init();
 
     cerrSink_ = log::addCerrSink(dg::deepcore::level_t::warning, dg::deepcore::level_t::fatal,
-                                 dg::deepcore::log::dg_log_format::dg_short_log);
+                                     dg::deepcore::log::dg_log_format::dg_short_log);
 
     coutSink_ = log::addCoutSink(dg::deepcore::level_t::info, dg::deepcore::level_t::info,
-                                 dg::deepcore::log::dg_log_format::dg_short_log);
+                                dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
 void ParseCLIArgs::setupLogging() {
@@ -350,7 +345,7 @@ void ParseCLIArgs::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
     pd.add("action", 1)
-            .add("help-topic", 1);
+      .add("help-topic", 1);
 
     // parse environment variable options
     variables_map environment_vm;
@@ -361,10 +356,10 @@ void ParseCLIArgs::parseArgs(int argc, const char* const* argv)
     // parse regular and positional options
     variables_map command_line_vm;
     po::store(po::command_line_parser(argc, argv)
-                      .extra_style_parser(&po::ignore_numbers)
-                      .options(optionsDescription_)
-                      .positional(pd)
-                      .run(), command_line_vm);
+                  .extra_style_parser(&po::ignore_numbers)
+                  .options(optionsDescription_)
+                  .positional(pd)
+                  .run(), command_line_vm);
     po::notify(command_line_vm);
     readArgs(command_line_vm);
 }
@@ -505,6 +500,7 @@ void ParseCLIArgs::validateArgs()
             unusedMapId = true;
             sourceName = "dgcs or evwhs";
             break;
+
         case Source::TILE_JSON:
             requireBbox = true;
             requireToken = false;

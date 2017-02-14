@@ -1,54 +1,43 @@
 /********************************************************************************
-* Copyright 2015 DigitalGlobe, Inc.
+* Copyright 2017 DigitalGlobe, Inc.
 * Author: Joe White
 *
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation
-* the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
+*    http://www.apache.org/licenses/LICENSE-2.0
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-* DEALINGS IN THE SOFTWARE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 ********************************************************************************/
 
 #include "OpenSpaceNet.h"
 #include <../OpenSpaceNetVersion.h>
 
-#include <atomic>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/combine.hpp>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/make_unique.hpp>
 #include <boost/progress.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/range/algorithm/copy.hpp>
 #include <classification/GbdxModelReader.h>
 #include <classification/NonMaxSuppression.h>
-#include <classification/SlidingWindowDetector.h>
 #include <classification/FilterLabels.h>
-#include <deque>
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
+#include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
 #include <geometry/TransformationChain.h>
-#include <mutex>
-#include <opencv2/core/mat.hpp>
-#include <sstream>
-#include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -60,6 +49,7 @@ using namespace dg::deepcore::imagery;
 using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;
 
+using boost::copy;
 using boost::format;
 using boost::join;
 using boost::lexical_cast;
@@ -71,6 +61,7 @@ using boost::property_tree::json_parser::write_json;
 using boost::property_tree::ptree;
 using std::atomic;
 using std::async;
+using std::back_inserter;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::cout;
@@ -134,13 +125,14 @@ void OpenSpaceNet::initModel()
 
     OSN_LOG(info) << "Reading model..." ;
 
+    model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+
     if(args_.windowSize) {
+        model_->setOverrideSize(windowSize_);
         windowSize_ = *args_.windowSize;
     } else {
         windowSize_ = modelPackage->metadata().windowSize();
     }
-
-    model_.reset(Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100));
 
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
@@ -148,47 +140,55 @@ void OpenSpaceNet::initModel()
         if(blockSize.width % windowSize_.width == 0 && blockSize.height % windowSize_.height == 0) {
             bbox_ = { cv::Point {0, 0} , image_->size() };
             concurrent_ = true;
-        } else {
-            cv::Size xySize;
-            xySize.width = (int)ceilf((float)blockSize.width / windowSize_.width);
-            xySize.height = (int)ceilf((float)blockSize.height / windowSize_.height);
         }
         stepSize_ = windowSize_;
     } else if(args_.action == Action::DETECT) {
-        auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-
-        if(args_.action == Action::DETECT) {
-            if(args_.stepSize) {
-                stepSize_ = *args_.stepSize;
-            } else {
-                stepSize_ = slidingWindowDetector.defaultStep();
-            }
+        if(args_.stepSize) {
+            stepSize_ = *args_.stepSize;
+        } else {
+            stepSize_ = model_->defaultStep();
         }
 
         confidence = args_.confidence / 100;
     }
 
-    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(model_->detector());
-    slidingWindowDetector.setOverrideSize(windowSize_);
-    slidingWindowDetector.setConfidence(confidence);
+    model_->setConfidence(confidence);
 }
 
 void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     image_ = make_unique<GdalImage>(args_.image);
-    DG_CHECK(!image_->spatialReference().isLocal(), "Input image is not geo-registered");
 
     bbox_ = cv::Rect{ { 0, 0 }, image_->size() };
+    bool ignoreArgsBbox = false;
 
-    TransformationChain llToPixel {
-        image_->spatialReference().fromLatLon(),
-        image_->pixelToProj().inverse()
-    };
+    TransformationChain llToPixel;
+    if (!image_->spatialReference().isLocal()) {
+        llToPixel = {
+                image_->spatialReference().fromLatLon(),
+                image_->pixelToProj().inverse()
+        };
+        sr_ = SpatialReference::WGS84;
+    } else {
+        OSN_LOG(warning) << "Image has geometric metadata which cannot be converted to WGS84.  "
+                            "Output will be in native space, and some output formats will fail.";
+
+        if (args_.bbox) {
+            OSN_LOG(warning) << "Supplying the --bbox option implicitly requests a conversion from "
+                                "WGS84 to pixel space however there is no conversion from WGS84 to "
+                                "pixel space.";
+            OSN_LOG(warning) << "Ignoring user-supplied bounding box";
+
+            ignoreArgsBbox = true;
+        }
+
+        llToPixel = { image_->pixelToProj().inverse() };
+    }
 
     pixelToLL_ = llToPixel.inverse();
 
-    if(args_.bbox) {
+    if(args_.bbox && !ignoreArgsBbox) {
         auto bbox = llToPixel.transformToInt(*args_.bbox);
 
         auto intersect = bbox_ & (cv::Rect)bbox;
@@ -275,16 +275,12 @@ void OpenSpaceNet::initFeatureSet()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, args_.layerName, definitions, openMode);
+    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
+    layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
 }
 
 void OpenSpaceNet::processConcurrent()
 {
-    auto& detector = model_->detector();
-    DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
-
-    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
-
     recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
@@ -317,7 +313,7 @@ void OpenSpaceNet::processConcurrent()
     image_->readBlocksInAoi();
 
     size_t curBlockClass = 0;
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &slidingWindowDetector, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass]() {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -332,8 +328,12 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            Pyramid pyramid({ { item.second.size(), stepSize_ } });
-            auto predictions = slidingWindowDetector.detect(item.second, pyramid);
+            SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
+
+            Subsets subsets;
+            copy(slicer, back_inserter(subsets));
+
+            auto predictions = model_->detect(subsets);
 
             if(!args_.excludeLabels.empty()) {
                 std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
@@ -367,11 +367,6 @@ void OpenSpaceNet::processConcurrent()
 
 void OpenSpaceNet::processSerial()
 {
-    auto& detector = model_->detector();
-    DG_CHECK(detector.detectorType() == Detector::SLIDING_WINDOW, "Unsupported model type.");
-
-    auto& slidingWindowDetector = dynamic_cast<SlidingWindowDetector&>(detector);
-
     // Adjust the transformation to shift to the bounding box
     auto& pixelToLL = dynamic_cast<TransformationChain&>(*pixelToLL_);
     pixelToLL.chain.push_front(new AffineTransformation {
@@ -408,14 +403,30 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
+    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_);
+    auto it = slicer.begin();
+    std::vector<WindowPrediction> predictions;
+    int progress = 0;
+
     startTime = high_resolution_clock::now();
-    auto predictions = slidingWindowDetector.detect(mat, calcPyramid(), [&detectProgress](float progress) -> bool {
-        size_t curProgress = (size_t)roundf(progress*50);
-        if(detectProgress && detectProgress->count() < curProgress) {
-            *detectProgress += curProgress - detectProgress->count();
+
+    while(it != slicer.end()) {
+        Subsets subsets;
+        for(int i = 0; i < model_->batchSize() && it != slicer.end(); ++i, ++it) {
+            subsets.push_back(*it);
         }
-        return true;
-    });
+
+        auto predictionBatch = model_->detect(subsets);
+        predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
+
+        if(detectProgress) {
+            progress += subsets.size();
+            auto curProgress = (size_t)round((double)progress / slicer.slidingWindow().totalWindows() * 50);
+            if(detectProgress && detectProgress->count() < curProgress) {
+                *detectProgress += curProgress - detectProgress->count();
+            }
+        }
+    }
 
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
@@ -461,8 +472,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
-            featureSet_->addFeature(Feature(new Point(point),
-                                            move(createFeatureFields(predictions))));
+            layer_.addFeature(Feature(new Point(point),
+                              move(createFeatureFields(predictions))));
         }
             break;
 
@@ -482,8 +493,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            featureSet_->addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                            move(createFeatureFields(predictions))));
+            layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
+                                      move(createFeatureFields(predictions))));
         }
             break;
 
@@ -545,35 +556,27 @@ void OpenSpaceNet::skipLine() const
     }
 }
 
-Pyramid OpenSpaceNet::calcPyramid() const
+SizeSteps OpenSpaceNet::calcSizes() const
 {
-    Pyramid pyramid;
     if(args_.pyramidWindowSizes.empty()) {
         if(args_.pyramid) {
-            pyramid = Pyramid(bbox_.size(), windowSize_, stepSize_, 2.0);
+            return SlidingWindow::calcSizes(bbox_.size(), model_->metadata().windowSize(), stepSize_, 2.0);
         } else {
-            pyramid = Pyramid({ { bbox_.size(), stepSize_ } });
+            return { { model_->metadata().windowSize(), stepSize_ } };
         }
     } else {
         // Sanity check, should've been caught before
         DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
 
-        auto imageSize = bbox_.size();
-        const auto& metadata = model_->metadata();
-
-        for(size_t i = 0; i < args_.pyramidWindowSizes.size(); ++i) {
-            const auto& windowSize = args_.pyramidWindowSizes[i];
-            const auto& modelSize = std::max(metadata.windowSize().width, metadata.windowSize().height);
-            auto scale = (double) modelSize / windowSize;
-            auto stepSize = (int)round(args_.pyramidStepSizes[i] * scale);
-            auto width = (int)round(imageSize.width * scale);
-            auto height = (int)round(imageSize.height * scale);
-
-            pyramid.levels().push_back({width, height, stepSize, stepSize });
+        SizeSteps ret;
+        for(const auto& c : boost::combine(args_.pyramidWindowSizes, args_.pyramidStepSizes)) {
+            int windowSize, stepSize;
+            boost::tie(windowSize, stepSize) = c;
+            ret.emplace_back(cv::Size { windowSize, windowSize }, cv::Point { stepSize, stepSize });
         }
-    }
 
-    return std::move(pyramid);
+        return ret;
+    }
 }
 
 } } // namespace dg { namespace osn {
