@@ -1,10 +1,10 @@
-cmake_policy(SET CMP0015 NEW)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+cmake_minimum_required(VERSION 2.8)
 project(openspacenet-cli)
 
 # OpenSpaceNet version
 set(OpenSpaceNet_VERSION_MAJOR 0)
-set(OpenSpaceNet_VERSION_MINOR 3)
+set(OpenSpaceNet_VERSION_MINOR 4)
+set(OpenSpaceNet_VERSION_PATCH 0)
 
 
 cmake_policy(SET CMP0015 NEW)
@@ -33,11 +33,13 @@ endif()
 
 # Initialize version.h
 configure_file(src/version.h.in OpenSpaceNetVersion.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
     include_directories(${DEEPCORE_INCLUDE_DIRS})
     target_link_libraries(openspacenet-cli ${DEEPCORE_LIBRARIES})
+    list(APPEND CMAKE_MODULE_PATH ${DEEPCORE_CMAKE_DIR})
 endif()
 
 find_package(Caffe REQUIRED)
@@ -69,3 +71,18 @@ link_directories(openspacenet)
 target_link_libraries(openspacenet-cli openspacenet)
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
+
+if (UNIX AND NOT APPLE)
+    set(CPACK_GENERATOR "TGZ")
+    set(CPACK_PACKAGE_NAME "OpenSpaceNet")
+    set(CPACK_PACKAGE_VENDOR "DigitalGlobe")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "DeepCore Support <deepcore-support@digitalglobe.com>")
+    set(CPACK_DEBIAN_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
+    set(CPACK_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
+    set(CPACK_PACKAGE_VERSION_MAJOR "${OpenSpaceNet_VERSION_MAJOR}")
+    set(CPACK_PACKAGE_VERSION_MINOR "${OpenSpaceNet_VERSION_MINOR}")
+    set(CPACK_PACKAGE_VERSION_PATCH "${OpenSpaceNet_VERSION_PATCH}")
+    set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/../README.md")
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+endif()
+include(CPack)
