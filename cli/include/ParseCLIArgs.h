@@ -32,8 +32,7 @@ public:
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
     ParseCLIArgs();
-
-    void parseArgsAndProcess(int argc, const char *const *argv);
+    void parseArgsAndProcess(int argc, const char* const* argv);
 
 private:
     OpenSpaceNetArgs osnArgs;
