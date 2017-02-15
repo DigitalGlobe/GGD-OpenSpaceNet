@@ -7,5 +7,4 @@ project(OpenSpaceNet CXX)
 add_subdirectory(openspacenet)
 add_subdirectory(cli)
 add_subdirectory(gui)
-add_subdirectory(gui/tests)
 
