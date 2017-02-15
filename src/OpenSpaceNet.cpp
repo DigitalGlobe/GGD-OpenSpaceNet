@@ -316,7 +316,7 @@ void OpenSpaceNet::initFilter()
                 firstAction = false;
             } else if (action == "exclude") {
                 if (firstAction) {
-                    OSN_LOG(info) << "Regions excluded first...including the bounding box.";
+                    OSN_LOG(info) << "User excluded regions first...automatically including the bounding box...";
                     regionFilter_->add({{bbox_}});
                 }
                 regionFilter_->subtract(filterPolys);
