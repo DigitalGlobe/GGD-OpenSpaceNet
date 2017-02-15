@@ -1,5 +1,10 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+# OpenSpaceNet version
+set(OpenSpaceNet_VERSION_MAJOR 0)
+set(OpenSpaceNet_VERSION_MINOR 4)
+set(OpenSpaceNet_VERSION_PATCH 0)
+
 include_directories(include)
 
 set(HEADERS
@@ -13,8 +18,16 @@ set(SOURCES
 
 add_library(openspacenet ${SOURCES} ${HEADERS})
 
+# Set the build number
+if(DEFINED ENV{BUILD_NUMBER})
+    set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
+else()
+    set(OpenSpaceNet_VERSION_BUILD "SNAPSHOT")
+endif()
+
 # Initialize version.h
 configure_file(src/version.h.in OpenSpaceNetVersion.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
