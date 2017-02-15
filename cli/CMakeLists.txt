@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(openspacenet-cli)
+project(OpenSpaceNet)
 
 # OpenSpaceNet version
 set(OpenSpaceNet_VERSION_MAJOR 0)
@@ -20,7 +20,7 @@ set(HEADERS
         )
 
 
-add_executable(openspacenet-cli ${SOURCE_FILES} ${HEADERS})
+add_executable(OpenSpaceNet ${SOURCE_FILES} ${HEADERS})
 
 add_definitions(-DUSE_OPENCV)
 
@@ -38,7 +38,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
     include_directories(${DEEPCORE_INCLUDE_DIRS})
-    target_link_libraries(openspacenet-cli ${DEEPCORE_LIBRARIES})
+    target_link_libraries(OpenSpaceNet ${DEEPCORE_LIBRARIES})
     list(APPEND CMAKE_MODULE_PATH ${DEEPCORE_CMAKE_DIR})
 endif()
 
@@ -54,12 +54,12 @@ if (Caffe_FOUND)
         set(Caffe_LINK caffe)
     endif()
     include_directories(${Caffe_INCLUDE_DIRS})
-    target_link_libraries(openspacenet-cli ${Caffe_LINK})
+    target_link_libraries(OpenSpaceNet ${Caffe_LINK})
 endif()
 
-target_link_libraries(openspacenet-cli hdf5_hl hdf5 glog gflags ippicv IlmImf cublas_static curand_static culibos libwebp openblas z pthread)
+target_link_libraries(OpenSpaceNet hdf5_hl hdf5 glog gflags ippicv IlmImf cublas_static curand_static culibos libwebp openblas z pthread)
 
-INSTALL(TARGETS openspacenet-cli
+INSTALL(TARGETS OpenSpaceNet
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
@@ -68,6 +68,6 @@ INSTALL(TARGETS openspacenet-cli
 include_directories(../openspacenet/include)
 include_directories(include)
 link_directories(openspacenet)
-target_link_libraries(openspacenet-cli openspacenet)
+target_link_libraries(OpenSpaceNet openspacenet)
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
