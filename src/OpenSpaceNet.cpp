@@ -38,10 +38,9 @@
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
+#include <geometry/PassthroughRegionFilter.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
-#include <imagery/BasicRegionFilter.h>
-#include <imagery/PassthroughRegionFilter.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
