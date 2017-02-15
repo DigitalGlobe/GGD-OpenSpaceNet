@@ -33,7 +33,7 @@ endif()
 
 # Initialize version.h
 configure_file(src/version.h.in OpenSpaceNetVersion.h)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
@@ -71,18 +71,3 @@ link_directories(openspacenet)
 target_link_libraries(openspacenet-cli openspacenet)
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
-
-if (UNIX AND NOT APPLE)
-    set(CPACK_GENERATOR "TGZ")
-    set(CPACK_PACKAGE_NAME "OpenSpaceNet")
-    set(CPACK_PACKAGE_VENDOR "DigitalGlobe")
-    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "DeepCore Support <deepcore-support@digitalglobe.com>")
-    set(CPACK_DEBIAN_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
-    set(CPACK_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
-    set(CPACK_PACKAGE_VERSION_MAJOR "${OpenSpaceNet_VERSION_MAJOR}")
-    set(CPACK_PACKAGE_VERSION_MINOR "${OpenSpaceNet_VERSION_MINOR}")
-    set(CPACK_PACKAGE_VERSION_PATCH "${OpenSpaceNet_VERSION_PATCH}")
-    set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/../README.md")
-    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-endif()
-include(CPack)
