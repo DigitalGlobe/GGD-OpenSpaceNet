@@ -38,10 +38,9 @@
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
+#include <geometry/PassthroughRegionFilter.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
-#include <imagery/BasicRegionFilter.h>
-#include <imagery/PassthroughRegionFilter.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
@@ -294,6 +293,7 @@ void OpenSpaceNet::initFilter()
     auto imageSr = image_->spatialReference();
     if (args_.filterDefinition.size()) {
         regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ALL);
+        bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
             std::vector<Polygon> filterPolys;
@@ -312,9 +312,15 @@ void OpenSpaceNet::initFilter()
                 }
             }
             if (action == "include") {
-                regionFilter_->includeRegions(filterPolys);
+                regionFilter_->add(filterPolys);
+                firstAction = false;
             } else if (action == "exclude") {
-                regionFilter_->excludeRegions(filterPolys);
+                if (firstAction) {
+                    OSN_LOG(info) << "Regions excluded first...including the bounding box.";
+                    regionFilter_->add({{bbox_}});
+                }
+                regionFilter_->subtract(filterPolys);
+                firstAction = false;
             } else {
                 DG_ERROR_THROW("Unknown filtering action \"%s\"", action);
             }

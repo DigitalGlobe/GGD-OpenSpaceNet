@@ -177,9 +177,9 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
         ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
-        ("include-region", po::value<string>()->value_name("PATH"), "Path to a file prescribing regions to include in the filtering process")
-        ("exclude-region", po::value<string>()->value_name("PATH"), "Path to a file prescribing regions to exclude in the filtering process. Recommended to have previously filtered regions.")
-        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [(include/exclude) PATH...]"), "Paths to files including and excluding regions.")
+        ("include-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to include when filtering.")
+        ("exclude-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to exclude when filtering.")
+        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]"), "Paths to files including and excluding regions.")
         ;
 
     loggingOptions_.add_options()
