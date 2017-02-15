@@ -14,9 +14,21 @@ if (Qt5Widgets_FOUND)
     message(Include Dirs: "${QT5WIDGETS_INCLUDE_DIRS}")
 endif()
 
+set(SOURCE_FILES
+        src/main.cpp
+        src/mainwindow.cpp
+        src/processthread.cpp
+        src/progresswindow.cpp
+        )
 
-# Tell CMake to create the helloworld executable
-add_executable(gui main.cpp mainwindow.cpp processthread.cpp progresswindow.cpp qdebugstream.h)
+set(HEADERS
+        include/mainwindow.h
+        include/processthread.h
+        include/progresswindow.h
+        include/qdebugstream.h
+        )
+
+add_executable(gui ${SOURCE_FILES} ${HEADERS})
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
@@ -49,5 +61,6 @@ INSTALL(TARGETS gui
 
 # Use the Widgets module from Qt 5.
 include_directories(../openspacenet/include)
+include_directories(include)
 link_directories(openspacenet)
 target_link_libraries(gui Qt5::Widgets openspacenet)
