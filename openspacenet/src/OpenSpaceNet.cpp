@@ -16,7 +16,7 @@
 ********************************************************************************/
 
 #include "OpenSpaceNet.h"
-#include <../OpenSpaceNetVersion.h>
+#include <OpenSpaceNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/combine.hpp>
