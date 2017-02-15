@@ -17,6 +17,7 @@
 
 #include "OpenSpaceNetArgs.h"
 #include <OpenSpaceNetVersion.h>
+#include <DeepCore/version.h>
 
 using namespace dg::osn;
 using namespace dg::deepcore;
@@ -35,7 +36,8 @@ static const string OSN_LOGO =
         "  \\____/| .__/ \\___|_| |_|_____/| .__/ \\__,_|\\___\\___|_| \\_|\\___|\\__(_|_|_) \n"
         "        | |                     | |                                         \n"
         "        |_|                     |_|                                         \n\n"
-        "Version: " OPENSPACENET_VERSION_STRING "\n\n";
+        "Version: " OPENSPACENET_VERSION_STRING "\n"
+        "DeepCore Version: " DEEPCORE_VERSION_STRING "\n\n";
 
 int main (int argc, const char* const* argv)
 {
