@@ -39,12 +39,12 @@
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
 #include <geometry/PassthroughRegionFilter.h>
+#include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <geometry/TransformationChain.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -300,12 +300,12 @@ void OpenSpaceNet::initFilter()
             for (const auto& filterFile : filterAction.second) {
                 FeatureSet filter(filterFile);
                 for (auto& layer : filter) {
+                    auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)),
+                                                           std::move(image_->pixelToProj().inverse())};
                     for (const auto& feature: layer) {
                         if (feature.type() != GeometryType::POLYGON) {
                             DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
                         }
-                        auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)), 
-                                                               std::move(image_->pixelToProj().inverse())};
                         auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
                         filterPolys.emplace_back(std::move(*poly));
                     }
