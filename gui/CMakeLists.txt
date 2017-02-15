@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(gui)
+project(OpenSpaceNet-gui)
 cmake_policy(SET CMP0015 NEW)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -28,13 +28,13 @@ set(HEADERS
         include/qdebugstream.h
         )
 
-add_executable(gui ${SOURCE_FILES} ${HEADERS})
+add_executable(OpenSpaceNet-gui ${SOURCE_FILES} ${HEADERS})
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
     message(Include Dirs: "${DEEPCORE_INCLUDE_DIRS}")
     include_directories(${DEEPCORE_INCLUDE_DIRS})
-    target_link_libraries(gui ${DEEPCORE_LIBRARIES})
+    target_link_libraries(OpenSpaceNet-gui ${DEEPCORE_LIBRARIES})
 endif()
 
 find_package(Caffe REQUIRED)
@@ -49,10 +49,10 @@ if (Caffe_FOUND)
         set(Caffe_LINK caffe)
     endif()
     include_directories(${Caffe_INCLUDE_DIRS})
-    target_link_libraries(gui ${Caffe_LINK})
+    target_link_libraries(OpenSpaceNet-gui ${Caffe_LINK})
 endif()
 
-INSTALL(TARGETS gui
+INSTALL(TARGETS OpenSpaceNet-gui
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
@@ -63,4 +63,4 @@ INSTALL(TARGETS gui
 include_directories(../openspacenet/include)
 include_directories(include)
 link_directories(openspacenet)
-target_link_libraries(gui Qt5::Widgets openspacenet)
+target_link_libraries(OpenSpaceNet-gui Qt5::Widgets openspacenet)
