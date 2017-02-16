@@ -54,7 +54,7 @@ target_link_libraries(openspacenet hdf5_hl hdf5 glog gflags ippicv IlmImf cublas
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
 
-install_public_headers(TARGET OpenSpaceNet ${HEADERS})
+install_public_headers(TARGET common ${HEADERS})
 
 INSTALL(TARGETS openspacenet
         RUNTIME DESTINATION bin

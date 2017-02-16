@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5)
 ENABLE_LANGUAGE(C)
 project(OpenSpaceNet CXX)
 
-add_subdirectory(OpenSpaceNet)
+add_subdirectory(common)
 if(CLI_ONLY)
     add_subdirectory(cli)
 elseif(GUI_ONLY)
