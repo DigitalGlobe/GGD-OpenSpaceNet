@@ -57,7 +57,7 @@ INSTALL(TARGETS OpenSpaceNet-gui
 
 
 # Use the Widgets module from Qt 5.
-include_directories(../openspacenet/include)
+include_directories(../OpenSpaceNet/include)
 include_directories(src)
 link_directories(openspacenet)
 target_link_libraries(OpenSpaceNet-gui Qt5::Widgets openspacenet)

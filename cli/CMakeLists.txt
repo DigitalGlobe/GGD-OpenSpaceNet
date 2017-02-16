@@ -65,7 +65,7 @@ INSTALL(TARGETS OpenSpaceNet
         ARCHIVE DESTINATION lib
         )
 
-include_directories(../openspacenet/include)
+include_directories(../OpenSpaceNet/include)
 include_directories(include)
 link_directories(openspacenet)
 target_link_libraries(OpenSpaceNet openspacenet)
