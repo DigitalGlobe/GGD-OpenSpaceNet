@@ -6,6 +6,8 @@ set(OpenSpaceNet_VERSION_MINOR 4)
 set(OpenSpaceNet_VERSION_PATCH 0)
 
 include_directories(include)
+include(../cmake/InstallHeaders.cmake)
+include_directories(${CMAKE_BINARY_DIR}/include)
 
 set(HEADERS
         include/OpenSpaceNet.h
@@ -51,6 +53,8 @@ target_link_libraries(openspacenet hdf5_hl hdf5 glog gflags ippicv IlmImf cublas
 
 # Set up include directory for local builds
 include_directories(${PROJECT_BINARY_DIR})
+
+install_public_headers(TARGET OpenSpaceNet ${HEADERS})
 
 INSTALL(TARGETS openspacenet
         RUNTIME DESTINATION bin
