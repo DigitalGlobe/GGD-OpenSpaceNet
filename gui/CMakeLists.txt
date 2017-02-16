@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 project(OpenSpaceNet-gui)
 cmake_policy(SET CMP0015 NEW)
 # Find includes in corresponding build directories
@@ -7,7 +7,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt5.7.0/5.7/gcc_64)
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 if (Qt5Widgets_FOUND)
