@@ -16,7 +16,7 @@ set(SOURCE_FILES
         )
 
 set(HEADERS
-        include/ParseCLIArgs.h
+        src/ParseCLIArgs.h
         )
 
 

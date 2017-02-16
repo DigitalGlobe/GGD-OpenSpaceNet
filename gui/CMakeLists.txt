@@ -22,10 +22,7 @@ set(SOURCE_FILES
         )
 
 set(HEADERS
-        include/mainwindow.h
-        include/processthread.h
-        include/progresswindow.h
-        include/qdebugstream.h
+        src/qdebugstream.h
         )
 
 add_executable(OpenSpaceNet-gui ${SOURCE_FILES} ${HEADERS})
@@ -61,6 +58,6 @@ INSTALL(TARGETS OpenSpaceNet-gui
 
 # Use the Widgets module from Qt 5.
 include_directories(../openspacenet/include)
-include_directories(include)
+include_directories(src)
 link_directories(openspacenet)
 target_link_libraries(OpenSpaceNet-gui Qt5::Widgets openspacenet)
