@@ -292,7 +292,7 @@ void OpenSpaceNet::initFilter()
     OSN_LOG(info) << "Initializing the region filter..." ;
     auto imageSr = image_->spatialReference();
     if (args_.filterDefinition.size()) {
-        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ALL);
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
