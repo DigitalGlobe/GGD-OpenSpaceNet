@@ -12,11 +12,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstd
 
 set(SOURCE_FILES
         src/main.cpp
-        src/ParseCLIArgs.cpp
+        src/CLIArgsParser.cpp
         )
 
 set(HEADERS
-        src/ParseCLIArgs.h
+        src/CLIArgsParser.h
         )
 
 

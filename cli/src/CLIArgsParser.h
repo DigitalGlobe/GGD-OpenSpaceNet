@@ -15,8 +15,8 @@
 * limitations under the License.
 ********************************************************************************/
 
-#ifndef OPENSPACENET_PARSECLIARGS_H
-#define OPENSPACENET_PARSECLIARGS_H
+#ifndef OPENSPACENET_CLIARGSPARSER_H
+#define OPENSPACENET_CLIARGSPARSER_H
 
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
@@ -24,14 +24,14 @@
 
 namespace dg { namespace osn {
 
-class ParseCLIArgs
+class CLIArgsParser
 {
 public:
     dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
-    ParseCLIArgs();
+    CLIArgsParser();
     void parseArgsAndProcess(int argc, const char* const* argv);
 
 private:
@@ -74,4 +74,4 @@ private:
 };
 
 } } // namespace dg { namespace osn {
-#endif //OPENSPACENET_PARSECLIARGS_H
+#endif //OPENSPACENET_CLIARGSPARSER_H

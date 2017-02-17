@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "ParseCLIArgs.h"
+#include "CLIArgsParser.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
@@ -81,7 +81,7 @@ static const string OSN_LANDCOVER_USAGE =
         "Usage:\n"
         "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
-ParseCLIArgs::ParseCLIArgs() :
+CLIArgsParser::CLIArgsParser() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
     outputOptions_("Output Options"),
@@ -220,7 +220,7 @@ ParseCLIArgs::ParseCLIArgs() :
     visibleOptions_.add(generalOptions_);
 }
 
-void ParseCLIArgs::parseArgsAndProcess(int argc, const char* const* argv)
+void CLIArgsParser::parseArgsAndProcess(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
@@ -251,7 +251,7 @@ void ParseCLIArgs::parseArgsAndProcess(int argc, const char* const* argv)
     osn.process();
 }
 
-void ParseCLIArgs::setupInitialLogging()
+void CLIArgsParser::setupInitialLogging()
 {
     log::init();
 
@@ -262,7 +262,7 @@ void ParseCLIArgs::setupInitialLogging()
                                 dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
-void ParseCLIArgs::setupLogging() {
+void CLIArgsParser::setupLogging() {
     osnArgs.quiet = consoleLogLevel > level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
@@ -341,7 +341,7 @@ static bool readVariable(const char* param, variables_map& vm, std::vector<T>& r
 }
 
 // Order of precedence: config files from env, env, config files from cli, cli.
-void ParseCLIArgs::parseArgs(int argc, const char* const* argv)
+void CLIArgsParser::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
     pd.add("action", 1)
@@ -394,7 +394,7 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void ParseCLIArgs::printUsage(Action action) const
+void CLIArgsParser::printUsage(Action action) const
 {
     switch(action) {
         case Action::LANDCOVER:
@@ -424,7 +424,7 @@ void ParseCLIArgs::printUsage(Action action) const
 }
 
 
-void ParseCLIArgs::validateArgs()
+void CLIArgsParser::validateArgs()
 {
     // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
     bool unusedStepSize = false;
@@ -585,7 +585,7 @@ void ParseCLIArgs::validateArgs()
     }
 }
 
-void ParseCLIArgs::promptForPassword()
+void CLIArgsParser::promptForPassword()
 {
     cout << "Enter your web service password: ";
     auto password = readMaskedInputFromConsole();
@@ -594,7 +594,7 @@ void ParseCLIArgs::promptForPassword()
 }
 
 
-void ParseCLIArgs::readArgs(variables_map vm, bool splitArgs) {
+void CLIArgsParser::readArgs(variables_map vm, bool splitArgs) {
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if (readVariable("config", vm, configFiles, splitArgs)) {
@@ -630,7 +630,7 @@ void ParseCLIArgs::readArgs(variables_map vm, bool splitArgs) {
     readLoggingArgs(vm, splitArgs);
 }
 
-void ParseCLIArgs::maybeDisplayHelp(variables_map vm)
+void CLIArgsParser::maybeDisplayHelp(variables_map vm)
 {
     // If "action" is "help", see if there's a topic. Display all help if there isn't
     string topicStr;
@@ -646,7 +646,7 @@ void ParseCLIArgs::maybeDisplayHelp(variables_map vm)
     }
 }
 
-void ParseCLIArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
+void CLIArgsParser::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
     mapIdSet |= readVariable("mapId", vm, osnArgs.mapId);
     readVariable("token", vm, osnArgs.token);
@@ -658,7 +658,7 @@ void ParseCLIArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
 }
 
 
-void ParseCLIArgs::readOutputArgs(variables_map vm, bool splitArgs)
+void CLIArgsParser::readOutputArgs(variables_map vm, bool splitArgs)
 {
     readVariable("format", vm, osnArgs.outputFormat);
     to_lower(osnArgs.outputFormat);
@@ -681,7 +681,7 @@ void ParseCLIArgs::readOutputArgs(variables_map vm, bool splitArgs)
     osnArgs.producerInfo = vm.find("producer-info") != end(vm);
 }
 
-void ParseCLIArgs::readProcessingArgs(variables_map vm, bool splitArgs)
+void CLIArgsParser::readProcessingArgs(variables_map vm, bool splitArgs)
 {
     osnArgs.useCpu = vm.find("cpu") != end(vm);
     readVariable("max-utilization", vm, osnArgs.maxUtilization);
@@ -689,7 +689,7 @@ void ParseCLIArgs::readProcessingArgs(variables_map vm, bool splitArgs)
     osnArgs.windowSize = readVariable<cv::Size>("window-size", vm);
 }
 
-void ParseCLIArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
+void CLIArgsParser::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
     readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);
     readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);
@@ -712,7 +712,7 @@ void ParseCLIArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void ParseCLIArgs::readLoggingArgs(variables_map vm, bool splitArgs)
+void CLIArgsParser::readLoggingArgs(variables_map vm, bool splitArgs)
 {
     if(vm.find("quiet") != end(vm)) {
         consoleLogLevel = level_t::fatal;
