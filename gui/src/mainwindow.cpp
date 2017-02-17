@@ -113,7 +113,7 @@ void MainWindow::setUpLogging()
 void MainWindow::initValidation()
 {
     //bbox double validator
-    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d+");
+    QRegularExpression doubleRegExp("[+-]?\\d*\\.?\\d*w");
     doubleValidator = std::unique_ptr<QRegularExpressionValidator>(new QRegularExpressionValidator(doubleRegExp, 0));
 
     ui->bboxWestLineEdit->setValidator(doubleValidator.get());
