@@ -215,30 +215,30 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
 
         //map id
         if(source == "MapsAPI") {
-        	ui->mapIdLabel->setEnabled(true);
-        	ui->mapIdLineEdit->setEnabled(true);
+            ui->mapIdLabel->setEnabled(true);
+            ui->mapIdLineEdit->setEnabled(true);
 
-        	//user credentials
-        	ui->usernameLabel->setEnabled(false);
-        	ui->usernameLineEdit->setEnabled(false);
-        	ui->passwordLabel->setEnabled(false);
-        	ui->passwordLineEdit->setEnabled(false);
+            //user credentials
+            ui->usernameLabel->setEnabled(false);
+            ui->usernameLineEdit->setEnabled(false);
+            ui->passwordLabel->setEnabled(false);
+            ui->passwordLineEdit->setEnabled(false);
 
             if(ui->zoomSpinBox->value() > 20) {
-        	    ui->zoomSpinBox->setValue(20);
+                ui->zoomSpinBox->setValue(20);
             }
             ui->zoomSpinBox->setMaximum(20);
         }
         else {
-        	ui->mapIdLabel->setEnabled(false);
-        	ui->mapIdLineEdit->setEnabled(false);
+            ui->mapIdLabel->setEnabled(false);
+            ui->mapIdLineEdit->setEnabled(false);
 
-        	//user credentials
-        	ui->usernameLabel->setEnabled(true);
-        	ui->usernameLineEdit->setEnabled(true);
-        	ui->passwordLabel->setEnabled(true);
-        	ui->passwordLineEdit->setEnabled(true);
-        	ui->zoomSpinBox->setMaximum(22);
+            //user credentials
+            ui->usernameLabel->setEnabled(true);
+            ui->usernameLineEdit->setEnabled(true);
+            ui->passwordLabel->setEnabled(true);
+            ui->passwordLineEdit->setEnabled(true);
+            ui->zoomSpinBox->setMaximum(22);
         }
 
         //zoom
@@ -250,7 +250,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         ui->downloadsSpinBox->setEnabled(true);
     }
     else {
-    	//bbox
+        //bbox
         ui->bboxOverrideCheckBox->show();
         bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
         ui->bboxNorthLineEdit->setEnabled(bboxOverridden);
