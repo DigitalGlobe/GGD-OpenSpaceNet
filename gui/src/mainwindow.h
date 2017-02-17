@@ -37,7 +37,7 @@
 
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
-#include <processthread.h>
+#include <OSNProcessingThread.h>
 #include <imagery/MapServiceClient.h>
 
 #include "progresswindow.h"
@@ -122,7 +122,7 @@ private:
     void exportConfig(const QString &filepath);
 
     dg::osn::OpenSpaceNetArgs osnArgs;
-    ProcessThread thread;
+    OSNProcessingThread thread;
     ProgressWindow progressWindow;
     Ui::ProgressWindow *progressUi;
     Ui::MainWindow *ui;

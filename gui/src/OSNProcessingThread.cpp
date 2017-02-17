@@ -14,16 +14,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "processthread.h"
+#include "OSNProcessingThread.h"
 
-void ProcessThread::run()
+void OSNProcessingThread::run()
 {
     dg::osn::OpenSpaceNet osn(*osnArgs);
     osn.process();
     emit processFinished();
 }
 
-void ProcessThread::setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput)
+void OSNProcessingThread::setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput)
 {
     osnArgs = &osnArgsInput;
 }

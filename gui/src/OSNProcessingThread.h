@@ -14,13 +14,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#ifndef PROCESSTHREAD_H
-#define PROCESSTHREAD_H
+#ifndef OSNPROCESSINGTHREAD_H
+#define OSNPROCESSINGTHREAD_H
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
 #include <QThread>
 
-class ProcessThread : public QThread
+class OSNProcessingThread : public QThread
 {
     Q_OBJECT
 public:
@@ -32,4 +32,4 @@ signals:
     void processFinished();
 };
 
-#endif // PROCESSTHREAD_H
+#endif // OSNPROCESSINGTHREAD_H
