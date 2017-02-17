@@ -44,7 +44,8 @@ int main (int argc, const char* const* argv)
     cout << OSN_LOGO;
     try {
         CLIArgsParser osnCLIArgs;
-        osnCLIArgs.parseArgsAndProcess(argc, argv);
+        osnCLIArgs.setupArgParsing(argc, argv);
+        osnCLIArgs.startOSNProcessing();
     } catch (const Error& e) {
         DG_ERROR_LOG(OpenSpaceNet, e);
         return 1;

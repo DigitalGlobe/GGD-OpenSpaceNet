@@ -32,10 +32,11 @@ public:
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
     CLIArgsParser();
-    void parseArgsAndProcess(int argc, const char* const* argv);
+    void setupArgParsing(int argc, const char* const* argv);
+    void startOSNProcessing();
+    OpenSpaceNetArgs osnArgs;
 
 private:
-    OpenSpaceNetArgs osnArgs;
     bool confidenceSet = false;
     bool mapIdSet = false;
     bool displayHelp = false;

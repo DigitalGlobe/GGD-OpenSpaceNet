@@ -220,7 +220,7 @@ CLIArgsParser::CLIArgsParser() :
     visibleOptions_.add(generalOptions_);
 }
 
-void CLIArgsParser::parseArgsAndProcess(int argc, const char* const* argv)
+void CLIArgsParser::setupArgParsing(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
@@ -247,6 +247,11 @@ void CLIArgsParser::parseArgsAndProcess(int argc, const char* const* argv)
 
     setupLogging();
 
+
+}
+
+void CLIArgsParser::startOSNProcessing()
+{
     OpenSpaceNet osn(osnArgs);
     osn.process();
 }
