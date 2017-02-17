@@ -124,7 +124,6 @@ private:
     dg::osn::OpenSpaceNetArgs osnArgs;
     OSNProcessingThread thread;
     ProgressWindow progressWindow;
-    Ui::ProgressWindow *progressUi;
     Ui::MainWindow *ui;
 
     std::string action;
