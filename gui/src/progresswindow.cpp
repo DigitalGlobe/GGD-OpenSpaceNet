@@ -24,7 +24,7 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
     ui->setupUi(this);
 }
 
-void ProgressWindow::updateProgress(std::string updateMessage){
+void ProgressWindow::updateProgress(const std::string& updateMessage){
 
     ui->progressDisplay->append(QString::fromStdString(updateMessage));
 }
@@ -37,7 +37,7 @@ void ProgressWindow::updateProgressBarDetect(int progressNumber){
     ui->progressBar_2->setValue(progressNumber);
 }
 
-void ProgressWindow::updateProgressText(std::string progressText){
+void ProgressWindow::updateProgressText(const std::string& progressText){
     ui->progressBarText->setText(QString::fromStdString(progressText));
 }
 

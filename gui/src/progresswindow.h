@@ -29,10 +29,10 @@ class ProgressWindow : public QWidget
 
 public:
     explicit ProgressWindow(QWidget *parent = 0);
-    void updateProgress(const std::string updateMessage);
+    void updateProgress(const std::string& updateMessage);
     void updateProgressBar(int progressNumber);
     void updateProgressBarDetect(int progressNumber);
-    void updateProgressText(const std::string progressText);
+    void updateProgressText(const std::string& progressText);
     ~ProgressWindow();
     Ui::ProgressWindow getUI();
 
