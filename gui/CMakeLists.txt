@@ -30,6 +30,7 @@ find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
     include_directories(${DEEPCORE_INCLUDE_DIRS})
     target_link_libraries(OpenSpaceNet-gui ${DEEPCORE_LIBRARIES})
+    list(APPEND CMAKE_MODULE_PATH ${DEEPCORE_CMAKE_DIR})
 endif()
 
 find_package(Caffe REQUIRED)
