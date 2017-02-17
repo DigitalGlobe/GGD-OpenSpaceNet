@@ -16,7 +16,7 @@ endif()
 set(SOURCE_FILES
         src/main.cpp
         src/mainwindow.cpp
-        src/processthread.cpp
+        src/OSNProcessingThread.cpp
         src/progresswindow.cpp
         )
 
@@ -28,7 +28,6 @@ add_executable(OpenSpaceNet-gui ${SOURCE_FILES} ${HEADERS})
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
-    message(Include Dirs: "${DEEPCORE_INCLUDE_DIRS}")
     include_directories(${DEEPCORE_INCLUDE_DIRS})
     target_link_libraries(OpenSpaceNet-gui ${DEEPCORE_LIBRARIES})
 endif()
