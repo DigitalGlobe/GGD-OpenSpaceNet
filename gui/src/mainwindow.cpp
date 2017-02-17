@@ -228,8 +228,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
                 ui->zoomSpinBox->setValue(20);
             }
             ui->zoomSpinBox->setMaximum(20);
-        }
-        else {
+        }else {
             ui->mapIdLabel->setEnabled(false);
             ui->mapIdLineEdit->setEnabled(false);
 
@@ -248,8 +247,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
         //downloads
         ui->downloadsLabel->setEnabled(true);
         ui->downloadsSpinBox->setEnabled(true);
-    }
-    else {
+    }else {
         //bbox
         ui->bboxOverrideCheckBox->show();
         bool bboxOverridden = ui->bboxOverrideCheckBox->isChecked();
@@ -302,8 +300,7 @@ void MainWindow::on_nmsCheckBox_toggled(bool checked)
 {
     if(checked) {
         ui->nmsSpinBox->setEnabled(true);
-    }
-    else {
+    }else {
         ui->nmsSpinBox->setEnabled(false);
     }
 }
@@ -315,8 +312,7 @@ void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked)
         ui->bboxSouthLineEdit->setEnabled(true);
         ui->bboxEastLineEdit->setEnabled(true);
         ui->bboxWestLineEdit->setEnabled(true);
-    }
-    else {
+    }else {
         //set bbox values back to the local image's bounding box
         if(hasValidLocalImagePath) {
             on_imagepathLineEditLostFocus();
@@ -366,11 +362,9 @@ void MainWindow::on_runPushButton_clicked()
     action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect") {
         osnArgs.action = dg::osn::Action::DETECT;
-    }
-    else if(action == "Landcover") {
+    }else if(action == "Landcover") {
         osnArgs.action = dg::osn::Action::LANDCOVER;
-    }
-    else {
+    }else {
         osnArgs.action = dg::osn::Action::UNKNOWN;
     }
 
@@ -378,20 +372,16 @@ void MainWindow::on_runPushButton_clicked()
     imageSource = ui->imageSourceComboBox->currentText().toStdString();
     if(imageSource == "Local Image File") {
         osnArgs.source = dg::osn::Source::LOCAL;
-    }
-    else if(imageSource == "DGCS") {
+    }else if(imageSource == "DGCS") {
         osnArgs.source = dg::osn::Source::DGCS;
         hasValidLocalImagePath = true;
-    }
-    else if(imageSource == "EVWHS") {
+    }else if(imageSource == "EVWHS") {
         osnArgs.source = dg::osn::Source::EVWHS;
         hasValidLocalImagePath = true;
-    }
-    else if(imageSource == "MapsAPI") {
+    }else if(imageSource == "MapsAPI") {
         osnArgs.source = dg::osn::Source::MAPS_API;
         hasValidLocalImagePath = true;
-    }
-    else {
+    }else {
         osnArgs.source = dg::osn::Source::UNKNOWN;
     }
 
@@ -412,8 +402,7 @@ void MainWindow::on_runPushButton_clicked()
     //Parse and set the map id
     if(ui->mapIdLineEdit->text() != "") {
         osnArgs.mapId = ui->mapIdLineEdit->text().toStdString();
-    }
-    else {
+    }else {
         osnArgs.mapId = MAPSAPI_MAPID;
     }
 
@@ -437,8 +426,7 @@ void MainWindow::on_runPushButton_clicked()
     pyramid = ui->pyramidCheckBox->isChecked();
     if(pyramid == true) {
         osnArgs.pyramid = true;
-    }
-    else {
+    }else {
         osnArgs.pyramid = false;
     }
 
@@ -448,8 +436,7 @@ void MainWindow::on_runPushButton_clicked()
         osnArgs.nms = true;
         nmsThreshold = ui->nmsSpinBox->value();
         osnArgs.overlap = (float)nmsThreshold;
-    }
-    else {
+    }else {
         osnArgs.nms = false;
     }
 
@@ -480,26 +467,22 @@ void MainWindow::on_runPushButton_clicked()
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "Elastic Search") {
+    }else if(outputFormat == "Elastic Search") {
         osnArgs.outputFormat = "elasticsearch";
         osnArgs.outputPath = outputLocation;
-    }
-    else if(outputFormat == "GeoJSON") {
+    }else if(outputFormat == "GeoJSON") {
         osnArgs.outputFormat = "geojson";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "KML") {
+    }else if(outputFormat == "KML") {
         osnArgs.outputFormat = "kml";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
         outputFilepath = outputLocation + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
-    }
-    else if(outputFormat == "PostGIS") {
+    }else if(outputFormat == "PostGIS") {
         osnArgs.outputFormat = "postgis";
         osnArgs.outputPath = outputLocation;
     }
@@ -508,8 +491,7 @@ void MainWindow::on_runPushButton_clicked()
     geometryType = ui->geometryTypeComboBox->currentText().toStdString();
     if(geometryType == "Polygon") {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POLYGON;
-    }
-    else {
+    }else {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POINT;
     }
 
@@ -521,8 +503,7 @@ void MainWindow::on_runPushButton_clicked()
     producerInfo = ui->producerInfoCheckBox->isChecked();
     if(producerInfo == true) {
         osnArgs.producerInfo = true;
-    }
-    else {
+    }else {
         osnArgs.producerInfo = false;
     }
 
@@ -530,8 +511,7 @@ void MainWindow::on_runPushButton_clicked()
     processingMode = ui->processingModeComboBox->currentText().toStdString();
     if(processingMode == "GPU") {
         osnArgs.useCpu = false;
-    }
-    else {
+    }else {
         osnArgs.useCpu = true;
     }
 
@@ -615,13 +595,11 @@ void MainWindow::updateProgressBox(QString updateText)
         if(whichProgress == 1) {
             progressWindow.updateProgressBar(progressCount);
             statusProgressBar->setValue(progressCount);
-        }
-        else if(whichProgress == 2) {
+        }else if(whichProgress == 2) {
             progressWindow.updateProgressBarDetect(progressCount);
             statusProgressBar->setValue(progressCount);
         }
-    }
-    else if(!boost::contains(updateText.toStdString(), "0%") &&
+    }else if(!boost::contains(updateText.toStdString(), "0%") &&
             !boost::contains(updateText.toStdString(), "|----") &&
             !boost::contains(updateText.toStdString(), "found star")) {
         progressWindow.getUI().progressDisplay->append(updateText);
@@ -642,16 +620,14 @@ void MainWindow::on_modelpathLineEditLostFocus()
     if(modelpath == "") {
         ui->modelFileLineEdit->setStyleSheet("color: default");
         hasValidModel = false;
-    }
-    //Specified file either doesn't exist or is a directory instead of a file
-    else if(!exists || isDirectory) {
+    }else if(!exists || isDirectory) {
+        //Specified file either doesn't exist or is a directory instead of a file
         std::cerr << "Error: specified model file does not exist." << std::endl;
         ui->modelFileLineEdit->setStyleSheet("color: red;"
                                              "border: 1px solid red;");
         hasValidModel = false;
-    }
-    //Valid input
-    else {
+    }else {
+        //Valid input
         ui->modelFileLineEdit->setStyleSheet("color: default");
         hasValidModel = true;
     }
@@ -669,16 +645,14 @@ void MainWindow::on_imagepathLineEditLostFocus()
     {
         ui->localImageFileLineEdit->setStyleSheet("color: default");
         hasValidLocalImagePath = false;
-    }
-    //Specified file either doesn't exist or is a directory instead of a file
-    else if(!exists || isDirectory) {
+    }else if(!exists || isDirectory) {
+        //Specified file either doesn't exist or is a directory instead of a file
         std::cerr << "Error: specified image file does not exist." << std::endl;
         ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                   "border: 1px solid red;");
         hasValidLocalImagePath = false;
-    }
-    //Valid image path
-    else {
+    }else {
+        //Valid image path
         ui->localImageFileLineEdit->setStyleSheet("color: default");
         hasValidLocalImagePath = true;
         //only geo-regeistered images are valid
@@ -700,8 +674,7 @@ void MainWindow::on_imagepathLineEditLostFocus()
                 std::clog << "Local Pixel size is too large" << std::endl;
                 std::clog << "Local Pixel is: " << (uint64_t)image->size().width*image->size().height << std::endl;
                 hasValidBboxSize = false;
-            }
-            else{
+            }else{
                 hasValidBboxSize = true;
             }
 
@@ -729,15 +702,13 @@ void MainWindow::on_outputLocationLineEditLostFocus()
         ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                   "border: 1px solid red;");
         hasValidOutputPath = false;
-    }
-    //Specified file either doesn't exist or isn't a directory
-    else if(!exists || !isDirectory) {
+    }else if(!exists || !isDirectory) {
+        //Specified file either doesn't exist or isn't a directory
         std::cerr << "Error: specified output directory does not exist." << std::endl;
         ui->outputLocationLineEdit->setStyleSheet("color: red;"
                                                   "border: 1px solid red;");
         hasValidOutputPath = false;
-    }
-    else {
+    }else {
         ui->outputLocationLineEdit->setStyleSheet("color: default");
         hasValidOutputPath = true;
     }
@@ -884,8 +855,7 @@ void MainWindow::importConfig(QString configPath)
         if(action == "detect"){
             actionIndex = ui->modeComboBox->findText("Detect");
             ui->modeComboBox->setCurrentIndex(actionIndex);
-        }
-        else if(action == "landcover") {
+        }else if(action == "landcover") {
             actionIndex = ui->imageSourceComboBox->findText("Landcover");
             ui->modeComboBox->setCurrentIndex(actionIndex);
         }
@@ -909,12 +879,10 @@ void MainWindow::importConfig(QString configPath)
         if(service == "dgcs") {
             sourceIndex = ui->imageSourceComboBox->findText("DGCS");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-        }
-        else if(service == "evwhs") {
+        }else if(service == "evwhs") {
             sourceIndex = ui->imageSourceComboBox->findText("EVWHS");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
-        }
-        else if(service == "maps-api") {
+        }else if(service == "maps-api") {
             sourceIndex = ui->imageSourceComboBox->findText("MapsAPI");
             ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
         }
@@ -1004,11 +972,9 @@ void MainWindow::importConfig(QString configPath)
         std::string format = config_vm["format"].as<std::string>();
         if (format == "shp") {
             formatIndex = ui->outputFormatComboBox->findText("Shapefile");
-        }
-        else if(format == "geojson") {
+        }else if(format == "geojson") {
             formatIndex = ui->outputFormatComboBox->findText("GeoJSON");
-        }
-        else if(format == "kml") {
+        }else if(format == "kml") {
             formatIndex = ui->outputFormatComboBox->findText("KML");
         }
         ui->outputFormatComboBox->setCurrentIndex(formatIndex);
@@ -1020,8 +986,7 @@ void MainWindow::importConfig(QString configPath)
         std::string type = config_vm["type"].as<std::string>();
         if (type == "polygon") {
             typeIndex = ui->geometryTypeComboBox->findText("Polygon");
-        }
-        else if (type == "point"){
+        }else if (type == "point"){
             typeIndex = ui->geometryTypeComboBox->findText("Point");
         }
         ui->geometryTypeComboBox->setCurrentIndex(typeIndex);
@@ -1091,8 +1056,7 @@ bool MainWindow::validateUI(QString &error)
             ui->localImageFileLineEdit->setStyleSheet("color: red;"
                                                       "border: 1px solid red;");
             validJob = false;
-        }
-        else {
+        }else {
             //The 'hasGeoRegLocalImage' flag is automatically updated every time the user selects a new image
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
@@ -1208,17 +1172,14 @@ bool MainWindow::validateUI(QString &error)
         //Parse and set the map id
         if(ui->mapIdLineEdit->text() != "") {
             mapId = ui->mapIdLineEdit->text().toStdString();
-        }
-        else {
+        }else {
             mapId = MAPSAPI_MAPID;
         }
         if(webservice == "DGCS") {
             validationClient = boost::make_unique<dg::deepcore::imagery::DgcsClient>(token, credentials);
-        }
-        else if(webservice == "EVWHS") {
+        }else if(webservice == "EVWHS") {
             validationClient = boost::make_unique<dg::deepcore::imagery::EvwhsClient>(token, credentials);
-        }
-        else if(webservice == "MapsAPI") {
+        }else if(webservice == "MapsAPI") {
             validationClient = boost::make_unique<dg::deepcore::imagery::MapBoxClient>(mapId, token);
             wmts = false;
         }
@@ -1231,8 +1192,7 @@ bool MainWindow::validateUI(QString &error)
                 validationClient->setLayer("DigitalGlobe:ImageryTileService");
                 validationClient->setTileMatrixSet("EPSG:3857");
                 validationClient->setTileMatrixId((format("EPSG:3857:%1d") % ui->zoomSpinBox->value()).str());
-            }
-            else {
+            }else {
                 validationClient->setTileMatrixId(lexical_cast<string>(ui->zoomSpinBox->value()));
             }
 
@@ -1263,8 +1223,7 @@ bool MainWindow::validateUI(QString &error)
             if((uint64_t)geoImage->size().width*geoImage->size().height > std::numeric_limits<int>::max()) {
                 std::clog << "Pixel size is too large" << std::endl;
                 hasValidBboxSize = false;
-            }
-            else {
+            }else {
                 hasValidBboxSize = true;
             }
         }
@@ -1278,22 +1237,19 @@ bool MainWindow::validateUI(QString &error)
                 error += "Invalid web service token\n\n";
                 ui->tokenLineEdit->setStyleSheet("color: red;"
                                                  "border: 1px solid red;");
-            }
-            //check for invalid username/password message
-            else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos) {
+            }else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos) {
+                //check for invalid username/password message
                 error += "Invalid web service username and/or password\n\n";
                 ui->passwordLineEdit->setStyleSheet("color: red;"
                                                     "border: 1px solid red;");
                 ui->usernameLineEdit->setStyleSheet("color: red;"
                                                     "border: 1px solid red;");
-            }
-            //check for invalid map id
-            else if(serverMessage.find("Not Found") != std::string::npos) {
+            }else if(serverMessage.find("Not Found") != std::string::npos) {
+                 //check for invalid map id
                  error += "Invalid Map Id\n\n";
                  ui->mapIdLineEdit->setStyleSheet("color: red;"
                                                            "border: 1px solid red;");
-            }
-            else {
+            }else {
                 error += "Unknown web service authentication error occurred\n\n";
             }
             validJob = false;
@@ -1304,8 +1260,7 @@ bool MainWindow::validateUI(QString &error)
     if(hasValidBboxSize == false){
         if(ui->imageSourceComboBox->currentText() != "Local Image File") {
             error += "The entered bounding box is too large\n\n";
-        }
-        else if(ui->imageSourceComboBox->currentText() == "Local Image File" && hasValidLocalImagePath) {
+        }else if(ui->imageSourceComboBox->currentText() == "Local Image File" && hasValidLocalImagePath) {
             error += "The entered image is too large\n\n";
         }
         validJob = false;
@@ -1325,8 +1280,7 @@ void MainWindow::exportConfig(const QString &filepath)
     QString index = ui->modeComboBox->currentText();
     if(index == "Detect") {
         key = "detect";
-    }
-    else {
+    }else {
         key = "landcover";
     }
     configContents << "action=" << key << "\n";
@@ -1335,14 +1289,11 @@ void MainWindow::exportConfig(const QString &filepath)
     index = ui->imageSourceComboBox->currentText();
     if(index == "Local Image File") {
         configContents << "image=" << ui->localImageFileLineEdit->text().toStdString() << "\n";
-    }
-    else if(index == "DGCS") {
+    }else if(index == "DGCS") {
         configContents << "service=dgcs\n";
-    }
-    else if(index == "EVWHS") {
+    }else if(index == "EVWHS") {
         configContents << "service=evwhs\n";
-    }
-    else if(index == "MapsAPI") {
+    }else if(index == "MapsAPI") {
         configContents << "service=maps-api\n";
     }
 
@@ -1396,11 +1347,9 @@ void MainWindow::exportConfig(const QString &filepath)
     index = ui->outputFormatComboBox->currentText();
     if(index == "Shapefile") {
         configContents << "shp\n";
-    }
-    else if(index == "GeoJSON") {
+    }else if(index == "GeoJSON") {
         configContents << "geojson\n";
-    }
-    else if(index == "KML") {
+    }else if(index == "KML") {
         configContents << "kml\n";
     }
 
@@ -1418,8 +1367,7 @@ void MainWindow::exportConfig(const QString &filepath)
     index = ui->geometryTypeComboBox->currentText();
     if(index == "Polygon") {
         configContents << "polygon\n";
-    }
-    else if(index == "Point") {
+    }else if(index == "Point") {
         configContents << "point\n";
     }
 
