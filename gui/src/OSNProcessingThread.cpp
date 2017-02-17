@@ -18,6 +18,7 @@
 
 void OSNProcessingThread::run()
 {
+    DG_CHECK(osnArgs != nullptr, "osnArgs is a null pointer before calling process");
     dg::osn::OpenSpaceNet osn(*osnArgs);
     osn.process();
     emit processFinished();
