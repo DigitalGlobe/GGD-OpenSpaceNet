@@ -16,11 +16,6 @@
   <property name="windowTitle">
    <string>OpenSpaceNet</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../Downloads/openskynet_icon.png</normaloff>
-    <normalon>../../../../Downloads/openskynet_icon.png</normalon>../../../../Downloads/openskynet_icon.png</iconset>
-  </property>
   <property name="windowOpacity">
    <double>100.000000000000000</double>
   </property>
@@ -401,7 +396,7 @@
        <item row="0" column="6">
         <widget class="QSpinBox" name="maxUtilizationSpinBox">
          <property name="toolTip">
-          <string>The maximum amount of GPU memory OpenSpaceNet will use.</string>
+          <string>The maximum percentage of GPU memory OpenSpaceNet will use.</string>
          </property>
          <property name="minimum">
           <number>5</number>
