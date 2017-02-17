@@ -24,7 +24,7 @@ void OSNProcessingThread::run()
     emit processFinished();
 }
 
-void OSNProcessingThread::setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput)
+void OSNProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput)
 {
     osnArgs = &osnArgsInput;
 }

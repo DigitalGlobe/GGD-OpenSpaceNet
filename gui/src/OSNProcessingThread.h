@@ -24,10 +24,10 @@ class OSNProcessingThread : public QThread
 {
     Q_OBJECT
 public:
-    void setArgs(dg::osn::OpenSpaceNetArgs& osnArgsInput);
+    void setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput);
 private:
     void run();
-    dg::osn::OpenSpaceNetArgs *osnArgs;
+    const dg::osn::OpenSpaceNetArgs *osnArgs;
 signals:
     void processFinished();
 };
