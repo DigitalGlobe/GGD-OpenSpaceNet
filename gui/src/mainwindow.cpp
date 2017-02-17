@@ -162,7 +162,7 @@ void MainWindow::on_localImageFileBrowseButton_clicked()
     QString path = QFileDialog::getOpenFileName(this,
                                                 tr("Select Image File"),
                                                 lastAccessedDirectory,
-                                                tr("Image files (*.tif *.jpg *.JPEG *.png *.bmp);;All files (*.*)"));
+                                                tr("Image files (*.tif *.jpg *.JPEG *.png *.bmp *.ntf *.jp2 *.j2k);;All files (*.*)"));
     lastAccessedDirectory = "";
 
     if(!path.isEmpty() && !path.isNull()) {
