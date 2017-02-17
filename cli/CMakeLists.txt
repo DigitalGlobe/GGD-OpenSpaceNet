@@ -66,8 +66,5 @@ INSTALL(TARGETS OpenSpaceNet
         )
 
 include_directories(../common/include)
-include_directories(include)
 link_directories(openspacenet)
 target_link_libraries(OpenSpaceNet openspacenet)
-# Set up include directory for local builds
-include_directories(${PROJECT_BINARY_DIR})
