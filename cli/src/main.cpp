@@ -17,7 +17,7 @@
 
 #include "CLIArgsParser.h"
 #include <OpenSpaceNetVersion.h>
-#include <DeepCore/version.h>
+#include <DeepCoreVersion.h>
 
 using namespace dg::osn;
 using namespace dg::deepcore;
