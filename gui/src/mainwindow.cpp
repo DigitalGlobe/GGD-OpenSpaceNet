@@ -150,19 +150,6 @@ void MainWindow::on_saveConfigPushButton_clicked()
     bool valid = validateUI(errorBuffer);
     ui->runPushButton->setEnabled(true);
 
-    if(!valid) {
-        //have to have this here to prevent run button from being disabled by validation checks
-        //this is only here because the run button state is mixed into the validation logic
-        ui->runPushButton->setEnabled(true);
-
-        QMessageBox::critical(
-                this,
-                tr("Cannot Save Config"),
-                errorBuffer);
-
-        return;
-    }
-
     QString filepath = QFileDialog::getSaveFileName(this,
                                                     tr("Save to Config File"),
                                                     lastAccessedDirectory,
