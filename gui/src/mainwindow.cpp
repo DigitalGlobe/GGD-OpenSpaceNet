@@ -1430,7 +1430,7 @@ void MainWindow::exportConfig(const QString &filepath)
     configContents << "type=";
     index = ui->geometryTypeComboBox->currentText();
     if(index == "Polygon") {
-        configContents << "point\n";
+        configContents << "polygon\n";
     }
     else if(index == "Point") {
         configContents << "point\n";
