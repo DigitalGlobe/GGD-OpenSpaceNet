@@ -21,6 +21,7 @@
 #include <streambuf>
 #include <string>
 
+#include <QObject>
 
 
 class QDebugStream :  public QObject , public std::basic_streambuf<char>

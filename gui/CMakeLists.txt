@@ -1,62 +1,42 @@
-cmake_minimum_required(VERSION 3.5)
-project(OpenSpaceNet-gui)
-cmake_policy(SET CMP0015 NEW)
-# Find includes in corresponding build directories
+include_directories(src)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run uic automatically when needed
-set(CMAKE_AUTOUIC ON)
-# Instruct CMake to run moc automatically when needed
-set(CMAKE_AUTOMOC ON)
-# Find the QtWidgets library
+
 find_package(Qt5Widgets REQUIRED)
-if (Qt5Widgets_FOUND)
-    message(Include Dirs: "${QT5WIDGETS_INCLUDE_DIRS}")
-endif()
 
-set(SOURCE_FILES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/OSNProcessingThread.cpp
-        src/progresswindow.cpp
-        )
-
-set(HEADERS
+qt5_wrap_cpp(OSN_GUI_MOC
+        src/mainwindow.h
+        src/OSNProcessingThread.h
+        src/progresswindow.h
         src/qdebugstream.h
         )
 
-add_executable(OpenSpaceNet-gui ${SOURCE_FILES} ${HEADERS})
+qt5_wrap_ui(OSN_GUI_UI
+        src/mainwindow.ui
+        src/progresswindow.ui
+        )
 
-find_package(DeepCore REQUIRED)
-if (DeepCore_FOUND)
-    include_directories(${DEEPCORE_INCLUDE_DIRS})
-    target_link_libraries(OpenSpaceNet-gui ${DEEPCORE_LIBRARIES})
-    list(APPEND CMAKE_MODULE_PATH ${DEEPCORE_CMAKE_DIR})
-endif()
+set(SOURCES
+        src/main.cpp
+        src/mainwindow.cpp
+        src/mainwindow.h
+        src/OSNProcessingThread.cpp
+        src/OSNProcessingThread.h
+        src/progresswindow.cpp
+        src/progresswindow.h
+        src/qdebugstream.h
+        ${OSN_GUI_MOC}
+        ${OSN_GUI_UI}
+        )
 
-find_package(Caffe REQUIRED)
-if (Caffe_FOUND)
-    if (DEEPCORE_STATIC)
-        if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-            set(Caffe_LINK -Wl,-force_load caffe)
-        elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(Caffe_LINK -Wl,--whole-archive caffe -Wl,--no-whole-archive)
-        endif()
-    else()
-        set(Caffe_LINK caffe)
-    endif()
-    include_directories(${Caffe_INCLUDE_DIRS})
-    target_link_libraries(OpenSpaceNet-gui ${Caffe_LINK})
-endif()
+add_executable(OpenSpaceNet.gui ${SOURCES})
 
-INSTALL(TARGETS OpenSpaceNet-gui
+qt5_use_modules(OpenSpaceNet.gui Widgets)
+target_link_libraries(OpenSpaceNet.gui OpenSpaceNet.common ${OSN_LINK_LIBRARIES})
+set_target_properties(OpenSpaceNet.gui PROPERTIES OUTPUT_NAME OpenSpaceNet-gui)
+
+INSTALL(TARGETS OpenSpaceNet.gui
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         )
-
-
-# Use the Widgets module from Qt 5.
-include_directories(../common/include)
-include_directories(src)
-link_directories(openspacenet)
-target_link_libraries(OpenSpaceNet-gui Qt5::Widgets openspacenet)
