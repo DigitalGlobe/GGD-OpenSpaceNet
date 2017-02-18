@@ -71,8 +71,8 @@ endif()
 #
 add_subdirectory(common)
 
-include_directories(${CMAKE_BINARY_DIR}/include)
-include_directories(${CMAKE_BINARY_DIR}/common)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/common)
 
 if(OSN_BUILD_CLI)
     add_subdirectory(cli)
