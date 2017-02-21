@@ -276,7 +276,12 @@ void OpenSpaceNet::initFeatureSet()
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
-    layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
+
+    if (openMode == OVERWRITE) {
+        layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);    
+    } else if (openMode == APPEND) {
+        layer_ = featureSet_->layer(args_.layerName);
+    }
 }
 
 void OpenSpaceNet::processConcurrent()
