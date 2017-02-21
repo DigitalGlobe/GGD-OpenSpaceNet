@@ -59,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusBar()->showMessage(tr("Ready"));
     statusBar()->installEventFilter(this);
     ui->pyramidCheckBox->hide();
+    ui->viewMetadataButton->hide();
+    ui->helpPushButton->hide();
 
     //Set the file browsers' initial location to the user's home directory
     lastAccessedDirectory = QDir::homePath();
