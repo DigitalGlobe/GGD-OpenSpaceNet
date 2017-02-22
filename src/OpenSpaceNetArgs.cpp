@@ -152,7 +152,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", confidence)),
          "Minimum percent score for results to be included in the output.")
         ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-         "Sliding window step size. Default value for caffe type models is 20% of the model window size. Step size can be specified in "
+         "Sliding window step size. Default value is 20% of the model window size. Step size can be specified in "
          "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
         ("pyramid",
          "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
