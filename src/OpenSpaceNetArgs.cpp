@@ -19,6 +19,7 @@
 #include "OpenSpaceNet.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
@@ -42,6 +43,7 @@ using boost::program_options::variables_map;
 using boost::program_options::name_with_default;
 using boost::adaptors::reverse;
 using boost::bad_lexical_cast;
+using boost::filesystem::exists;
 using boost::filesystem::path;
 using boost::iequals;
 using boost::join;
@@ -61,8 +63,8 @@ using std::move;
 using std::ofstream;
 using std::string;
 using std::unique_ptr;
+using geometry::GeometryType;
 using vector::FeatureSet;
-using vector::GeometryType;
 
 static const string OSN_USAGE =
     "Usage:\n"
@@ -168,6 +170,9 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
         ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
+        ("include-region", po::value<string>()->value_name("PATH"), "Path to a file prescribing regions to include in the filtering process")
+        ("exclude-region", po::value<string>()->value_name("PATH"), "Path to a file prescribing regions to exclude in the filtering process. Recommended to have previously filtered regions.")
+        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [(include/exclude) PATH...]"), "Paths to files including and excluding regions.")
         ;
 
     loggingOptions_.add_options()
@@ -360,6 +365,7 @@ void OpenSpaceNetArgs::parseArgs(int argc, const char* const* argv)
     po::store(po::command_line_parser(argc, argv)
                   .extra_style_parser(&po::ignore_numbers)
                   .options(optionsDescription_)
+                  .extra_style_parser(po::postfix_argument("region"))
                   .positional(pd)
                   .run(), command_line_vm);
     po::notify(command_line_vm);
@@ -466,7 +472,6 @@ void OpenSpaceNetArgs::validateArgs()
     if (unusedConfidence && confidenceSet) {
         OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
     }
-
 
     // Validate source args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
     bool unusedMapId = false;
@@ -579,6 +584,25 @@ void OpenSpaceNetArgs::validateArgs()
 
     if(pyramidWindowSizes.size() && stepSize) {
         OSN_LOG(warning) << "Argument --step-size is ignored because pyramid levels are specified manually.";
+    }
+
+    if (filterDefinition.size()) {
+        for (const auto& action : filterDefinition) {
+            for (const auto& file : action.second) {
+                path filePath = path(file);
+                if (!exists(filePath)) {
+                    DG_ERROR_THROW("Argument to %s region using file \"%s\" invalid, file does not exist",
+                                   action.first.c_str(), file.c_str());
+                } else {
+                    string fileExtension = filePath.extension().string();
+                    fileExtension.erase(0,1);
+                    if (find(supportedFormats_.begin(), supportedFormats_.end(), fileExtension) == supportedFormats_.end()) {
+                        DG_ERROR_THROW("Argument to %s region using file \"%s\" invalid, format \"%s\" is unsupported",
+                                       action.first.c_str(), file.c_str(), fileExtension.c_str());
+                    }
+                }
+            }
+        }
     }
 
     // Ask for password, if not specified
@@ -711,6 +735,10 @@ void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs
             overlap = args[0];
         }
     }
+
+    if (vm.find("region") != end(vm)) {
+        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
+    }
 }
 
 void OpenSpaceNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
@@ -734,6 +762,41 @@ void OpenSpaceNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
             fileLogLevel = log::stringToLevel(logArgs[0]);
             fileLogPath = logArgs[1];
         }
+    }
+}
+
+void OpenSpaceNetArgs::parseFilterArgs(const std::vector<string>& filterList)
+{
+    string filterAction = "";
+    string finalEntry = "";
+    std::vector<string> filterActionFileSet;
+    for (auto entry : filterList) {
+        if (entry == filterAction) {
+            finalEntry = entry;
+            continue;
+        }
+        else if (entry == "include" || 
+                 entry == "exclude") {
+            if (filterAction != "") {
+                if (filterActionFileSet.empty()) {
+                    DG_ERROR_THROW("Argument to %s region without file input", filterAction.c_str());
+                }
+                filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
+            }
+
+            filterActionFileSet.clear();
+            filterAction = entry.c_str();
+        } else {
+            filterActionFileSet.push_back(entry);
+        }
+
+        finalEntry = entry;
+    }
+    if (finalEntry == "include" || finalEntry == "exclude") {
+        DG_ERROR_THROW("Argument to %s region without file input", finalEntry.c_str());
+    }
+    if (!filterDefinition.empty()) {
+        filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
     }
 }
 
