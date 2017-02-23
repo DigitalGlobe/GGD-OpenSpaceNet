@@ -278,9 +278,13 @@ void OpenSpaceNet::initFeatureSet()
     featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
 
     if (openMode == OVERWRITE) {
-        layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);    
+        layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
     } else if (openMode == APPEND) {
-        layer_ = featureSet_->layer(args_.layerName);
+        if (featureSet_->hasLayer(args_.layerName)) {
+            layer_ = featureSet_->layer(args_.layerName);
+        } else {
+            layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
+        }
     }
 }
 
