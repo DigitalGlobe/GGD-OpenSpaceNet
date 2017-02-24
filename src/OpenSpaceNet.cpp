@@ -355,10 +355,11 @@ void OpenSpaceNet::processConcurrent()
         haveWork.notify();
     });
 
-    image_->readBlocksInAoi();
+    image_->readBlocksInAoi({}, regionFilter_.get());
 
     size_t curBlockClass = 0;
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass]() {
+    auto filter = regionFilter_.get();
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -373,29 +374,32 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, move(regionFilter_->clone()));
+            if (filter->contains({item.first, windowSize_}))
+            {
+                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
 
-            Subsets subsets;
-            copy(slicer, back_inserter(subsets));
+                Subsets subsets;
+                copy(slicer, back_inserter(subsets));
 
-            auto predictions = model_->detect(subsets);
+                auto predictions = model_->detect(subsets);
 
-            if(!args_.excludeLabels.empty()) {
-                std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-                auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
-                predictions = move(filtered);
-            }
+                if(!args_.excludeLabels.empty()) {
+                    std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+                    auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+                    predictions = move(filtered);
+                }
 
-            if(!args_.includeLabels.empty()) {
-                std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-                auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
-                predictions = move(filtered);
-            }
+                if(!args_.includeLabels.empty()) {
+                    std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+                    auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+                    predictions = move(filtered);
+                }
 
-            for(auto& prediction : predictions) {
-                prediction.window.x += item.first.x;
-                prediction.window.y += item.first.y;
-                addFeature(prediction.window, prediction.predictions);
+                for(auto& prediction : predictions) {
+                    prediction.window.x += item.first.x;
+                    prediction.window.y += item.first.y;
+                    addFeature(prediction.window, prediction.predictions);
+                }
             }
 
             progressDisplay.update(1, (float)++curBlockClass / numBlocks);
