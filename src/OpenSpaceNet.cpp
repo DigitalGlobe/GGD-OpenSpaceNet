@@ -307,7 +307,7 @@ void OpenSpaceNet::initFilter()
                                                            std::move(image_->pixelToProj().inverse())};
                     for (const auto& feature: layer) {
                         if (feature.type() != GeometryType::POLYGON) {
-                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
+                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile.c_str());
                         }
                         auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
                         filterPolys.emplace_back(std::move(*poly));
