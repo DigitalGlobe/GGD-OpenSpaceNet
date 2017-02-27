@@ -325,7 +325,7 @@ void OpenSpaceNet::initFilter()
                 regionFilter_->subtract(filterPolys);
                 firstAction = false;
             } else {
-                DG_ERROR_THROW("Unknown filtering action \"%s\"", action);
+                DG_ERROR_THROW("Unknown filtering action \"%s\"", action.c_str());
             }
         }
     } else {
