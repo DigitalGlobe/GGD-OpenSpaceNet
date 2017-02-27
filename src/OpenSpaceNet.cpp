@@ -376,7 +376,7 @@ void OpenSpaceNet::processConcurrent()
 
             if (filter->contains({item.first, item.second.size()}))
             {
-                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
+                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, 1.0, {}, EdgeBehavior::FILL, nullptr);
 
                 Subsets subsets;
                 copy(slicer, back_inserter(subsets));
@@ -433,7 +433,7 @@ void OpenSpaceNet::processSerial()
     }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, regionFilter_.get(), bbox_, [&openProgress](float progress) -> bool {
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress && openProgress->count() < curProgress) {
             *openProgress += curProgress - openProgress->count();
@@ -452,7 +452,7 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), move(regionFilter_->clone()), windowSize_);
+    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_, EdgeBehavior::FILL, move(regionFilter_->clone()));
     auto it = slicer.begin();
     std::vector<WindowPrediction> predictions;
     int progress = 0;
@@ -470,7 +470,7 @@ void OpenSpaceNet::processSerial()
 
         if(detectProgress) {
             progress += subsets.size();
-            auto curProgress = (size_t)round((double)progress / slicer.slidingWindow().totalWindows() * 50);
+            auto curProgress = (size_t)round((double)(progress + it.skipped()) / slicer.slidingWindow().totalWindows() * 50);
             if(detectProgress && detectProgress->count() < curProgress) {
                 *detectProgress += curProgress - detectProgress->count();
             }
