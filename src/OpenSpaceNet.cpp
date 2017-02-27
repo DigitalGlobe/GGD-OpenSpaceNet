@@ -32,12 +32,13 @@
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
+#include <geometry/PassthroughRegionFilter.h>
+#include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <geometry/TransformationChain.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -103,6 +104,7 @@ void OpenSpaceNet::process()
 
     initModel();
     printModel();
+    initFilter();    
     initFeatureSet();
 
     if(concurrent_) {
@@ -288,6 +290,49 @@ void OpenSpaceNet::initFeatureSet()
     }
 }
 
+void OpenSpaceNet::initFilter()
+{
+    if (args_.filterDefinition.size()) {
+        OSN_LOG(info) << "Initializing the region filter..." ;
+        auto imageSr = image_->spatialReference();
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
+        bool firstAction = true;
+        for (const auto& filterAction : args_.filterDefinition) {
+            string action = filterAction.first;
+            std::vector<Polygon> filterPolys;
+            for (const auto& filterFile : filterAction.second) {
+                FeatureSet filter(filterFile);
+                for (auto& layer : filter) {
+                    auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)),
+                                                           std::move(image_->pixelToProj().inverse())};
+                    for (const auto& feature: layer) {
+                        if (feature.type() != GeometryType::POLYGON) {
+                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile);
+                        }
+                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
+                        filterPolys.emplace_back(std::move(*poly));
+                    }
+                }
+            }
+            if (action == "include") {
+                regionFilter_->add(filterPolys);
+                firstAction = false;
+            } else if (action == "exclude") {
+                if (firstAction) {
+                    OSN_LOG(info) << "User excluded regions first...automatically including the bounding box...";
+                    regionFilter_->add({{bbox_}});
+                }
+                regionFilter_->subtract(filterPolys);
+                firstAction = false;
+            } else {
+                DG_ERROR_THROW("Unknown filtering action \"%s\"", action);
+            }
+        }
+    } else {
+        regionFilter_ = make_unique<PassthroughRegionFilter>();
+    }
+}
+
 void OpenSpaceNet::processConcurrent()
 {
     recursive_mutex queueMutex;
@@ -319,10 +364,11 @@ void OpenSpaceNet::processConcurrent()
         haveWork.notify();
     });
 
-    image_->readBlocksInAoi();
+    image_->readBlocksInAoi({}, regionFilter_.get());
 
     size_t curBlockClass = 0;
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass]() {
+    auto filter = regionFilter_.get();
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -337,29 +383,32 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
+            if (filter->contains({item.first, item.second.size()}))
+            {
+                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, 1.0, {}, EdgeBehavior::FILL, nullptr);
 
-            Subsets subsets;
-            copy(slicer, back_inserter(subsets));
+                Subsets subsets;
+                copy(slicer, back_inserter(subsets));
 
-            auto predictions = model_->detect(subsets);
+                auto predictions = model_->detect(subsets);
 
-            if(!args_.excludeLabels.empty()) {
-                std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-                auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
-                predictions = move(filtered);
-            }
+                if(!args_.excludeLabels.empty()) {
+                    std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
+                    auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+                    predictions = move(filtered);
+                }
 
-            if(!args_.includeLabels.empty()) {
-                std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-                auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
-                predictions = move(filtered);
-            }
+                if(!args_.includeLabels.empty()) {
+                    std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
+                    auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+                    predictions = move(filtered);
+                }
 
-            for(auto& prediction : predictions) {
-                prediction.window.x += item.first.x;
-                prediction.window.y += item.first.y;
-                addFeature(prediction.window, prediction.predictions);
+                for(auto& prediction : predictions) {
+                    prediction.window.x += item.first.x;
+                    prediction.window.y += item.first.y;
+                    addFeature(prediction.window, prediction.predictions);
+                }
             }
 
             progressDisplay.update(1, (float)++curBlockClass / numBlocks);
@@ -393,7 +442,7 @@ void OpenSpaceNet::processSerial()
     }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, [&openProgress](float progress) -> bool {
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
         if(openProgress && openProgress->count() < curProgress) {
             *openProgress += curProgress - openProgress->count();
@@ -412,7 +461,7 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_);
+    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_, EdgeBehavior::FILL, move(regionFilter_->clone()));
     auto it = slicer.begin();
     std::vector<WindowPrediction> predictions;
     int progress = 0;
@@ -430,7 +479,7 @@ void OpenSpaceNet::processSerial()
 
         if(detectProgress) {
             progress += subsets.size();
-            auto curProgress = (size_t)round((double)progress / slicer.slidingWindow().totalWindows() * 50);
+            auto curProgress = (size_t)round((double)(progress + it.skipped()) / slicer.slidingWindow().totalWindows() * 50);
             if(detectProgress && detectProgress->count() < curProgress) {
                 *detectProgress += curProgress - detectProgress->count();
             }

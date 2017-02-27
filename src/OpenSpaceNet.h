@@ -23,6 +23,7 @@
 #include <classification/Model.h>
 #include <classification/Prediction.h>
 #include <geometry/SpatialReference.h>
+#include <geometry/MaskedRegionFilter.h>
 #include <imagery/GeoImage.h>
 #include <imagery/MapServiceClient.h>
 #include <imagery/SlidingWindow.h>
@@ -45,6 +46,7 @@ private:
     void initLocalImage();
     void initMapServiceImage();
     void initFeatureSet();
+    void initFilter();
     void processConcurrent();
     void processSerial();
     void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions);
@@ -59,6 +61,7 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
+    std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     cv::Point stepSize_;
     cv::Size windowSize_;
     bool concurrent_ = false;

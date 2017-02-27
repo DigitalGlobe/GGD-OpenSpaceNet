@@ -67,7 +67,7 @@ public:
 
 
     // Output options
-    deepcore::vector::GeometryType geometryType = deepcore::vector::GeometryType::POLYGON;
+    deepcore::geometry::GeometryType geometryType = deepcore::geometry::GeometryType::POLYGON;
     std::string outputFormat = "shp";
     std::string outputPath;
     std::string layerName;
@@ -90,6 +90,7 @@ public:
     std::vector<std::string> excludeLabels;
     std::vector<int> pyramidWindowSizes;
     std::vector<int> pyramidStepSizes;
+    std::vector<std::pair<std::string, std::vector<std::string>>> filterDefinition;
 
     // Logging options
     bool quiet = false;
@@ -117,6 +118,7 @@ private:
     void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void parseFilterArgs(const std::vector<std::string>& filterList);
 
     void validateArgs();
 
