@@ -374,7 +374,7 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            if (filter->contains({item.first, windowSize_}))
+            if (filter->contains({item.first, item.second.size()}))
             {
                 SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_);
 
