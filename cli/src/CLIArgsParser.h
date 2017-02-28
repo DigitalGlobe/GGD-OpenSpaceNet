@@ -53,6 +53,7 @@ private:
     void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void parseFilterArgs(const std::vector<std::string>& filterList);
 
     void validateArgs();
 
