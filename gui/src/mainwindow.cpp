@@ -97,6 +97,7 @@ void MainWindow::connectSignalsAndSlots()
     connect(ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_usernameLineEditCursorPositionChanged()));
     connect(ui->mapIdLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_mapIdLineEditCursorPositionChanged()));
     connect(ui->tokenLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_tokenLineEditCursorPositionChanged()));
+    connect(ui->zoomSpinBox, SIGNAL(valueChanged(QString)), this, SLOT(on_zoomSpinBoxCursorPositionChanged()));
 }
 
 void MainWindow::setUpLogging()
@@ -706,6 +707,11 @@ void MainWindow::on_mapIdLineEditCursorPositionChanged()
 void MainWindow::on_tokenLineEditCursorPositionChanged()
 {
     ui->tokenLineEdit->setStyleSheet("color: default");
+}
+
+void MainWindow::on_zoomSpinBoxCursorPositionChanged()
+{
+    ui->zoomSpinBox->setStyleSheet("color: default");
 }
 
 void MainWindow::on_passwordLineEditCursorPositionChanged()

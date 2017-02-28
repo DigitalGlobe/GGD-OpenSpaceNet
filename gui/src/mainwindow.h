@@ -90,6 +90,8 @@ private slots:
 
     void on_tokenLineEditCursorPositionChanged();
 
+    void on_zoomSpinBoxCursorPositionChanged();
+
     void on_passwordLineEditCursorPositionChanged();
 
     void on_usernameLineEditCursorPositionChanged();
