@@ -227,9 +227,6 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
             ui->passwordLabel->setEnabled(false);
             ui->passwordLineEdit->setEnabled(false);
 
-            if(ui->zoomSpinBox->value() > 20) {
-                ui->zoomSpinBox->setValue(20);
-            }
             ui->zoomSpinBox->setMaximum(20);
         }else {
             ui->mapIdLabel->setEnabled(false);
