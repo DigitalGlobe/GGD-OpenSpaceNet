@@ -227,7 +227,6 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
             ui->passwordLabel->setEnabled(false);
             ui->passwordLineEdit->setEnabled(false);
 
-            ui->zoomSpinBox->setMaximum(20);
         }else {
             ui->mapIdLabel->setEnabled(false);
             ui->mapIdLineEdit->setEnabled(false);
@@ -237,7 +236,6 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
             ui->usernameLineEdit->setEnabled(true);
             ui->passwordLabel->setEnabled(true);
             ui->passwordLineEdit->setEnabled(true);
-            ui->zoomSpinBox->setMaximum(22);
         }
 
         //zoom
@@ -1205,6 +1203,28 @@ bool MainWindow::validateUI(QString &error)
                  //check for invalid map id
                  error += "Invalid Map Id\n\n";
                  ui->mapIdLineEdit->setStyleSheet("color: red;"
+                                                           "border: 1px solid red;");
+            }else if(serverMessage.find("Invalid tile matrix id") != std::string::npos) {
+                 //check for invalid zoom level
+                 for (auto i = validationClient->tileMatrixIds().begin(); i != validationClient->tileMatrixIds().end(); ++i)
+                     std::clog << *i << ' ';
+                 error += "Invalid zoom level\nValid zoom levels: ";
+                 std::string stringToDelete = "EPSG:3857:";
+                 auto validZoomLevels = validationClient->tileMatrixIds();
+                 auto eraseFront = validZoomLevels.front().find(stringToDelete);
+                 auto eraseBack = validZoomLevels.back().find(stringToDelete);
+                 if(eraseFront != std::string::npos){
+                     validZoomLevels.front().erase(eraseFront, stringToDelete.length());
+                 }
+                 if(eraseBack != std::string::npos){
+                     validZoomLevels.back().erase(eraseBack, stringToDelete.length());
+                 }
+                 error += QString::fromStdString(validZoomLevels.front());
+                 error += "-";
+                 error += QString::fromStdString(validZoomLevels.back());
+                 error += "\n\n";
+
+                 ui->zoomSpinBox->setStyleSheet("color: red;"
                                                            "border: 1px solid red;");
             }else {
                 error += "Unknown web service authentication error occurred\n\n";
