@@ -37,6 +37,7 @@
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
 #include "qdebugstream.h"
+#include "../../common/include/OpenSpaceNetArgs.h"
 
 using std::unique_ptr;
 using boost::filesystem::path;
@@ -361,7 +362,7 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //Parse and set the Action
-    action = ui->modeComboBox->currentText().toStdString();
+    auto action = ui->modeComboBox->currentText().toStdString();
     if(action == "Detect") {
         osnArgs.action = dg::osn::Action::DETECT;
     }else if(action == "Landcover") {
@@ -371,7 +372,7 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //Parse and set the image source
-    imageSource = ui->imageSourceComboBox->currentText().toStdString();
+    auto imageSource = ui->imageSourceComboBox->currentText().toStdString();
     if(imageSource == "Local Image File") {
         osnArgs.source = dg::osn::Source::LOCAL;
     }else if(imageSource == "DGCS") {
@@ -409,108 +410,78 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //Parse and set the image path
-    localImageFilePath = ui->localImageFileLineEdit->text().toStdString();
-    osnArgs.image = localImageFilePath;
+    osnArgs.image = ui->localImageFileLineEdit->text().toStdString();
 
     //Parse and set the model path
-    modelFilePath = ui->modelFileLineEdit->text().toStdString();
-    osnArgs.modelPath = modelFilePath;
+    osnArgs.modelPath = ui->modelFileLineEdit->text().toStdString();
 
-    //Parse and set the confidence value
-    confidence = ui->confidenceSpinBox->value();
-    osnArgs.confidence = (float)confidence;
+    osnArgs.confidence = (float)ui->confidenceSpinBox->value();
 
     //Parse and set the step size
-    stepSize = ui->stepSizeSpinBox->value();
-    osnArgs.stepSize = boost::make_unique<cv::Point>(stepSize, stepSize);
+    osnArgs.stepSize = boost::make_unique<cv::Point>(ui->stepSizeSpinBox->value(), ui->stepSizeSpinBox->value());
 
     //Parse and set the pyramid value
-    pyramid = ui->pyramidCheckBox->isChecked();
-    if(pyramid == true) {
-        osnArgs.pyramid = true;
-    }else {
-        osnArgs.pyramid = false;
-    }
+    osnArgs.pyramid = ui->pyramidCheckBox->isChecked();
 
     //Parse and set NMS
-    NMS = ui->nmsCheckBox->isChecked();
-    if(NMS == true) {
-        osnArgs.nms = true;
-        nmsThreshold = ui->nmsSpinBox->value();
-        osnArgs.overlap = (float)nmsThreshold;
-    }else {
-        osnArgs.nms = false;
-    }
+    osnArgs.nms = ui->nmsCheckBox->isChecked();
+
+    osnArgs.overlap = (float)ui->nmsSpinBox->value();
+
 
     //bbox parsing to be set up when web services are implemented
-    bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
-    bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
-    bboxEast = ui->bboxEastLineEdit->text().toStdString();
-    bboxWest = ui->bboxWestLineEdit->text().toStdString();
-
     osnArgs.bbox = NULL;
 
     if(imageSource != "Local Image File") {
-        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                      cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
+                                                      cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
     }
 
     //Output filename parsing and setting
-    outputFilename = ui->outputFilenameLineEdit->text().toStdString();
-
-    //Output path setting
-    outputLocation = ui->outputLocationLineEdit->text().toStdString();
+    auto outputFilename = ui->outputFilenameLineEdit->text().toStdString();
 
     //Output format parsing and setting
-    outputFormat = ui->outputFormatComboBox->currentText().toStdString();
+    auto outputFormat = ui->outputFormatComboBox->currentText().toStdString();
     if(outputFormat == "Shapefile") {
         osnArgs.outputFormat = "shp";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
+        auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "Elastic Search") {
         osnArgs.outputFormat = "elasticsearch";
-        osnArgs.outputPath = outputLocation;
+        osnArgs.outputPath = ui->outputLocationLineEdit->text().toStdString();
     }else if(outputFormat == "GeoJSON") {
         osnArgs.outputFormat = "geojson";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
+        auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "KML") {
         osnArgs.outputFormat = "kml";
         //Append file extension
         outputFilename += "." + osnArgs.outputFormat;
-        outputFilepath = outputLocation + "/" + outputFilename;
+        auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "PostGIS") {
         osnArgs.outputFormat = "postgis";
-        osnArgs.outputPath = outputLocation;
+        osnArgs.outputPath = ui->outputLocationLineEdit->text().toStdString();
     }
 
     //Geometry type parsing and setting
-    geometryType = ui->geometryTypeComboBox->currentText().toStdString();
-    if(geometryType == "Polygon") {
+    if(ui->geometryTypeComboBox->currentText().toStdString() == "Polygon") {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POLYGON;
     }else {
         osnArgs.geometryType = dg::deepcore::vector::GeometryType::POINT;
     }
 
-    //layer name parsing and setting
-    outputLayer = ui->outputLayerLineEdit->text().toStdString();
     osnArgs.layerName = path(osnArgs.outputPath).stem().filename().string();
 
     //producer info parsing
-    producerInfo = ui->producerInfoCheckBox->isChecked();
-    if(producerInfo == true) {
-        osnArgs.producerInfo = true;
-    }else {
-        osnArgs.producerInfo = false;
-    }
+    osnArgs.producerInfo = ui->producerInfoCheckBox->isChecked();
 
     //Processing mode parsing and setting
-    processingMode = ui->processingModeComboBox->currentText().toStdString();
+    auto processingMode = ui->processingModeComboBox->currentText().toStdString();
     if(processingMode == "GPU") {
         osnArgs.useCpu = false;
     }else {
@@ -518,17 +489,16 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //max utilization parsing and setting
-    maxUtilization = ui->maxUtilizationSpinBox->value();
-    osnArgs.maxUtilization = (float)maxUtilization;
+    osnArgs.maxUtilization = (float)ui->maxUtilizationSpinBox->value();
 
-    windowSize1 = ui->windowSizeSpinBox1->value();
-    windowSize2 = ui->windowSizeSpinBox2->value();
+    auto windowSize1 = ui->windowSizeSpinBox1->value();
+    auto windowSize2 = ui->windowSizeSpinBox2->value();
     osnArgs.windowSize = unique_ptr<cv::Size>();
 
     std::clog << "Mode: " << action << std::endl;
 
     std::clog << "Image Source: " << imageSource << std::endl;
-    std::clog << "Local Image File Path: " << localImageFilePath << std::endl;
+    std::clog << "Local Image File Path: " << osnArgs.image << std::endl;
 
     std::clog << "Web Service Token: " << osnArgs.token << std::endl;
     std::clog << "Web Service Credentials: " << osnArgs.credentials << std::endl;
@@ -536,28 +506,25 @@ void MainWindow::on_runPushButton_clicked()
     std::clog << "Number of Downloads: " << osnArgs.maxConnections << std::endl;
     std::clog << "Map Id: " << osnArgs.mapId << std::endl;
 
-    std::clog << "Model File Path: " << modelFilePath << std::endl;
+    std::clog << "Model File Path: " << osnArgs.modelPath << std::endl;
 
-    std::clog << "Confidence: " << confidence << std::endl;
-    std::clog << "Step Size: " << stepSize << std::endl;
-    std::clog << "Pyramid: " << pyramid << std::endl;
-    std::clog << "NMS: " << NMS << " Threshold: " << nmsThreshold << std::endl;
+    std::clog << "Confidence: " << osnArgs.confidence << std::endl;
+    std::clog << "Pyramid: " << osnArgs.pyramid << std::endl;
+    std::clog << "NMS: " << osnArgs.nms << " Threshold: " << osnArgs.overlap << std::endl;
 
-    std::clog << "BBOX North: " << bboxNorth << std::endl;
-    std::clog << "BBOX South: " << bboxSouth << std::endl;
-    std::clog << "BBOX East: " << bboxEast << std::endl;
-    std::clog << "BBOX West: " << bboxWest << std::endl;
+    std::clog << "BBOX North: " << ui->bboxNorthLineEdit->text().toStdString() << std::endl;
+    std::clog << "BBOX South: " << ui->bboxSouthLineEdit->text().toStdString() << std::endl;
+    std::clog << "BBOX East: " << ui->bboxEastLineEdit->text().toStdString() << std::endl;
+    std::clog << "BBOX West: " << ui->bboxWestLineEdit->text().toStdString() << std::endl;
 
     std::clog << "Output Filename: " << outputFilename << std::endl;
-    std::clog << "Output Filepath: " << outputFilepath << std::endl;
+    std::clog << "Output Filepath: " << osnArgs.outputPath << std::endl;
     std::clog << "Output Format: " << outputFormat << std::endl;
-    std::clog << "Geometry Type: " << geometryType << std::endl;
-    std::clog << "Output Location: " << outputLocation << std::endl;
-    std::clog << "Output Layer: " << outputLayer << std::endl;
-    std::clog << "Producer Info:  " << producerInfo << std::endl;
+    std::clog << "Output Layer: " << osnArgs.layerName << std::endl;
+    std::clog << "Producer Info:  " << osnArgs.producerInfo << std::endl;
 
     std::clog << "Processing Mode: " << processingMode << std::endl;
-    std::clog << "Max Utilization: " << maxUtilization << std::endl;
+    std::clog << "Max Utilization: " << osnArgs.maxUtilization << std::endl;
     std::clog << "Window Size 1: " << windowSize1 << std::endl;
     std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
@@ -1071,10 +1038,6 @@ bool MainWindow::validateUI(QString &error)
 
             //only validate the bbox if the override checkbox is checked
             if(ui->bboxOverrideCheckBox->isChecked()) {
-                bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
-                bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
-                bboxEast = ui->bboxEastLineEdit->text().toStdString();
-                bboxWest = ui->bboxWestLineEdit->text().toStdString();
 
                 unique_ptr<dg::deepcore::imagery::GdalImage> image;
                 image = boost::make_unique<dg::deepcore::imagery::GdalImage>(ui->localImageFileLineEdit->text().toStdString());
@@ -1083,8 +1046,8 @@ bool MainWindow::validateUI(QString &error)
                 imageBbox = cv::Rect{ { 0, 0 }, image->size() };
 
                 std::unique_ptr<cv::Rect2d> bbox_entered = nullptr;
-                bbox_entered = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                              cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+                bbox_entered = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
+                                                              cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
 
                 dg::deepcore::geometry::TransformationChain llToPixel {
                     image->spatialReference().fromLatLon(),
@@ -1198,14 +1161,9 @@ bool MainWindow::validateUI(QString &error)
                 validationClient->setTileMatrixId(lexical_cast<string>(ui->zoomSpinBox->value()));
             }
 
-            bboxNorth = ui->bboxNorthLineEdit->text().toStdString();
-            bboxSouth = ui->bboxSouthLineEdit->text().toStdString();
-            bboxEast = ui->bboxEastLineEdit->text().toStdString();
-            bboxWest = ui->bboxWestLineEdit->text().toStdString();
-
             std::unique_ptr<cv::Rect2d> bbox = nullptr;
-            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(bboxWest), stod(bboxSouth)),
-                                                  cv::Point2d(stod(bboxEast), stod(bboxNorth)));
+            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
+                                                  cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
 
             unique_ptr<dg::deepcore::geometry::Transformation> llToProj(validationClient->spatialReference().fromLatLon());
             auto projBbox = llToProj->transform(*bbox);

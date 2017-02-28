@@ -126,36 +126,6 @@ private:
     ProgressWindow progressWindow;
     Ui::MainWindow *ui;
 
-    std::string action;
-
-    std::string imageSource;
-    std::string localImageFilePath;
-    std::string modelFilePath;
-
-    double confidence;
-    int stepSize;
-    bool pyramid;
-    bool NMS;
-    int nmsThreshold;
-
-    std::string bboxNorth;
-    std::string bboxSouth;
-    std::string bboxEast;
-    std::string bboxWest;
-
-    std::string outputFilename; //Name of file, including extension
-    std::string outputFilepath; //Absolute path of file, including extension
-    std::string outputFormat;
-    std::string geometryType;
-    std::string outputLocation; //Path to output directory
-    std::string outputLayer;
-    bool producerInfo;
-
-    std::string processingMode;
-    int maxUtilization;
-    int windowSize1;
-    int windowSize2;
-
     boost::shared_ptr<::boost::log::sinks::sink> stringSink_;
     std::stringstream buffer_;
     boost::shared_ptr<std::ostream> stringStreamUI;
