@@ -297,11 +297,7 @@ void MainWindow::on_viewMetadataButton_clicked()
 
 void MainWindow::on_nmsCheckBox_toggled(bool checked)
 {
-    if(checked) {
-        ui->nmsSpinBox->setEnabled(true);
-    }else {
-        ui->nmsSpinBox->setEnabled(false);
-    }
+    ui->nmsSpinBox->setEnabled(checked);
 }
 
 void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked)
