@@ -314,7 +314,7 @@ void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked)
 void MainWindow::on_outputLocationBrowseButton_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(this, tr("Select Output Location"));
-    if(!path.isEmpty() && !path.isNull()) {
+    if(!path.isNull()) {
         ui->outputLocationLineEdit->setText(path);
         //manually invoke the slot to check the new directory path
         on_outputLocationLineEditLostFocus();
