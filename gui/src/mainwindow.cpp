@@ -428,7 +428,9 @@ void MainWindow::on_runPushButton_clicked()
     if(outputFormat == "Shapefile") {
         osnArgs.outputFormat = "shp";
         //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
+        if(outputFilename.find(".shp") == string::npos) {
+            outputFilename += "." + osnArgs.outputFormat;
+        }
         auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "Elastic Search") {
@@ -437,13 +439,17 @@ void MainWindow::on_runPushButton_clicked()
     }else if(outputFormat == "GeoJSON") {
         osnArgs.outputFormat = "geojson";
         //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
+        if(outputFilename.find(".geojson") == string::npos) {
+            outputFilename += "." + osnArgs.outputFormat;
+        }
         auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "KML") {
         osnArgs.outputFormat = "kml";
         //Append file extension
-        outputFilename += "." + osnArgs.outputFormat;
+        if(outputFilename.find(".kml") == string::npos) {
+            outputFilename += "." + osnArgs.outputFormat;
+        }
         auto outputFilepath = ui->outputLocationLineEdit->text().toStdString() + "/" + outputFilename;
         osnArgs.outputPath = outputFilepath;
     }else if(outputFormat == "PostGIS") {
@@ -1243,7 +1249,12 @@ void MainWindow::exportConfig(const QString &filepath)
 {
     std::stringstream configContents;
     std::ofstream configFile;
-    configFile.open(filepath.toStdString() + ".cfg");
+    if(filepath.toStdString().find(".cfg") == string::npos) {
+        configFile.open(filepath.toStdString() + ".cfg");
+    }
+    else{
+        configFile.open(filepath.toStdString());
+    }
 
     //Mode
     std::string key;
