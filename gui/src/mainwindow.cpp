@@ -345,7 +345,7 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //Parse and set the Action
-    auto action = ui->modeComboBox->currentText().toStdString();
+    auto action = ui->modeComboBox->currentText();
     if(action == "Detect") {
         osnArgs.action = dg::osn::Action::DETECT;
     }else if(action == "Landcover") {
@@ -355,7 +355,7 @@ void MainWindow::on_runPushButton_clicked()
     }
 
     //Parse and set the image source
-    auto imageSource = ui->imageSourceComboBox->currentText().toStdString();
+    auto imageSource = ui->imageSourceComboBox->currentText();
     if(imageSource == "Local Image File") {
         osnArgs.source = dg::osn::Source::LOCAL;
     }else if(imageSource == "DGCS") {
@@ -478,9 +478,9 @@ void MainWindow::on_runPushButton_clicked()
     auto windowSize2 = ui->windowSizeSpinBox2->value();
     osnArgs.windowSize = unique_ptr<cv::Size>();
 
-    std::clog << "Mode: " << action << std::endl;
+    std::clog << "Mode: " << action.toStdString() << std::endl;
 
-    std::clog << "Image Source: " << imageSource << std::endl;
+    std::clog << "Image Source: " << imageSource.toStdString() << std::endl;
     std::clog << "Local Image File Path: " << osnArgs.image << std::endl;
 
     std::clog << "Web Service Token: " << osnArgs.token << std::endl;
