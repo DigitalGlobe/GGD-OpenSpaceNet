@@ -302,21 +302,12 @@ void MainWindow::on_nmsCheckBox_toggled(bool checked)
 
 void MainWindow::on_bboxOverrideCheckBox_toggled(bool checked)
 {
-    if(checked) {
-        ui->bboxNorthLineEdit->setEnabled(true);
-        ui->bboxSouthLineEdit->setEnabled(true);
-        ui->bboxEastLineEdit->setEnabled(true);
-        ui->bboxWestLineEdit->setEnabled(true);
-    }else {
-        //set bbox values back to the local image's bounding box
-        if(hasValidLocalImagePath) {
-            on_imagepathLineEditLostFocus();
-        }
-
-        ui->bboxNorthLineEdit->setEnabled(false);
-        ui->bboxSouthLineEdit->setEnabled(false);
-        ui->bboxEastLineEdit->setEnabled(false);
-        ui->bboxWestLineEdit->setEnabled(false);
+    ui->bboxNorthLineEdit->setEnabled(checked);
+    ui->bboxSouthLineEdit->setEnabled(checked);
+    ui->bboxEastLineEdit->setEnabled(checked);
+    ui->bboxWestLineEdit->setEnabled(checked);
+    if(!checked && hasValidLocalImagePath) {
+        on_imagepathLineEditLostFocus();
     }
 }
 
