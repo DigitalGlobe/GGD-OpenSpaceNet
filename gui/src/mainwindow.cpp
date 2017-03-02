@@ -612,9 +612,10 @@ void MainWindow::on_imagepathLineEditLostFocus()
         //Valid image path
         ui->localImageFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidLocalImagePath = true;
+
+        auto image = boost::make_unique<dg::deepcore::imagery::GdalImage>(imagepath);
         //only geo-regeistered images are valid
-        try {
-            auto image = boost::make_unique<dg::deepcore::imagery::GdalImage>(imagepath);
+        if(!image->spatialReference().isLocal()){
             auto imageBbox = cv::Rect{ { 0, 0 }, image->size() };
 
             auto pixelToLL = dg::deepcore::geometry::TransformationChain { image->pixelToProj().clone(), image->spatialReference().toLatLon() };
@@ -636,7 +637,7 @@ void MainWindow::on_imagepathLineEditLostFocus()
             }
 
         }
-        catch(dg::deepcore::Error e) {
+        else {
             std::cerr << "Image \'" << imagepath << "\' is not geo-registered" << std::endl;
             ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             hasGeoRegLocalImage = false;
