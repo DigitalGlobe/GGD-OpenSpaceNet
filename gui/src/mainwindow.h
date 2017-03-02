@@ -161,6 +161,9 @@ private:
 
     cv::Size blockSize_;
     std::unique_ptr<dg::deepcore::imagery::GeoImage> geoImage;
+
+    QString EDIT_ERROR_STYLE = "color: red;""border: 1px solid red;";
+    QString EDIT_DEFAULT_STYLE = "color: default";
 };
 
 #endif // MAINWINDOW_H

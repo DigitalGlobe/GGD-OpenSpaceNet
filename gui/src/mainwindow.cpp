@@ -211,7 +211,7 @@ void MainWindow::on_imageSourceComboBox_currentIndexChanged(const QString &sourc
 
         //set the style of the local image file field to default
         ui->localImageFileLineEdit->clear();
-        ui->localImageFileLineEdit->setStyleSheet("color: default");
+        ui->localImageFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 
         //token
         ui->tokenLabel->setEnabled(true);
@@ -577,17 +577,16 @@ void MainWindow::on_modelpathLineEditLostFocus()
     //For blank input (user erased all text, or hasn't entered any yet), set style to default,
     //but don't register the empty string as valid input
     if(modelpath == "") {
-        ui->modelFileLineEdit->setStyleSheet("color: default");
+        ui->modelFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidModel = false;
     }else if(!exists || isDirectory) {
         //Specified file either doesn't exist or is a directory instead of a file
         std::cerr << "Error: specified model file does not exist." << std::endl;
-        ui->modelFileLineEdit->setStyleSheet("color: red;"
-                                             "border: 1px solid red;");
+        ui->modelFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         hasValidModel = false;
     }else {
         //Valid input
-        ui->modelFileLineEdit->setStyleSheet("color: default");
+        ui->modelFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidModel = true;
     }
 }
@@ -602,17 +601,16 @@ void MainWindow::on_imagepathLineEditLostFocus()
     //but don't register the empty string as valid input
     if(imagepath == "")
     {
-        ui->localImageFileLineEdit->setStyleSheet("color: default");
+        ui->localImageFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidLocalImagePath = false;
     }else if(!exists || isDirectory) {
         //Specified file either doesn't exist or is a directory instead of a file
         std::cerr << "Error: specified image file does not exist." << std::endl;
-        ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                  "border: 1px solid red;");
+        ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         hasValidLocalImagePath = false;
     }else {
         //Valid image path
-        ui->localImageFileLineEdit->setStyleSheet("color: default");
+        ui->localImageFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidLocalImagePath = true;
         //only geo-regeistered images are valid
         try {
@@ -640,8 +638,7 @@ void MainWindow::on_imagepathLineEditLostFocus()
         }
         catch(dg::deepcore::Error e) {
             std::cerr << "Image \'" << imagepath << "\' is not geo-registered" << std::endl;
-            ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
+            ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             hasGeoRegLocalImage = false;
             QMessageBox::critical(
                 this,
@@ -658,64 +655,62 @@ void MainWindow::on_outputLocationLineEditLostFocus()
     bool isDirectory = boost::filesystem::is_directory(outputPath);
 
     if(outputPath == "") {
-        ui->outputLocationLineEdit->setStyleSheet("color: red;"
-                                                  "border: 1px solid red;");
+        ui->outputLocationLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         hasValidOutputPath = false;
     }else if(!exists || !isDirectory) {
         //Specified file either doesn't exist or isn't a directory
         std::cerr << "Error: specified output directory does not exist." << std::endl;
-        ui->outputLocationLineEdit->setStyleSheet("color: red;"
-                                                  "border: 1px solid red;");
+        ui->outputLocationLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         hasValidOutputPath = false;
     }else {
-        ui->outputLocationLineEdit->setStyleSheet("color: default");
+        ui->outputLocationLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidOutputPath = true;
     }
 }
 
 void MainWindow::on_localImagePathLineEditCursorPositionChanged()
 {
-    ui->localImageFileLineEdit->setStyleSheet("color: default");
+    ui->localImageFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_modelpathLineEditCursorPositionChanged()
 {
-    ui->modelFileLineEdit->setStyleSheet("color: default");
+    ui->modelFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_outputFilenameLineEditCursorPositionChanged()
 {
-    ui->outputFilenameLineEdit->setStyleSheet("color: default");
+    ui->outputFilenameLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_outputPathLineEditCursorPositionChanged()
 {
-    ui->outputLocationLineEdit->setStyleSheet("color: default");
+    ui->outputLocationLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_mapIdLineEditCursorPositionChanged()
 {
-    ui->mapIdLineEdit->setStyleSheet("color: default");
+    ui->mapIdLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_tokenLineEditCursorPositionChanged()
 {
-    ui->tokenLineEdit->setStyleSheet("color: default");
+    ui->tokenLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_zoomSpinBoxCursorPositionChanged()
 {
-    ui->zoomSpinBox->setStyleSheet("color: default");
+    ui->zoomSpinBox->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_passwordLineEditCursorPositionChanged()
 {
-    ui->passwordLineEdit->setStyleSheet("color: default");
+    ui->passwordLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::on_usernameLineEditCursorPositionChanged()
 {
-    ui->usernameLineEdit->setStyleSheet("color: default");
+    ui->usernameLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
 }
 
 void MainWindow::resetProgressWindow()
@@ -1017,16 +1012,14 @@ bool MainWindow::validateUI(QString &error)
     if(ui->imageSourceComboBox->currentText() == "Local Image File") {
         if(!hasValidLocalImagePath){
             error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-            ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
+            ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             validJob = false;
         }else {
             //The 'hasGeoRegLocalImage' flag is automatically updated every time the user selects a new image
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
                 error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
-                ui->localImageFileLineEdit->setStyleSheet("color: red;"
-                                                          "border: 1px solid red;");
+                ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
                 validJob = false;
             }
 
@@ -1104,18 +1097,15 @@ bool MainWindow::validateUI(QString &error)
         std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(!hasValidModel) {
             error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
-            ui->modelFileLineEdit->setStyleSheet("color: red;"
-                                                 "border: 1px solid red;");
+            ui->modelFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
         if(ui->outputFilenameLineEdit->text().trimmed() == "") {
             error += "Missing output filename\n\n";
-            ui->outputFilenameLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
+            ui->outputFilenameLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
         if(!hasValidOutputPath) {
             error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
-            ui->outputLocationLineEdit->setStyleSheet("color: red;"
-                                                      "border: 1px solid red;");
+            ui->outputLocationLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
     }
 
@@ -1190,20 +1180,16 @@ bool MainWindow::validateUI(QString &error)
                 serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
                 serverMessage.find("Not Authorized - No Token") != std::string::npos) {
                 error += "Invalid web service token\n\n";
-                ui->tokenLineEdit->setStyleSheet("color: red;"
-                                                 "border: 1px solid red;");
+                ui->tokenLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos) {
                 //check for invalid username/password message
                 error += "Invalid web service username and/or password\n\n";
-                ui->passwordLineEdit->setStyleSheet("color: red;"
-                                                    "border: 1px solid red;");
-                ui->usernameLineEdit->setStyleSheet("color: red;"
-                                                    "border: 1px solid red;");
+                ui->passwordLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
+                ui->usernameLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("Not Found") != std::string::npos) {
                  //check for invalid map id
                  error += "Invalid Map Id\n\n";
-                 ui->mapIdLineEdit->setStyleSheet("color: red;"
-                                                           "border: 1px solid red;");
+                 ui->mapIdLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("Invalid tile matrix id") != std::string::npos) {
                  //check for invalid zoom level
                  for (auto i = validationClient->tileMatrixIds().begin(); i != validationClient->tileMatrixIds().end(); ++i)
@@ -1224,8 +1210,7 @@ bool MainWindow::validateUI(QString &error)
                  error += QString::fromStdString(validZoomLevels.back());
                  error += "\n\n";
 
-                 ui->zoomSpinBox->setStyleSheet("color: red;"
-                                                           "border: 1px solid red;");
+                 ui->zoomSpinBox->setStyleSheet(EDIT_ERROR_STYLE);
             }else {
                 error += "Unknown web service authentication error occurred\n\n";
             }
