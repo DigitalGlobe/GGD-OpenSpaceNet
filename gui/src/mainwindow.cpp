@@ -1052,13 +1052,11 @@ bool MainWindow::validateUI(QString &error)
 
                 auto bbox = llToPixel.transformToInt(*bbox_entered);
                 auto intersect = imageBbox & (cv::Rect)bbox;
-                try {
-                    DG_CHECK(intersect.width && intersect.height, "Input image and the provided bounding box do not intersect");
-                    hasValidBbox = true;
-                }
-                catch(dg::deepcore::Error e) {
-                    std::clog << e.what() << std::endl;
+                hasValidBbox = true;
+                if (!intersect.width || !intersect.height) {
+                    std::clog << "Input image and the provided bounding box do not intersect\n\n" << std::endl;
                     error += "Input image and the provided bounding box do not intersect\n\n";
+                    hasValidBbox = false;
                     validJob = false;
                 }
 
