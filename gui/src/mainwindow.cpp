@@ -417,8 +417,8 @@ void MainWindow::on_runPushButton_clicked()
     osnArgs.bbox = NULL;
 
     if(imageSource != "Local Image File") {
-        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
-                                                      cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
+        osnArgs.bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(ui->bboxWestLineEdit->text().toDouble(), ui->bboxSouthLineEdit->text().toDouble()),
+                                                      cv::Point2d(ui->bboxEastLineEdit->text().toDouble(), ui->bboxNorthLineEdit->text().toDouble()));
     }
 
     //Output filename parsing and setting
@@ -1041,8 +1041,8 @@ bool MainWindow::validateUI(QString &error)
                 imageBbox = cv::Rect{ { 0, 0 }, image->size() };
 
                 std::unique_ptr<cv::Rect2d> bbox_entered = nullptr;
-                bbox_entered = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
-                                                              cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
+                bbox_entered = boost::make_unique<cv::Rect2d>(cv::Point2d(ui->bboxWestLineEdit->text().toDouble(), ui->bboxSouthLineEdit->text().toDouble()),
+                                                              cv::Point2d(ui->bboxEastLineEdit->text().toDouble(), ui->bboxNorthLineEdit->text().toDouble()));
 
                 dg::deepcore::geometry::TransformationChain llToPixel {
                     image->spatialReference().fromLatLon(),
@@ -1104,7 +1104,7 @@ bool MainWindow::validateUI(QString &error)
             error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
             ui->modelFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
-        if(ui->outputFilenameLineEdit->text().trimmed() == "") {
+        if(ui->outputFilenameLineEdit->text() == "") {
             error += "Missing output filename\n\n";
             ui->outputFilenameLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
@@ -1152,8 +1152,8 @@ bool MainWindow::validateUI(QString &error)
             }
 
             std::unique_ptr<cv::Rect2d> bbox = nullptr;
-            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(stod(ui->bboxWestLineEdit->text().toStdString()), stod(ui->bboxSouthLineEdit->text().toStdString())),
-                                                  cv::Point2d(stod(ui->bboxEastLineEdit->text().toStdString()), stod(ui->bboxNorthLineEdit->text().toStdString())));
+            bbox = boost::make_unique<cv::Rect2d>(cv::Point2d(ui->bboxWestLineEdit->text().toDouble(), ui->bboxSouthLineEdit->text().toDouble()),
+                                                  cv::Point2d(ui->bboxEastLineEdit->text().toDouble(), ui->bboxNorthLineEdit->text().toDouble()));
 
             unique_ptr<dg::deepcore::geometry::Transformation> llToProj(validationClient->spatialReference().fromLatLon());
             auto projBbox = llToProj->transform(*bbox);
