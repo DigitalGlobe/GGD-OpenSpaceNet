@@ -480,9 +480,10 @@ void MainWindow::on_runPushButton_clicked()
     //max utilization parsing and setting
     osnArgs.maxUtilization = (float)ui->maxUtilizationSpinBox->value();
 
-    auto windowSize1 = ui->windowSizeSpinBox1->value();
-    auto windowSize2 = ui->windowSizeSpinBox2->value();
-    osnArgs.windowSize = unique_ptr<cv::Size>();
+    int windowSize1 = ui->windowSizeSpinBox1->value();
+    int windowSize2 = ui->windowSizeSpinBox2->value();
+
+    osnArgs.windowSize = boost::make_unique<cv::Size>(windowSize1, windowSize2);
 
     std::clog << "Mode: " << action.toStdString() << std::endl;
 

@@ -412,7 +412,7 @@
           <string>The width of the model's window</string>
          </property>
          <property name="maximum">
-          <number>150</number>
+          <number>999</number>
          </property>
          <property name="value">
           <number>150</number>
@@ -432,7 +432,7 @@
           <string>The height of the model's window</string>
          </property>
          <property name="maximum">
-          <number>150</number>
+          <number>999</number>
          </property>
          <property name="value">
           <number>150</number>
