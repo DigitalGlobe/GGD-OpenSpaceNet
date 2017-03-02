@@ -983,6 +983,11 @@ void MainWindow::importConfig(QString configPath)
         ui->processingModeComboBox->setCurrentIndex(cpuIndex);
     }
 
+    if(config_vm.find("cpu") != end(config_vm) && config_vm["cpu"].as<bool>() == false) {
+        int gpuIndex = ui->processingModeComboBox->findText("GPU");
+        ui->processingModeComboBox->setCurrentIndex(gpuIndex);
+    }
+
     //max utilization
     if(config_vm.find("max-utilization") != end(config_vm)) {
         ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
@@ -1347,6 +1352,9 @@ void MainWindow::exportConfig(const QString &filepath)
     //cpu
     if(ui->processingModeComboBox->currentText() == "CPU") {
         configContents << "cpu=true\n";
+    }
+    else{
+        configContents << "cpu=false\n";
     }
 
     //max utilization
