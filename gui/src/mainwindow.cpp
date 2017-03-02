@@ -1077,19 +1077,19 @@ bool MainWindow::validateUI(QString &error)
         double east = ui->bboxEastLineEdit->text().toDouble();
         double west = ui->bboxWestLineEdit->text().toDouble();
 
-        if(abs(north) > 90.0 && !almostEq(north, 90.0)) {
+        if(abs(north) > 90.0 && !almostEq(abs(north), 90.0)) {
             error += "North bounding box coordinate is invalid: must be in range (-90,90)\n\n";
             validJob = false;
         }
-        if(abs(south) > 90.0 && !almostEq(south, 90.0)) {
+        if(abs(south) > 90.0 && !almostEq(abs(south), 90.0)) {
             error += "South bounding box coordinate is invalid: must be in range (-90,90)\n\n";
             validJob = false;
         }
-        if(abs(east) > 180.0 && !almostEq(east, 90.0)) {
+        if(abs(east) > 180.0 && !almostEq(abs(east), 180.0)) {
             error += "East bounding box coordinate is invalid: must be in range (-180,180)\n\n";
             validJob = false;
         }
-        if(abs(west) > 180.0 && !almostEq(west, 90.0)) {
+        if(abs(west) > 180.0 && !almostEq(abs(west), 180.0)) {
             error += "West bounding box coordinate is invalid: must be in range (-180,180)\n\n";
             validJob = false;
         }
