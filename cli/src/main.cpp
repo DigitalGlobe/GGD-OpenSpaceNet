@@ -15,7 +15,7 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "CLIArgsParser.h"
+#include "CliArgsParser.h"
 #include <OpenSpaceNetVersion.h>
 #include <DeepCoreVersion.h>
 
@@ -43,7 +43,7 @@ int main (int argc, const char* const* argv)
 {
     cout << OSN_LOGO;
     try {
-        CLIArgsParser osnCLIArgs;
+        CliArgsParser osnCLIArgs;
         osnCLIArgs.setupArgParsing(argc, argv);
         osnCLIArgs.startOSNProcessing();
     } catch (const Error& e) {

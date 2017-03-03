@@ -24,14 +24,14 @@
 
 namespace dg { namespace osn {
 
-class CLIArgsParser
+class CliArgsParser
 {
 public:
     dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
-    CLIArgsParser();
+    CliArgsParser();
     void setupArgParsing(int argc, const char* const* argv);
     void startOSNProcessing();
     OpenSpaceNetArgs osnArgs;
