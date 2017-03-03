@@ -19,36 +19,36 @@
 
 ProgressWindow::ProgressWindow(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ProgressWindow)
+    ui_(new Ui::ProgressWindow)
 {
-    ui->setupUi(this);
+    ui_->setupUi(this);
 }
 
 void ProgressWindow::updateProgress(const std::string& updateMessage){
 
-    ui->progressDisplay->append(QString::fromStdString(updateMessage));
+    ui_->progressDisplay->append(QString::fromStdString(updateMessage));
 }
 
 void ProgressWindow::updateProgressBar(int progressNumber){
-    ui->progressBar->setValue(progressNumber);
+    ui_->progressBar->setValue(progressNumber);
 }
 
 void ProgressWindow::updateProgressBarDetect(int progressNumber){
-    ui->progressBar_2->setValue(progressNumber);
+    ui_->progressBar_2->setValue(progressNumber);
 }
 
 void ProgressWindow::updateProgressText(const std::string& progressText){
-    ui->progressBarText->setText(QString::fromStdString(progressText));
+    ui_->progressBarText->setText(QString::fromStdString(progressText));
 }
 
 ProgressWindow::~ProgressWindow()
 {
-    delete ui;
+    delete ui_;
 }
 
-Ui::ProgressWindow ProgressWindow::getUI()
+const Ui::ProgressWindow& ProgressWindow::ui() const
 {
-    return *ui;
+    return *ui_;
 }
 
 void ProgressWindow::on_cancelPushButton_clicked()

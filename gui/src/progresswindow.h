@@ -34,13 +34,13 @@ public:
     void updateProgressBarDetect(int progressNumber);
     void updateProgressText(const std::string& progressText);
     ~ProgressWindow();
-    Ui::ProgressWindow getUI();
+    const Ui::ProgressWindow& ui() const;
 
 private slots:
     void on_cancelPushButton_clicked();
 
 private:
-    Ui::ProgressWindow *ui;
+    Ui::ProgressWindow *ui_;
 signals:
     void cancelPushed();
 };
