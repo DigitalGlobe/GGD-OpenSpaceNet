@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 
 qt5_wrap_cpp(OSN_GUI_MOC
-        src/mainwindow.h
+        src/MainWindow.h
         src/OSNProcessingThread.h
         src/progresswindow.h
         src/qdebugstream.h
@@ -18,8 +18,8 @@ qt5_wrap_ui(OSN_GUI_UI
 
 set(SOURCES
         src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
+        src/MainWindow.cpp
+        src/MainWindow.h
         src/OSNProcessingThread.cpp
         src/OSNProcessingThread.h
         src/progresswindow.cpp

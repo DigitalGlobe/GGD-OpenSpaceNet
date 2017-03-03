@@ -32,7 +32,7 @@
 
 #include <geometry/TransformationChain.h>
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
