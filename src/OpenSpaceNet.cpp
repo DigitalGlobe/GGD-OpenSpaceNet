@@ -33,6 +33,7 @@
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
 #include <geometry/PassthroughRegionFilter.h>
+#include <geometry/RpcTransformation.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
@@ -191,8 +192,14 @@ void OpenSpaceNet::initLocalImage()
     pixelToLL_ = llToPixel.inverse();
 
     if(args_.bbox && !ignoreArgsBbox) {
-        auto bbox = llToPixel.transformToInt(*args_.bbox);
+        auto inputBbox = cv::Rect2d(*args_.bbox.get());
+        auto rpctransform = dynamic_cast<RpcTransformation*>(pixelToLL_.get());
+        if (rpctransform != nullptr) {
+            inputBbox = inputBbox & rpctransform->bboxLatLon(image_->size());
+            DG_CHECK(inputBbox.width && inputBbox.height, "Input image and the RPC bounding box do not intersect");
+        }
 
+        auto bbox = llToPixel.transformToInt(inputBbox);
         auto intersect = bbox_ & (cv::Rect)bbox;
         DG_CHECK(intersect.width && intersect.height, "Input image and the provided bounding box do not intersect");
 
@@ -247,11 +254,18 @@ void OpenSpaceNet::initMapServiceImage()
     }
 
     unique_ptr<Transformation> llToProj(client_->spatialReference().fromLatLon());
+    unique_ptr<Transformation> projToPixel(image_->pixelToProj().inverse());
     auto projBbox = llToProj->transform(*args_.bbox);
+    auto rpctransform = dynamic_cast<RpcTransformation*>(projToPixel.get());
+    if (rpctransform != nullptr) {
+        projBbox = (projBbox & rpctransform->bboxLatLon(image_->size()));
+        DG_CHECK(projBbox.width && projBbox.height, "Input image and the RPC bounding box do not intersect");
+    }
+
     image_.reset(client_->imageFromArea(projBbox));
 
-    unique_ptr<Transformation> projToPixel(image_->pixelToProj().inverse());
     bbox_ = projToPixel->transformToInt(projBbox);
+
     pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
 
     auto msImage = dynamic_cast<MapServiceImage*>(image_.get());
