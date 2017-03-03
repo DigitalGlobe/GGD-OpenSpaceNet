@@ -30,7 +30,6 @@ class QDebugStream :  public QObject , public std::basic_streambuf<char>
 public:
     QDebugStream(std::ostream &stream) : m_stream(stream)
     {
-        //log_window = text_edit;
         m_old_buf = stream.rdbuf();
         stream.rdbuf(this);
     }
@@ -42,7 +41,6 @@ public:
 
     void setOptions(std::ostream &stream)
     {
-        //log_window = text_edit;
         m_old_buf = stream.rdbuf();
         stream.rdbuf(this);
     }
@@ -51,7 +49,6 @@ public:
     {
         // output anything that is left
         if (!m_string.empty()) {
-            //log_window->append(m_string.c_str());
             emit updateProgressText(QString::fromStdString(m_string.c_str()));
         }
 
@@ -67,7 +64,6 @@ protected:
     {
         if (v == '\n' || v == '*')
         {
-            //log_window->append(m_string.c_str());
             if (v == '*'){
                 emit updateProgressText(QString::fromStdString("*"));
             }
@@ -96,14 +92,12 @@ protected:
             if (pos != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + pos);
-                //log_window->append(tmp.c_str());
                 emit updateProgressText(QString::fromStdString(m_string.c_str()));
                 m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
             }
             if(posStar != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + posStar);
-                //log_window->append(tmp.c_str());
                 emit updateProgressText(QString::fromStdString(m_string.c_str()));
                 m_string.erase(m_string.begin(), m_string.begin() + posStar + 1);
             }
