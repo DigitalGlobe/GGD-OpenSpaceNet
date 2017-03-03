@@ -8,7 +8,7 @@ qt5_wrap_cpp(OSN_GUI_MOC
         src/MainWindow.h
         src/OsnProcessingThread.h
         src/ProgressWindow.h
-        src/qdebugstream.h
+        src/QDebugStream.h
         )
 
 qt5_wrap_ui(OSN_GUI_UI
@@ -24,7 +24,7 @@ set(SOURCES
         src/OsnProcessingThread.h
         src/ProgressWindow.cpp
         src/ProgressWindow.h
-        src/qdebugstream.h
+        src/QDebugStream.h
         ${OSN_GUI_MOC}
         ${OSN_GUI_UI}
         )

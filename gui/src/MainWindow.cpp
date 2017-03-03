@@ -36,7 +36,7 @@
 #include "ui_MainWindow.h"
 #include "ProgressWindow.h"
 #include "ui_ProgressWindow.h"
-#include "qdebugstream.h"
+#include "QDebugStream.h"
 #include "../../common/include/OpenSpaceNetArgs.h"
 
 using std::unique_ptr;

@@ -41,7 +41,7 @@
 #include <imagery/MapServiceClient.h>
 
 #include "ProgressWindow.h"
-#include "qdebugstream.h"
+#include "QDebugStream.h"
 
 namespace Ui {
     class MainWindow;
