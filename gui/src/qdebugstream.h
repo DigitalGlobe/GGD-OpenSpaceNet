@@ -49,7 +49,7 @@ public:
     {
         // output anything that is left
         if (!m_string.empty()) {
-            emit updateProgressText(QString::fromStdString(m_string.c_str()));
+            emit updateProgressText(QString::fromStdString(m_string));
         }
 
         m_stream.rdbuf(m_old_buf);
@@ -65,11 +65,11 @@ protected:
         if (v == '\n' || v == '*')
         {
             if (v == '*'){
-                emit updateProgressText(QString::fromStdString("*"));
+                emit updateProgressText("*");
             }
             else
             {
-                emit updateProgressText(QString::fromStdString(m_string.c_str()));
+                emit updateProgressText(QString::fromStdString(m_string));
             }
             m_string.erase(m_string.begin(), m_string.end());
         }
@@ -92,13 +92,13 @@ protected:
             if (pos != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + pos);
-                emit updateProgressText(QString::fromStdString(m_string.c_str()));
+                emit updateProgressText(QString::fromStdString(m_string));
                 m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
             }
             if(posStar != std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + posStar);
-                emit updateProgressText(QString::fromStdString(m_string.c_str()));
+                emit updateProgressText(QString::fromStdString(m_string));
                 m_string.erase(m_string.begin(), m_string.begin() + posStar + 1);
             }
         }
