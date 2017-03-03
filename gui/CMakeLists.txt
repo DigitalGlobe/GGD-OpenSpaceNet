@@ -12,7 +12,7 @@ qt5_wrap_cpp(OSN_GUI_MOC
         )
 
 qt5_wrap_ui(OSN_GUI_UI
-        src/mainwindow.ui
+        src/MainWindow.ui
         src/progresswindow.ui
         )
 

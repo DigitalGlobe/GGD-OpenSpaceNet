@@ -33,7 +33,7 @@
 #include <geometry/TransformationChain.h>
 
 #include "MainWindow.h"
-#include "ui_mainwindow.h"
+#include "ui_MainWindow.h"
 #include "progresswindow.h"
 #include "ui_progresswindow.h"
 #include "qdebugstream.h"
