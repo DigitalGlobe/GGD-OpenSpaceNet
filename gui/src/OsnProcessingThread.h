@@ -20,7 +20,7 @@
 #include <OpenSpaceNet.h>
 #include <QThread>
 
-class OSNProcessingThread : public QThread
+class OsnProcessingThread : public QThread
 {
     Q_OBJECT
 public:

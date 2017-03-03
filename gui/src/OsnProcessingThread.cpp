@@ -14,9 +14,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "OSNProcessingThread.h"
+#include "OsnProcessingThread.h"
 
-void OSNProcessingThread::run()
+void OsnProcessingThread::run()
 {
     DG_CHECK(osnArgs != nullptr, "osnArgs is a null pointer before calling process");
     dg::osn::OpenSpaceNet osn(*osnArgs);
@@ -24,7 +24,7 @@ void OSNProcessingThread::run()
     emit processFinished();
 }
 
-void OSNProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput)
+void OsnProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput)
 {
     osnArgs = &osnArgsInput;
 }
