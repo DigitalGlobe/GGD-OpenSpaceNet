@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "progresswindow.h"
+#include "ProgressWindow.h"
 #include "ui_progresswindow.h"
 
 ProgressWindow::ProgressWindow(QWidget *parent) :

@@ -34,8 +34,8 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "progresswindow.h"
-#include "ui_progresswindow.h"
+#include "ProgressWindow.h"
+#include "ui_ProgressWindow.h"
 #include "qdebugstream.h"
 #include "../../common/include/OpenSpaceNetArgs.h"
 

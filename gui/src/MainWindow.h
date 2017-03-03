@@ -40,7 +40,7 @@
 #include <OsnProcessingThread.h>
 #include <imagery/MapServiceClient.h>
 
-#include "progresswindow.h"
+#include "ProgressWindow.h"
 #include "qdebugstream.h"
 
 namespace Ui {
