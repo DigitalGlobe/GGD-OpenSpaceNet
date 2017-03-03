@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     setUpLogging();
     initValidation();
 
-    progressWindow.getUI().cancelPushButton->setVisible(false);
+    progressWindow.ui().cancelPushButton->setVisible(false);
 
     statusBar()->showMessage(tr("Ready"));
     statusBar()->installEventFilter(this);
@@ -535,7 +535,7 @@ void MainWindow::enableRunButton()
 {
     ui->runPushButton->setEnabled(true);
     progressWindow.updateProgressText("OpenSpaceNet is complete.");
-    progressWindow.getUI().progressDisplay->append("Complete.");
+    progressWindow.ui().progressDisplay->append("Complete.");
     statusBar()->removeWidget(statusProgressBar);
     statusBar()->showMessage("Complete. " + featuresDetected);
 }
@@ -562,7 +562,7 @@ void MainWindow::updateProgressBox(QString updateText)
     }else if(!boost::contains(updateText.toStdString(), "0%") &&
             !boost::contains(updateText.toStdString(), "|----") &&
             !boost::contains(updateText.toStdString(), "found star")) {
-        progressWindow.getUI().progressDisplay->append(updateText);
+        progressWindow.ui().progressDisplay->append(updateText);
         if(!boost::contains(updateText.toStdString(), "\n")) {
             statusBar()->showMessage(updateText);
         }
@@ -720,7 +720,7 @@ void MainWindow::resetProgressWindow()
     progressCount = 0;
     whichProgress = 0;
     progressWindow.updateProgressText("Running OpenSpaceNet...");
-    progressWindow.getUI().progressDisplay->clear();
+    progressWindow.ui().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
     progressWindow.updateProgressBarDetect(0);
 }
@@ -1072,24 +1072,24 @@ bool MainWindow::validateUI(QString &error)
 
     //validate that bbox coordinates are in valid range
     if(ui->bboxOverrideCheckBox->isChecked() || ui->imageSourceComboBox->currentText() != "Local Image File") {
-        double north = ui->bboxNorthLineEdit->text().toDouble();
-        double south = ui->bboxSouthLineEdit->text().toDouble();
-        double east = ui->bboxEastLineEdit->text().toDouble();
-        double west = ui->bboxWestLineEdit->text().toDouble();
+        double north = abs(ui->bboxNorthLineEdit->text().toDouble());
+        double south = abs(ui->bboxSouthLineEdit->text().toDouble());
+        double east = abs(ui->bboxEastLineEdit->text().toDouble());
+        double west = abs(ui->bboxWestLineEdit->text().toDouble());
 
-        if(abs(north) > 90.0 && !almostEq(abs(north), 90.0)) {
+        if(north > 90.0 && !almostEq(north, 90.0)) {
             error += "North bounding box coordinate is invalid: must be in range (-90,90)\n\n";
             validJob = false;
         }
-        if(abs(south) > 90.0 && !almostEq(abs(south), 90.0)) {
+        if(south > 90.0 && !almostEq(south, 90.0)) {
             error += "South bounding box coordinate is invalid: must be in range (-90,90)\n\n";
             validJob = false;
         }
-        if(abs(east) > 180.0 && !almostEq(abs(east), 180.0)) {
+        if(east > 180.0 && !almostEq(east, 180.0)) {
             error += "East bounding box coordinate is invalid: must be in range (-180,180)\n\n";
             validJob = false;
         }
-        if(abs(west) > 180.0 && !almostEq(abs(west), 180.0)) {
+        if(west > 180.0 && !almostEq(west, 180.0)) {
             error += "West bounding box coordinate is invalid: must be in range (-180,180)\n\n";
             validJob = false;
         }
