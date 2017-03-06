@@ -28,83 +28,15 @@ class QDebugStream :  public QObject , public std::basic_streambuf<char>
 {
     Q_OBJECT
 public:
-    QDebugStream(std::ostream &stream) : m_stream(stream)
-    {
-        m_old_buf = stream.rdbuf();
-        stream.rdbuf(this);
-    }
-
-    QDebugStream() : m_stream(std::cerr)
-    {
-
-    }
-
-    void setOptions(std::ostream &stream)
-    {
-        m_old_buf = stream.rdbuf();
-        stream.rdbuf(this);
-    }
-
-    ~QDebugStream()
-    {
-        // output anything that is left
-        if (!m_string.empty()) {
-            emit updateProgressText(QString::fromStdString(m_string));
-        }
-
-        m_stream.rdbuf(m_old_buf);
-    }
-
-    void eraseString(){
-        m_string.erase(m_string.begin(), m_string.end());
-    }
+    QDebugStream(std::ostream &stream);
+    QDebugStream();
+    void setOptions(std::ostream &stream);
+    ~QDebugStream();
+    void eraseString();
 
 protected:
-    virtual int_type overflow(int_type v)
-    {
-        if (v == '\n' || v == '*')
-        {
-            if (v == '*'){
-                emit updateProgressText("*");
-            }
-            else
-            {
-                emit updateProgressText(QString::fromStdString(m_string));
-            }
-            m_string.erase(m_string.begin(), m_string.end());
-        }
-        else
-            m_string += v;
-
-        return v;
-    }
-
-    virtual std::streamsize xsputn(const char *p, std::streamsize n)
-    {
-        m_string.append(p, p + n);
-
-        int pos = 0;
-        int posStar = 0;
-        while (pos != std::string::npos)
-        {
-            pos = m_string.find('\n');
-            posStar = m_string.find('*');
-            if (pos != std::string::npos)
-            {
-                std::string tmp(m_string.begin(), m_string.begin() + pos);
-                emit updateProgressText(QString::fromStdString(m_string));
-                m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
-            }
-            if(posStar != std::string::npos)
-            {
-                std::string tmp(m_string.begin(), m_string.begin() + posStar);
-                emit updateProgressText(QString::fromStdString(m_string));
-                m_string.erase(m_string.begin(), m_string.begin() + posStar + 1);
-            }
-        }
-
-        return n;
-    }
+    virtual int_type overflow(int_type v);
+    virtual std::streamsize xsputn(const char *p, std::streamsize n);
 
 private:
     std::ostream &m_stream;

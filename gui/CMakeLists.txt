@@ -24,6 +24,7 @@ set(SOURCES
         src/OsnProcessingThread.h
         src/ProgressWindow.cpp
         src/ProgressWindow.h
+        src/QDebugStream.cpp
         src/QDebugStream.h
         ${OSN_GUI_MOC}
         ${OSN_GUI_UI}
