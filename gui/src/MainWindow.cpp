@@ -338,10 +338,12 @@ void MainWindow::on_runPushButton_clicked()
 
     if(!validJob) {
         ui->runPushButton->setEnabled(true);
-        QMessageBox::critical(
-            this,
-            tr("Error"),
-            errorBuffer);
+        QMessageBox error;
+        error.setWindowTitle("OpenSpaceNet");
+        error.setText("Processing cannot proceed with invalid arguments.");
+        error.setInformativeText(errorBuffer);
+        error.setIcon(QMessageBox::Critical);
+        error.exec();
         return;
     }
 
@@ -1018,14 +1020,20 @@ bool MainWindow::validateUI(QString &error)
     //Local image specific validation
     if(ui->imageSourceComboBox->currentText() == "Local Image File") {
         if(!hasValidLocalImagePath){
-            error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+            if(ui->localImageFileLineEdit->text() == "") {
+                error += "Missing local file path\n";
+            }
+            else{
+                error += "Invalid local image filepath: \'" + ui->localImageFileLineEdit->text() + "\'\n";
+            }
+
             ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             validJob = false;
         }else {
             //The 'hasGeoRegLocalImage' flag is automatically updated every time the user selects a new image
             if (!hasGeoRegLocalImage){
                 std::clog << "valid geo-registered image " << hasGeoRegLocalImage << std::endl;
-                error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n\n";
+                error += "Selected image is not geo-registered: \'" + ui->localImageFileLineEdit->text() + "\'\n";
                 ui->localImageFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
                 validJob = false;
             }
@@ -1055,8 +1063,8 @@ bool MainWindow::validateUI(QString &error)
                 auto intersect = imageBbox & (cv::Rect)bbox;
                 hasValidBbox = true;
                 if (!intersect.width || !intersect.height) {
-                    std::clog << "Input image and the provided bounding box do not intersect\n\n" << std::endl;
-                    error += "Input image and the provided bounding box do not intersect\n\n";
+                    std::clog << "Input image and the provided bounding box do not intersect\n" << std::endl;
+                    error += "Input image and the provided bounding box do not intersect\n";
                     hasValidBbox = false;
                     validJob = false;
                 }
@@ -1078,19 +1086,19 @@ bool MainWindow::validateUI(QString &error)
         double west = abs(ui->bboxWestLineEdit->text().toDouble());
 
         if(north > 90.0 && !almostEq(north, 90.0)) {
-            error += "North bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            error += "North bounding box coordinate is invalid: must be in range (-90,90)\n";
             validJob = false;
         }
         if(south > 90.0 && !almostEq(south, 90.0)) {
-            error += "South bounding box coordinate is invalid: must be in range (-90,90)\n\n";
+            error += "South bounding box coordinate is invalid: must be in range (-90,90)\n";
             validJob = false;
         }
         if(east > 180.0 && !almostEq(east, 180.0)) {
-            error += "East bounding box coordinate is invalid: must be in range (-180,180)\n\n";
+            error += "East bounding box coordinate is invalid: must be in range (-180,180)\n";
             validJob = false;
         }
         if(west > 180.0 && !almostEq(west, 180.0)) {
-            error += "West bounding box coordinate is invalid: must be in range (-180,180)\n\n";
+            error += "West bounding box coordinate is invalid: must be in range (-180,180)\n";
             validJob = false;
         }
     }
@@ -1101,15 +1109,26 @@ bool MainWindow::validateUI(QString &error)
         std::clog << "valid model " << hasValidModel << std::endl;
         std::clog << "valid output " << hasValidOutputPath << std::endl;
         if(!hasValidModel) {
-            error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n\n";
+            if(ui->modelFileLineEdit->text() == "") {
+                error += "Missing model file path \n";
+            }
+            else{
+                error += "Invalid model filepath: \'" + ui->modelFileLineEdit->text() + "\'\n";
+            }
             ui->modelFileLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
         if(ui->outputFilenameLineEdit->text() == "") {
-            error += "Missing output filename\n\n";
+            error += "Missing output filename\n";
             ui->outputFilenameLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
         if(!hasValidOutputPath) {
-            error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n\n";
+            if(ui->outputLocationLineEdit->text() == "") {
+                error += "Missing output path \n";
+            }
+            else{
+                error += "Invalid output directory path: \'" + ui->outputLocationLineEdit->text() + "\'\n";
+            }
+
             ui->outputLocationLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
         }
     }
@@ -1184,16 +1203,16 @@ bool MainWindow::validateUI(QString &error)
             if (serverMessage.find("INVALID CONNECT ID") != std::string::npos ||
                 serverMessage.find("Not Authorized - Invalid Token") != std::string::npos ||
                 serverMessage.find("Not Authorized - No Token") != std::string::npos) {
-                error += "Invalid web service token\n\n";
+                error += "Invalid web service token\n";
                 ui->tokenLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("This request requires HTTP authentication") != std::string::npos) {
                 //check for invalid username/password message
-                error += "Invalid web service username and/or password\n\n";
+                error += "Invalid web service username and/or password\n";
                 ui->passwordLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
                 ui->usernameLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("Not Found") != std::string::npos) {
                  //check for invalid map id
-                 error += "Invalid Map Id\n\n";
+                 error += "Invalid Map Id\n";
                  ui->mapIdLineEdit->setStyleSheet(EDIT_ERROR_STYLE);
             }else if(serverMessage.find("Invalid tile matrix id") != std::string::npos) {
                  //check for invalid zoom level
@@ -1213,11 +1232,11 @@ bool MainWindow::validateUI(QString &error)
                  error += QString::fromStdString(validZoomLevels.front());
                  error += "-";
                  error += QString::fromStdString(validZoomLevels.back());
-                 error += "\n\n";
+                 error += "\n";
 
                  ui->zoomSpinBox->setStyleSheet(EDIT_ERROR_STYLE);
             }else {
-                error += "Unknown web service authentication error occurred\n\n";
+                error += "Unknown web service authentication error occurred\n";
             }
             validJob = false;
         }
@@ -1226,9 +1245,9 @@ bool MainWindow::validateUI(QString &error)
 
     if(hasValidBboxSize == false){
         if(ui->imageSourceComboBox->currentText() != "Local Image File") {
-            error += "The entered bounding box is too large\n\n";
+            error += "The entered bounding box is too large\n";
         }else if(ui->imageSourceComboBox->currentText() == "Local Image File" && hasValidLocalImagePath) {
-            error += "The entered image is too large\n\n";
+            error += "The entered image is too large\n";
         }
         validJob = false;
     }
