@@ -133,7 +133,7 @@ void OpenSpaceNet::initModel()
         model_->setOverrideSize(windowSize_);
         windowSize_ = *args_.windowSize;
     } else {
-        windowSize_ = modelPackage->metadata().windowSize();
+        windowSize_ = modelPackage->metadata().modelSize();
     }
 
     float confidence = 0;
@@ -463,7 +463,7 @@ void OpenSpaceNet::processSerial()
     }
 
     SlidingWindowChipper chipper(mat, calcSizes(), windowSize_,
-                                 model_->metadata().windowSize());
+                                 model_->metadata().modelSize());
     chipper.setFilter(std::move(regionFilter_->clone()));
     auto it = chipper.begin();
     std::vector<WindowPrediction> predictions;
@@ -601,7 +601,7 @@ void OpenSpaceNet::printModel()
                   << "; Version: " << metadata.version()
                   << "; Created: " << to_simple_string(from_time_t(metadata.timeCreated()));
     OSN_LOG(info) << "Description: " << metadata.description();
-    OSN_LOG(info) << "Dimensions (pixels): " << metadata.windowSize()
+    OSN_LOG(info) << "Dimensions (pixels): " << metadata.modelSize()
                   << "; Color Mode: " << metadata.colorMode()
                   << "; Image Type: " << metadata.imageType();
     OSN_LOG(info) << "Bounding box (lat/lon): " << metadata.boundingBox();
@@ -622,10 +622,10 @@ SizeSteps OpenSpaceNet::calcSizes() const
     if(args_.pyramidWindowSizes.empty()) {
         if(args_.pyramid) {
             return SlidingWindow::calcSizes(bbox_.size(), 2.0,
-                                            model_->metadata().windowSize(),
+                                            model_->metadata().modelSize(),
                                             stepSize_);
         } else {
-            return { { model_->metadata().windowSize(), stepSize_ } };
+            return { {model_->metadata().modelSize(), stepSize_ } };
         }
     } else {
         // Sanity check, should've been caught before
