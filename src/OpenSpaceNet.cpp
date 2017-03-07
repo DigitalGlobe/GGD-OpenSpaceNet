@@ -36,7 +36,7 @@
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
-#include <imagery/SlidingWindowSlicer.h>
+#include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
 #include <utility/MultiProgressDisplay.h>
@@ -385,10 +385,10 @@ void OpenSpaceNet::processConcurrent()
 
             if (filter->contains({item.first, item.second.size()}))
             {
-                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, 1.0, {}, EdgeBehavior::FILL, nullptr);
+                SlidingWindowChipper chipper(item.second, windowSize_, stepSize_);
 
                 Subsets subsets;
-                copy(slicer, back_inserter(subsets));
+                copy(chipper, back_inserter(subsets));
 
                 auto predictions = model_->detect(subsets);
 
@@ -441,6 +441,7 @@ void OpenSpaceNet::processSerial()
         openProgress = make_unique<boost::progress_display>(50);
     }
 
+
     auto startTime = high_resolution_clock::now();
     auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
         size_t curProgress = (size_t)roundf(progress*50);
@@ -461,16 +462,18 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_, EdgeBehavior::FILL, move(regionFilter_->clone()));
-    auto it = slicer.begin();
+    SlidingWindowChipper chipper(mat, calcSizes(), windowSize_,
+                                 model_->metadata().windowSize());
+    chipper.setFilter(std::move(regionFilter_->clone()));
+    auto it = chipper.begin();
     std::vector<WindowPrediction> predictions;
     int progress = 0;
 
     startTime = high_resolution_clock::now();
 
-    while(it != slicer.end()) {
+    while(it != chipper.end()) {
         Subsets subsets;
-        for(int i = 0; i < model_->batchSize() && it != slicer.end(); ++i, ++it) {
+        for(int i = 0; i < model_->batchSize() && it != chipper.end(); ++i, ++it) {
             subsets.push_back(*it);
         }
 
@@ -479,7 +482,7 @@ void OpenSpaceNet::processSerial()
 
         if(detectProgress) {
             progress += subsets.size();
-            auto curProgress = (size_t)round((double)(progress + it.skipped()) / slicer.slidingWindow().totalWindows() * 50);
+            auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
             if(detectProgress && detectProgress->count() < curProgress) {
                 *detectProgress += curProgress - detectProgress->count();
             }
@@ -618,7 +621,9 @@ SizeSteps OpenSpaceNet::calcSizes() const
 {
     if(args_.pyramidWindowSizes.empty()) {
         if(args_.pyramid) {
-            return SlidingWindow::calcSizes(bbox_.size(), model_->metadata().windowSize(), stepSize_, 2.0);
+            return SlidingWindow::calcSizes(bbox_.size(), 2.0,
+                                            model_->metadata().windowSize(),
+                                            stepSize_);
         } else {
             return { { model_->metadata().windowSize(), stepSize_ } };
         }
