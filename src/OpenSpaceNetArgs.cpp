@@ -91,6 +91,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     outputOptions_("Output Options"),
     processingOptions_("Processing Options"),
     detectOptions_("Feature Detection Options"),
+    filterOptions_("Filtering Options"),
     loggingOptions_("Logging Options"),
     generalOptions_("General Options"),
     supportedFormats_(FeatureSet::supportedFormats())
@@ -166,6 +167,9 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
+        ;
+
+    filterOptions_.add_options()
         ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to only include specified labels.")
         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
@@ -195,6 +199,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     optionsDescription_.add(outputOptions_);
     optionsDescription_.add(processingOptions_);
     optionsDescription_.add(detectOptions_);
+    optionsDescription_.add(filterOptions_);
     optionsDescription_.add(loggingOptions_);
     optionsDescription_.add(generalOptions_);
 
@@ -224,6 +229,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     visibleOptions_.add(outputOptions_);
     visibleOptions_.add(processingOptions_);
     visibleOptions_.add(detectOptions_);
+    visibleOptions_.add(filterOptions_);
     visibleOptions_.add(loggingOptions_);
     visibleOptions_.add(generalOptions_);
 }
@@ -264,10 +270,10 @@ void OpenSpaceNetArgs::setupInitialLogging()
     log::init();
 
     cerrSink_ = log::addCerrSink(dg::deepcore::level_t::warning, dg::deepcore::level_t::fatal,
-                                     dg::deepcore::log::dg_log_format::dg_short_log);
+                                 dg::deepcore::log::dg_log_format::dg_short_log);
 
     coutSink_ = log::addCoutSink(dg::deepcore::level_t::info, dg::deepcore::level_t::info,
-                                dg::deepcore::log::dg_log_format::dg_short_log);
+                                 dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
 void OpenSpaceNetArgs::setupLogging() {
@@ -413,6 +419,7 @@ void OpenSpaceNetArgs::printUsage(Action action) const
             desc.add(webOptions_);
             desc.add(outputOptions_);
             desc.add(processingOptions_);
+            desc.add(filterOptions_);
             desc.add(loggingOptions_);
             desc.add(generalOptions_);
 
@@ -436,10 +443,14 @@ void OpenSpaceNetArgs::printUsage(Action action) const
 void OpenSpaceNetArgs::validateArgs()
 {
     //
-    // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    // Validate action args.
+    // "Required" results in an error if unspecified.
+    // "Unused" results in a warning if specified.
+    // "UnusedExtra" results in a warning if more than 1 are specified.
     //
+    bool unusedExtraWindowSizes = false;
     bool unusedWindowSteps = false;
-    bool unusedNms= false;
+    bool unusedNms = false;
     bool unusedPyramid = false;
     bool unusedConfidence = false;
     switch (action) {
@@ -447,6 +458,7 @@ void OpenSpaceNetArgs::validateArgs()
             break;
 
         case Action::LANDCOVER:
+            unusedExtraWindowSizes = true;
             unusedWindowSteps = true;
             unusedNms= true;
             unusedPyramid = true;
@@ -458,6 +470,10 @@ void OpenSpaceNetArgs::validateArgs()
 
         default:
             DG_ERROR_THROW("Invalid action.");
+    }
+
+    if (unusedExtraWindowSizes && windowStep.size() > 1) {
+        OSN_LOG(warning) << "Only the first argument to --window-size is used for LANDCOVER.";
     }
 
     if (unusedWindowSteps && !windowStep.empty()) {
@@ -478,8 +494,11 @@ void OpenSpaceNetArgs::validateArgs()
 
 
 
+
     //
-    // Validate source args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    // Validate source args.
+    // "Required" results in an error if unspecified.
+    // "Unused" results in a warning if specified.
     //
     bool unusedMapId = false;
     bool requireBbox = false;
@@ -570,17 +589,19 @@ void OpenSpaceNetArgs::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-    if (unusedPyramid || !pyramid) {
+    if(unusedExtraWindowSizes || unusedWindowSteps || unusedPyramid || !pyramid) {
         DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 ||
                  windowSize.size() == windowStep.size(),
                  "Number of arguments in --window-size and --window-step must match.");
     } else {
-        if(windowSize.size() > 1) {
-            OSN_LOG(warning) << "Only the first --window-size argument is used when --pyramid is specified.";
+        if(unusedExtraWindowSizes || windowSize.size() > 1) {
+            OSN_LOG(warning)
+                << "Only the first --window-size argument is used when --pyramid is specified.";
         }
 
-        if(windowStep.size() > 1) {
-            OSN_LOG(warning) << "Only the first --window-step argument is used when --pyramid is specified.";
+        if(unusedWindowSteps || windowStep.size() > 1) {
+            OSN_LOG(warning)
+                << "Only the first --window-step argument is used when --pyramid is specified.";
         }
     }
 
@@ -737,18 +758,18 @@ void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
     readVariable("window-step", vm, windowStep, splitArgs);
     resampledSize = readVariable<int>("resampled-size", vm);
     pyramid = vm.find("pyramid") != end(vm);
+
+    readVariable("include-labels", vm, includeLabels, splitArgs);
+    readVariable("exclude-labels", vm, excludeLabels, splitArgs);
+    if (vm.find("region") != end(vm)) {
+        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
+    }
 }
 
 void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
-    readVariable("include-labels", vm, includeLabels, splitArgs);
-    readVariable("exclude-labels", vm, excludeLabels, splitArgs);
-
     confidenceSet |= readVariable("confidence", vm, confidence);
 
-    if (vm.find("region") != end(vm)) {
-        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
-    }
 
     if(vm.find("nms") != end(vm)) {
         nms = true;

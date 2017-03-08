@@ -126,6 +126,7 @@ private:
     boost::program_options::options_description outputOptions_;
     boost::program_options::options_description processingOptions_;
     boost::program_options::options_description detectOptions_;
+    boost::program_options::options_description filterOptions_;
     boost::program_options::options_description loggingOptions_;
     boost::program_options::options_description generalOptions_;
 
