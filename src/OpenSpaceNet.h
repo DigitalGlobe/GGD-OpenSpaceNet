@@ -53,7 +53,9 @@ private:
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
     void printModel();
     void skipLine() const;
-    deepcore::imagery::SizeSteps calcSizes() const;
+    deepcore::imagery::SizeSteps calcWindows() const;
+    cv::Size calcPrimaryWindowSize() const;
+    cv::Point calcPrimaryWindowStep() const;
 
     const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
@@ -62,8 +64,6 @@ private:
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
-    cv::Point stepSize_;
-    cv::Size windowSize_;
     bool concurrent_ = false;
     cv::Rect bbox_;
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;

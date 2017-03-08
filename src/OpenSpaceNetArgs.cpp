@@ -141,24 +141,27 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ;
 
     processingOptions_.add_options()
-        ("cpu", "Use the CPU for processing, the default it to use the GPU.")
+        ("cpu", "Use the CPU for processing, the default is to use the GPU.")
         ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
-        ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-         "Overrides the original model's window size. Window size can be specified in either one or two dimensions. If "
-         "only one dimension is specified, the window will be square. This parameter is optional and not recommended.")
+        ("window-sizes", po::value<std::vector<int>>()->multitoken()->value_name("STEP [STEP...]"),
+         "Sliding window detection box sizes.  The source image is chipped with boxes of the given sizes.  "
+         "Default is a single window with the model size.")
+        ("window-steps", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window step.  Either a single step or a step for each window size may be given.  Default value is 20% of the model size.")
+        ("resampled-size", po::value<int>()->value_name("SIZE"),
+         "Resize all windows to fit into a fixed size output.  Default is the window size if one is specified or assumed.  If multiple window "
+         "sizes are specified, this is required.  This must be equal to or smaller than the model size.")
+        ("pyramid",
+         "A preset for window sizes and resize size.  If this is set: the window sizes will range from the model size to the image size with "
+         "multiple of two between each and resize-size will be the model size.  Window-size and resampled-size parameters will be ignored."
+         "Only one step size may be specified.")
         ;
 
     detectOptions_.add_options()
         ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", confidence)),
          "Minimum percent score for results to be included in the output.")
-        ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-         "Sliding window step size. Default value is 20% of the model window size. Step size can be specified in "
-         "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
-        ("pyramid",
-         "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
-             "in additional features being detected.")
         ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
@@ -166,13 +169,10 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          "Filter results to only include specified labels.")
         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to exclude specified labels.")
-        ("pyramid-window-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-         "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
-        ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-         "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
         ("include-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to include when filtering.")
         ("exclude-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to exclude when filtering.")
-        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]"), "Paths to files including and excluding regions.")
+        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]"),
+         "Paths to files including and excluding regions.")
         ;
 
     loggingOptions_.add_options()
@@ -434,8 +434,10 @@ void OpenSpaceNetArgs::printUsage(Action action) const
 
 void OpenSpaceNetArgs::validateArgs()
 {
+    //
     // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
-    bool unusedStepSize = false;
+    //
+    bool unusedWindowSteps = false;
     bool unusedNms= false;
     bool unusedPyramid = false;
     bool unusedConfidence = false;
@@ -444,7 +446,7 @@ void OpenSpaceNetArgs::validateArgs()
             break;
 
         case Action::LANDCOVER:
-            unusedStepSize = true;
+            unusedWindowSteps = true;
             unusedNms= true;
             unusedPyramid = true;
             unusedConfidence = true;
@@ -457,8 +459,8 @@ void OpenSpaceNetArgs::validateArgs()
             DG_ERROR_THROW("Invalid action.");
     }
 
-    if (unusedStepSize && (stepSize.get() != nullptr)) {
-        OSN_LOG(warning) << "Argument --step-size is unused for LANDCOVER.";
+    if (unusedWindowSteps && !windowSteps.empty()) {
+        OSN_LOG(warning) << "Argument --window-steps is unused for LANDCOVER.";
     }
 
     if (unusedNms && nms) {
@@ -473,7 +475,11 @@ void OpenSpaceNetArgs::validateArgs()
         OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
     }
 
+
+
+    //
     // Validate source args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+    //
     bool unusedMapId = false;
     bool requireBbox = false;
     bool unusedToken = false;
@@ -552,7 +558,10 @@ void OpenSpaceNetArgs::validateArgs()
         OSN_LOG(warning) << "Argument --url is unused for " << sourceName << '.';
     }
 
-    // validate model and detection
+
+    //
+    // Validate model and detection
+    //
     if (modelPath.empty()) {
         DG_ERROR_THROW("Argument --model is required.");
     }
@@ -561,7 +570,23 @@ void OpenSpaceNetArgs::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-    // validate output
+    DG_CHECK(windowSizes.size() < 2 || windowSteps.size() < 2 || windowSizes.size() == windowSteps.size(),
+             "Number of arguments in --window-sizes and --window-steps must match.");
+
+    if(!unusedPyramid && windowSteps.size() > 1 && pyramid) {
+        OSN_LOG(warning) << "Only the first --window-steps argument is used when --pyramid is specified.";
+    }
+
+    if(!unusedPyramid && resampledSize && pyramid) {
+        OSN_LOG(warning) << "Argument --resampled-size unused when --pyramid is specified.";
+    }
+
+    DG_CHECK(windowSizes.size() < 2 || resampledSize,
+             "Argument --resampled-size is required when multiple --window-sizes are specified.");
+
+    //
+    // Validate output
+    //
     if (outputPath.empty()) {
         DG_ERROR_THROW("Argument --output is required.");
     }
@@ -575,17 +600,10 @@ void OpenSpaceNetArgs::validateArgs()
         layerName = "osndetects";
     }
 
-    DG_CHECK(pyramidWindowSizes.size() == pyramidStepSizes.size(),
-             "Number of arguments in --pyramid-window-sizes and --pyramid-step-sizes must match.");
 
-    if(pyramidWindowSizes.size() && pyramid) {
-        OSN_LOG(warning) << "Argument --pyramid is ignored because pyramid levels are specified manually.";
-    }
-
-    if(pyramidWindowSizes.size() && stepSize) {
-        OSN_LOG(warning) << "Argument --step-size is ignored because pyramid levels are specified manually.";
-    }
-
+    //
+    // Validate filtering
+    //
     if (filterDefinition.size()) {
         for (const auto& action : filterDefinition) {
             for (const auto& file : action.second) {
@@ -602,6 +620,9 @@ void OpenSpaceNetArgs::validateArgs()
                     }
                 }
             }
+        }
+        if(!unusedPyramid && !pyramid && windowSizes.size() > 1) {
+            OSN_LOG(warning) << "Only the first --window-sizes argument is used the create the exclude filter.";
         }
     }
 
@@ -711,7 +732,11 @@ void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
     useCpu = vm.find("cpu") != end(vm);
     readVariable("max-utilization", vm, maxUtilization);
     readVariable("model", vm, modelPath);
-    windowSize = readVariable<cv::Size>("window-size", vm);
+
+    readVariable("window-sizes", vm, windowSizes, splitArgs);
+    readVariable("window-steps", vm, windowSteps, splitArgs);
+    resampledSize = readVariable<int>("resampled-size", vm);
+    pyramid = vm.find("pyramid") != end(vm);
 }
 
 void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
@@ -721,11 +746,9 @@ void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs
 
     confidenceSet |= readVariable("confidence", vm, confidence);
 
-    readVariable("pyramid-window-sizes", vm, pyramidWindowSizes, true);
-    readVariable("pyramid-step-sizes", vm, pyramidStepSizes, true);
-
-    stepSize = readVariable<cv::Point>("step-size", vm);
-    pyramid = vm.find("pyramid") != end(vm);
+    if (vm.find("region") != end(vm)) {
+        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
+    }
 
     if(vm.find("nms") != end(vm)) {
         nms = true;
@@ -734,10 +757,6 @@ void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs
         if(args.size()) {
             overlap = args[0];
         }
-    }
-
-    if (vm.find("region") != end(vm)) {
-        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
     }
 }
 

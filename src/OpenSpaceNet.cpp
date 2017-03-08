@@ -129,32 +129,30 @@ void OpenSpaceNet::initModel()
 
     model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
 
-    if(args_.windowSize) {
-        model_->setOverrideSize(windowSize_);
-        windowSize_ = *args_.windowSize;
-    } else {
-        windowSize_ = modelPackage->metadata().modelSize();
-    }
-
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
         const auto& blockSize = image_->blockSize();
-        if(blockSize.width % windowSize_.width == 0 && blockSize.height % windowSize_.height == 0) {
-            bbox_ = { cv::Point {0, 0} , image_->size() };
-            concurrent_ = true;
+        auto windowSize = calcPrimaryWindowSize();
+        if (args_.windowSizes.size() < 2) {
+            if(blockSize.width % windowSize.width == 0 &&
+               blockSize.height % windowSize.height == 0) {
+                bbox_ = {cv::Point {0, 0}, image_->size()};
+                concurrent_ = true;
+            }
         }
-        stepSize_ = windowSize_;
+        args_.windowSteps = windowSize.width;
     } else if(args_.action == Action::DETECT) {
-        if(args_.stepSize) {
-            stepSize_ = *args_.stepSize;
-        } else {
-            stepSize_ = model_->defaultStep();
-        }
-
         confidence = args_.confidence / 100;
     }
 
     model_->setConfidence(confidence);
+
+
+    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= model_->metadata().modelSize().width,
+             "--resample-size must be smaller than the size of the model.")
+
+    DG_CHECK(args_.resampledSize && calcPrimaryWindowSize().width <= model_->metadata().modelSize().width,
+             "The window must fit within the model or --resample-size may be used to resize it.")
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -295,7 +293,8 @@ void OpenSpaceNet::initFilter()
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the region filter..." ;
         auto imageSr = image_->spatialReference();
-        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_,
+                                                        calcPrimaryWindowStep(), MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
@@ -340,6 +339,9 @@ void OpenSpaceNet::processConcurrent()
     Semaphore haveWork;
     atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
 
+    auto windowSize = calcPrimaryWindowSize();
+    auto windowStep = calcPrimaryWindowStep();
+
     MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
     if(!args_.quiet) {
         progressDisplay.start();
@@ -368,7 +370,7 @@ void OpenSpaceNet::processConcurrent()
 
     size_t curBlockClass = 0;
     auto filter = regionFilter_.get();
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter]() {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSize, &windowStep]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -385,7 +387,7 @@ void OpenSpaceNet::processConcurrent()
 
             if (filter->contains({item.first, item.second.size()}))
             {
-                SlidingWindowChipper chipper(item.second, windowSize_, stepSize_);
+                SlidingWindowChipper chipper(item.second, windowSize, windowStep);
 
                 Subsets subsets;
                 copy(chipper, back_inserter(subsets));
@@ -462,8 +464,18 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowChipper chipper(mat, calcSizes(), windowSize_,
-                                 model_->metadata().modelSize());
+    SlidingWindowChipper chipper;
+    if (!args_.pyramid) {
+        auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, *args_.resampledSize}) : calcPrimaryWindowSize();
+        chipper = SlidingWindowChipper(mat, calcWindows(),
+                                       resampledSize,
+                                       model_->metadata().modelSize());
+    } else {
+        chipper = SlidingWindowChipper(mat, 2.0,
+                                       model_->metadata().modelSize(),
+                                       calcPrimaryWindowStep(),
+                                       model_->metadata().modelSize());
+    }
     chipper.setFilter(std::move(regionFilter_->clone()));
     auto it = chipper.begin();
     std::vector<WindowPrediction> predictions;
@@ -617,28 +629,63 @@ void OpenSpaceNet::skipLine() const
     }
 }
 
-SizeSteps OpenSpaceNet::calcSizes() const
+cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
 {
-    if(args_.pyramidWindowSizes.empty()) {
-        if(args_.pyramid) {
-            return SlidingWindow::calcSizes(bbox_.size(), 2.0,
-                                            model_->metadata().modelSize(),
-                                            stepSize_);
-        } else {
-            return { {model_->metadata().modelSize(), stepSize_ } };
-        }
-    } else {
-        // Sanity check, should've been caught before
-        DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
+    const auto& modelSize = model_->metadata().modelSize();
+    auto windowSize = model_->metadata().modelSize();
+    if(!args_.windowSizes.empty()) {
+        windowSize = {args_.windowSizes[0] * modelSize.height / modelSize.width, args_.windowSizes[0]};
+    }
+    return windowSize;
+}
 
+cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
+{
+    const auto& modelSize = model_->metadata().modelSize();
+    auto windowStep = model_->defaultStep();
+    if(!args_.windowSteps.empty()) {
+        windowStep = {args_.windowSteps[0] * modelSize.height / modelSize.width, args_.windowSteps[0]};
+    }
+    return windowStep;
+}
+
+SizeSteps OpenSpaceNet::calcWindows() const
+{
+
+    DG_CHECK(args_.windowSizes.size() < 2 || args_.windowSteps.size() < 2 ||
+             args_.windowSizes.size() == args_.windowSteps.size(),
+             "Number of arguments in --window-sizes and --window-steps must match.");
+
+    const auto& modelSize = model_->metadata().modelSize();
+
+    if(args_.windowSizes.size() == args_.windowSteps.size() &&
+       args_.windowSteps.size() > 0) {
         SizeSteps ret;
-        for(const auto& c : boost::combine(args_.pyramidWindowSizes, args_.pyramidStepSizes)) {
+        for(const auto& c : boost::combine(args_.windowSizes, args_.windowSteps)) {
             int windowSize, stepSize;
             boost::tie(windowSize, stepSize) = c;
-            ret.emplace_back(cv::Size { windowSize, windowSize }, cv::Point { stepSize, stepSize });
+            ret.emplace_back(cv::Size {windowSize * modelSize.height / modelSize.width, windowSize},
+                             cv::Point {stepSize * modelSize.height / modelSize.width, stepSize});
         }
-
         return ret;
+    } else if (args_.windowSizes.size() > 1) {
+        auto windowStep = calcPrimaryWindowStep();
+
+        SizeSteps ret;
+        for(const auto& c : args_.windowSizes) {
+            ret.emplace_back(cv::Size {c * modelSize.height / modelSize.width, c}, windowStep);
+        }
+        return ret;
+    } else if (args_.windowSteps.size() > 1) {
+        auto windowSize = calcPrimaryWindowSize();
+
+        SizeSteps ret;
+        for(const auto& c : args_.windowSteps) {
+            ret.emplace_back(windowSize, cv::Point {c * modelSize.height / modelSize.width, c});
+        }
+        return ret;
+    } else {
+        return { { calcPrimaryWindowSize(), calcPrimaryWindowStep() } };
     }
 }
 
