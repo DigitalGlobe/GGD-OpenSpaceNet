@@ -134,7 +134,7 @@ void OpenSpaceNet::initModel()
     if(args_.action == Action::LANDCOVER) {
         const auto& blockSize = image_->blockSize();
         auto windowSize = calcPrimaryWindowSize();
-        if (args_.windowSizes.size() < 2) {
+        if (args_.windowSize.size() < 2) {
             if(blockSize.width % windowSize.width == 0 &&
                blockSize.height % windowSize.height == 0) {
                 bbox_ = {cv::Point {0, 0}, image_->size()};
@@ -149,10 +149,12 @@ void OpenSpaceNet::initModel()
 
 
     DG_CHECK(!args_.resampledSize || *args_.resampledSize <= model_->metadata().modelSize().width,
-             "--resample-size must be smaller than the size of the model.")
+             "Argument --resample-size (%d) must be smaller than the width of the model (%d).",
+             *args_.resampledSize, model_->metadata().modelSize().width)
 
     DG_CHECK(args_.resampledSize && calcPrimaryWindowSize().width <= model_->metadata().modelSize().width,
-             "The window must fit within the model or --resample-size may be used to resize it.")
+             "The window must fit within the model (%d) or --resample-size may be used to resize it.",
+             calcPrimaryWindowSize().width <= model_->metadata().modelSize().width)
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -465,15 +467,16 @@ void OpenSpaceNet::processSerial()
     }
 
     SlidingWindowChipper chipper;
+    auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))}) : calcPrimaryWindowSize();
     if (!args_.pyramid) {
-        auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))}) : calcPrimaryWindowSize();
-        chipper = SlidingWindowChipper(mat, calcWindows(),
+        chipper = SlidingWindowChipper(mat,
+                                       calcWindows(),
                                        resampledSize,
                                        model_->metadata().modelSize());
     } else {
         chipper = SlidingWindowChipper(mat, 2.0,
-                                       model_->metadata().modelSize(),
-                                       calcPrimaryWindowStep(),
+                                       calcPrimaryWindowSize(),
+                                       resampledSize,
                                        model_->metadata().modelSize());
     }
     chipper.setFilter(std::move(regionFilter_->clone()));
@@ -633,8 +636,8 @@ cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
 {
     const auto& modelSize = model_->metadata().modelSize();
     auto windowSize = model_->metadata().modelSize();
-    if(!args_.windowSizes.empty()) {
-        windowSize = {args_.windowSizes[0], (int) roundf(modelAspectRatio_ * args_.windowSizes[0])};
+    if(!args_.windowSize.empty()) {
+        windowSize = {args_.windowSize[0], (int) roundf(modelAspectRatio_ * args_.windowSize[0])};
     }
     return windowSize;
 }
@@ -642,45 +645,42 @@ cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
 cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
 {
     auto windowStep = model_->defaultStep();
-    if(!args_.windowSteps.empty()) {
-        windowStep = {args_.windowSteps[0], (int) roundf(modelAspectRatio_ * args_.windowSteps[0])};
+    if(!args_.windowStep.empty()) {
+        windowStep = {args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0])};
     }
     return windowStep;
 }
 
 SizeSteps OpenSpaceNet::calcWindows() const
 {
+    DG_CHECK(args_.windowSize.size() < 2 || args_.windowStep.size() < 2 ||
+             args_.windowSize.size() == args_.windowStep.size(),
+             "Number of window sizes and window steps must match.");
 
-    DG_CHECK(args_.windowSizes.size() < 2 || args_.windowSteps.size() < 2 ||
-             args_.windowSizes.size() == args_.windowSteps.size(),
-             "Number of arguments in --window-sizes and --window-steps must match.");
-
-    const auto& modelSize = model_->metadata().modelSize();
-
-    if(args_.windowSizes.size() == args_.windowSteps.size() &&
-       args_.windowSteps.size() > 0) {
+    if(args_.windowSize.size() == args_.windowStep.size() &&
+       args_.windowStep.size() > 0) {
         SizeSteps ret;
-        for(const auto& c : boost::combine(args_.windowSizes, args_.windowSteps)) {
+        for(const auto& c : boost::combine(args_.windowSize, args_.windowStep)) {
             int windowSize, stepSize;
             boost::tie(windowSize, stepSize) = c;
             ret.emplace_back(cv::Size {windowSize, (int) roundf(modelAspectRatio_ * windowSize)},
                              cv::Point {stepSize, (int) roundf(modelAspectRatio_ * stepSize)});
         }
         return ret;
-    } else if (args_.windowSizes.size() > 1) {
+    } else if (args_.windowSize.size() > 1) {
         auto windowStep = calcPrimaryWindowStep();
 
         SizeSteps ret;
-        for(const auto& c : args_.windowSizes) {
-            ret.emplace_back(cv::Size {c, (int) roundf(modelAspectRatio_ * c)}, windowStep);
+        for(const auto& c : args_.windowSize) {
+            ret.emplace_back(cv::Size { c, (int) roundf(modelAspectRatio_ * c) }, windowStep);
         }
         return ret;
-    } else if (args_.windowSteps.size() > 1) {
+    } else if (args_.windowStep.size() > 1) {
         auto windowSize = calcPrimaryWindowSize();
 
         SizeSteps ret;
-        for(const auto& c : args_.windowSteps) {
-            ret.emplace_back(windowSize, cv::Point {c, (int) roundf(modelAspectRatio_ * c)});
+        for(const auto& c : args_.windowStep) {
+            ret.emplace_back(windowSize, cv::Point { c, (int) roundf(modelAspectRatio_ * c) });
         }
         return ret;
     } else {

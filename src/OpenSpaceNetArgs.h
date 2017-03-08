@@ -78,8 +78,8 @@ public:
     bool useCpu = false;
     float maxUtilization = 95;
     std::string modelPath;
-    std::vector<int> windowSizes;
-    std::vector<int> windowSteps;
+    std::vector<int> windowSize;
+    std::vector<int> windowStep;
     std::unique_ptr<int> resampledSize;
     bool pyramid = false;
 

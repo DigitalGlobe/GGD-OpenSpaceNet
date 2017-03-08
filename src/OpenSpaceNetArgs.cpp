@@ -71,9 +71,9 @@ static const string OSN_USAGE =
         "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
         "  OpenSpaceNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
-        "  help     \t\t\t Show this help message\n"
-        "  detect   \t\t\t Perform feature detection\n"
-        "  landcover\t\t\t Perform land cover classification\n";
+        "  help                                  Show this help message\n"
+        "  detect                                Perform feature detection\n"
+        "  landcover                             Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
     "Run OpenSpaceNet in feature detection mode.\n\n"
@@ -145,18 +145,18 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
-        ("window-sizes", po::value<std::vector<int>>()->multitoken()->value_name("STEP [STEP...]"),
+        ("window-size", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window detection box sizes.  The source image is chipped with boxes of the given sizes.  "
-         "Default is a single window with the model size.")
-        ("window-steps", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
-         "Sliding window step.  Either a single step or a step for each window size may be given.  Default value is 20% of the model size.")
+         "Default is the model size.")
+        ("window-step", po::value<std::vector<int>>()->multitoken()->value_name("STEP [STEP...]"),
+         "Sliding window step.  Either a single step or a step for each window size may be given.  Default "
+         "is 20% of the model size.")
         ("resampled-size", po::value<int>()->value_name("SIZE"),
-         "Resize all windows to fit into a fixed size output.  Default is the window size if one is specified or assumed.  If multiple window "
-         "sizes are specified, this is required.  This must be equal to or smaller than the model size.")
+         "Resample window chips to a fixed size which must fit within the model.  Default is the window size.")
         ("pyramid",
-         "A preset for window sizes and resize size.  If this is set: the window sizes will range from the model size to the image size with "
-         "multiple of two between each and resize-size will be the model size.  Window-size and resampled-size parameters will be ignored."
-         "Only one step size may be specified.")
+         "Preset window parameters.  If this is set, only the first window size "
+         "and window step are used.  A family of each are created by doubling the supplied parameters up to "
+         "the area of the detection box.")
         ;
 
     detectOptions_.add_options()
@@ -459,20 +459,20 @@ void OpenSpaceNetArgs::validateArgs()
             DG_ERROR_THROW("Invalid action.");
     }
 
-    if (unusedWindowSteps && !windowSteps.empty()) {
-        OSN_LOG(warning) << "Argument --window-steps is unused for LANDCOVER.";
+    if (unusedWindowSteps && !windowStep.empty()) {
+        OSN_LOG(warning) << "Argument --window-step is ignored for LANDCOVER.";
     }
 
     if (unusedNms && nms) {
-        OSN_LOG(warning) << "Argument --nms is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --nms is ignored for LANDCOVER.";
     }
 
     if (unusedPyramid && pyramid) {
-        OSN_LOG(warning) << "Argument --pyramid is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --pyramid is ignored for LANDCOVER.";
     }
 
     if (unusedConfidence && confidenceSet) {
-        OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --confidence is ignored for LANDCOVER.";
     }
 
 
@@ -530,17 +530,17 @@ void OpenSpaceNetArgs::validateArgs()
     if (requireToken && token.empty()) {
         DG_ERROR_THROW("Argument --token is required for %s.", sourceName.c_str());
     } else if (unusedToken && !token.empty()) {
-        OSN_LOG(warning) << "Argument --token is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --token is ignored for " << sourceName << '.';
     }
 
     if (requireCredentials && credentials.empty()) {
         DG_ERROR_THROW("Argument --credentials argument is required for %s.", sourceName.c_str());
     } else if (unusedCredentials && !credentials.empty()) {
-        OSN_LOG(warning) << "Argument --credentials is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --credentials is ignored for " << sourceName << '.';
     }
 
     if (unusedMapId && mapIdSet) {
-        OSN_LOG(warning) << "Argument --mapId is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --mapId is ignored for " << sourceName << '.';
     }
 
     if (requireBbox && (bbox.get() == nullptr)) {
@@ -548,14 +548,14 @@ void OpenSpaceNetArgs::validateArgs()
     }
 
     if (unusedUseTiles && useTiles) {
-        OSN_LOG(warning) << "Argument --use-tiles is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --use-tiles is ignored for " << sourceName << '.';
     }
 
 
     if(requireUrl && url.empty()) {
         DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
     } else if(!requireUrl && !url.empty()) {
-        OSN_LOG(warning) << "Argument --url is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --url is ignored for " << sourceName << '.';
     }
 
 
@@ -570,19 +570,20 @@ void OpenSpaceNetArgs::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-    DG_CHECK(windowSizes.size() < 2 || windowSteps.size() < 2 || windowSizes.size() == windowSteps.size(),
-             "Number of arguments in --window-sizes and --window-steps must match.");
+    DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 || windowSize.size() == windowStep.size(),
+             "Number of arguments in --window-size and --window-step must match.");
 
-    if(!unusedPyramid && windowSteps.size() > 1 && pyramid) {
-        OSN_LOG(warning) << "Only the first --window-steps argument is used when --pyramid is specified.";
+    if(!unusedPyramid && windowSize.size() > 1 && pyramid) {
+        OSN_LOG(warning) << "Only the first --window-size argument is used when --pyramid is specified.";
     }
 
-    if(!unusedPyramid && resampledSize && pyramid) {
-        OSN_LOG(warning) << "Argument --resampled-size unused when --pyramid is specified.";
+    if(!unusedPyramid && windowStep.size() > 1 && pyramid) {
+        OSN_LOG(warning) << "Only the first --window-step argument is used when --pyramid is specified.";
     }
 
-    DG_CHECK(windowSizes.size() < 2 || resampledSize,
-             "Argument --resampled-size is required when multiple --window-sizes are specified.");
+    if(!resampledSize && windowSize.size() > 1 && pyramid) {
+        OSN_LOG(warning) << "Argument --resample-size defaulted to the first --window-size";
+    }
 
     //
     // Validate output
@@ -621,8 +622,8 @@ void OpenSpaceNetArgs::validateArgs()
                 }
             }
         }
-        if(!unusedPyramid && !pyramid && windowSizes.size() > 1) {
-            OSN_LOG(warning) << "Only the first --window-sizes argument is used the create the exclude filter.";
+        if(!unusedPyramid && !pyramid && windowSize.size() > 1) {
+            OSN_LOG(warning) << "Only the first --window-size argument is used the create the exclude filter.";
         }
     }
 
@@ -733,8 +734,8 @@ void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
     readVariable("max-utilization", vm, maxUtilization);
     readVariable("model", vm, modelPath);
 
-    readVariable("window-sizes", vm, windowSizes, splitArgs);
-    readVariable("window-steps", vm, windowSteps, splitArgs);
+    readVariable("window-size", vm, windowSize, splitArgs);
+    readVariable("window-step", vm, windowStep, splitArgs);
     resampledSize = readVariable<int>("resampled-size", vm);
     pyramid = vm.find("pyramid") != end(vm);
 }
