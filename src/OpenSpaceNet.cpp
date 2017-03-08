@@ -148,13 +148,13 @@ void OpenSpaceNet::initModel()
     model_->setConfidence(confidence);
 
     DG_CHECK(!args_.resampledSize || *args_.resampledSize <= model_->metadata().modelSize().width,
-             "Argument --resample-size (size: %d) contains an size that does not fit within the model (width: %d).",
+             "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
              *args_.resampledSize, model_->metadata().modelSize().width)
 
     if (!args_.resampledSize) {
         for (auto c : args_.windowSize) {
             DG_CHECK(c <= model_->metadata().modelSize().width,
-                     "Argument --window-size contains an size that does not fit within the model (width: %d).",
+                     "Argument --window-size contains a size that does not fit within the model (width: %d).",
                       model_->metadata().modelSize().width)
         }
     }
