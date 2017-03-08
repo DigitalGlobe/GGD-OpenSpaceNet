@@ -147,14 +147,15 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
         ("window-size", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
          "Sliding window detection box sizes.  The source image is chipped with boxes of the given sizes.  "
+         "If resampled-size is not specified, all windows must fit within the model."
          "Default is the model size.")
         ("window-step", po::value<std::vector<int>>()->multitoken()->value_name("STEP [STEP...]"),
          "Sliding window step.  Either a single step or a step for each window size may be given.  Default "
          "is 20% of the model size.")
         ("resampled-size", po::value<int>()->value_name("SIZE"),
-         "Resample window chips to a fixed size which must fit within the model.  Default is the window size.")
+         "Resample window chips to a fixed size.  This must fit within the model.")
         ("pyramid",
-         "Preset window parameters.  If this is set, only the first window size "
+         "Calculate window parameters.  If this is set, only the first window size "
          "and window step are used.  A family of each are created by doubling the supplied parameters up to "
          "the area of the detection box.")
         ;
@@ -551,7 +552,6 @@ void OpenSpaceNetArgs::validateArgs()
         OSN_LOG(warning) << "Argument --use-tiles is ignored for " << sourceName << '.';
     }
 
-
     if(requireUrl && url.empty()) {
         DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
     } else if(!requireUrl && !url.empty()) {
@@ -570,19 +570,18 @@ void OpenSpaceNetArgs::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-    DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 || windowSize.size() == windowStep.size(),
-             "Number of arguments in --window-size and --window-step must match.");
+    if (unusedPyramid || !pyramid) {
+        DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 ||
+                 windowSize.size() == windowStep.size(),
+                 "Number of arguments in --window-size and --window-step must match.");
+    } else {
+        if(windowSize.size() > 1) {
+            OSN_LOG(warning) << "Only the first --window-size argument is used when --pyramid is specified.";
+        }
 
-    if(!unusedPyramid && windowSize.size() > 1 && pyramid) {
-        OSN_LOG(warning) << "Only the first --window-size argument is used when --pyramid is specified.";
-    }
-
-    if(!unusedPyramid && windowStep.size() > 1 && pyramid) {
-        OSN_LOG(warning) << "Only the first --window-step argument is used when --pyramid is specified.";
-    }
-
-    if(!resampledSize && windowSize.size() > 1 && pyramid) {
-        OSN_LOG(warning) << "Argument --resample-size defaulted to the first --window-size";
+        if(windowStep.size() > 1) {
+            OSN_LOG(warning) << "Only the first --window-step argument is used when --pyramid is specified.";
+        }
     }
 
     //

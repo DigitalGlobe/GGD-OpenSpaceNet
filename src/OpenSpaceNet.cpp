@@ -147,14 +147,17 @@ void OpenSpaceNet::initModel()
 
     model_->setConfidence(confidence);
 
-
     DG_CHECK(!args_.resampledSize || *args_.resampledSize <= model_->metadata().modelSize().width,
              "Argument --resample-size (%d) must be smaller than the width of the model (%d).",
              *args_.resampledSize, model_->metadata().modelSize().width)
 
-    DG_CHECK(args_.resampledSize && calcPrimaryWindowSize().width <= model_->metadata().modelSize().width,
-             "The window must fit within the model (%d) or --resample-size may be used to resize it.",
-             calcPrimaryWindowSize().width <= model_->metadata().modelSize().width)
+    if (!args_.resampledSize) {
+        for (auto c : args_.windowSize) {
+            DG_CHECK(c <= model_->metadata().modelSize().width,
+                     "Argument --window-size contains an size that does not fit within the model (%d).",
+                      model_->metadata().modelSize().width)
+        }
+    }
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -467,11 +470,9 @@ void OpenSpaceNet::processSerial()
     }
 
     SlidingWindowChipper chipper;
-    auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))}) : calcPrimaryWindowSize();
+    auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
     if (!args_.pyramid) {
-        chipper = SlidingWindowChipper(mat,
-                                       calcWindows(),
-                                       resampledSize,
+        chipper = SlidingWindowChipper(mat, calcWindows(), resampledSize,
                                        model_->metadata().modelSize());
     } else {
         chipper = SlidingWindowChipper(mat, 2.0,
