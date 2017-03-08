@@ -78,18 +78,17 @@ public:
     bool useCpu = false;
     float maxUtilization = 95;
     std::string modelPath;
-    std::unique_ptr<cv::Size> windowSize;
+    std::vector<int> windowSize;
+    std::vector<int> windowStep;
+    std::unique_ptr<int> resampledSize;
+    bool pyramid = false;
 
     // Feature detection options
     float confidence = 95;
-    std::unique_ptr<cv::Point> stepSize;
-    bool pyramid = false;
     bool nms = false;
     float overlap = 30;
     std::vector<std::string> includeLabels;
     std::vector<std::string> excludeLabels;
-    std::vector<int> pyramidWindowSizes;
-    std::vector<int> pyramidStepSizes;
     std::vector<std::pair<std::string, std::vector<std::string>>> filterDefinition;
 
     // Logging options
@@ -127,6 +126,7 @@ private:
     boost::program_options::options_description outputOptions_;
     boost::program_options::options_description processingOptions_;
     boost::program_options::options_description detectOptions_;
+    boost::program_options::options_description filterOptions_;
     boost::program_options::options_description loggingOptions_;
     boost::program_options::options_description generalOptions_;
 
