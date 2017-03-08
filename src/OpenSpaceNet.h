@@ -66,6 +66,7 @@ private:
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
     cv::Rect bbox_;
+    float modelAspectRatio_;
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
     deepcore::vector::Layer layer_;
     deepcore::geometry::SpatialReference sr_;

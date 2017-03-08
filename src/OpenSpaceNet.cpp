@@ -128,6 +128,7 @@ void OpenSpaceNet::initModel()
     OSN_LOG(info) << "Reading model..." ;
 
     model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    modelAspectRatio_ = (float) model_->metadata().modelSize().height / model_->metadata().modelSize().width;
 
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
@@ -140,7 +141,6 @@ void OpenSpaceNet::initModel()
                 concurrent_ = true;
             }
         }
-        args_.windowSteps = windowSize.width;
     } else if(args_.action == Action::DETECT) {
         confidence = args_.confidence / 100;
     }
@@ -466,7 +466,7 @@ void OpenSpaceNet::processSerial()
 
     SlidingWindowChipper chipper;
     if (!args_.pyramid) {
-        auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, *args_.resampledSize}) : calcPrimaryWindowSize();
+        auto resampledSize = args_.resampledSize ? (cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))}) : calcPrimaryWindowSize();
         chipper = SlidingWindowChipper(mat, calcWindows(),
                                        resampledSize,
                                        model_->metadata().modelSize());
@@ -634,17 +634,16 @@ cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
     const auto& modelSize = model_->metadata().modelSize();
     auto windowSize = model_->metadata().modelSize();
     if(!args_.windowSizes.empty()) {
-        windowSize = {args_.windowSizes[0] * modelSize.height / modelSize.width, args_.windowSizes[0]};
+        windowSize = {args_.windowSizes[0], (int) roundf(modelAspectRatio_ * args_.windowSizes[0])};
     }
     return windowSize;
 }
 
 cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
 {
-    const auto& modelSize = model_->metadata().modelSize();
     auto windowStep = model_->defaultStep();
     if(!args_.windowSteps.empty()) {
-        windowStep = {args_.windowSteps[0] * modelSize.height / modelSize.width, args_.windowSteps[0]};
+        windowStep = {args_.windowSteps[0], (int) roundf(modelAspectRatio_ * args_.windowSteps[0])};
     }
     return windowStep;
 }
@@ -664,8 +663,8 @@ SizeSteps OpenSpaceNet::calcWindows() const
         for(const auto& c : boost::combine(args_.windowSizes, args_.windowSteps)) {
             int windowSize, stepSize;
             boost::tie(windowSize, stepSize) = c;
-            ret.emplace_back(cv::Size {windowSize * modelSize.height / modelSize.width, windowSize},
-                             cv::Point {stepSize * modelSize.height / modelSize.width, stepSize});
+            ret.emplace_back(cv::Size {windowSize, (int) roundf(modelAspectRatio_ * windowSize)},
+                             cv::Point {stepSize, (int) roundf(modelAspectRatio_ * stepSize)});
         }
         return ret;
     } else if (args_.windowSizes.size() > 1) {
@@ -673,7 +672,7 @@ SizeSteps OpenSpaceNet::calcWindows() const
 
         SizeSteps ret;
         for(const auto& c : args_.windowSizes) {
-            ret.emplace_back(cv::Size {c * modelSize.height / modelSize.width, c}, windowStep);
+            ret.emplace_back(cv::Size {c, (int) roundf(modelAspectRatio_ * c)}, windowStep);
         }
         return ret;
     } else if (args_.windowSteps.size() > 1) {
@@ -681,7 +680,7 @@ SizeSteps OpenSpaceNet::calcWindows() const
 
         SizeSteps ret;
         for(const auto& c : args_.windowSteps) {
-            ret.emplace_back(windowSize, cv::Point {c * modelSize.height / modelSize.width, c});
+            ret.emplace_back(windowSize, cv::Point {c, (int) roundf(modelAspectRatio_ * c)});
         }
         return ret;
     } else {
