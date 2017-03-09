@@ -73,7 +73,6 @@ static const string OSN_USAGE =
         "Actions:\n"
         "  help                                  Show this help message\n"
         "  detect                                Perform feature detection\n"
-        "  landcover                             Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
     "Run OpenSpaceNet in feature detection mode.\n\n"
