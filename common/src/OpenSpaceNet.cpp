@@ -39,7 +39,7 @@
 #include <imagery/SlidingWindowSlicer.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <utility/MultiProgressDisplay.h>
+#include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 
@@ -82,7 +82,8 @@ using std::unique_ptr;
 using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
-using dg::deepcore::MultiProgressDisplay;
+using dg::deepcore::ConsoleProgressDisplay;
+using dg::deepcore::ProgressCategory;
 
 OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
@@ -339,8 +340,9 @@ void OpenSpaceNet::processConcurrent()
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
     atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
-
-    MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
+    std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
+    //{ "Loading", "Classifying" }
+    ConsoleProgressDisplay progressDisplay(cats);
     if(!args_.quiet) {
         progressDisplay.start();
     }
