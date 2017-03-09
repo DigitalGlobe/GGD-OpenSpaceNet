@@ -1,30 +1,39 @@
 # OpenSpaceNet User Reference Guide
 
-_OpenSpaceNet_ application to perform object or terrain detection against orthorectified imagery using the DeepCore libraries.
+_OpenSpaceNet_ application to perform object or terrain detection against georegistered imagery using the DeepCore libraries.
 This application includes and is based on CUDA 7.5 and requires NVIDIA driver version 352 or higher to run using the GPU.
 
 ## Table Of Contents
 
 * [OpenSpaceNet Actions](#actions)
+ * [help](#help)
  * [detect](#detect)
  * [landcover](#landcover)
 * [Image Input](#input)
  * [Web Service Input](#service)
  * [Local Image Input](#image)
-* [Output Options](#output)
-* [Processing Options](#processing)
-* [Logging Options](#logging)
+ * [S3 Input Files](#s3)
+* [Common Options](#options)
+ * [Output Options](#output)
+ * [Processing Options](#processing)
+ * [Filter Options](#filter)
+ * [Logging Options](#logging)
 * [Using Configuration Files](#config)
+* [Complete Usage Statement](#usage)
+
 
 <a name="actions" />
+
 ## OpenSpaceNet Actions
 _OpenSpaceNet_ can be called in 3 different ways:
 
 ```
 OpenSpaceNet help [topic]
-OpenSpaceNet detect <addtional options>
-OpenSpaceNet landcover <addtional options>
+OpenSpaceNet detect <additional options>
+OpenSpaceNet landcover <additional options>
 ```
+
+<a name="help" />
 
 ### help
 The `help` mode shows the _OpenSpaceNet_ usage. The amount of information can be reduced by specifying the action for
@@ -38,9 +47,11 @@ OpenSpaceNet help detect
 OpenSpaceNet <other arguments> --help
 ```
 
+
 <a name="detect" />
+
 ### detect
-The `detect` mode performs feature detection. The arguments to configure feature detection are:
+The `detect` mode performs feature detection. In addition to the common options, the following options are allowed:
 
 #### Command Line arguments for the `detect` Action
 
@@ -50,96 +61,76 @@ The default value for this argument is 95%.
 
 i.e. `--confidence 99` sets the confidence to 99%.
 
-##### --step-size
-This option sets the sliding window step size. Default value is _log<sub>2</sub>_ of the model's 
-window size. Step size can be specified in either one or two dimensions. If only one dimension is specified, the step 
-size will be the same in both directions.
-
-i.e. `--step-size 30` will result in the sliding window step size being 30 in the _x_ direction and 30 in the _y_ direction.
-
-##### --pyramid
-This option will enable using pyramids in feature detection. This means that the image will be repeatedly resampled down
-by a factor of 2 with sliding window detection run on each reduced image. This option will result in much longer run time
-and is not recommended. Most _OpenSpaceNet_ models are designed to work at a certain resolution and do not require pyramidding.
-
 ##### --nms
-This option will cause _OpenSpaceNet_ to perform non-maximum suppression on the output. This that adjacent detection boxes
-will be removed for each feature detected and only one detecton box per object will be output. This option results in much
+This option will cause _OpenSpaceNet_ to perform non-maximum suppression on the output. Adjacent detection boxes
+will be removed for each feature detected and only one detection box per object will be output. This option results in much
 better quality output. You can optionally specify the overlap threshold percentage for non-maximum suppression calculation.
 The default overlap is 30%.
 
 i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--nms 20` will result in non-maximum 
 suppression with 20% overlap.
 
-##### --include-labels / --exclude-labels
-This option will cause _OpenSpaceNet_ to retain or remove labels in the output.  It is invalid to include both an
-inclusion and an exclusion list at the same time.
-
-When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
-required to keep inputs together.
-
-##### --include-region / --exclude-region / --region
-This option will cause _OpenSpaceNet_ to build a filter to skip over any windows that touch 
-the geometry defined by the input path prior to model detection(see `--format` for supported formats).
-By default, no regions are included within the region filter.
-`--include-region` will remove the geometries contained within the supplied path(s) to region filter.
-This option has no effect if `--exclude-region PATH` or `--region exclude PATH` have not first been supplied.
-`--exclude-region` will add geometries contained within the supplied path(s) to the region filter.
-`--region` can be used to chain together includes and excludes
-i.e. `--region exclude northwest.shp northeast.shp include truenorth.shp` will function exactly the same as
-`--exclude-region northwest.shp northeast.shp --include-region truenorth.shp`,
-first excluding the geometry defined by northwest.shp to the filter, then excluding the geometry 
-defined by northeast.shp(through geometric union), then including the geometry defined by
-truenorth.shp(through geometric difference).
 
 <a name="landcover" />
+
 ### landcover
 
 The landcover action is used to perform CNN-based landcover classification. This mode differs from the `detect` mode
 as follows:
 
-* If the image source is a web service, the requested bounding box will be expanded to include whole server tiles. 
-* `--step-size` argument is ignored. The step size is set to the model's window size or to the `--window-size` argument's value.
+* If the image source is a web service, the requested bounding box will be expanded to include whole server tiles.
+* `--window-size` may only have one value.  Additional values are ignored.
+* `--window-step` argument is ignored. The window step is set to the model's window size or to the `--window-size` argument's value.
 * `--nms` argument is ignored.
 * `--confidence` argument is ignored, confidence is set to 0%.
 * `--pyramid` argument is ignored.
 
+
+
 <a name="input" />
+
 ## Image Input
 
-_OpenSpaceNet_ is able use either a geo-registered local image, or a MapBox or WMTS web server as its input. Depending on
+_OpenSpaceNet_ is able use either a georegistered local image or a number of tile servers as its input. Depending on
 the input source, different command line arguments apply. To select which source to use, one of two options must be present:
 
 * `--service <service name>` To load imagery from a web service.
 * `--image <path>` To load a local image file.
 
+Depending on which source you use, different arguments apply.
+
+| source                | token    | credentials | mapId    | zoom     | bbox     | num-downloads | url      | use-tiles |
+|-----------------------|----------|-------------|----------|----------|----------|---------------|----------|-----------|
+| `--service dgcs`      | Required | Required    |          | Optional | Required | Optional      |          |           |
+| `--service evwhs`     | Required | Required    |          | Optional | Required | Optional      |          |           |
+| `--service maps-api`  | Required |             | Optional | Optional | Required | Optional      |          |           |
+| `--service tile-json` |          | Optional    |          | Optional | Required | Optional      | Required | Optional  |
+| `--image <path>`      |          |             |          |          | Optional |               |          |           |
+
+
 <a name="service" />
+
 ### Web Service Input
 
-Depending on which service you use, different arguments apply. This is a summary:
-
-| service  | token    | credentials | mapId    | zoom     | bbox     | num-downloads |
-|----------|----------|-------------|----------|----------|----------|---------------|
-| dgcs     | Required | Required    |          | Optional | Required | Optional      |
-| evwhs    | Required | Required    |          | Optional | Required | Optional      |
-| maps-api | Required |             | Optional | Optional | Required | Optional      |
-
-#### Command Line Options for Web Services
+#### Command Line Options Specific to Web Services
 
 ##### --service
 
 This argument is required for a web service input. If this argument is specified, the `--image` argument cannot be 
 present. The following services are available:
 
-* 'dgcs' is the DigitalGlobe Cloud Service WMTS data source. This service requires both '--token' and '--credentials' to 
+* 'dgcs' is the DigitalGlobe Cloud Services WMTS data source. This service requires both `--token` and `--credentials` to 
 be set. The service's Web URL is http://services.digitalglobe.com/.
  
-* 'evwhs' is the DigitalGlobe's Enhanced View Web Hosting Service WMTS data source. This service requires both '--token' 
-and '--credentials' to be set. The service's web URL is http://evwhs.digitalglobe.com/.
+* 'evwhs' is the DigitalGlobe Enhanced View Web Hosting Service WMTS data source. This service requires both `--token` 
+and `--credentials` to be set. The service's web URL is http://evwhs.digitalglobe.com/.
 
-* 'maps-api' is the DigitalGlobes MapsAPI service hosted by MapBox. This service only requires the `--token` to be set.
+* 'maps-api' is the DigitalGlobe's MapsAPI service hosted by MapBox. This service only requires the `--token` to be set.
 In addition, the user can specify the `--mapId` argument to set the image source map ID. The service's web URL is 
 http://mapsapi.digitalglobe.com/.
+
+* 'tile-json' is a format by MapBox for describing collections of tiles. This service requires both `--url` and accepts
+`--credentials` (for URL that require them). The format specification is available at https://github.com/mapbox/tilejson-spec.
 
 ##### --bbox
 
@@ -152,12 +143,12 @@ i.e. `--bbox 125.541 38.866 125.562 38.881` specifies a bounding box for the Atl
 
 ##### --token
 
-This argument specifies the API token for the desired web service. This is required for all three supported services.
+This argument specifies the API token for the desired web service. This is required for WMTS and MapsAPI services.
 
 ##### --credentials
 
 This argument specifies the user name and password for the WMTS services, that is `dgcs` and `evwhs`. The format is
-`--credentials username:password`. If only the user name is specified like `--credentials username`, the user fill be
+`--credentials username:password`. If only the user name is specified like `--credentials username`, the user will be
 prompted for the password before _OpenSpaceNet_ will proceed. In addition, credentials can be specified by setting the
 `OSN_CREDENTIALS` environment variable.
 
@@ -177,17 +168,19 @@ This argument specifies the number of image tiles that will be downloaded simult
 argument can dramatically speed up downloads, but it can cause the service to crash or deny you access. The default value
 is 10.
 
+
 <a name="image" />
+
 ### Local Image Input
 
-Local image input means that _OpenSpaceNet_ will load a single image a local drive or a network drive accessible through
-the file system.
+Local image input means that _OpenSpaceNet_ will load a single image accessible from the file system.
 
-### Command Line Options for Local Image Input
+#### Command Line Options for Local Image Input
 
 ##### --image
 
-This argument is required for local image input.
+This argument is required for local image input and specifies the path to the image.  For the advanced user, GDAL syntax
+may be used to load files from URLs or S3 buckets (see below for instructions on how to load imagery from S3).
 
 i.e. `--image /home/user/Pictures/my_image.tif`
 
@@ -197,17 +190,20 @@ The bounding box argument is optional for local image input. If the specified bo
 image an intersection of the image bounding box and the specified bounding box will be used. If the specified bounding
 box does not intersect the image, an error will be displayed.
 
+
+<a name="s3" />
+
 ### Files on S3 (a variant of local files)
 
 Since _OpenSpaceNet_ uses GDAL to load local imagery, VSI sources are supported out of the box.  Of 
-particular interest is imagery stored on S-3.
+particular interest is imagery stored on S3.
 
 i.e.
 
 ```
 AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_KEY] \
    ./OpenSpaceNet --image /vsis3/bucket/path/to/image.tif --model /path/to/model.gbdxm \
-   --output foo.shp --confidence 99 --step-size 30
+   --output foo.shp --confidence 99 --window-step 30
 ```
 
 #### VSI S3 Parameters
@@ -219,16 +215,20 @@ AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_K
 #### Additional HTTP Parameters
  * `GDAL_HTTP_PROXY`, `GDAL_HTTP_PROXYUSERPWD`, `GDAL_PROXY_AUTH` configuration options can be used to define a proxy server.
 
-<a name="output" />
-## Output Options
 
-The output options specify what kind of output vector featuer set will be created and where it will be placed.
+<a name="options" />
+
+## Common Options
+
+<a name="output" />
+
+### Output Options
 
 ##### --format
 
 This option specifies the output vector format. The default format is 'shp'. The following formats are supported:
 
-* `shp` for ESRI Shapefile output. Note that the `--output-layer` option is ignored for this format.
+* `shp` for ESRI Shapefile output. For this format, `--output-layer` is ignored.
 * `elasticsearch` writes the output features to an Elastic Search database.
 * `geojson` outputs a GeoJSON file.
 * `kml` outputs a Google's Keyhole Markup Language format.
@@ -236,67 +236,140 @@ This option specifies the output vector format. The default format is 'shp'. The
 
 ##### --output
 
-This option specifies the output path or connection settings on non-file-based output formats.
+This option specifies the output path or connection settings on non-file output formats. See the GDAL documentation
+for information on how to specify non-file formats (http://www.gdal.org/ogr_formats.html).  Only the formats listed
+above are supported.
 
 ##### --output-layer
 
-This option specifies the output layer name, if the output format supports it. This option is ignored for `shp` output.
+This option specifies the output layer name if the output format supports it. This option is ignored for `shp` output.
 
 ##### --type
 
 This option specifies the output geometry type. The supported types are:
 
-* `polygon` draws a polygon bounding box each detected feature.
+* `polygon` draws a polygon bounding box around each detected feature.
 * `point` draws a point in the middle of each detection bounding box.
 
 ##### --producer-info
 
-This option add additional attributes to each vector feature, the attributes are:
+This option adds additional attributes to each vector feature, the attributes are:
 
 * `username` is the login user name on the machine that ran that _OpenSpaceNet_ job.
 * `app` is the name of the application, this is set to "OpenSpaceNet".
 * `version` is the application version, which is the _OpenSpaceNet_ version.
 
 ##### --append
-This option will cause _OpenSpaceNet_ to append to the specified output. If the specified output is not found, one will be created.
+This option will cause _OpenSpaceNet_ to append to the specified output. If the specified output is not found, it will be created.
 If this option is not specified and the output already exists, it will be overwritten.
 
-<a name="processing" />
-## Processing Options
 
-Processing options contain the classifier configuration options that are common for both landcover and feature detection modes.
+<a name="processing" />
+
+### Processing Options
+
+Processing options contain the classifier configuration options that are common for both landcover and detect modes.
 
 ##### --cpu
 
 Specifying this option causes _OpenSpaceNet_ to use the fall-back CPU mode. This can be used on machines that don't have the
-supported GPU, but it is dramitically slower, so it's not recommended. You really need a GPU to do CNN feature detection efficiently.
+supported GPU, but it is dramatically slower, so it's not recommended. It is recommended that a GPU be used to do CNN feature 
+detection efficiently.
 
 ##### --max-utilization
 
-This option specifies how much GPU memory _OpenSpaceNet_ will use at most. The default value is 95%, which seems to yield best performance.
-As utilization approaches 100%, it slows down drastically, so 95% is the recommended maximum. The valid values are between 5% and 100%. If
-a value lower than 5% is specified, _OpenSpaceNet_ will still use about 5% of the GPU's capacity.
+This option specifies how much GPU memory _OpenSpaceNet_ will try to use. The default value is 95%, which empirically shown
+to yield best performance. As utilization approaches 100%, it slows down drastically, so 95% is the recommended maximum.
+The valid values are between 5% and 100%. Values outside of this range will be clamped, and a warning will be shown.
 
 ##### --model
 
-This option specifies the path to a package GBDXM model file to use in classification or feature detection.
+This option specifies the path to a package GBDXM model file to use in processing.
 
 ##### --window-size
 
-This option override's the model's default window size. You can specify either one or two arguments. If only one argument is specified,
-the window will be square. This option is generally not recommended. It causes _OpenSpaceNet_ to pass a smaller window to the classifier,
-filling the edges with random noise. Override window size must be equal or smaller than the model's window size.
+This option sets the size of the window that is chipped from the source imagery.  If multiple arguments are supplied, windows for each
+size are extracted in turn.  Each window that is extracted will have the aspect ratio of the model and the width that is specified.
+
+If one window size and move than one window step is given, it is used for every window step.  If more than one window size and more than one
+window step is specified, the number of window sizes must match the number of window steps.
+
+Unless `--resample-size` is supplied, each window size must be equal to or smaller than the model's size.  If it is smaller, the chipped image will
+be padded with uniformly distributed white noise.  The range of the noise is dependent on the image's datatype (specifically, 0 to 1 for
+floating point datatypes and the full representable range for integer datatypes).
+
+##### --window-step
+
+This option sets the sliding window step. The default value is 20% of the model's size.  Each window step will have the aspect ratio of
+the model and the _x_ step that is specified.
+
+If one window step and move than one window size is given, it is used for every window step.  If more than one window size and more than one
+window step is specified, the number of window sizes must match the number of window steps.
+
+i.e. `--window-step 30` will result in the sliding window step being 30 in the _x_ direction and 30 in the _y_ direction.
+
+##### --resampled-size
+
+This option resampled all chipped windows to a single size.  The resampled images will have the aspect ratio of the model and the width
+that is specified.
+
+If given, the resampled size must be equal to or smaller than the model's size.  If it is smaller, the chipped image will
+be padded with uniformly distributed white noise.  The range of the noise is dependent on the image's datatype (specifically, 0 to 1 for
+floating point datatypes and the full representable range for integer datatypes).
+
+##### --pyramid
+
+This option will enable using pyramids in feature detection. This means that the image will be repeatedly resampled down
+by a factor of 2 with sliding window detection run on each reduced image. This option will result in much longer run time
+and is not recommended. Most _OpenSpaceNet_ models are designed to work at a certain resolution and do not benefit from pyramiding.`
+
+When this is given, `--window-size` and `--window-step` arguments may be specified, but only the first option for each will be used.
+
+
+<a name="filter" />
+
+### Filter Options
+
+##### --include-labels / --exclude-labels
+
+This option will cause _OpenSpaceNet_ to retain or remove labels in the output.  It is invalid to include both an
+inclusion and an exclusion list at the same time.
+
+When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
+required to keep label names with spaces together.
+
+##### --include-region / --exclude-region / --region
+
+These options will cause _OpenSpaceNet_ to skip processing any windows which touch the excluded region.
+
+By default, no regions are excluded.  If any of these options are given, a filter is built.  If the
+first action is "exclude", the filter is initialized to include the bounding box.
+
+`--exclude-region` will subtract geometries contained within the supplied path(s) to the from the search region.
+
+`--include-region` will add the geometries contained within the supplied path(s) from the search region.
+
+`--region` can be used to chain together multiple includes and excludes.  This is important because the order of
+operations matters and each of the specific versions (i.e. `--exclude-region` and `-include-region`) may only be
+specified once.
+
+i.e `--region exclude northwest.shp northeast.shp include truenorth.shp` .  In this example, "exclude" is first,
+so the search region is initialized to the bounding box.  The geometries defined in northwest.shp and northeast.shp
+are excluded (through geometric union). The geometry in truenorth.shp added back.  This way of specifying a region
+filter is exactly the same as  `--exclude-region northwest.shp northeast.shp --include-region truenorth.shp`.
+
 
 <a name="logging" />
-## Logging Options
+
+### Logging Options
 
 ##### --log
 
-This option specifies a log file that _OpenSpaceNet_ writes to. Optionally a log level can be specified. Permitted log level values are
-`trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `info`.
+This option specifies a log file that _OpenSpaceNet_ writes to. Optionally, a log level can be specified. Permitted
+log level values are `trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `info`.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
-required to keep inputs together.
+required to keep inputs with spaces together.
 
 Only one log file may only be specified.
 
@@ -306,14 +379,17 @@ i.e.
 
 ##### --quiet
 
-Normally `_OpenSpaceNet_` will output its status to the console, even if a log file is specified. If this is not desired, console output
-can be suppressed by specifying this option.
+Normally `_OpenSpaceNet_` will output its status to the console even if a log file is specified. If
+this is not desired, console output can be suppressed by specifying this option.
+
+
 
 <a name="config" />
+
 ## Using Configuration Files
 
 When using _OpenSpaceNet_, some or all command line arguments can be put in configuration file(s) and passed through the `--config` command
-line option. Multiple files each containing a different option can be used as well.
+line option.  Multiple files may be used to specify different options.
 
 ### Configuration File Syntax
 
@@ -341,10 +417,10 @@ If a configuration file contains an option that is also specified through a comm
 precedence. If multiple configuration files contain the same option, the option in the file specified last will be used.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
-required to keep inputs together.
+required to keep inputs with spaces together.
 
 Configuration files may be included in the command line, environment, and other configuration files (and multiple times
-within each).  The arguments have precedence immediately below the method which brought in the file.
+within each).
 
 
 ### Example Using a Configuration File for All Options
@@ -361,7 +437,7 @@ bbox=-84.44579 33.63404 -84.40601 33.64853
 model=airliner.gbdxm
 output=atl_detected.shp
 confidence=99
-step-size=15
+window-step=15
 num-downloads=200
 nms=30
 ```
@@ -373,14 +449,15 @@ Running _OpenSpaceNet_ with this file
 
 is the same as running _OpenSpaceNet_ with these options:
 ```
-./OpenSpaceNet detect --service dgcs --token=abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox=-84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence=99 --step-size=15 --num-downloads=200 --nms
+./OpenSpaceNet detect --service dgcs --token=abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox=-84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence=99 --window-step=15 --num-downloads=200 --nms
 ```
 ### Example Using Multiple Configuration Files
 
-As a use case for using multiple files, we'll use the fact that because _OpenSpaceNet_ can use different input sources for its input, it can be cumbersome to enter that particular service's token and credentials every time.
-We can create a configuration file with that service's credentials and use it with another configuration file that configures detection parameters.
+As a use case for using multiple files, we'll use the fact that because _OpenSpaceNet_ can use different input sources for its input,
+it can be cumbersome to enter that particular service's token and credentials every time.  We can create a configuration file with a
+service's credentials and use it with another configuration file that configures detection parameters.
 
-Let's use this file for configuring our DGCS credentials:
+Let's use this file for configuring DGCS credentials:
 
 **dgcs.cfg**
 ```ini
@@ -402,7 +479,7 @@ bbox=-84.44579 33.63404 -84.40601 33.64853
 model=airliner.gbdxm
 output=atl_detected.shp
 confidence=99
-step-size=15
+window-step=15
 nms=30
 ```
 
@@ -414,13 +491,15 @@ We can now combine the two files and get the same result as our previous example
 
 ### Example Using a Configuration File Combined with Command Line Options
 
-Alternatively, we can use the configuration file from previous example to run a landcover job agains the same DGCS account:
+Alternatively, we can use the configuration file from previous example to run a landcover job against the same DGCS account:
 
 ```
 ./OpenSpaceNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model=landcover.gbdxm --output atl_detected.shp
 ```
 
+
 <a name="usage" />
+
 ## Complete Usage Statement
 
 ```
@@ -429,9 +508,9 @@ Usage:
   OpenSpaceNet --config <configuration file> [other options]
 
 Actions:
-  help     			 Show this help message
-  detect   			 Perform feature detection
-  landcover			 Perform land cover classification
+  help                                  Show this help message
+  detect                                Perform feature detection
+  landcover                             Perform land cover classification
 
 Local Image Input Options:
   --image PATH                          If this is specified, the input will be
@@ -495,53 +574,48 @@ Output Options:
 
 Processing Options:
   --cpu                                 Use the CPU for processing, the default
-                                        it to use the GPU.
+                                        is to use the GPU.
   --max-utilization PERCENT (=95)       Maximum GPU utilization %. Minimum is 
                                         5, and maximum is 100. Not used if 
                                         processing on CPU
   --model PATH                          Path to the the trained model.
-  --window-size WIDTH [HEIGHT]          Overrides the original model's window 
-                                        size. Window size can be specified in 
-                                        either one or two dimensions. If only 
-                                        one dimension is specified, the window 
-                                        will be square. This parameter is 
-                                        optional and not recommended.
+  --window-size SIZE [SIZE...]          Sliding window detection box sizes.  
+                                        The source image is chipped with boxes 
+                                        of the given sizes.  If resampled-size 
+                                        is not specified, all windows must fit 
+                                        within the model.Default is the model 
+                                        size.
+  --window-step STEP [STEP...]          Sliding window step.  Either a single 
+                                        step or a step for each window size may
+                                        be given.  Default is 20% of the model 
+                                        size.
+  --resampled-size SIZE                 Resample window chips to a fixed size. 
+                                        This must fit within the model.
+  --pyramid                             Calculate window parameters.  If this 
+                                        is set, only the first window size and 
+                                        window step are used.  A family of each
+                                        are created by doubling the supplied 
+                                        parameters up to the area of the 
+                                        detection box.
 
 Feature Detection Options:
   --confidence PERCENT (=95)            Minimum percent score for results to be
                                         included in the output.
-  --step-size WIDTH [HEIGHT]            Sliding window step size. Default value
-                                        is log2 of the model window size. Step 
-                                        size can be specified in either one or 
-                                        two dimensions. If only one dimension 
-                                        is specified, the step size will be the
-                                        same in both directions.
-  --pyramid                             Use pyramids in feature detection. 
-                                        WARNING: This will result in much 
-                                        longer run times, but may result in 
-                                        additional features being detected.
   --nms PERCENT (=30)                   Perform non-maximum suppression on the 
                                         output. You can optionally specify the 
                                         overlap threshold percentage for 
                                         non-maximum suppression calculation.
+
+Filtering Options:
   --include-labels LABEL [LABEL...]     Filter results to only include 
                                         specified labels.
   --exclude-labels LABEL [LABEL...]     Filter results to exclude specified 
                                         labels.
-  --pyramid-window-sizes SIZE [SIZE...] Sliding window sizes to match to 
-                                        pyramid levels. --pyramid-step-sizes 
-                                        argument must be present and have the 
-                                        same number of values.
-  --pyramid-step-sizes SIZE [SIZE...]   Sliding window step sizes to match to 
-                                        pyramid levels. --pyramid-window-sizes 
-                                        argument must be present and have the 
-                                        same number of values.
-  --include-region PATH                 Path to a file prescribing regions to 
-                                        include in the detection process.
-                                        Recommended to have previously excluded regions.
-  --exclude-region PATH                 Path to a file prescribing regions to 
-                                        exclude from the detection process.
-  --region (include/exclude) PATH [(include/exclude) PATH...]
+  --include-region PATH [PATH...]       Path to a file prescribing regions to 
+                                        include when filtering.
+  --exclude-region PATH [PATH...]       Path to a file prescribing regions to 
+                                        exclude when filtering.
+  --region (include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]
                                         Paths to files including and excluding 
                                         regions.
 
@@ -557,4 +631,5 @@ Logging Options:
 General Options:
   --config PATH                         Use options from a configuration file.
   --help                                Show this help message
+
 ```
