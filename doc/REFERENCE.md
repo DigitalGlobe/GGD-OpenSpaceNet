@@ -99,13 +99,13 @@ the input source, different command line arguments apply. To select which source
 
 Depending on which source you use, different arguments apply.
 
-| source                | token    | credentials | mapId    | zoom     | bbox     | num-downloads | url      | use-tiles |
-|-----------------------|----------|-------------|----------|----------|----------|---------------|----------|-----------|
-| `--service dgcs`      | Required | Required    |          | Optional | Required | Optional      |          |           |
-| `--service evwhs`     | Required | Required    |          | Optional | Required | Optional      |          |           |
-| `--service maps-api`  | Required |             | Optional | Optional | Required | Optional      |          |           |
-| `--service tile-json` |          | Optional    |          | Optional | Required | Optional      | Required | Optional  |
-| `--image <path>`      |          |             |          |          | Optional |               |          |           |
+| source                | token    | credentials | map-id   | zoom     | bbox     | max-connections | url      | use-tiles |
+|-----------------------|----------|-------------|----------|----------|----------|-----------------|----------|-----------|
+| `--service dgcs`      | Required | Required    |          | Optional | Required | Optional        |          |           |
+| `--service evwhs`     | Required | Required    |          | Optional | Required | Optional        |          |           |
+| `--service maps-api`  | Required |             | Optional | Optional | Required | Optional        |          |           |
+| `--service tile-json` |          | Optional    |          | Optional | Required | Optional        | Required | Optional  |
+| `--image <path>`      |          |             |          |          | Optional |                 |          |           |
 
 
 <a name="service" />
@@ -126,7 +126,7 @@ be set. The service's Web URL is http://services.digitalglobe.com/.
 and `--credentials` to be set. The service's web URL is http://evwhs.digitalglobe.com/.
 
 * 'maps-api' is the DigitalGlobe's MapsAPI service hosted by MapBox. This service only requires the `--token` to be set.
-In addition, the user can specify the `--mapId` argument to set the image source map ID. The service's web URL is 
+In addition, the user can specify the `--map-id` argument to set the image source map ID. The service's web URL is 
 http://mapsapi.digitalglobe.com/.
 
 * 'tile-json' is a format by MapBox for describing collections of tiles. This service requires both `--url` and accepts
@@ -152,7 +152,7 @@ This argument specifies the user name and password for the WMTS services, that i
 prompted for the password before _OpenSpaceNet_ will proceed. In addition, credentials can be specified by setting the
 `OSN_CREDENTIALS` environment variable.
 
-##### --mapId
+##### --map-id
 
 This argument is only valid for the MapsAPI, or `maps-api` service. The DigitalGlobe map IDs are listed on this web page:
 http://mapsapidocs.digitalglobe.com/docs/imagery-and-basemaps.
@@ -162,7 +162,7 @@ http://mapsapidocs.digitalglobe.com/docs/imagery-and-basemaps.
 This argument specifies the zoom level for the web service. For MapsAPI the zoom level is 0 to 22, while both DGCS and
 EVWHS zoom levels range from 0 to 20. The default zoom level is 18.
 
-##### --num-downloads
+##### --max-connections
 
 This argument specifies the number of image tiles that will be downloaded simultaneously. Increasing the value of this
 argument can dramatically speed up downloads, but it can cause the service to crash or deny you access. The default value
@@ -349,9 +349,9 @@ first action is "exclude", the filter is initialized to include the bounding box
 
 `--include-region` will add the geometries contained within the supplied path(s) from the search region.
 
-`--region` can be used to chain together multiple includes and excludes.  This is important because the order of
-operations matters and each of the specific versions (i.e. `--exclude-region` and `-include-region`) may only be
-specified once.
+`--region` can be used to chain together multiple includes and excludes.  Parameters to this option are in the
+form `(exclude|include) path [path..]`  This may be repeated any number of times after `--region`.
+
 
 i.e `--region exclude northwest.shp northeast.shp include truenorth.shp` .  In this example, "exclude" is first,
 so the search region is initialized to the bounding box.  The geometries defined in northwest.shp and northeast.shp
@@ -366,7 +366,7 @@ filter is exactly the same as  `--exclude-region northwest.shp northeast.shp --i
 ##### --log
 
 This option specifies a log file that _OpenSpaceNet_ writes to. Optionally, a log level can be specified. Permitted
-log level values are `trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `info`.
+log level values are `trace`, `debug`, `info`, `warning`, `error`, and `fatal`. The default log level is `debug`.
 
 When specified in an environmental variable or configuration file, the input string will be tokenized.  Quotes are
 required to keep inputs with spaces together.
@@ -438,7 +438,7 @@ model=airliner.gbdxm
 output=atl_detected.shp
 confidence=99
 window-step=15
-num-downloads=200
+max-connections=200
 nms=30
 ```
 
@@ -449,7 +449,7 @@ Running _OpenSpaceNet_ with this file
 
 is the same as running _OpenSpaceNet_ with these options:
 ```
-./OpenSpaceNet detect --service dgcs --token=abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox=-84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence=99 --window-step=15 --num-downloads=200 --nms
+./OpenSpaceNet detect --service dgcs --token abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox -84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence 99 --window-step 15 --max-connections 200 --nms
 ```
 ### Example Using Multiple Configuration Files
 
@@ -464,7 +464,7 @@ Let's use this file for configuring DGCS credentials:
 service=dgcs
 token=abcd-efgh-ijkl-mnop-qrst-uvxyz
 credentials=username:password
-num-downloads=200
+max-connections=200
 ```
 
 and this file for detection options:
@@ -494,7 +494,7 @@ We can now combine the two files and get the same result as our previous example
 Alternatively, we can use the configuration file from previous example to run a landcover job against the same DGCS account:
 
 ```
-./OpenSpaceNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model=landcover.gbdxm --output atl_detected.shp
+./OpenSpaceNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model landcover.gbdxm --output atl_detected.shp
 ```
 
 
@@ -543,9 +543,9 @@ Web Service Input Options:
                                         to derive the service address from the 
                                         provided URL.
   --zoom ZOOM (=18)                     Zoom level.
-  --mapId MAPID (=digitalglobe.nal0g75k)
+  --map-id MAPID (=digitalglobe.nal0g75k)
                                         MapsAPI map id to use.
-  --num-downloads NUM (=10)             Used to speed up downloads by allowing 
+  --max-connections NUM (=10)           Used to speed up downloads by allowing 
                                         multiple concurrent downloads to happen
                                         at once.
   --bbox WEST SOUTH EAST NORTH          Bounding box for determining tiles 

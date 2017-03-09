@@ -72,7 +72,7 @@ static const string OSN_USAGE =
         "  OpenSpaceNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
         "  help                                  Show this help message\n"
-        "  detect                                Perform feature detection\n"
+        "  detect                                Perform feature detection\n";
 
 static const string OSN_DETECT_USAGE =
     "Run OpenSpaceNet in feature detection mode.\n\n"
@@ -114,8 +114,8 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
          "is to derive the service address from the provided URL.")
         ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", zoom)), "Zoom level.")
-        ("mapId", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
-        ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
+        ("map-id", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
+        ("max-connections", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
          "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
         ;
 
@@ -520,7 +520,7 @@ void OpenSpaceNetArgs::validateArgs()
     ArgUse mapIdUse(IGNORED);
     ArgUse zoomUse(IGNORED);
     ArgUse bboxUse(IGNORED);
-    ArgUse numDownloadsUse(IGNORED);
+    ArgUse maxConnectionsUse(IGNORED);
     ArgUse urlUse(IGNORED);
     ArgUse useTilesUse(IGNORED);
     const char * sourceDescription;
@@ -536,7 +536,7 @@ void OpenSpaceNetArgs::validateArgs()
             mapIdUse = OPTIONAL;
             zoomUse = OPTIONAL;
             bboxUse = REQUIRED;
-            numDownloadsUse = OPTIONAL;
+            maxConnectionsUse = OPTIONAL;
             sourceDescription = "using maps-api";
             break;
 
@@ -547,7 +547,7 @@ void OpenSpaceNetArgs::validateArgs()
             mapIdUse = OPTIONAL;
             zoomUse = OPTIONAL;
             bboxUse = REQUIRED;
-            numDownloadsUse = OPTIONAL;
+            maxConnectionsUse = OPTIONAL;
             sourceDescription = "using dgcs or evwhs";
             break;
 
@@ -555,7 +555,7 @@ void OpenSpaceNetArgs::validateArgs()
             credentialsUse = OPTIONAL;
             zoomUse = OPTIONAL;
             bboxUse = REQUIRED;
-            numDownloadsUse = OPTIONAL;
+            maxConnectionsUse = OPTIONAL;
             urlUse = REQUIRED;
             useTilesUse = OPTIONAL;
             sourceDescription = "using tile-json";
@@ -567,10 +567,10 @@ void OpenSpaceNetArgs::validateArgs()
 
     checkArgument("token", tokenUse, token, sourceDescription);
     checkArgument("credentials", credentialsUse, credentials, sourceDescription);
-    checkArgument("mapId", mapIdUse, mapIdSet, sourceDescription);
+    checkArgument("map-id", mapIdUse, mapIdSet, sourceDescription);
     checkArgument("zoom", zoomUse, zoomSet, sourceDescription);
     checkArgument("bbox", bboxUse, (bool) bbox, sourceDescription);
-    checkArgument("num-downloads", numDownloadsUse, maxConnectionsSet, sourceDescription);
+    checkArgument("max-connections", maxConnectionsUse, maxConnectionsSet, sourceDescription);
     checkArgument("url", urlUse, url, sourceDescription);
     checkArgument("use-tiles", useTilesUse, useTiles, sourceDescription);
 
@@ -706,13 +706,13 @@ void OpenSpaceNetArgs::maybeDisplayHelp(variables_map vm)
 
 void OpenSpaceNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
-    mapIdSet |= readVariable("mapId", vm, mapId);
+    mapIdSet |= readVariable("map-id", vm, mapId);
     readVariable("token", vm, token);
     readVariable("credentials", vm, credentials);
     readVariable("url", vm, url);
     useTiles = vm.find("use-tiles") != vm.end();
     zoomSet |= readVariable("zoom", vm, zoom);
-    maxConnectionsSet |= readVariable("num-downloads", vm, maxConnections);
+    maxConnectionsSet |= readVariable("max-connections", vm, maxConnections);
 }
 
 
