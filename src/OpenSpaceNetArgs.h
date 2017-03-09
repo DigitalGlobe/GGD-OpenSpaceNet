@@ -104,6 +104,8 @@ private:
     bool confidenceSet = false;
     bool mapIdSet = false;
     bool displayHelp = false;
+    bool maxConnectionsSet = false;
+    bool zoomSet = false;
 
     void setupInitialLogging();
     void setupLogging();
