@@ -72,8 +72,7 @@ static const string OSN_USAGE =
         "  OpenSpaceNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
         "  help                                  Show this help message\n"
-        "  detect                                Perform feature detection\n"
-        "  landcover                             Perform land cover classification\n";
+        "  detect                                Perform feature detection\n";
 
 static const string OSN_DETECT_USAGE =
     "Run OpenSpaceNet in feature detection mode.\n\n"
@@ -115,8 +114,8 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
          "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
          "is to derive the service address from the provided URL.")
         ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", zoom)), "Zoom level.")
-        ("mapId", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
-        ("num-downloads", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
+        ("map-id", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
+        ("max-connections", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
          "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
         ;
 
@@ -297,7 +296,7 @@ void OpenSpaceNetArgs::setupLogging() {
     // Setup a file logger
     if (!fileLogPath.empty()) {
         auto ofs = boost::make_shared<ofstream>(fileLogPath);
-        DG_CHECK(!ofs->fail(), "Error opening log file %s for writing.", fileLogPath.c_str());
+        DG_CHECK(!ofs->fail(), "Error opening log file %s for writing", fileLogPath.c_str());
         log::addStreamSink(ofs, fileLogLevel, level_t::fatal, log::dg_log_format::dg_long_log);
     }
 }
@@ -439,183 +438,166 @@ void OpenSpaceNetArgs::printUsage(Action action) const
     cout << endl;
 }
 
+enum ArgUse {
+    IGNORED = 1,
+    MAY_USE_ONE = 2,
+    OPTIONAL = 3,
+    REQUIRED = 4
+};
+
+inline void checkArgument(const char* argumentName, ArgUse expectedUse, bool set, const char* cause = "processing")
+{
+    if (expectedUse == REQUIRED && !set) {
+        DG_ERROR_THROW("Argument --%s is required when %s", argumentName, cause);
+    } else if (expectedUse == IGNORED && set) {
+        OSN_LOG(warning) << "Argument --" << argumentName << " is ignored when " << cause;
+    }
+}
+
+inline void checkArgument(const char* argumentName, ArgUse expectedUse, const std::string& set, const char* cause = "processing")
+{
+    checkArgument(argumentName, expectedUse, !set.empty(), cause);
+}
+
+template<class T>
+inline void checkArgument(const char* argumentName, ArgUse expectedUse, const std::vector<T>& set, const char* cause = "processing")
+{
+    if (expectedUse == REQUIRED && set.empty()) {
+        DG_ERROR_THROW("Argument --%s is required for %s", argumentName, cause);
+    } else if (expectedUse == MAY_USE_ONE && set.size() > 1) {
+        OSN_LOG(warning) << "Argument --" << argumentName << " has ignored additional parameters when " << cause;
+    } else if (expectedUse == IGNORED && !set.empty()) {
+        OSN_LOG(warning) << "Argument --" << argumentName << " is ignored when " << cause;
+    }
+}
 
 void OpenSpaceNetArgs::validateArgs()
 {
+    if (action == Action::HELP) {
+        return;
+    }
+
     //
     // Validate action args.
-    // "Required" results in an error if unspecified.
-    // "Unused" results in a warning if specified.
-    // "UnusedExtra" results in a warning if more than 1 are specified.
     //
-    bool unusedExtraWindowSizes = false;
-    bool unusedWindowSteps = false;
-    bool unusedNms = false;
-    bool unusedPyramid = false;
-    bool unusedConfidence = false;
+    ArgUse windowStepUse(OPTIONAL);
+    ArgUse windowSizeUse(OPTIONAL);
+    ArgUse nmsUse(OPTIONAL);
+    ArgUse pyramidUse(OPTIONAL);
+    ArgUse confidenceUse(OPTIONAL);
+    const char * actionDescription;
+
     switch (action) {
         case Action::DETECT:
+            actionDescription = "the action is detect";
             break;
 
         case Action::LANDCOVER:
-            unusedExtraWindowSizes = true;
-            unusedWindowSteps = true;
-            unusedNms= true;
-            unusedPyramid = true;
-            unusedConfidence = true;
+            windowStepUse = IGNORED;
+            windowSizeUse = MAY_USE_ONE;
+            nmsUse = IGNORED;
+            pyramidUse = IGNORED;
+            confidenceUse = IGNORED;
+            actionDescription = "the action is landcover";
             break;
 
-        case Action::HELP:
-            return;
-
         default:
-            DG_ERROR_THROW("Invalid action.");
+            DG_ERROR_THROW("Invalid action");
     }
 
-    if (unusedExtraWindowSizes && windowStep.size() > 1) {
-        OSN_LOG(warning) << "Only the first argument to --window-size is used for LANDCOVER.";
-    }
-
-    if (unusedWindowSteps && !windowStep.empty()) {
-        OSN_LOG(warning) << "Argument --window-step is ignored for LANDCOVER.";
-    }
-
-    if (unusedNms && nms) {
-        OSN_LOG(warning) << "Argument --nms is ignored for LANDCOVER.";
-    }
-
-    if (unusedPyramid && pyramid) {
-        OSN_LOG(warning) << "Argument --pyramid is ignored for LANDCOVER.";
-    }
-
-    if (unusedConfidence && confidenceSet) {
-        OSN_LOG(warning) << "Argument --confidence is ignored for LANDCOVER.";
-    }
-
-
+    checkArgument("window-step", windowStepUse, windowStep, actionDescription);
+    checkArgument("window-size", windowSizeUse, windowSize, actionDescription);
+    checkArgument("nms", nmsUse, nms, actionDescription);
+    checkArgument("pyramid", pyramidUse, pyramid, actionDescription);
+    checkArgument("confidence", confidenceUse, confidenceSet, actionDescription);
 
 
     //
     // Validate source args.
-    // "Required" results in an error if unspecified.
-    // "Unused" results in a warning if specified.
     //
-    bool unusedMapId = false;
-    bool requireBbox = false;
-    bool unusedToken = false;
-    bool requireToken = false;
-    bool unusedCredentials = false;
-    bool requireCredentials = false;
-    bool requireUrl = false;
-    bool unusedUseTiles = true;
-    string sourceName;
+    ArgUse tokenUse(IGNORED);
+    ArgUse credentialsUse(IGNORED);
+    ArgUse mapIdUse(IGNORED);
+    ArgUse zoomUse(IGNORED);
+    ArgUse bboxUse(IGNORED);
+    ArgUse maxConnectionsUse(IGNORED);
+    ArgUse urlUse(IGNORED);
+    ArgUse useTilesUse(IGNORED);
+    const char * sourceDescription;
 
     switch (source) {
         case Source::LOCAL:
-            unusedMapId = true;
-            unusedToken = true;
-            unusedCredentials = true;
-            sourceName = "a local image";
+            bboxUse = OPTIONAL;
+            sourceDescription = "using a local image";
             break;
 
         case Source::MAPS_API:
-            requireBbox = true;
-            requireToken = true;
-            unusedCredentials = true;
-            sourceName = "maps-api";
+            tokenUse = REQUIRED;
+            mapIdUse = OPTIONAL;
+            zoomUse = OPTIONAL;
+            bboxUse = REQUIRED;
+            maxConnectionsUse = OPTIONAL;
+            sourceDescription = "using maps-api";
             break;
 
         case Source::DGCS:
         case Source::EVWHS:
-            requireBbox = true;
-            requireToken = true;
-            requireCredentials = true;
-            unusedMapId = true;
-            sourceName = "dgcs or evwhs";
+            tokenUse = REQUIRED;
+            credentialsUse = REQUIRED;
+            mapIdUse = OPTIONAL;
+            zoomUse = OPTIONAL;
+            bboxUse = REQUIRED;
+            maxConnectionsUse = OPTIONAL;
+            sourceDescription = "using dgcs or evwhs";
             break;
 
         case Source::TILE_JSON:
-            requireBbox = true;
-            requireToken = false;
-            unusedCredentials = false;
-            requireUrl = true;
-            unusedUseTiles = false;
-            sourceName = "tile-json";
+            credentialsUse = OPTIONAL;
+            zoomUse = OPTIONAL;
+            bboxUse = REQUIRED;
+            maxConnectionsUse = OPTIONAL;
+            urlUse = REQUIRED;
+            useTilesUse = OPTIONAL;
+            sourceDescription = "using tile-json";
             break;
 
         default:
             DG_ERROR_THROW("Source is unknown or unspecified");
     }
 
-    if (requireToken && token.empty()) {
-        DG_ERROR_THROW("Argument --token is required for %s.", sourceName.c_str());
-    } else if (unusedToken && !token.empty()) {
-        OSN_LOG(warning) << "Argument --token is ignored for " << sourceName << '.';
-    }
-
-    if (requireCredentials && credentials.empty()) {
-        DG_ERROR_THROW("Argument --credentials argument is required for %s.", sourceName.c_str());
-    } else if (unusedCredentials && !credentials.empty()) {
-        OSN_LOG(warning) << "Argument --credentials is ignored for " << sourceName << '.';
-    }
-
-    if (unusedMapId && mapIdSet) {
-        OSN_LOG(warning) << "Argument --mapId is ignored for " << sourceName << '.';
-    }
-
-    if (requireBbox && (bbox.get() == nullptr)) {
-        DG_ERROR_THROW("Argument --bbox is required for %s.", sourceName.c_str());
-    }
-
-    if (unusedUseTiles && useTiles) {
-        OSN_LOG(warning) << "Argument --use-tiles is ignored for " << sourceName << '.';
-    }
-
-    if(requireUrl && url.empty()) {
-        DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
-    } else if(!requireUrl && !url.empty()) {
-        OSN_LOG(warning) << "Argument --url is ignored for " << sourceName << '.';
-    }
+    checkArgument("token", tokenUse, token, sourceDescription);
+    checkArgument("credentials", credentialsUse, credentials, sourceDescription);
+    checkArgument("map-id", mapIdUse, mapIdSet, sourceDescription);
+    checkArgument("zoom", zoomUse, zoomSet, sourceDescription);
+    checkArgument("bbox", bboxUse, (bool) bbox, sourceDescription);
+    checkArgument("max-connections", maxConnectionsUse, maxConnectionsSet, sourceDescription);
+    checkArgument("url", urlUse, url, sourceDescription);
+    checkArgument("use-tiles", useTilesUse, useTiles, sourceDescription);
 
 
     //
     // Validate model and detection
     //
-    if (modelPath.empty()) {
-        DG_ERROR_THROW("Argument --model is required.");
-    }
+    checkArgument("model", REQUIRED, modelPath);
+    DG_CHECK(includeLabels.empty() || excludeLabels.empty(),
+             "Arguments --include-labels and --exclude-labels may not be specified at the same time");
 
-    if (!includeLabels.empty() && !excludeLabels.empty()) {
-        DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
-    }
-
-    if(unusedExtraWindowSizes || unusedWindowSteps || unusedPyramid || !pyramid) {
+    if (pyramidUse > IGNORED && pyramid) {
+        checkArgument("window-size", MAY_USE_ONE, windowSize, "--pyramid is specified");
+        checkArgument("window-step", MAY_USE_ONE, windowStep, "--pyramid is specified");
+    } else if(windowSizeUse > MAY_USE_ONE || windowStepUse > MAY_USE_ONE) {
         DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 ||
                  windowSize.size() == windowStep.size(),
-                 "Number of arguments in --window-size and --window-step must match.");
-    } else {
-        if(unusedExtraWindowSizes || windowSize.size() > 1) {
-            OSN_LOG(warning)
-                << "Only the first --window-size argument is used when --pyramid is specified.";
-        }
-
-        if(unusedWindowSteps || windowStep.size() > 1) {
-            OSN_LOG(warning)
-                << "Only the first --window-step argument is used when --pyramid is specified.";
-        }
+                 "Arguments --window-size and --window-step must match in length");
     }
+
 
     //
     // Validate output
     //
-    if (outputPath.empty()) {
-        DG_ERROR_THROW("Argument --output is required.");
-    }
-
+    checkArgument("output", REQUIRED, outputPath);
     if(outputFormat  == "shp") {
-        if(!layerName.empty()) {
-            OSN_LOG(warning) << "Argument --output-layer is ignored for Shapefile output.";
-        }
+        checkArgument("output-layer", IGNORED, layerName, "the output format is a shapefile");
         layerName = path(outputPath).stem().filename().string();
     } else if(layerName.empty()) {
         layerName = "osndetects";
@@ -642,13 +624,14 @@ void OpenSpaceNetArgs::validateArgs()
                 }
             }
         }
-        if(!unusedPyramid && !pyramid && windowSize.size() > 1) {
-            OSN_LOG(warning) << "Only the first --window-size argument is used the create the exclude filter.";
+
+        if (pyramidUse > IGNORED && pyramid) {
+            checkArgument("window-size", MAY_USE_ONE, windowSize, "creating the spatial filter");
         }
     }
 
     // Ask for password, if not specified
-    if (requireCredentials && !displayHelp && credentials.find(':') == string::npos) {
+    if (credentialsUse > IGNORED && !displayHelp && !credentials.empty() && credentials.find(':') == string::npos) {
         promptForPassword();
     }
 }
@@ -679,12 +662,19 @@ void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
     bbox = readVariable<cv::Rect2d>("bbox", vm);
 
     string service;
-    if (readVariable("service", vm, service)) {
+    bool serviceSet  = readVariable("service", vm, service);
+    if (serviceSet) {
         source = parseService(service);
         readWebServiceArgs(vm, splitArgs);
-    } else if (readVariable("image", vm, image)) {
+    }
+
+    bool imageSet = readVariable("image", vm, image);
+    if (imageSet) {
         source = Source::LOCAL;
     }
+
+    DG_CHECK(!imageSet || !serviceSet, "Arguments --image and --service may not be specified at the same time");
+
 
     string actionString;
     readVariable("action", vm, actionString);
@@ -716,13 +706,13 @@ void OpenSpaceNetArgs::maybeDisplayHelp(variables_map vm)
 
 void OpenSpaceNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
-    mapIdSet |= readVariable("mapId", vm, mapId);
+    mapIdSet |= readVariable("map-id", vm, mapId);
     readVariable("token", vm, token);
     readVariable("credentials", vm, credentials);
     readVariable("url", vm, url);
     useTiles = vm.find("use-tiles") != vm.end();
-    readVariable("zoom", vm, zoom);
-    readVariable("num-downloads", vm, maxConnections);
+    zoomSet |= readVariable("zoom", vm, zoom);
+    maxConnectionsSet |= readVariable("max-connections", vm, maxConnections);
 }
 
 
