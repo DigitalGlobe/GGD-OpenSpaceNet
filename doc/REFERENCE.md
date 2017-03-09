@@ -91,7 +91,7 @@ as follows:
 
 ## Image Input
 
-_OpenSpaceNet_ is able use either a georegistered local image or a number of tile servers as its input. Depending on
+_OpenSpaceNet_ is able use either a georegistered local image or one of a number of tile servers as its input. Depending on
 the input source, different command line arguments apply. To select which source to use, one of two options must be present:
 
 * `--service <service name>` To load imagery from a web service.
