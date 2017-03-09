@@ -69,9 +69,9 @@ static const string OSN_USAGE =
         "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
         "  OpenSpaceNet --config <configuration file> [other options]\n\n"
         "Actions:\n"
-        "  help     \t\t\t Show this help message\n"
-        "  detect   \t\t\t Perform feature detection\n"
-        "  landcover\t\t\t Perform land cover classification\n";
+        "  help                                  Show this help message\n"
+        "  detect                                Perform feature detection\n"
+        "  landcover                             Perform land cover classification\n";
 
 static const string OSN_DETECT_USAGE =
     "Run OpenSpaceNet in feature detection mode.\n\n"
@@ -89,6 +89,7 @@ CliArgsParser::CliArgsParser() :
     outputOptions_("Output Options"),
     processingOptions_("Processing Options"),
     detectOptions_("Feature Detection Options"),
+    filterOptions_("Filtering Options"),
     loggingOptions_("Logging Options"),
     generalOptions_("General Options"),
     supportedFormats_(FeatureSet::supportedFormats())
@@ -139,38 +140,42 @@ CliArgsParser::CliArgsParser() :
         ;
 
     processingOptions_.add_options()
-        ("cpu", "Use the CPU for processing, the default it to use the GPU.")
+        ("cpu", "Use the CPU for processing, the default is to use the GPU.")
         ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.maxUtilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
-        ("window-size", po::cvSize_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-         "Overrides the original model's window size. Window size can be specified in either one or two dimensions. If "
-         "only one dimension is specified, the window will be square. This parameter is optional and not recommended.")
+        ("window-size", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
+         "Sliding window detection box sizes.  The source image is chipped with boxes of the given sizes.  "
+         "If resampled-size is not specified, all windows must fit within the model."
+         "Default is the model size.")
+        ("window-step", po::value<std::vector<int>>()->multitoken()->value_name("STEP [STEP...]"),
+         "Sliding window step.  Either a single step or a step for each window size may be given.  Default "
+         "is 20% of the model size.")
+        ("resampled-size", po::value<int>()->value_name("SIZE"),
+         "Resample window chips to a fixed size.  This must fit within the model.")
+        ("pyramid",
+         "Calculate window parameters.  If this is set, only the first window size "
+         "and window step are used.  A family of each are created by doubling the supplied parameters up to "
+         "the area of the detection box.")
         ;
 
     detectOptions_.add_options()
         ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
          "Minimum percent score for results to be included in the output.")
-        ("step-size", po::cvPoint_value()->min_tokens(1)->value_name("WIDTH [HEIGHT]"),
-         "Sliding window step size. Default value is 20% of the model window size. Step size can be specified in "
-         "either one or two dimensions. If only one dimension is specified, the step size will be the same in both directions.")
-        ("pyramid",
-         "Use pyramids in feature detection. WARNING: This will result in much longer run times, but may result "
-             "in additional features being detected.")
         ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
+        ;
+
+    filterOptions_.add_options()
         ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to only include specified labels.")
         ("exclude-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to exclude specified labels.")
-        ("pyramid-window-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-         "Sliding window sizes to match to pyramid levels. --pyramid-step-sizes argument must be present and have the same number of values.")
-        ("pyramid-step-sizes", po::value<std::vector<std::string>>()->multitoken()->value_name("SIZE [SIZE...]"),
-         "Sliding window step sizes to match to pyramid levels. --pyramid-window-sizes argument must be present and have the same number of values.")
         ("include-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to include when filtering.")
         ("exclude-region", po::value<string>()->value_name("PATH [PATH...]"), "Path to a file prescribing regions to exclude when filtering.")
-        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]"), "Paths to files including and excluding regions.")
+        ("region", po::value<std::vector<string>>()->multitoken()->value_name("(include/exclude) PATH [PATH...] [(include/exclude) PATH [PATH...]...]"),
+         "Paths to files including and excluding regions.")
         ;
 
     loggingOptions_.add_options()
@@ -192,6 +197,7 @@ CliArgsParser::CliArgsParser() :
     optionsDescription_.add(outputOptions_);
     optionsDescription_.add(processingOptions_);
     optionsDescription_.add(detectOptions_);
+    optionsDescription_.add(filterOptions_);
     optionsDescription_.add(loggingOptions_);
     optionsDescription_.add(generalOptions_);
 
@@ -221,6 +227,7 @@ CliArgsParser::CliArgsParser() :
     visibleOptions_.add(outputOptions_);
     visibleOptions_.add(processingOptions_);
     visibleOptions_.add(detectOptions_);
+    visibleOptions_.add(filterOptions_);
     visibleOptions_.add(loggingOptions_);
     visibleOptions_.add(generalOptions_);
 }
@@ -266,10 +273,10 @@ void CliArgsParser::setupInitialLogging()
     log::init();
 
     cerrSink_ = log::addCerrSink(dg::deepcore::level_t::warning, dg::deepcore::level_t::fatal,
-                                     dg::deepcore::log::dg_log_format::dg_short_log);
+                                 dg::deepcore::log::dg_log_format::dg_short_log);
 
     coutSink_ = log::addCoutSink(dg::deepcore::level_t::info, dg::deepcore::level_t::info,
-                                dg::deepcore::log::dg_log_format::dg_short_log);
+                                 dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
 void CliArgsParser::setupLogging() {
@@ -415,6 +422,7 @@ void CliArgsParser::printUsage(Action action) const
             desc.add(webOptions_);
             desc.add(outputOptions_);
             desc.add(processingOptions_);
+            desc.add(filterOptions_);
             desc.add(loggingOptions_);
             desc.add(generalOptions_);
 
@@ -437,9 +445,15 @@ void CliArgsParser::printUsage(Action action) const
 
 void CliArgsParser::validateArgs()
 {
-    // Validate action args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
-    bool unusedStepSize = false;
-    bool unusedNms= false;
+    //
+    // Validate action args.
+    // "Required" results in an error if unspecified.
+    // "Unused" results in a warning if specified.
+    // "UnusedExtra" results in a warning if more than 1 are specified.
+    //
+    bool unusedExtraWindowSizes = false;
+    bool unusedWindowSteps = false;
+    bool unusedNms = false;
     bool unusedPyramid = false;
     bool unusedConfidence = false;
     switch (osnArgs.action) {
@@ -447,7 +461,8 @@ void CliArgsParser::validateArgs()
             break;
 
         case Action::LANDCOVER:
-            unusedStepSize = true;
+            unusedExtraWindowSizes = true;
+            unusedWindowSteps = true;
             unusedNms= true;
             unusedPyramid = true;
             unusedConfidence = true;
@@ -460,23 +475,34 @@ void CliArgsParser::validateArgs()
             DG_ERROR_THROW("Invalid action.");
     }
 
-    if (unusedStepSize && (osnArgs.stepSize.get() != nullptr)) {
-        OSN_LOG(warning) << "Argument --step-size is unused for LANDCOVER.";
+    if (unusedExtraWindowSizes && osnArgs.windowStep.size() > 1) {
+        OSN_LOG(warning) << "Only the first argument to --window-size is used for LANDCOVER.";
+    }
+
+    if (unusedWindowSteps && !osnArgs.windowStep.empty()) {
+        OSN_LOG(warning) << "Argument --window-step is ignored for LANDCOVER.";
     }
 
     if (unusedNms && osnArgs.nms) {
-        OSN_LOG(warning) << "Argument --nms is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --nms is ignored for LANDCOVER.";
     }
 
     if (unusedPyramid && osnArgs.pyramid) {
-        OSN_LOG(warning) << "Argument --pyramid is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --pyramid is ignored for LANDCOVER.";
     }
 
     if (unusedConfidence && confidenceSet) {
-        OSN_LOG(warning) << "Argument --confidence is unused for LANDCOVER.";
+        OSN_LOG(warning) << "Argument --confidence is ignored for LANDCOVER.";
     }
 
-    // Validate source args.  "Required" results in an error if unspecified. "Unused" results in a warning if specified.
+
+
+
+    //
+    // Validate source args.
+    // "Required" results in an error if unspecified.
+    // "Unused" results in a warning if specified.
+    //
     bool unusedMapId = false;
     bool requireBbox = false;
     bool unusedToken = false;
@@ -527,17 +553,17 @@ void CliArgsParser::validateArgs()
     if (requireToken && osnArgs.token.empty()) {
         DG_ERROR_THROW("Argument --token is required for %s.", sourceName.c_str());
     } else if (unusedToken && !osnArgs.token.empty()) {
-        OSN_LOG(warning) << "Argument --token is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --token is ignored for " << sourceName << '.';
     }
 
     if (requireCredentials && osnArgs.credentials.empty()) {
         DG_ERROR_THROW("Argument --credentials argument is required for %s.", sourceName.c_str());
     } else if (unusedCredentials && !osnArgs.credentials.empty()) {
-        OSN_LOG(warning) << "Argument --credentials is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --credentials is ignored for " << sourceName << '.';
     }
 
     if (unusedMapId && mapIdSet) {
-        OSN_LOG(warning) << "Argument --mapId is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --mapId is ignored for " << sourceName << '.';
     }
 
     if (requireBbox && (osnArgs.bbox.get() == nullptr)) {
@@ -545,17 +571,19 @@ void CliArgsParser::validateArgs()
     }
 
     if (unusedUseTiles && osnArgs.useTiles) {
-        OSN_LOG(warning) << "Argument --use-tiles is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --use-tiles is ignored for " << sourceName << '.';
     }
-
 
     if(requireUrl && osnArgs.url.empty()) {
         DG_ERROR_THROW("Argument --url is required for %s.", sourceName.c_str());
     } else if(!requireUrl && !osnArgs.url.empty()) {
-        OSN_LOG(warning) << "Argument --url is unused for " << sourceName << '.';
+        OSN_LOG(warning) << "Argument --url is ignored for " << sourceName << '.';
     }
 
-    // validate model and detection
+
+    //
+    // Validate model and detection
+    //
     if (osnArgs.modelPath.empty()) {
         DG_ERROR_THROW("Argument --model is required.");
     }
@@ -564,7 +592,25 @@ void CliArgsParser::validateArgs()
         DG_ERROR_THROW("Arguments --include-labels and --exclude-labels may not be specified at the same time.");
     }
 
-    // validate output
+    if(unusedExtraWindowSizes || unusedWindowSteps || unusedPyramid || !osnArgs.pyramid) {
+        DG_CHECK(osnArgs.windowSize.size() < 2 || osnArgs.windowStep.size() < 2 ||
+                 osnArgs.windowSize.size() == osnArgs.windowStep.size(),
+                 "Number of arguments in --window-size and --window-step must match.");
+    } else {
+        if(unusedExtraWindowSizes || osnArgs.windowSize.size() > 1) {
+            OSN_LOG(warning)
+                << "Only the first --window-size argument is used when --pyramid is specified.";
+        }
+
+        if(unusedWindowSteps || osnArgs.windowStep.size() > 1) {
+            OSN_LOG(warning)
+                << "Only the first --window-step argument is used when --pyramid is specified.";
+        }
+    }
+
+    //
+    // Validate output
+    //
     if (osnArgs.outputPath.empty()) {
         DG_ERROR_THROW("Argument --output is required.");
     }
@@ -578,17 +624,10 @@ void CliArgsParser::validateArgs()
         osnArgs.layerName = "osndetects";
     }
 
-    DG_CHECK(osnArgs.pyramidWindowSizes.size() == osnArgs.pyramidStepSizes.size(),
-             "Number of arguments in --pyramid-window-sizes and --pyramid-step-sizes must match.");
 
-    if(osnArgs.pyramidWindowSizes.size() && osnArgs.pyramid) {
-        OSN_LOG(warning) << "Argument --pyramid is ignored because pyramid levels are specified manually.";
-    }
-
-    if(osnArgs.pyramidWindowSizes.size() && osnArgs.stepSize) {
-        OSN_LOG(warning) << "Argument --step-size is ignored because pyramid levels are specified manually.";
-    }
-
+    //
+    // Validate filtering
+    //
     if (osnArgs.filterDefinition.size()) {
         for (const auto& action : osnArgs.filterDefinition) {
             for (const auto& file : action.second) {
@@ -605,6 +644,9 @@ void CliArgsParser::validateArgs()
                     }
                 }
             }
+        }
+        if(!unusedPyramid && !osnArgs.pyramid && osnArgs.windowSize.size() > 1) {
+            OSN_LOG(warning) << "Only the first --window-size argument is used the create the exclude filter.";
         }
     }
 
@@ -705,7 +747,6 @@ void CliArgsParser::readOutputArgs(variables_map vm, bool splitArgs)
     } else {
         DG_ERROR_THROW("Invalid geometry type: %s", typeStr.c_str());
     }
-
     osnArgs.append = vm.find("append") != end(vm);
     osnArgs.producerInfo = vm.find("producer-info") != end(vm);
 }
@@ -715,21 +756,23 @@ void CliArgsParser::readProcessingArgs(variables_map vm, bool splitArgs)
     osnArgs.useCpu = vm.find("cpu") != end(vm);
     readVariable("max-utilization", vm, osnArgs.maxUtilization);
     readVariable("model", vm, osnArgs.modelPath);
-    osnArgs.windowSize = readVariable<cv::Size>("window-size", vm);
+
+    readVariable("window-size", vm, osnArgs.windowSize, splitArgs);
+    readVariable("window-step", vm, osnArgs.windowStep, splitArgs);
+    osnArgs.resampledSize = readVariable<int>("resampled-size", vm);
+    osnArgs.pyramid = vm.find("pyramid") != end(vm);
+
+    readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);
+    readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);
+    if (vm.find("region") != end(vm)) {
+        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
+    }
 }
 
 void CliArgsParser::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
-    readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);
-    readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);
-
     confidenceSet |= readVariable("confidence", vm, osnArgs.confidence);
 
-    readVariable("pyramid-window-sizes", vm, osnArgs.pyramidWindowSizes, true);
-    readVariable("pyramid-step-sizes", vm, osnArgs.pyramidStepSizes, true);
-
-    osnArgs.stepSize = readVariable<cv::Point>("step-size", vm);
-    osnArgs.pyramid = vm.find("pyramid") != end(vm);
 
     if(vm.find("nms") != end(vm)) {
         osnArgs.nms = true;
@@ -738,10 +781,6 @@ void CliArgsParser::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
         if(args.size()) {
             osnArgs.overlap = args[0];
         }
-    }
-
-    if (vm.find("region") != end(vm)) {
-        parseFilterArgs(vm["region"].as<std::vector<std::string>>());
     }
 }
 
@@ -779,7 +818,7 @@ void CliArgsParser::parseFilterArgs(const std::vector<string>& filterList)
             finalEntry = entry;
             continue;
         }
-        else if (entry == "include" || 
+        else if (entry == "include" ||
                  entry == "exclude") {
             if (filterAction != "") {
                 if (filterActionFileSet.empty()) {
