@@ -404,7 +404,7 @@ void MainWindow::on_runPushButton_clicked()
     osnArgs.confidence = (float)ui->confidenceSpinBox->value();
 
     //Parse and set the step size
-    osnArgs.stepSize = boost::make_unique<cv::Point>(ui->stepSizeSpinBox->value(), ui->stepSizeSpinBox->value());
+    osnArgs.windowStep = std::vector<int>({ui->windowStepSpinBox->value()});
 
     //Parse and set the pyramid value
     osnArgs.pyramid = ui->pyramidCheckBox->isChecked();
@@ -484,9 +484,8 @@ void MainWindow::on_runPushButton_clicked()
     osnArgs.maxUtilization = (float)ui->maxUtilizationSpinBox->value();
 
     int windowSize1 = ui->windowSizeSpinBox1->value();
-    int windowSize2 = ui->windowSizeSpinBox2->value();
 
-    osnArgs.windowSize = boost::make_unique<cv::Size>(windowSize1, windowSize2);
+    osnArgs.windowSize = std::vector<int>({windowSize1});
 
     std::clog << "Mode: " << action.toStdString() << std::endl;
 
@@ -519,7 +518,6 @@ void MainWindow::on_runPushButton_clicked()
     std::clog << "Processing Mode: " << processingMode << std::endl;
     std::clog << "Max Utilization: " << osnArgs.maxUtilization << std::endl;
     std::clog << "Window Size 1: " << windowSize1 << std::endl;
-    std::clog << "Window Size 2: " << windowSize2 << std::endl;
 
     resetProgressWindow();
 
@@ -903,7 +901,7 @@ void MainWindow::importConfig(QString configPath)
 
     //step size
     if(config_vm.find("step-size") != end(config_vm)) {
-        ui->stepSizeSpinBox->setValue(config_vm["step-size"].as<float>());
+        ui->windowStepSpinBox->setValue(config_vm["step-size"].as<float>());
     }
 
     //pyramid
@@ -1004,7 +1002,6 @@ void MainWindow::importConfig(QString configPath)
         boost::split(dimensions, windowSize, boost::is_any_of(" "));
 
         ui->windowSizeSpinBox1->setValue(boost::lexical_cast<int>(dimensions[0]));
-        ui->windowSizeSpinBox2->setValue(boost::lexical_cast<int>(dimensions[1]));
     }
 
     configFile.close();
@@ -1315,7 +1312,7 @@ void MainWindow::exportConfig(const QString &filepath)
     configContents << "confidence=" << ui->confidenceSpinBox->value() << "\n";
 
     //step size
-    configContents << "step-size=" << ui->stepSizeSpinBox->value() << "\n";
+    configContents << "step-size=" << ui->windowStepSpinBox->value() << "\n";
 
     //pyramid
     if (ui->pyramidCheckBox->isChecked()) {
@@ -1379,7 +1376,7 @@ void MainWindow::exportConfig(const QString &filepath)
     configContents << "max-utilization=" << ui->maxUtilizationSpinBox->value() << "\n";
 
     //window size
-    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << " " << ui->windowSizeSpinBox2->value() << "\n";
+    configContents << "window-size=" << ui->windowSizeSpinBox1->value() << "\n";
 
     //write the stringstream contents to the file
     configFile << configContents.rdbuf();
