@@ -36,7 +36,7 @@
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
-#include <imagery/SlidingWindowSlicer.h>
+#include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
 #include <utility/MultiProgressDisplay.h>
@@ -128,33 +128,36 @@ void OpenSpaceNet::initModel()
     OSN_LOG(info) << "Reading model..." ;
 
     model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
-
-    if(args_.windowSize) {
-        model_->setOverrideSize(windowSize_);
-        windowSize_ = *args_.windowSize;
-    } else {
-        windowSize_ = modelPackage->metadata().windowSize();
-    }
+    modelAspectRatio_ = (float) model_->metadata().modelSize().height / model_->metadata().modelSize().width;
 
     float confidence = 0;
     if(args_.action == Action::LANDCOVER) {
         const auto& blockSize = image_->blockSize();
-        if(blockSize.width % windowSize_.width == 0 && blockSize.height % windowSize_.height == 0) {
-            bbox_ = { cv::Point {0, 0} , image_->size() };
-            concurrent_ = true;
+        auto windowSize = calcPrimaryWindowSize();
+        if (args_.windowSize.size() < 2) {
+            if(blockSize.width % windowSize.width == 0 &&
+               blockSize.height % windowSize.height == 0) {
+                bbox_ = {cv::Point {0, 0}, image_->size()};
+                concurrent_ = true;
+            }
         }
-        stepSize_ = windowSize_;
     } else if(args_.action == Action::DETECT) {
-        if(args_.stepSize) {
-            stepSize_ = *args_.stepSize;
-        } else {
-            stepSize_ = model_->defaultStep();
-        }
-
         confidence = args_.confidence / 100;
     }
 
     model_->setConfidence(confidence);
+
+    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= model_->metadata().modelSize().width,
+             "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
+             *args_.resampledSize, model_->metadata().modelSize().width)
+
+    if (!args_.resampledSize) {
+        for (auto c : args_.windowSize) {
+            DG_CHECK(c <= model_->metadata().modelSize().width,
+                     "Argument --window-size contains a size that does not fit within the model (width: %d).",
+                      model_->metadata().modelSize().width)
+        }
+    }
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -295,7 +298,9 @@ void OpenSpaceNet::initFilter()
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the region filter..." ;
         auto imageSr = image_->spatialReference();
-        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_, stepSize_, MaskedRegionFilter::FilterMethod::ANY);
+        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_,
+                                                        calcPrimaryWindowStep(),
+                                                        MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
@@ -368,7 +373,9 @@ void OpenSpaceNet::processConcurrent()
 
     size_t curBlockClass = 0;
     auto filter = regionFilter_.get();
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter]() {
+    auto windowSizes = calcWindows();
+    auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -385,10 +392,13 @@ void OpenSpaceNet::processConcurrent()
 
             if (filter->contains({item.first, item.second.size()}))
             {
-                SlidingWindowSlicer slicer(item.second, windowSize_, stepSize_, 1.0, {}, EdgeBehavior::FILL, nullptr);
+                SlidingWindowChipper chipper(item.second,
+                                             windowSizes,
+                                             resampledSize,
+                                             model_->metadata().modelSize());
 
                 Subsets subsets;
-                copy(slicer, back_inserter(subsets));
+                copy(chipper, back_inserter(subsets));
 
                 auto predictions = model_->detect(subsets);
 
@@ -434,12 +444,13 @@ void OpenSpaceNet::processSerial()
     pixelToLL.compact();
 
     skipLine();
-    OSN_LOG(info)  << "Reading image...";
+    OSN_LOG(info) << "Reading image...";
 
     unique_ptr<boost::progress_display> openProgress;
     if(!args_.quiet) {
         openProgress = make_unique<boost::progress_display>(50);
     }
+
 
     auto startTime = high_resolution_clock::now();
     auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
@@ -461,16 +472,27 @@ void OpenSpaceNet::processSerial()
         detectProgress = make_unique<boost::progress_display>(50);
     }
 
-    SlidingWindowSlicer slicer(mat, model_->metadata().windowSize(), calcSizes(), windowSize_, EdgeBehavior::FILL, move(regionFilter_->clone()));
-    auto it = slicer.begin();
+    SlidingWindowChipper chipper;
+    auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
+    if (args_.action != Action::LANDCOVER && args_.pyramid) {
+        chipper = SlidingWindowChipper(mat, 2.0,
+                                       calcPrimaryWindowSize(),
+                                       resampledSize,
+                                       model_->metadata().modelSize());
+    } else {
+        chipper = SlidingWindowChipper(mat, calcWindows(), resampledSize,
+                                       model_->metadata().modelSize());
+    }
+    chipper.setFilter(std::move(regionFilter_->clone()));
+    auto it = chipper.begin();
     std::vector<WindowPrediction> predictions;
     int progress = 0;
 
     startTime = high_resolution_clock::now();
 
-    while(it != slicer.end()) {
+    while(it != chipper.end()) {
         Subsets subsets;
-        for(int i = 0; i < model_->batchSize() && it != slicer.end(); ++i, ++it) {
+        for(int i = 0; i < model_->batchSize() && it != chipper.end(); ++i, ++it) {
             subsets.push_back(*it);
         }
 
@@ -479,7 +501,7 @@ void OpenSpaceNet::processSerial()
 
         if(detectProgress) {
             progress += subsets.size();
-            auto curProgress = (size_t)round((double)(progress + it.skipped()) / slicer.slidingWindow().totalWindows() * 50);
+            auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
             if(detectProgress && detectProgress->count() < curProgress) {
                 *detectProgress += curProgress - detectProgress->count();
             }
@@ -505,7 +527,7 @@ void OpenSpaceNet::processSerial()
         predictions = move(filtered);
     }
 
-    if(args_.nms) {
+    if(args_.action != Action::LANDCOVER && args_.nms) {
         skipLine();
         OSN_LOG(info) << "Performing non-maximum suppression..." ;
         auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
@@ -598,7 +620,7 @@ void OpenSpaceNet::printModel()
                   << "; Version: " << metadata.version()
                   << "; Created: " << to_simple_string(from_time_t(metadata.timeCreated()));
     OSN_LOG(info) << "Description: " << metadata.description();
-    OSN_LOG(info) << "Dimensions (pixels): " << metadata.windowSize()
+    OSN_LOG(info) << "Dimensions (pixels): " << metadata.modelSize()
                   << "; Color Mode: " << metadata.colorMode()
                   << "; Image Type: " << metadata.imageType();
     OSN_LOG(info) << "Bounding box (lat/lon): " << metadata.boundingBox();
@@ -614,26 +636,63 @@ void OpenSpaceNet::skipLine() const
     }
 }
 
-SizeSteps OpenSpaceNet::calcSizes() const
+cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
 {
-    if(args_.pyramidWindowSizes.empty()) {
-        if(args_.pyramid) {
-            return SlidingWindow::calcSizes(bbox_.size(), model_->metadata().windowSize(), stepSize_, 2.0);
-        } else {
-            return { { model_->metadata().windowSize(), stepSize_ } };
+    auto windowSize = model_->metadata().modelSize();
+    if(!args_.windowSize.empty()) {
+        windowSize = {args_.windowSize[0], (int) roundf(modelAspectRatio_ * args_.windowSize[0])};
+    }
+    return windowSize;
+}
+
+cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
+{
+    auto windowStep = model_->defaultStep();
+    if(!args_.windowStep.empty()) {
+        windowStep = {args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0])};
+    }
+    return windowStep;
+}
+
+SizeSteps OpenSpaceNet::calcWindows() const
+{
+    if (args_.action == Action::LANDCOVER) {
+        auto primaryWindowSize = calcPrimaryWindowSize();
+        return { { primaryWindowSize, primaryWindowSize } };
+    }
+
+    DG_CHECK(args_.windowSize.size() < 2 || args_.windowStep.size() < 2 ||
+             args_.windowSize.size() == args_.windowStep.size(),
+             "Number of window sizes and window steps must match.");
+
+    if(args_.windowSize.size() == args_.windowStep.size() &&
+       args_.windowStep.size() > 0) {
+        SizeSteps ret;
+        for(const auto& c : boost::combine(args_.windowSize, args_.windowStep)) {
+            int windowSize, windowStep;
+            boost::tie(windowSize, windowStep) = c;
+            ret.emplace_back(cv::Size {windowSize, (int) roundf(modelAspectRatio_ * windowSize)},
+                             cv::Point {windowStep, (int) roundf(modelAspectRatio_ * windowStep)});
         }
-    } else {
-        // Sanity check, should've been caught before
-        DG_CHECK(args_.pyramidWindowSizes.size() == args_.pyramidStepSizes.size(), "Pyramid window sizes don't match step sizes.");
+        return ret;
+    } else if (args_.windowSize.size() > 1) {
+        auto windowStep = calcPrimaryWindowStep();
 
         SizeSteps ret;
-        for(const auto& c : boost::combine(args_.pyramidWindowSizes, args_.pyramidStepSizes)) {
-            int windowSize, stepSize;
-            boost::tie(windowSize, stepSize) = c;
-            ret.emplace_back(cv::Size { windowSize, windowSize }, cv::Point { stepSize, stepSize });
+        for(const auto& c : args_.windowSize) {
+            ret.emplace_back(cv::Size { c, (int) roundf(modelAspectRatio_ * c) }, windowStep);
         }
-
         return ret;
+    } else if (args_.windowStep.size() > 1) {
+        auto windowSize = calcPrimaryWindowSize();
+
+        SizeSteps ret;
+        for(const auto& c : args_.windowStep) {
+            ret.emplace_back(windowSize, cv::Point { c, (int) roundf(modelAspectRatio_ * c) });
+        }
+        return ret;
+    } else {
+        return { { calcPrimaryWindowSize(), calcPrimaryWindowStep() } };
     }
 }
 
