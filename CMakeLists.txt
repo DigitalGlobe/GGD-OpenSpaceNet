@@ -3,9 +3,19 @@ cmake_minimum_required(VERSION 2.8)
 project(OpenSpaceNet)
 
 # OpenSpaceNet version
-set(OpenSpaceNet_VERSION_MAJOR 0)
-set(OpenSpaceNet_VERSION_MINOR 3)
+set(OpenSpaceNet_VERSION_MAJOR 1)
+set(OpenSpaceNet_VERSION_MINOR 0)
 set(OpenSpaceNet_VERSION_PATCH 0)
+
+option(DEEPCORE_RELEASE, "builds a release without appending the build number." OFF)
+
+set(DEEPCORE_RC "" CACHE STRING "The release candidate version for DeepCore pre-release software.")
+if(DEEPCORE_RELEASE)
+    message("Generating release build.  No build number will be appended to the version number.")
+endif()
+
+
+set(OpenSpaceNet_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}")
 
 
 cmake_policy(SET CMP0015 NEW)
@@ -27,10 +37,17 @@ add_executable(OpenSpaceNet ${SOURCE_FILES} ${HEADERS})
 add_definitions(-DUSE_OPENCV)
 
 # Set the build number
-if(DEFINED ENV{BUILD_NUMBER})
-    set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
+if (NOT DEEPCORE_RELEASE)
+    if(DEFINED ENV{BUILD_NUMBER})
+        set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
+    else()
+        set(OpenSpaceNet_VERSION_BUILD "SNAPSHOT")
+    endif()
+    set(OpenSpaceNet_VERSION "${OpenSpaceNet_VERSION}+${OpenSpaceNet_VERSION_BUILD}")
 else()
-    set(OpenSpaceNet_VERSION_BUILD "SNAPSHOT")
+    if(${DEEPCORE_RC})
+        set(OpenSpaceNet_VERSION "${OpenSpaceNet_VERSION}-rc${DEEPCORE_RC}")
+    endif()
 endif()
 
 # Initialize version.h
@@ -127,8 +144,8 @@ if (UNIX AND NOT APPLE)
     set(CPACK_PACKAGE_NAME "OpenSpaceNet")
     set(CPACK_PACKAGE_VENDOR "DigitalGlobe")
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "DeepCore Support <deepcore-support@digitalglobe.com>")
-    set(CPACK_DEBIAN_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
-    set(CPACK_PACKAGE_VERSION "${OpenSpaceNet_VERSION_MAJOR}.${OpenSpaceNet_VERSION_MINOR}.${OpenSpaceNet_VERSION_PATCH}+${OpenSpaceNet_VERSION_BUILD}")
+    set(CPACK_DEBIAN_PACKAGE_VERSION "${OpenSpaceNet_VERSION}")
+    set(CPACK_PACKAGE_VERSION "${OpenSpaceNet_VERSION}")
     set(CPACK_PACKAGE_VERSION_MAJOR "${OpenSpaceNet_VERSION_MAJOR}")
     set(CPACK_PACKAGE_VERSION_MINOR "${OpenSpaceNet_VERSION_MINOR}")
     set(CPACK_PACKAGE_VERSION_PATCH "${OpenSpaceNet_VERSION_PATCH}")
