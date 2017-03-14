@@ -307,7 +307,6 @@ void OpenSpaceNet::initFilter()
 {
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the region filter..." ;
-        auto imageSr = image_->spatialReference();
 
         regionFilter_ = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
                                                         calcPrimaryWindowStep(),
