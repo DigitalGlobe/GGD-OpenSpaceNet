@@ -103,10 +103,19 @@ void OpenSpaceNet::process()
         DG_ERROR_THROW("Input source not specified");
     }
 
+    // Adjust the transformation to shift to the bounding box
+    auto& pixelToLL = dynamic_cast<TransformationChain&>(*pixelToLL_);
+    pixelToLL.chain.push_front(new AffineTransformation {
+            (double) bbox_.x, 1.0, 0.0,
+            (double) bbox_.y, 0.0, 1.0
+    });
+
     initModel();
     printModel();
-    initFilter();    
+    initFilter();
     initFeatureSet();
+
+    pixelToLL.compact();
 
     if(concurrent_) {
         processConcurrent();
@@ -257,6 +266,7 @@ void OpenSpaceNet::initMapServiceImage()
     unique_ptr<Transformation> projToPixel(image_->pixelToProj().inverse());
     bbox_ = projToPixel->transformToInt(projBbox);
     pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
+    sr_ = SpatialReference::WGS84;
 
     auto msImage = dynamic_cast<MapServiceImage*>(image_.get());
     msImage->setMaxConnections(args_.maxConnections);
@@ -298,8 +308,8 @@ void OpenSpaceNet::initFilter()
 {
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the region filter..." ;
-        auto imageSr = image_->spatialReference();
-        regionFilter_ = make_unique<MaskedRegionFilter>(bbox_,
+
+        regionFilter_ = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
                                                         calcPrimaryWindowStep(),
                                                         MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
@@ -309,13 +319,23 @@ void OpenSpaceNet::initFilter()
             for (const auto& filterFile : filterAction.second) {
                 FeatureSet filter(filterFile);
                 for (auto& layer : filter) {
-                    auto transform = TransformationChain { std::move(layer.spatialReference().to(imageSr)),
-                                                           std::move(image_->pixelToProj().inverse())};
+                    auto pixelToProj = dynamic_cast<const TransformationChain&>(*pixelToLL_);
+
+                    if(layer.spatialReference().isLocal() != sr_.isLocal()) {
+                        DG_CHECK(layer.spatialReference().isLocal(), "Error applying region filter: %d doesn't have a spatial reference, but the input image does", filterFile.c_str());
+                        DG_CHECK(sr_.isLocal(), "Error applying region filter: Input image doesn't have a spatial reference, but the %d does", filterFile.c_str());
+                    } else if(!sr_.isLocal()) {
+                        pixelToProj.append(*layer.spatialReference().from(SpatialReference::WGS84));
+                    }
+
+                    auto transform = pixelToProj.inverse();
+                    transform->compact();
+
                     for (const auto& feature: layer) {
                         if (feature.type() != GeometryType::POLYGON) {
                             DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile.c_str());
                         }
-                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(transform).release());
+                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(*transform).release());
                         filterPolys.emplace_back(std::move(*poly));
                     }
                 }
@@ -326,7 +346,7 @@ void OpenSpaceNet::initFilter()
             } else if (action == "exclude") {
                 if (firstAction) {
                     OSN_LOG(info) << "User excluded regions first...automatically including the bounding box...";
-                    regionFilter_->add({{bbox_}});
+                    regionFilter_->add(Polygon(LinearRing(cv::Rect(0, 0, bbox_.width, bbox_.height))));
                 }
                 regionFilter_->subtract(filterPolys);
                 firstAction = false;
@@ -436,14 +456,6 @@ void OpenSpaceNet::processConcurrent()
 
 void OpenSpaceNet::processSerial()
 {
-    // Adjust the transformation to shift to the bounding box
-    auto& pixelToLL = dynamic_cast<TransformationChain&>(*pixelToLL_);
-    pixelToLL.chain.push_front(new AffineTransformation {
-        (double) bbox_.x, 1.0, 0.0,
-        (double) bbox_.y, 0.0, 1.0
-    });
-    pixelToLL.compact();
-
     skipLine();
     OSN_LOG(info) << "Reading image...";
 
