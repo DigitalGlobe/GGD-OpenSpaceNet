@@ -32,6 +32,7 @@
 #include <vector/FeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
+#include <utility/ProgressDisplay.h>
 
 namespace dg { namespace osn {
 
@@ -40,6 +41,7 @@ class OpenSpaceNet
 public:
     OpenSpaceNet(const OpenSpaceNetArgs& args);
     void process();
+    void setProgressDisplay(deepcore::ProgressDisplay& display);
 
 private:
     void initModel();
