@@ -127,6 +127,11 @@ void OpenSpaceNet::process()
     featureSet_.reset();
 }
 
+void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
+{
+    pd_ = display;
+}
+
 void OpenSpaceNet::initModel()
 {
     GbdxModelReader modelReader(args_.modelPath);
@@ -365,21 +370,20 @@ void OpenSpaceNet::processConcurrent()
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
     atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
-    std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
-    ConsoleProgressDisplay progressDisplay(cats);
+
     if(!args_.quiet) {
-        progressDisplay.start();
+        pd_->start();
     }
 
     auto numBlocks = image_->numBlocks().area();
     size_t curBlockRead = 0;
-    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &progressDisplay](const cv::Point& origin, cv::Mat&& block) -> bool {
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, this](const cv::Point& origin, cv::Mat&& block) -> bool {
         {
             lock_guard<recursive_mutex> lock(queueMutex);
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        progressDisplay.update(0, (float)++curBlockRead / numBlocks);
+        pd_->update(0, (float)++curBlockRead / numBlocks);
         haveWork.notify();
 
         return true;
@@ -396,7 +400,7 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
         while(curBlockClass < numBlocks && !cancelled.load()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -442,12 +446,12 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            progressDisplay.update(1, (float)++curBlockClass / numBlocks);
+            pd_->update(1, (float)++curBlockClass / numBlocks);
         }
     });
 
     consumerFuture.wait();
-    progressDisplay.stop();
+    pd_->stop();
 
     image_->rethrowIfError();
 

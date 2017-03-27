@@ -28,6 +28,7 @@
 #include <geometry/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
+#include <utility/ConsoleProgressDisplay.h>
 #include <utility/program_options.hpp>
 #include <vector/FeatureSet.h>
 
@@ -63,6 +64,8 @@ using std::string;
 using std::unique_ptr;
 using geometry::GeometryType;
 using vector::FeatureSet;
+using dg::deepcore::ConsoleProgressDisplay;
+using dg::deepcore::ProgressCategory;
 
 static const string OSN_USAGE =
     "Usage:\n"
@@ -264,6 +267,10 @@ void CliArgsParser::setupArgParsing(int argc, const char* const* argv)
 void CliArgsParser::startOSNProcessing()
 {
     OpenSpaceNet osn(osnArgs);
+    std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
+    auto pd = boost::make_shared<ConsoleProgressDisplay>(cats);
+
+    osn.setProgressDisplay(pd);
     osn.process();
 }
 
