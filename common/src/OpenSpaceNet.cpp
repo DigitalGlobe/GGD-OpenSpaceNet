@@ -369,7 +369,6 @@ void OpenSpaceNet::processConcurrent()
     recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
-    atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
 
     if(!args_.quiet) {
         pd_->start();
@@ -389,8 +388,8 @@ void OpenSpaceNet::processConcurrent()
         return true;
     });
 
-    image_->setOnError([&cancelled, &haveWork](std::exception_ptr) {
-        cancelled.store(true);
+    image_->setOnError([&haveWork, this](std::exception_ptr) {
+        pd_->setCancelled(true);
         haveWork.notify();
     });
 
@@ -400,8 +399,8 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
-        while(curBlockClass < numBlocks && !cancelled.load()) {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
+        while(curBlockClass < numBlocks && !pd_->cancelled()) {
             pair<cv::Point, cv::Mat> item;
             {
                 lock_guard<recursive_mutex> lock(queueMutex);
