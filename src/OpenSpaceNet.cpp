@@ -46,6 +46,7 @@
 namespace dg { namespace osn {
 
 using namespace dg::deepcore::classification;
+using namespace dg::deepcore::geometry;
 using namespace dg::deepcore::imagery;
 using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;

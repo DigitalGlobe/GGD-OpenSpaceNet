@@ -21,7 +21,7 @@
 
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
-#include <classification/Prediction.h>
+#include <geometry/Prediction.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/MaskedRegionFilter.h>
 #include <imagery/GeoImage.h>
@@ -49,8 +49,8 @@ private:
     void initFilter();
     void processConcurrent();
     void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::classification::Prediction>& predictions);
-    deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::classification::Prediction> &predictions);
+    void addFeature(const cv::Rect& window, const std::vector<deepcore::geometry::Prediction>& predictions);
+    deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::geometry::Prediction> &predictions);
     void printModel();
     void skipLine() const;
     deepcore::imagery::SizeSteps calcWindows() const;
