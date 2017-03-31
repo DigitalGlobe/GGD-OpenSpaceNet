@@ -267,10 +267,16 @@ void CliArgsParser::setupArgParsing(int argc, const char* const* argv)
 void CliArgsParser::startOSNProcessing()
 {
     OpenSpaceNet osn(osnArgs);
-    std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
-    auto pd = boost::make_shared<ConsoleProgressDisplay>(cats);
+    if (osnArgs.action == Action::LANDCOVER) {
+        std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
+        pd_ = boost::make_shared<ConsoleProgressDisplay>(cats);
+    }
+    else{
+        std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Detecting", "Detecting the object(s)")};
+        pd_= boost::make_shared<ConsoleProgressDisplay>(cats);
+    }
 
-    osn.setProgressDisplay(pd);
+    osn.setProgressDisplay(pd_);
     osn.process();
 }
 

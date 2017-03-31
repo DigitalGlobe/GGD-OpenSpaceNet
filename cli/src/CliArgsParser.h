@@ -76,6 +76,7 @@ private:
 
     boost::shared_ptr<deepcore::log::sinks::sink> cerrSink_;
     boost::shared_ptr<deepcore::log::sinks::sink> coutSink_;
+    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
 };
 
 } } // namespace dg { namespace osn {

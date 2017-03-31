@@ -386,7 +386,7 @@ void OpenSpaceNet::processConcurrent()
         pd_->update(0, (float)++curBlockRead / numBlocks);
         haveWork.notify();
 
-        return true;
+        return !pd_->cancelled();
     });
 
     image_->setOnError([&haveWork, this](std::exception_ptr) {
@@ -463,31 +463,17 @@ void OpenSpaceNet::processSerial()
     skipLine();
     OSN_LOG(info) << "Reading image...";
 
-    unique_ptr<boost::progress_display> openProgress;
     if(!args_.quiet) {
-        openProgress = make_unique<boost::progress_display>(50);
+        pd_->start();
     }
 
-
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
-        size_t curProgress = (size_t)roundf(progress*50);
-        if(openProgress && openProgress->count() < curProgress) {
-            *openProgress += curProgress - openProgress->count();
-        }
-        return true;
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [this](float progress) -> bool {
+        pd_->update(0, progress);
+        return !pd_->cancelled();
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
-    OSN_LOG(info) << "Reading time " << duration.count() << " s";
-
-    skipLine();
-    OSN_LOG(info) << "Detecting features...";
-
-    unique_ptr<boost::progress_display> detectProgress;
-    if(!args_.quiet) {
-        detectProgress = make_unique<boost::progress_display>(50);
-    }
 
     SlidingWindowChipper chipper;
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
@@ -516,17 +502,19 @@ void OpenSpaceNet::processSerial()
         auto predictionBatch = model_->detect(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
-        if(detectProgress) {
-            progress += subsets.size();
-            auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
-            if(detectProgress && detectProgress->count() < curProgress) {
-                *detectProgress += curProgress - detectProgress->count();
-            }
-        }
+        progress += subsets.size();
+        auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
+        pd_->update(1, (float)curProgress/50);
     }
+
+    pd_->stop();
+
+    skipLine();
+    OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
+    skipLine();
 
     if(!args_.excludeLabels.empty()) {
         skipLine();
