@@ -19,11 +19,37 @@
 #define OSNPROGRESSDISPLAY_H
 
 #include "utility/ProgressDisplay.h"
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
+#include <QObject>
 
 
-class OSNProgressDisplay : public dg::deepcore::ProgressDisplay
+class OSNProgressDisplay : public QObject, public dg::deepcore::ProgressDisplay
 {
+    Q_OBJECT
+public:
+    OSNProgressDisplay(const dg::deepcore::ProgressCategories& categories, int intervalMs=500);
+    ~OSNProgressDisplay();
 
+    void start();
+    void stop();
+    void update(size_t categoryId, float progress);
+
+private:
+    void display();
+
+    dg::deepcore::ProgressCategories categories_;
+    std::thread thread_;
+    std::mutex mutex_;
+    std::condition_variable stop_;
+    std::vector<float> progress_;
+    std::vector<float> oldProgress_;
+    int interval_;
+
+signals:
+    void updateProgressStatus(QString, float);
 };
 
 
