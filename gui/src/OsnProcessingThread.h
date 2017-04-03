@@ -18,16 +18,18 @@
 #define OSNPROCESSINGTHREAD_H
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
+#include <OSNProgressDisplay.h>
 #include <QThread>
 
 class OsnProcessingThread : public QThread
 {
     Q_OBJECT
 public:
-    void setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput);
+    void setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput, boost::shared_ptr<OSNProgressDisplay> progressDisplay);
 private:
     void run();
     const dg::osn::OpenSpaceNetArgs *osnArgs;
+    boost::shared_ptr<OSNProgressDisplay> pd_;
 signals:
     void processFinished();
 };

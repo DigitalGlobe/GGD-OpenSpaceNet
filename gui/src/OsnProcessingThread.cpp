@@ -20,11 +20,13 @@ void OsnProcessingThread::run()
 {
     DG_CHECK(osnArgs != nullptr, "osnArgs is a null pointer before calling process");
     dg::osn::OpenSpaceNet osn(*osnArgs);
+    osn.setProgressDisplay(pd_);
     osn.process();
     emit processFinished();
 }
 
-void OsnProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput)
+void OsnProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput, boost::shared_ptr<OSNProgressDisplay> progressDisplay)
 {
     osnArgs = &osnArgsInput;
+    pd_ = progressDisplay;
 }
