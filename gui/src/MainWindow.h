@@ -137,7 +137,7 @@ private:
     std::ostream & stringStreamStdout = std::cout;
     QDebugStream qout;
 
-    int detectionProgressText = 0;
+    bool detectionProgressText = false;
 
     //web services client
     std::unique_ptr<dg::deepcore::imagery::MapServiceClient> validationClient;

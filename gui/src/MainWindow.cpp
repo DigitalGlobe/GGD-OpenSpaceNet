@@ -567,8 +567,8 @@ void MainWindow::updateProgressStatus(QString id, float progress)
     }
 
     if(boost::contains(id.toStdString(), "Detecting")) {
-        if(detectionProgressText == 0) {
-            detectionProgressText++;
+        if(!detectionProgressText) {
+            detectionProgressText = true;
             progressWindow.ui().progressDisplay->append("Detecting features...");
         }
 
@@ -725,7 +725,7 @@ void MainWindow::on_usernameLineEditCursorPositionChanged()
 
 void MainWindow::resetProgressWindow()
 {
-    detectionProgressText = 0;
+    detectionProgressText = false;
     progressWindow.updateProgressText("Running OpenSpaceNet...");
     progressWindow.ui().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
