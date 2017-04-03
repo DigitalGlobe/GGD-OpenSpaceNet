@@ -557,6 +557,7 @@ void MainWindow::updateProgressBox(QString updateText)
         featuresDetected = updateText;
     }
     progressWindow.ui().progressDisplay->append(updateText);
+    statusBar()->showMessage(updateText);
 }
 
 void MainWindow::updateProgressStatus(QString id, float progress)
@@ -570,6 +571,7 @@ void MainWindow::updateProgressStatus(QString id, float progress)
         if(!detectionProgressText) {
             detectionProgressText = true;
             progressWindow.ui().progressDisplay->append("Detecting features...");
+            statusBar()->showMessage("Detecting features...");
         }
 
         progressWindow.updateProgressBarDetect(progress);
