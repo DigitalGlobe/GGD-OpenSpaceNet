@@ -38,6 +38,7 @@
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
 #include <OsnProcessingThread.h>
+#include "OSNProgressDisplay.h"
 #include <imagery/MapServiceClient.h>
 
 #include "ProgressWindow.h"
@@ -79,6 +80,8 @@ private slots:
     void enableRunButton();
 
     void updateProgressBox(QString updateText);
+
+    void updateProgressStatus(QString id, float progress);
 
     void on_imageSourceComboBox_currentIndexChanged(const QString &source);
 
@@ -133,10 +136,8 @@ private:
     boost::shared_ptr<std::ostream> stringStreamUI;
     std::ostream & stringStreamStdout = std::cout;
     QDebugStream qout;
-    QDebugStream sout;
 
-    int progressCount = 0;
-    int whichProgress = 0;
+    int detectionProgressText = 0;
 
     //web services client
     std::unique_ptr<dg::deepcore::imagery::MapServiceClient> validationClient;
@@ -164,6 +165,8 @@ private:
 
     QString EDIT_ERROR_STYLE = "color: red;""border: 1px solid red;";
     QString EDIT_DEFAULT_STYLE = "color: default";
+
+    boost::shared_ptr<OSNProgressDisplay> pd_;
 };
 
 #endif // MAINWINDOW_H

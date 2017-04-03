@@ -24,6 +24,7 @@
 #include <boost/make_unique.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
+#include <boost/make_shared.hpp>
 
 #include <imagery/MapBoxClient.h>
 #include <imagery/DgcsClient.h>
@@ -77,7 +78,6 @@ void MainWindow::connectSignalsAndSlots()
 {
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
-    connect(&sout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
 
     //Connections that change the color of the filepath line edits
@@ -108,7 +108,6 @@ void MainWindow::setUpLogging()
 
     stringStreamUI = stringStream;
     qout.setOptions(*stringStreamUI);
-    sout.setOptions(stringStreamStdout);
 
     statusProgressBar = new QProgressBar;
 
@@ -527,7 +526,18 @@ void MainWindow::on_runPushButton_clicked()
     statusProgressBar->setValue(0);
     statusProgressBar->show();
 
-    thread.setArgs(osnArgs);
+    if (osnArgs.action == dg::osn::Action::LANDCOVER) {
+        std::vector<dg::deepcore::ProgressCategory> cats = {dg::deepcore::ProgressCategory("Loading", "Loading the image"),dg::deepcore::ProgressCategory("Classifying", "Classifying the image")};
+        pd_ = boost::make_shared<OSNProgressDisplay>(cats);
+    }
+    else{
+        std::vector<dg::deepcore::ProgressCategory> cats = {dg::deepcore::ProgressCategory("Reading", "Reading the image"),dg::deepcore::ProgressCategory("Detecting", "Detecting the object(s)")};
+        pd_= boost::make_shared<OSNProgressDisplay>(cats);
+    }
+
+    connect(pd_.get(), SIGNAL(updateProgressStatus(QString, float)), this, SLOT(updateProgressStatus(QString, float)));
+
+    thread.setArgs(osnArgs, pd_);
     thread.start();
 }
 
@@ -546,26 +556,24 @@ void MainWindow::updateProgressBox(QString updateText)
     if(boost::contains(updateText.toStdString(), "features detected.")) {
         featuresDetected = updateText;
     }
-    if(boost::contains(updateText.toStdString(), "0%")) {
-        whichProgress++;
-        progressCount = 0;
+    progressWindow.ui().progressDisplay->append(updateText);
+}
+
+void MainWindow::updateProgressStatus(QString id, float progress)
+{
+    if(boost::contains(id.toStdString(), "Reading")) {
+        progressWindow.updateProgressBar(progress);
+        statusProgressBar->setValue(progress);
     }
-    if(boost::contains(updateText.toStdString(), "*")) {
-        progressCount += 2;
-        if(whichProgress == 1) {
-            progressWindow.updateProgressBar(progressCount);
-            statusProgressBar->setValue(progressCount);
-        }else if(whichProgress == 2) {
-            progressWindow.updateProgressBarDetect(progressCount);
-            statusProgressBar->setValue(progressCount);
+
+    if(boost::contains(id.toStdString(), "Detecting")) {
+        if(detectionProgressText == 0) {
+            detectionProgressText++;
+            progressWindow.ui().progressDisplay->append("Detecting features...");
         }
-    }else if(!boost::contains(updateText.toStdString(), "0%") &&
-            !boost::contains(updateText.toStdString(), "|----") &&
-            !boost::contains(updateText.toStdString(), "found star")) {
-        progressWindow.ui().progressDisplay->append(updateText);
-        if(!boost::contains(updateText.toStdString(), "\n")) {
-            statusBar()->showMessage(updateText);
-        }
+
+        progressWindow.updateProgressBarDetect(progress);
+        statusProgressBar->setValue(progress);
     }
 }
 
@@ -717,8 +725,7 @@ void MainWindow::on_usernameLineEditCursorPositionChanged()
 
 void MainWindow::resetProgressWindow()
 {
-    progressCount = 0;
-    whichProgress = 0;
+    detectionProgressText = 0;
     progressWindow.updateProgressText("Running OpenSpaceNet...");
     progressWindow.ui().progressDisplay->clear();
     progressWindow.updateProgressBar(0);
@@ -730,7 +737,6 @@ void MainWindow::cancelThread()
     ui->runPushButton->setEnabled(true);
     progressWindow.close();
     qout.eraseString();
-    sout.eraseString();
 
     if(!thread.isFinished()) {
         thread.quit();
@@ -743,7 +749,6 @@ void MainWindow::on_closePushButton_clicked()
         thread.quit();
     }
     qout.eraseString();
-    sout.eraseString();
 
     progressWindow.close();
 
@@ -756,7 +761,6 @@ void MainWindow::closeEvent (QCloseEvent *event)
         thread.quit();
     }
     qout.eraseString();
-    sout.eraseString();
 
     progressWindow.close();
     exit(1);
