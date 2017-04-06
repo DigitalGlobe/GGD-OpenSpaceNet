@@ -250,6 +250,9 @@
          <property name="toolTip">
           <string>The output geometry type</string>
          </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
          <item>
           <property name="text">
            <string>Polygon</string>
@@ -288,6 +291,9 @@
          </property>
          <property name="toolTip">
           <string>The output vector format</string>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
          </property>
          <item>
           <property name="text">
@@ -456,6 +462,9 @@
          <property name="minimum">
           <number>5</number>
          </property>
+         <property name="maximum">
+          <number>99</number>
+         </property>
          <property name="value">
           <number>95</number>
          </property>
@@ -467,7 +476,7 @@
           <string>The width of the model's window</string>
          </property>
          <property name="maximum">
-          <number>999</number>
+          <number>10000</number>
          </property>
          <property name="value">
           <number>150</number>
@@ -485,6 +494,9 @@
         <widget class="QComboBox" name="processingModeComboBox">
          <property name="toolTip">
           <string>Whether the GPU or CPU will be used for processing the job</string>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
          </property>
          <item>
           <property name="text">
@@ -535,6 +547,9 @@
          </property>
          <property name="toolTip">
           <string>The sliding window step size</string>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
          </property>
          <property name="value">
           <number>30</number>
@@ -591,6 +606,9 @@
          </property>
          <property name="readOnly">
           <bool>false</bool>
+         </property>
+         <property name="maximum">
+          <number>100</number>
          </property>
          <property name="value">
           <number>30</number>
@@ -707,6 +725,9 @@
          </property>
          <property name="statusTip">
           <string/>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
          </property>
          <item>
           <property name="text">
@@ -970,6 +991,9 @@
          </property>
          <property name="toolTip">
           <string>The source of the image processed by the job</string>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
          </property>
          <item>
           <property name="text">
