@@ -28,10 +28,10 @@
 #include <boost/range/algorithm/copy.hpp>
 #include <classification/GbdxModelReader.h>
 #include <classification/NonMaxSuppression.h>
-#include <classification/FilterLabels.h>
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
+#include <geometry/FilterLabels.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
