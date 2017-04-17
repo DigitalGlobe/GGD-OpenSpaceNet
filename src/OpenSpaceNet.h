@@ -59,7 +59,7 @@ private:
 
     const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
-    std::unique_ptr<deepcore::classification::Model> model_;
+    deepcore::classification::Model::Ptr model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
