@@ -6,6 +6,7 @@ find_package(Qt5Widgets REQUIRED)
 
 qt5_wrap_cpp(OSN_GUI_MOC
         src/MainWindow.h
+        src/OSNModelThread.h
         src/OsnProcessingThread.h
         src/OSNProgressDisplay.h
         src/ProgressWindow.h
@@ -21,6 +22,8 @@ set(SOURCES
         src/main.cpp
         src/MainWindow.cpp
         src/MainWindow.h
+        src/OSNModelThread.cpp
+        src/OSNModelThread.h
         src/OsnProcessingThread.cpp
         src/OsnProcessingThread.h
         src/OSNProgressDisplay.cpp

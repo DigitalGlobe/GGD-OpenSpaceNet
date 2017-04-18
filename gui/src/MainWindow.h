@@ -35,6 +35,7 @@
 #include <QStatusBar>
 #include <QProgressBar>
 
+#include "OSNModelThread.h"
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
 #include <OsnProcessingThread.h>
@@ -113,6 +114,8 @@ private slots:
 
     void cancelThread();
 
+    void fillInModelDefaults(int windowSize, int windowStep);
+
 private:
     void connectSignalsAndSlots();
     void setUpLogging();
@@ -128,6 +131,7 @@ private:
 
     dg::osn::OpenSpaceNetArgs osnArgs;
     OsnProcessingThread thread;
+    OSNModelThread modelThread;
     ProgressWindow progressWindow;
     Ui::MainWindow *ui;
 
@@ -167,6 +171,8 @@ private:
     QString EDIT_DEFAULT_STYLE = "color: default";
 
     boost::shared_ptr<OSNProgressDisplay> pd_;
+
+    QMessageBox *modelReadingBox;
 };
 
 #endif // MAINWINDOW_H

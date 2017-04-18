@@ -77,6 +77,7 @@ MainWindow::~MainWindow()
 void MainWindow::connectSignalsAndSlots()
 {
     connect(&thread, SIGNAL(processFinished()), this, SLOT(enableRunButton()));
+    connect(&modelThread, SIGNAL(modelProcessFinished(int, int)), this, SLOT(fillInModelDefaults(int, int)));
     connect(&qout, SIGNAL(updateProgressText(QString)), this, SLOT(updateProgressBox(QString)));
     connect(&progressWindow, SIGNAL(cancelPushed()), this, SLOT(cancelThread()));
 
@@ -599,6 +600,18 @@ void MainWindow::on_modelpathLineEditLostFocus()
         //Valid input
         ui->modelFileLineEdit->setStyleSheet(EDIT_DEFAULT_STYLE);
         hasValidModel = true;
+
+        modelReadingBox = new QMessageBox;
+        modelReadingBox->setText("Reading model. Please wait...");
+        modelReadingBox->setModal(true);
+        modelReadingBox->setAttribute(Qt::WA_DeleteOnClose);
+        modelReadingBox->setWindowFlags(Qt::WindowTitleHint);
+        modelReadingBox->setStandardButtons(0);
+        modelReadingBox->setIcon(QMessageBox::Information);
+        modelReadingBox->show();
+
+        modelThread.setArgs(modelpath);
+        modelThread.start();
     }
 }
 
@@ -1388,4 +1401,13 @@ void MainWindow::exportConfig(const QString &filepath)
     configFile << configContents.rdbuf();
 
     configFile.close();
+}
+
+void MainWindow::fillInModelDefaults(int windowSize, int windowStep)
+{
+    ui->windowSizeSpinBox1->setValue(windowSize);
+    ui->windowStepSpinBox->setValue(windowStep);
+
+    modelReadingBox->hide();
+    modelReadingBox->close();
 }
