@@ -488,7 +488,7 @@ void OpenSpaceNet::processSerial()
     }
     chipper.setFilter(std::move(regionFilter_->clone()));
     auto it = chipper.begin();
-    std::vector<WindowPrediction> predictions;
+    std::vector<PredictionBox> predictions;
     int progress = 0;
 
     startTime = high_resolution_clock::now();
