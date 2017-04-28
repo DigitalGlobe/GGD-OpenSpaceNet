@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.5)
 
 project(OpenSpaceNet CXX)
 
-# Options for what to build
-option(OSN_BUILD_CLI "Build OpenSpaceNet command line interface" ON)
-option(OSN_BUILD_GUI "Build OpenSpaceNet graphical user interface" ON)
-
 # Options for overriding the installation directories
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
@@ -74,13 +70,7 @@ add_subdirectory(common)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/common)
 
-if(OSN_BUILD_CLI)
-    add_subdirectory(cli)
-endif(OSN_BUILD_CLI)
-
-if(OSN_BUILD_GUI)
-    add_subdirectory(gui)
-endif(OSN_BUILD_GUI)
+add_subdirectory(cli)
 
 #
 # Package
