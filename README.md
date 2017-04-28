@@ -35,11 +35,11 @@ If you have the images that you want to search in an image file, then you can us
 Linux:
 ```
 $ ./OpenSpaceNet detect --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp \
-  --nms --step-size 30 --image INPUT_IMAGE_FILENAME
+  --nms --window-step 30 --image INPUT_IMAGE_FILENAME
 ```  
 Windows:
 ```
-C:\> OpenSpaceNet.exe detect --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --nms --step-size 30 --image INPUT_IMAGE_FILENAME
+C:\> OpenSpaceNet.exe detect --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --nms --window-step 30 --image INPUT_IMAGE_FILENAME
 ```
 ### Using the API  
 If you access DigitalGlobe API, then you can use your token to download maps.  DeepCore will handle the maps for you, so all you need to provide is the API token, and the bounding box that you want to search in.
@@ -48,12 +48,12 @@ Linux:
 ```
 $ ./OpenSpaceNet detect --bbox -84.44579 33.63404 -84.40601 33.64583  --model MODEL.gbdxm \
   --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms \
-  --step-size 25 --num-downloads 200 --token API_TOKEN  --service maps-api
+  --window-step 25 --num-downloads 200 --token API_TOKEN  --service maps-api
 ```
 
 Windows:
 ```
-C:\> OpenSpaceNet.exe detect --bbox -84.44579 33.63404 -84.40601 33.64583  --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms --step-size 25 --num-downloads 200 --token API_TOKEN  --service maps-api
+C:\> OpenSpaceNet.exe detect --bbox -84.44579 33.63404 -84.40601 33.64583  --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms --window-step 25 --num-downloads 200 --token API_TOKEN  --service maps-api
 ```
 ### Using DigitalGlobe Cloud Services (DGCS)
 If you have access to DigitalGlobe Cloud Services, then OpenSpaceNet can access maps using your account.  You need to provide your username, password, and the appropriate token for the type of maps that you want to use.  You can find information about the kinds of maps offered by DigitalGlobe of is available on [our webpage](https://www.digitalglobe.com/products/basemap-suite).
@@ -62,12 +62,12 @@ Linux:
 ```
 $ ./OpenSpaceNet detect --bbox -84.44579 33.63404 -84.40601 33.64583 --model MODEL.gbdxm \
   --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms \
-  --step-size 15 --num-downloads 200 --token MAP_TOKEN --credentials USER:PASS --service dgcs
+  --window-step 15 --num-downloads 200 --token MAP_TOKEN --credentials USER:PASS --service dgcs
 ```
 
 Windows:
 ```
-C:\> ./OpenSpaceNet.exe detect --bbox -84.44579 33.63404 -84.40601 33.64583 --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms --step-size 15 --num-downloads 200 --token MAP_TOKEN --credentials USER:PASS --service dgcs
+C:\> ./OpenSpaceNet.exe detect --bbox -84.44579 33.63404 -84.40601 33.64583 --model MODEL.gbdxm --type POLYGON --format shp --output OUTPUT_FILENAME.shp --confidence 99.9 --nms --window-step 15 --num-downloads 200 --token MAP_TOKEN --credentials USER:PASS --service dgcs
 ```
 
 ## Visualizing results
