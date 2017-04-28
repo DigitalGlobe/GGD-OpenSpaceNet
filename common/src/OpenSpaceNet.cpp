@@ -461,7 +461,7 @@ void OpenSpaceNet::processConcurrent()
 void OpenSpaceNet::processSerial()
 {
     skipLine();
-    OSN_LOG(info) << "Reading image...";
+    OSN_LOG(info) << "Processing...";
 
     if(!args_.quiet) {
         pd_->start();
