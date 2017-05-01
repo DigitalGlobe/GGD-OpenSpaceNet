@@ -425,13 +425,13 @@ void OpenSpaceNet::processConcurrent()
 
                 if(!args_.excludeLabels.empty()) {
                     std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-                    auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+                    auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
                     predictions = move(filtered);
                 }
 
                 if(!args_.includeLabels.empty()) {
                     std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-                    auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+                    auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
                     predictions = move(filtered);
                 }
 
@@ -528,7 +528,7 @@ void OpenSpaceNet::processSerial()
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-        auto filtered = filterLabels(predictions, FilterType::Exclude, excludeLabels);
+        auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
         predictions = move(filtered);
     }
 
@@ -536,7 +536,7 @@ void OpenSpaceNet::processSerial()
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-        auto filtered = filterLabels(predictions, FilterType::Include, includeLabels);
+        auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
         predictions = move(filtered);
     }
 
