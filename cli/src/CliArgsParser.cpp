@@ -271,9 +271,12 @@ void CliArgsParser::startOSNProcessing()
         std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Classifying", "Classifying the image")};
         pd_ = boost::make_shared<ConsoleProgressDisplay>(cats);
     }
-    else{
+    else if(osnArgs.action == Action::DETECT){
         std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Detecting", "Detecting the object(s)")};
         pd_= boost::make_shared<ConsoleProgressDisplay>(cats);
+    }
+    else{
+        DG_ERROR_THROW("Invalid action called during startOSNPocessing()");
     }
 
     osn.setProgressDisplay(pd_);
