@@ -268,7 +268,7 @@ void CliArgsParser::startOSNProcessing()
 {
     OpenSpaceNet osn(osnArgs);
     if (osnArgs.action == Action::LANDCOVER) {
-        std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
+        std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Classifying", "Classifying the image")};
         pd_ = boost::make_shared<ConsoleProgressDisplay>(cats);
     }
     else{
