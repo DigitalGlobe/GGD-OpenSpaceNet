@@ -267,18 +267,7 @@ void CliProcessor::setupArgParsing(int argc, const char* const* argv)
 void CliProcessor::startOSNProcessing()
 {
     OpenSpaceNet osn(osnArgs);
-    if (osnArgs.action == Action::LANDCOVER) {
-        std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Classifying", "Classifying the image")};
-        pd_ = boost::make_shared<ConsoleProgressDisplay>(cats);
-    }
-    else if(osnArgs.action == Action::DETECT){
-        std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Detecting", "Detecting the object(s)")};
-        pd_= boost::make_shared<ConsoleProgressDisplay>(cats);
-    }
-    else{
-        DG_ERROR_THROW("Invalid action called during startOSNPocessing()");
-    }
-
+    pd_ = boost::make_shared<ConsoleProgressDisplay>();
     osn.setProgressDisplay(pd_);
     osn.process();
 }

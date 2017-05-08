@@ -371,6 +371,8 @@ void OpenSpaceNet::processConcurrent()
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
 
+    pd_->setCategories({ProgressCategory("Reading", "Reading the image"),ProgressCategory("Classifying", "Classifying the image")});
+
     if(!args_.quiet) {
         pd_->start();
     }
@@ -462,6 +464,8 @@ void OpenSpaceNet::processSerial()
 {
     skipLine();
     OSN_LOG(info) << "Processing...";
+
+    pd_->setCategories({ProgressCategory("Reading", "Reading the image"),ProgressCategory("Detecting", "Detecting the object(s)")});
 
     if(!args_.quiet) {
         pd_->start();
