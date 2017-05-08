@@ -2,8 +2,8 @@ include_directories(src)
 
 set(SOURCES
         src/main.cpp
-        src/CliArgsParser.cpp
-        src/CliArgsParser.h
+        src/CliProcessor.cpp
+        src/CliProcessor.h
         )
 
 add_executable(OpenSpaceNet.cli ${SOURCES})

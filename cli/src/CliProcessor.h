@@ -15,8 +15,8 @@
 * limitations under the License.
 ********************************************************************************/
 
-#ifndef OPENSPACENET_CLIARGSPARSER_H
-#define OPENSPACENET_CLIARGSPARSER_H
+#ifndef OPENSPACENET_CLIPROCESSOR_H
+#define OPENSPACENET_CLIPROCESSOR_H
 
 #include <OpenSpaceNetArgs.h>
 #include <OpenSpaceNet.h>
@@ -24,14 +24,14 @@
 
 namespace dg { namespace osn {
 
-class CliArgsParser
+class CliProcessor
 {
 public:
     dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
-    CliArgsParser();
+    CliProcessor();
     void setupArgParsing(int argc, const char* const* argv);
     void startOSNProcessing();
     OpenSpaceNetArgs osnArgs;
@@ -80,4 +80,4 @@ private:
 };
 
 } } // namespace dg { namespace osn {
-#endif //OPENSPACENET_CLIARGSPARSER_H
+#endif //OPENSPACENET_CLIPROCESSOR_H
