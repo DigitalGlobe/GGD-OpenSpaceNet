@@ -30,6 +30,7 @@ class OSNProgressDisplay : public QObject, public dg::deepcore::ProgressDisplay
 {
     Q_OBJECT
 public:
+    OSNProgressDisplay();
     OSNProgressDisplay(const dg::deepcore::ProgressCategories& categories, int intervalMs=500);
     ~OSNProgressDisplay();
 

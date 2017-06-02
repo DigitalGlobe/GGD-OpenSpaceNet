@@ -527,14 +527,7 @@ void MainWindow::on_runPushButton_clicked()
     statusProgressBar->setValue(0);
     statusProgressBar->show();
 
-    if (osnArgs.action == dg::osn::Action::LANDCOVER) {
-        std::vector<dg::deepcore::ProgressCategory> cats = {dg::deepcore::ProgressCategory("Loading", "Loading the image"),dg::deepcore::ProgressCategory("Classifying", "Classifying the image")};
-        pd_ = boost::make_shared<OSNProgressDisplay>(cats);
-    }
-    else{
-        std::vector<dg::deepcore::ProgressCategory> cats = {dg::deepcore::ProgressCategory("Reading", "Reading the image"),dg::deepcore::ProgressCategory("Detecting", "Detecting the object(s)")};
-        pd_= boost::make_shared<OSNProgressDisplay>(cats);
-    }
+    pd_ = boost::make_shared<OSNProgressDisplay>();
 
     connect(pd_.get(), SIGNAL(updateProgressStatus(QString, float)), this, SLOT(updateProgressStatus(QString, float)));
 

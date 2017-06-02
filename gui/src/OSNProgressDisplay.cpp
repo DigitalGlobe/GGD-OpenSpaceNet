@@ -35,6 +35,11 @@ using std::thread;
 using std::unique_lock;
 using std::vector;
 
+OSNProgressDisplay::OSNProgressDisplay()
+{
+
+}
+
 OSNProgressDisplay::OSNProgressDisplay(const dg::deepcore::ProgressCategories &categories, int intervalMs) :
         categories_(categories),
         progress_(categories.size(), 0.0F),
@@ -104,8 +109,28 @@ void OSNProgressDisplay::display()
 
 void OSNProgressDisplay::setCategories(const dg::deepcore::ProgressCategories& categories)
 {
+    bool wasRunning = thread_.joinable();
+    stop();
+    categories_ = categories;
+    vector<float> progressTemp(categories.size(), 0.0F);
+    vector<float> oldProgressTemp(categories.size(), -1.0F);
+    progress_ = progressTemp;
+    oldProgress_ = oldProgressTemp;
+
+    if(wasRunning){
+        start();
+    }
 }
 
 size_t OSNProgressDisplay::addCategory(std::string name, std::string description)
 {
+    lock_guard<mutex> categoryAddLock(mutex_);
+    dg::deepcore::ProgressCategory p(name, description);
+    categories_.push_back(p);
+    vector<float> progressTemp(categories_.size(), 0.0F);
+    vector<float> oldProgressTemp(categories_.size(), -1.0F);
+    progress_ = progressTemp;
+    oldProgress_ = oldProgressTemp;
+
+    return categories_.size()-1;
 }
