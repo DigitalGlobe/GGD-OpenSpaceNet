@@ -36,6 +36,8 @@ public:
     void start();
     void stop();
     void update(size_t categoryId, float progress);
+    void setCategories(const dg::deepcore::ProgressCategories& categories);
+    size_t addCategory(std::string name, std::string description);
 
 private:
     void display();

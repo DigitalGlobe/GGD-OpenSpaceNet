@@ -101,3 +101,11 @@ void OSNProgressDisplay::display()
         progress = oldProgress_ = progress_;
     }
 }
+
+void OSNProgressDisplay::setCategories(const dg::deepcore::ProgressCategories& categories)
+{
+}
+
+size_t OSNProgressDisplay::addCategory(std::string name, std::string description)
+{
+}
