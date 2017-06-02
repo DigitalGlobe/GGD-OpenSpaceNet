@@ -371,19 +371,30 @@ void OpenSpaceNet::processConcurrent()
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
 
+    pd_->setCategories({});
+    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
+    size_t detectProgressIndex;
+    if (args_.action == Action::LANDCOVER) {
+        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
+    } else if(args_.action == Action::DETECT) {
+        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+    }
+
     if(!args_.quiet) {
         pd_->start();
     }
 
     auto numBlocks = image_->numBlocks().area();
     size_t curBlockRead = 0;
-    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, this](const cv::Point& origin, cv::Mat&& block) -> bool {
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &readProgressIndex, this](const cv::Point& origin, cv::Mat&& block) -> bool {
         {
             lock_guard<recursive_mutex> lock(queueMutex);
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        pd_->update(0, (float)++curBlockRead / numBlocks);
+        pd_->update(readProgressIndex, (float)++curBlockRead / numBlocks);
         haveWork.notify();
 
         return !pd_->cancelled();
@@ -400,7 +411,7 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize, &detectProgressIndex]() {
         while(curBlockClass < numBlocks && !pd_->cancelled()) {
             pair<cv::Point, cv::Mat> item;
             {
@@ -446,7 +457,7 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            pd_->update(1, (float)++curBlockClass / numBlocks);
+            pd_->update(detectProgressIndex, (float)++curBlockClass / numBlocks);
         }
     });
 
@@ -461,15 +472,26 @@ void OpenSpaceNet::processConcurrent()
 void OpenSpaceNet::processSerial()
 {
     skipLine();
-    OSN_LOG(info) << "Reading image...";
+    OSN_LOG(info) << "Processing...";
+
+    pd_->setCategories({});
+    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
+    size_t detectProgressIndex;
+    if (args_.action == Action::LANDCOVER) {
+        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
+    } else if(args_.action == Action::DETECT) {
+        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+    }
 
     if(!args_.quiet) {
         pd_->start();
     }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [this](float progress) -> bool {
-        pd_->update(0, progress);
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&readProgressIndex, this](float progress) -> bool {
+        pd_->update(readProgressIndex, progress);
         return !pd_->cancelled();
     });
 
@@ -504,7 +526,7 @@ void OpenSpaceNet::processSerial()
 
         progress += subsets.size();
         auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
-        pd_->update(1, (float)curProgress/50);
+        pd_->update(detectProgressIndex, (float)curProgress/50);
     }
 
     pd_->stop();

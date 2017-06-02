@@ -44,9 +44,8 @@ enum class Action
     LANDCOVER
 };
 
-class OpenSpaceNetArgs
+struct OpenSpaceNetArgs
 {
-public:
     // Input options
     Action action = Action::UNKNOWN;
     Source source = Source::UNKNOWN;

@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "CliArgsParser.h"
+#include "CliProcessor.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -85,7 +85,7 @@ static const string OSN_LANDCOVER_USAGE =
         "Usage:\n"
         "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
-CliArgsParser::CliArgsParser() :
+CliProcessor::CliProcessor() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
     outputOptions_("Output Options"),
@@ -234,7 +234,7 @@ CliArgsParser::CliArgsParser() :
     visibleOptions_.add(generalOptions_);
 }
 
-void CliArgsParser::setupArgParsing(int argc, const char* const* argv)
+void CliProcessor::setupArgParsing(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
@@ -264,23 +264,15 @@ void CliArgsParser::setupArgParsing(int argc, const char* const* argv)
 
 }
 
-void CliArgsParser::startOSNProcessing()
+void CliProcessor::startOSNProcessing()
 {
     OpenSpaceNet osn(osnArgs);
-    if (osnArgs.action == Action::LANDCOVER) {
-        std::vector<ProgressCategory> cats = {ProgressCategory("Loading", "Loading the image"),ProgressCategory("Classifying", "Classifying the image")};
-        pd_ = boost::make_shared<ConsoleProgressDisplay>(cats);
-    }
-    else{
-        std::vector<ProgressCategory> cats = {ProgressCategory("Reading", "Reading the image"),ProgressCategory("Detecting", "Detecting the object(s)")};
-        pd_= boost::make_shared<ConsoleProgressDisplay>(cats);
-    }
-
+    pd_ = boost::make_shared<ConsoleProgressDisplay>();
     osn.setProgressDisplay(pd_);
     osn.process();
 }
 
-void CliArgsParser::setupInitialLogging()
+void CliProcessor::setupInitialLogging()
 {
     log::init();
 
@@ -291,7 +283,7 @@ void CliArgsParser::setupInitialLogging()
                                  dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
-void CliArgsParser::setupLogging() {
+void CliProcessor::setupLogging() {
     osnArgs.quiet = consoleLogLevel > level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
@@ -370,7 +362,7 @@ static bool readVariable(const char* param, variables_map& vm, std::vector<T>& r
 }
 
 // Order of precedence: config files from env, env, config files from cli, cli.
-void CliArgsParser::parseArgs(int argc, const char* const* argv)
+void CliProcessor::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
     pd.add("action", 1)
@@ -424,7 +416,7 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void CliArgsParser::printUsage(Action action) const
+void CliProcessor::printUsage(Action action) const
 {
     switch(action) {
         case Action::LANDCOVER:
@@ -487,7 +479,7 @@ inline void checkArgument(const char* argumentName, ArgUse expectedUse, const st
     }
 }
 
-void CliArgsParser::validateArgs()
+void CliProcessor::validateArgs()
 {
     if (osnArgs.action == Action::HELP) {
         return;
@@ -652,7 +644,7 @@ void CliArgsParser::validateArgs()
     }
 }
 
-void CliArgsParser::promptForPassword()
+void CliProcessor::promptForPassword()
 {
     cout << "Enter your web service password: ";
     auto password = readMaskedInputFromConsole();
@@ -661,7 +653,7 @@ void CliArgsParser::promptForPassword()
 }
 
 
-void CliArgsParser::readArgs(variables_map vm, bool splitArgs) {
+void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if (readVariable("config", vm, configFiles, splitArgs)) {
@@ -704,7 +696,7 @@ void CliArgsParser::readArgs(variables_map vm, bool splitArgs) {
     readLoggingArgs(vm, splitArgs);
 }
 
-void CliArgsParser::maybeDisplayHelp(variables_map vm)
+void CliProcessor::maybeDisplayHelp(variables_map vm)
 {
     // If "action" is "help", see if there's a topic. Display all help if there isn't
     string topicStr;
@@ -720,7 +712,7 @@ void CliArgsParser::maybeDisplayHelp(variables_map vm)
     }
 }
 
-void CliArgsParser::readWebServiceArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
     mapIdSet |= readVariable("map-id", vm, osnArgs.mapId);
     readVariable("token", vm, osnArgs.token);
@@ -732,7 +724,7 @@ void CliArgsParser::readWebServiceArgs(variables_map vm, bool splitArgs)
 }
 
 
-void CliArgsParser::readOutputArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readOutputArgs(variables_map vm, bool splitArgs)
 {
     readVariable("format", vm, osnArgs.outputFormat);
     to_lower(osnArgs.outputFormat);
@@ -754,7 +746,7 @@ void CliArgsParser::readOutputArgs(variables_map vm, bool splitArgs)
     osnArgs.producerInfo = vm.find("producer-info") != end(vm);
 }
 
-void CliArgsParser::readProcessingArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
 {
     osnArgs.useCpu = vm.find("cpu") != end(vm);
     readVariable("max-utilization", vm, osnArgs.maxUtilization);
@@ -772,7 +764,7 @@ void CliArgsParser::readProcessingArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void CliArgsParser::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
 {
     confidenceSet |= readVariable("confidence", vm, osnArgs.confidence);
 
@@ -787,7 +779,7 @@ void CliArgsParser::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void CliArgsParser::readLoggingArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readLoggingArgs(variables_map vm, bool splitArgs)
 {
     if(vm.find("quiet") != end(vm)) {
         consoleLogLevel = level_t::fatal;
@@ -811,7 +803,7 @@ void CliArgsParser::readLoggingArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void CliArgsParser::parseFilterArgs(const std::vector<string>& filterList)
+void CliProcessor::parseFilterArgs(const std::vector<string>& filterList)
 {
     string filterAction = "";
     string finalEntry = "";
