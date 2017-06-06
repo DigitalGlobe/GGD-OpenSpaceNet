@@ -42,6 +42,7 @@
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
+#include <vector/FileFeatureSet.h>
 
 namespace dg { namespace osn {
 
@@ -291,7 +292,7 @@ void OpenSpaceNet::initFeatureSet()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
+    featureSet_ = make_unique<FileFeatureSet>(args_.outputPath, args_.outputFormat, openMode);
 
     if (openMode == OVERWRITE) {
         layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
@@ -317,7 +318,7 @@ void OpenSpaceNet::initFilter()
             string action = filterAction.first;
             std::vector<Polygon> filterPolys;
             for (const auto& filterFile : filterAction.second) {
-                FeatureSet filter(filterFile);
+                FileFeatureSet filter(filterFile);
                 for (auto& layer : filter) {
                     auto pixelToProj = dynamic_cast<const TransformationChain&>(*pixelToLL_);
 
