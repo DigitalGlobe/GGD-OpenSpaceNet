@@ -39,7 +39,6 @@
 #include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -82,7 +81,6 @@ using std::pair;
 using std::string;
 using std::vector;
 using std::unique_ptr;
-using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
 using dg::deepcore::MultiProgressDisplay;
