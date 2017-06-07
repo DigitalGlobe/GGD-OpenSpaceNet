@@ -39,6 +39,7 @@
 #include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <utility/DcMath.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -422,7 +423,7 @@ void OpenSpaceNet::processConcurrent()
                 Subsets subsets;
                 copy(chipper, back_inserter(subsets));
 
-                auto predictions = model_->detect(subsets);
+                auto predictions = model_->detectBoxes(subsets);
 
                 if(!args_.excludeLabels.empty()) {
                     std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
@@ -510,7 +511,7 @@ void OpenSpaceNet::processSerial()
             subsets.push_back(*it);
         }
 
-        auto predictionBatch = model_->detect(subsets);
+        auto predictionBatch = model_->detectBoxes(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
         if(detectProgress) {
