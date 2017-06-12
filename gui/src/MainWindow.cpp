@@ -33,6 +33,8 @@
 
 #include <geometry/TransformationChain.h>
 
+#include <utility/DcMath.h>
+
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ProgressWindow.h"
