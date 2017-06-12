@@ -30,7 +30,7 @@
 #include <utility/Console.h>
 #include <utility/ConsoleProgressDisplay.h>
 #include <utility/program_options.hpp>
-#include <vector/FeatureSet.h>
+#include <vector/FileFeatureSet.h>
 
 namespace dg { namespace osn {
 
@@ -63,9 +63,9 @@ using std::ofstream;
 using std::string;
 using std::unique_ptr;
 using geometry::GeometryType;
-using vector::FeatureSet;
 using dg::deepcore::ConsoleProgressDisplay;
 using dg::deepcore::ProgressCategory;
+using dg::deepcore::vector::FileFeatureSet;
 
 static const string OSN_USAGE =
     "Usage:\n"
@@ -94,7 +94,7 @@ CliProcessor::CliProcessor() :
     filterOptions_("Filtering Options"),
     loggingOptions_("Logging Options"),
     generalOptions_("General Options"),
-    supportedFormats_(FeatureSet::supportedFormats())
+    supportedFormats_(FileFeatureSet::supportedFormats())
 {
     localOptions_.add_options()
         ("image", po::value<string>()->value_name("PATH"),

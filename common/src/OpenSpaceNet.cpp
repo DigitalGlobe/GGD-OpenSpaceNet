@@ -42,6 +42,7 @@
 #include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
+#include <vector/FileFeatureSet.h>
 
 namespace dg { namespace osn {
 
@@ -80,7 +81,6 @@ using std::pair;
 using std::string;
 using std::vector;
 using std::unique_ptr;
-using dg::deepcore::almostEq;
 using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
 using dg::deepcore::ConsoleProgressDisplay;
@@ -297,7 +297,7 @@ void OpenSpaceNet::initFeatureSet()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    featureSet_ = make_unique<FeatureSet>(args_.outputPath, args_.outputFormat, openMode);
+    featureSet_ = make_unique<FileFeatureSet>(args_.outputPath, args_.outputFormat, openMode);
 
     if (openMode == OVERWRITE) {
         layer_ = featureSet_->createLayer(args_.layerName, sr_, args_.geometryType, definitions);
@@ -323,7 +323,7 @@ void OpenSpaceNet::initFilter()
             string action = filterAction.first;
             std::vector<Polygon> filterPolys;
             for (const auto& filterFile : filterAction.second) {
-                FeatureSet filter(filterFile);
+                FileFeatureSet filter(filterFile);
                 for (auto& layer : filter) {
                     auto pixelToProj = dynamic_cast<const TransformationChain&>(*pixelToLL_);
 
@@ -436,7 +436,7 @@ void OpenSpaceNet::processConcurrent()
                 Subsets subsets;
                 copy(chipper, back_inserter(subsets));
 
-                auto predictions = model_->detect(subsets);
+                auto predictions = model_->detectBoxes(subsets);
 
                 if(!args_.excludeLabels.empty()) {
                     std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
@@ -521,7 +521,7 @@ void OpenSpaceNet::processSerial()
             subsets.push_back(*it);
         }
 
-        auto predictionBatch = model_->detect(subsets);
+        auto predictionBatch = model_->detectBoxes(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
         progress += subsets.size();

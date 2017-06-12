@@ -29,7 +29,7 @@
 #include <imagery/SlidingWindow.h>
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
-#include <vector/FeatureSet.h>
+#include <vector/OgrFeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
 #include <utility/ProgressDisplay.h>
@@ -64,7 +64,7 @@ private:
     deepcore::classification::Model::Ptr model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
-    std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
+    std::unique_ptr<deepcore::vector::OgrFeatureSet> featureSet_;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
     cv::Rect bbox_;
