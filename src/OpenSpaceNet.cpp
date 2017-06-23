@@ -634,8 +634,7 @@ void OpenSpaceNet::printModel()
                   << "; Created: " << to_simple_string(from_time_t(metadata.timeCreated()));
     OSN_LOG(info) << "Description: " << metadata.description();
     OSN_LOG(info) << "Dimensions (pixels): " << metadata.modelSize()
-                  << "; Color Mode: " << metadata.colorMode()
-                  << "; Image Type: " << metadata.imageType();
+                  << "; Color Mode: " << metadata.colorMode();
     OSN_LOG(info) << "Bounding box (lat/lon): " << metadata.boundingBox();
     OSN_LOG(info) << "Labels: " << join(metadata.labels(), ", ");
 

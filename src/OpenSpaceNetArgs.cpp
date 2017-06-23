@@ -369,9 +369,9 @@ void OpenSpaceNetArgs::parseArgs(int argc, const char* const* argv)
     // parse regular and positional options
     variables_map command_line_vm;
     po::store(po::command_line_parser(argc, argv)
-                  .extra_style_parser(&po::ignore_numbers)
+                  .extra_style_parser(po::combine_style_parsers(
+                      { &po::ignore_numbers, po::postfix_argument("region") }))
                   .options(optionsDescription_)
-                  .extra_style_parser(po::postfix_argument("region"))
                   .positional(pd)
                   .run(), command_line_vm);
     po::notify(command_line_vm);
