@@ -72,6 +72,8 @@ public:
     std::string outputPath;
     std::string layerName;
     bool producerInfo = false;
+    bool dgcsCatalogID = false;
+    bool evwhsCatalogID = false;
     bool append = false;
 
     // Processing options

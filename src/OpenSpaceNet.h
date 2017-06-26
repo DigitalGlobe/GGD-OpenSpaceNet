@@ -30,6 +30,7 @@
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/OgrFeatureSet.h>
+#include <vector/WfsFeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
 
@@ -47,6 +48,7 @@ private:
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
+    void initWfs();
     void processConcurrent();
     void processSerial();
     void addFeature(const cv::Rect& window, const std::vector<deepcore::geometry::Prediction>& predictions);
@@ -56,6 +58,8 @@ private:
     deepcore::imagery::SizeSteps calcWindows() const;
     cv::Size calcPrimaryWindowSize() const;
     cv::Point calcPrimaryWindowStep() const;
+    std::string determineCatID(const cv::Point& llPoint);
+    std::string determineCatID(const std::vector<cv::Point2d>& llPoints);
 
     const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
@@ -63,6 +67,7 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::OgrFeatureSet> featureSet_;
+    std::unique_ptr<deepcore::vector::WfsFeatureSet> wfsFeatureSet_ = nullptr;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
     cv::Rect bbox_;

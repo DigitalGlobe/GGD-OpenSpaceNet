@@ -1,4 +1,4 @@
-/********************************************************************************
+    /********************************************************************************
 * Copyright 2017 DigitalGlobe, Inc.
 * Author: Joe White
 *
@@ -34,6 +34,7 @@
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/TransformationChain.h>
+#include <geos/geom/GeometryFactory.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/SlidingWindowChipper.h>
@@ -43,6 +44,8 @@
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
+#include <vector/WfsFeatureSet.h>
+#include <vector/WfsFeatureSetConfig.h>
 
 namespace dg { namespace osn {
 
@@ -85,6 +88,13 @@ using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
 using dg::deepcore::MultiProgressDisplay;
 
+namespace gg = geos::geom;
+auto deleter_ = [](gg::Geometry* geometry) {
+                    gg::GeometryFactory::getDefaultInstance()->destroyGeometry(geometry);
+                };
+
+using GGGeometryPtr = unique_ptr<gg::Geometry, decltype(deleter_)>;
+
 OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
 {
@@ -114,6 +124,9 @@ void OpenSpaceNet::process()
     printModel();
     initFilter();
     initFeatureSet();
+    if (args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        initWfs();
+    }
 
     pixelToLL.compact();
 
@@ -289,6 +302,10 @@ void OpenSpaceNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
+    if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        definitions.push_back({FieldType::STRING, "catalog_id"});
+    }
+
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FileFeatureSet>(args_.outputPath, args_.outputFormat, openMode);
@@ -358,6 +375,33 @@ void OpenSpaceNet::initFilter()
         regionFilter_ = make_unique<PassthroughRegionFilter>();
     }
 }
+
+void OpenSpaceNet::initWfs()
+{
+    WfsFeatureSetConfig config;
+    if(args_.dgcsCatalogID) {
+        OSN_LOG(info) << "Connecting to DGCS web feature service...";
+
+        map<string, string> params;
+        params["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
+        //FIXME: something like if (args_.bbox != nullptr)
+        params["bbox"] = "-117.183,37.732,-117.173,37.739";
+        config.baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
+        config.credentials = "avitebskiy:MyDG1!";
+        config.typeName = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
+        config.optionalParams = std::move(params);
+
+        wfsFeatureSet_ = make_unique<WfsFeatureSet>(std::move(config));
+        //FIXME: Warning/Log? We can continue reasonably without doing this.
+        DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
+        //FIXME: Maybe preprocess into a bufferedfeatureset.
+    } else if (args_.evwhsCatalogID) {
+        OSN_LOG(info) << "Connecting to EVWHS web feature service...";
+    }
+
+    //FIXME: Sanity check geometry type matching somehow.
+}
+
 
 void OpenSpaceNet::processConcurrent()
 {
@@ -560,13 +604,21 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
         return;
     }
 
+    Fields fields = move(createFeatureFields(predictions));
+
     switch (args_.geometryType) {
         case GeometryType::POINT:
         {
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
+
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+                auto catalogID = determineCatID(point);
+                fields["catalog_id"] = { FieldType::STRING, catalogID };
+            }
+
             layer_.addFeature(Feature(new Point(point),
-                              move(createFeatureFields(predictions))));
+                              move(fields)));
         }
             break;
 
@@ -586,8 +638,13 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+                auto catalogID = determineCatID(llPoints);
+                fields["catalog_id"] = { FieldType::STRING, catalogID };
+            }
+
             layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                      move(createFeatureFields(predictions))));
+                                      move(fields)));
         }
             break;
 
@@ -599,8 +656,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
 Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
-            { "top_score", { FieldType ::REAL, predictions[0].confidence } },
-            { "date", { FieldType ::DATE, time(nullptr) } }
+            { "top_score", { FieldType::REAL, predictions[0].confidence } },
+            { "date", { FieldType::DATE, time(nullptr) } }
     };
 
     ptree top5;
@@ -614,7 +671,7 @@ Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) 
     fields["top_five"] = Field(FieldType::STRING, oss.str());
 
     if(args_.producerInfo) {
-        fields["username"] = { FieldType ::STRING, loginUser() };
+        fields["username"] = { FieldType::STRING, loginUser() };
         fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
         fields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
@@ -707,6 +764,50 @@ SizeSteps OpenSpaceNet::calcWindows() const
     } else {
         return { { calcPrimaryWindowSize(), calcPrimaryWindowStep() } };
     }
+}
+
+std::string OpenSpaceNet::determineCatID(const cv::Point& llPoint)
+{
+    //FIXME: If we don't allow continuation on a failed connection,
+    //FIXME: add sanity check here for connected WFS. Probably need one either way
+
+    for (auto& layer: *wfsFeatureSet_) {
+        layer.setSpatialFilter(Point(llPoint));
+    }
+    return "uncataloged";
+}
+
+std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
+{   
+    //FIXME: If we don't allow continuation on a failed connection,
+    //FIXME: add sanity check here for connected WFS. Probably need one either way
+    const auto geosFactory = gg::GeometryFactory::getDefaultInstance();
+
+    auto filterPoly = Polygon(LinearRing(llPoints));
+    auto geosFilter = filterPoly.toGeos(*geosFactory);
+    auto maxIntersection = -1.0;
+    string catID = "uncataloged";
+    for (auto& layer: *wfsFeatureSet_) {
+        layer.setSpatialFilter(filterPoly);
+        for (const auto& feature : layer) {
+            if (feature.geometry) {
+                //FIXME: if (!feature.fields.count("catalogIdentifier") {
+                if (!feature.fields.count("legacyId")) {
+                    continue;
+                }
+
+                GGGeometryPtr extractGeom(feature.geometry->toGeos(*geosFactory), deleter_);
+                GGGeometryPtr intersectGeom(geosFilter->intersection(extractGeom.get()), deleter_);
+                auto intersectArea = intersectGeom->getArea();
+                if (intersectArea > maxIntersection) {
+                    maxIntersection = intersectArea;
+                    catID = boost::get<string>(feature.fields.at("legacyId").value);//FIXME("catalogIdentifier");
+                }
+            }
+        }
+    }
+    
+    return catID;
 }
 
 } } // namespace dg { namespace osn {
