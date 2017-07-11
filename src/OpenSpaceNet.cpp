@@ -34,7 +34,6 @@
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/TransformationChain.h>
-#include <geos/geom/GeometryFactory.h>
 #include <imagery/GdalImage.h>
 #include <imagery/MapBoxClient.h>
 #include <imagery/SlidingWindowChipper.h>
@@ -46,6 +45,10 @@
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
 #include <vector/WfsFeatureSet.h>
+
+#include <geometry/GeosCompat_define.h>
+#include <geos/geom/GeometryFactory.h>
+#include <geometry/GeosCompat_undef.h>
 
 namespace dg { namespace osn {
 
@@ -378,27 +381,32 @@ void OpenSpaceNet::initFilter()
 
 void OpenSpaceNet::initWfs()
 {
+    string baseUrl;
     if(args_.dgcsCatalogID) {
         OSN_LOG(info) << "Connecting to DGCS web feature service...";
-
-        auto url = Url("https://services.digitalglobe.com/catalogservice/wfsaccess");
-        url.user = "avitebskiy";
-        url.password = "MyDG1!";
-        map<string, string> query;
-        query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
-        //FIXME: something like if (args_.bbox != nullptr)
-        query["bbox"] = "-117.183,37.732,-117.173,37.739";
-        query["typeName"] = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
-        url.query = std::move(query);
-
-        wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
-        //FIXME: Warning/Log? We can continue reasonably without doing this.
-        DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
-        //FIXME: Maybe preprocess into a bufferedfeatureset.
+        baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
     } else if (args_.evwhsCatalogID) {
         OSN_LOG(info) << "Connecting to EVWHS web feature service...";
+        baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
     }
 
+    map<string, string> query;
+    query["service"] = "wfs";
+    query["version"] = "1.0.0";
+    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
+    query["request"] = "getFeature";
+    query["typeName"] = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
+    query["bbox"] = "-117.183,37.732,-117.173,37.739"; //FIXME: something like if (args_.bbox != nullptr)
+
+    auto url = Url(baseUrl);
+    url.user = "avitebskiy";
+    url.password = "MyDG1!";
+    url.query = std::move(query);
+    wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
+
+    //FIXME: Warning/Log? We can continue reasonably without doing this.
+    DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
+    //FIXME: Maybe preprocess into a bufferedfeatureset.
     //FIXME: Sanity check geometry type matching somehow.
 }
 
