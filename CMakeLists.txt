@@ -24,8 +24,6 @@ set(HEADERS
 
 add_executable(OpenSpaceNet ${SOURCE_FILES} ${HEADERS})
 
-add_definitions(-DUSE_OPENCV)
-
 # Set the build number
 if(DEFINED ENV{BUILD_NUMBER})
     set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
