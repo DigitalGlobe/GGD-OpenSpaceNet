@@ -72,10 +72,9 @@ public:
     std::string outputPath;
     std::string layerName;
     bool producerInfo = false;
-    bool dgcsCatalogID = false;
-    bool evwhsCatalogID = false;
+    bool dgcsLegacyID = false;
+    bool evwhsLegacyID = false;
     std::string wfsCredentials;
-    std::string wfsToken;
     bool append = false;
 
     // Processing options

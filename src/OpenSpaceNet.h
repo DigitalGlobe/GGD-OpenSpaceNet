@@ -58,8 +58,8 @@ private:
     deepcore::imagery::SizeSteps calcWindows() const;
     cv::Size calcPrimaryWindowSize() const;
     cv::Point calcPrimaryWindowStep() const;
-    std::string determineCatID(const cv::Point& llPoint);
-    std::string determineCatID(const std::vector<cv::Point2d>& llPoints);
+    std::string determineLegacyID(const cv::Point& llPoint);
+    std::string determineLegacyID(const std::vector<cv::Point2d>& llPoints);
 
     const OpenSpaceNetArgs& args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;

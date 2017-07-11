@@ -129,7 +129,7 @@ void OpenSpaceNet::process()
     printModel();
     initFilter();
     initFeatureSet();
-    if (args_.dgcsCatalogID || args_.evwhsCatalogID) {
+    if (args_.dgcsLegacyID || args_.evwhsLegacyID) {
         initWfs();
     }
 
@@ -307,8 +307,8 @@ void OpenSpaceNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
-    if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
-        definitions.push_back({FieldType::STRING, "catalog_id"});
+    if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+        definitions.push_back({FieldType::STRING, "legacyId"});
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
@@ -384,10 +384,10 @@ void OpenSpaceNet::initFilter()
 void OpenSpaceNet::initWfs()
 {
     string baseUrl;
-    if(args_.dgcsCatalogID) {
+    if(args_.dgcsLegacyID) {
         OSN_LOG(info) << "Connecting to DGCS web feature service...";
         baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
-    } else if (args_.evwhsCatalogID) {
+    } else if (args_.evwhsLegacyID) {
         OSN_LOG(info) << "Connecting to EVWHS web feature service...";
         baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
     }
@@ -398,11 +398,7 @@ void OpenSpaceNet::initWfs()
         wfsCreds = args_.credentials;
     }
 
-    auto wfsToken = args_.wfsToken;
-    if (wfsToken.empty()) {
-        DG_CHECK(!args_.token.empty(), "No credentials specified for WFS service");
-        wfsToken = args_.token;
-    }
+    DG_CHECK(!args_.token.empty(), "No token specified for WFS service");
 
     vector<string> splitCreds;
     boost::split(splitCreds, wfsCreds, boost::is_any_of(":"));
@@ -410,7 +406,7 @@ void OpenSpaceNet::initWfs()
     map<string, string> query;
     query["service"] = "wfs";
     query["version"] = "1.0.0";
-    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //wfsToken;
+    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //args_.token;
     query["request"] = "getFeature";
     query["typeName"] = WFS_TYPENAME;
 
@@ -644,9 +640,9 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
 
-            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
-                auto catalogID = determineCatID(point);
-                fields["catalog_id"] = { FieldType::STRING, catalogID };
+            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+                auto legacyId = determineLegacyID(point);
+                fields["legacyId"] = { FieldType::STRING, legacyId };
             }
 
             layer_.addFeature(Feature(new Point(point),
@@ -670,9 +666,9 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
-                auto catalogID = determineCatID(llPoints);
-                fields["catalog_id"] = { FieldType::STRING, catalogID };
+            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+                auto legacyId = determineLegacyID(llPoints);
+                fields["legacyId"] = { FieldType::STRING, legacyId };
             }
 
             layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
@@ -797,11 +793,10 @@ SizeSteps OpenSpaceNet::calcWindows() const
     }
 }
 
-std::string OpenSpaceNet::determineCatID(const cv::Point& llPoint)
+std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
 {
     //FIXME: If we don't allow continuation on a failed connection,
     //FIXME: add sanity check here for connected WFS. Probably need one either way
-
     auto filterPoint = Point(llPoint);
     for (auto& layer: *wfsFeatureSet_) {
         layer.setSpatialFilter(filterPoint);
@@ -819,7 +814,7 @@ std::string OpenSpaceNet::determineCatID(const cv::Point& llPoint)
     return "uncataloged";
 }
 
-std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
+std::string OpenSpaceNet::determineLegacyID(const vector<cv::Point2d>& llPoints)
 {   
     //FIXME: If we don't allow continuation on a failed connection,
     //FIXME: add sanity check here for connected WFS. Probably need one either way
@@ -828,7 +823,7 @@ std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
     auto filterPoly = Polygon(LinearRing(llPoints));
     auto geosFilter = filterPoly.toGeos(*geosFactory);
     auto maxIntersection = -1.0;
-    string catID = "uncataloged";
+    string legacyId = "uncataloged";
     for (auto& layer: *wfsFeatureSet_) {
         layer.setSpatialFilter(filterPoly);
         for (const auto& feature : layer) {
@@ -842,13 +837,13 @@ std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
                 auto intersectArea = intersectGeom->getArea();
                 if (intersectArea > maxIntersection) {
                     maxIntersection = intersectArea;
-                    catID = boost::get<string>(feature.fields.at("legacyId").value);
+                    legacyId = boost::get<string>(feature.fields.at("legacyId").value);
                 }
             }
         }
     }
     
-    return catID;
+    return legacyId;
 }
 
 } } // namespace dg { namespace osn {
