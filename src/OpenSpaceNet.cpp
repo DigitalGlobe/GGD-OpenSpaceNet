@@ -40,12 +40,12 @@
 #include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <network/Url.h>
 #include <utility/MultiProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
 #include <vector/WfsFeatureSet.h>
-#include <vector/WfsFeatureSetConfig.h>
 
 namespace dg { namespace osn {
 
@@ -378,20 +378,20 @@ void OpenSpaceNet::initFilter()
 
 void OpenSpaceNet::initWfs()
 {
-    WfsFeatureSetConfig config;
     if(args_.dgcsCatalogID) {
         OSN_LOG(info) << "Connecting to DGCS web feature service...";
 
-        map<string, string> params;
-        params["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
+        auto url = Url("https://services.digitalglobe.com/catalogservice/wfsaccess");
+        url.user = "avitebskiy";
+        url.password = "MyDG1!";
+        map<string, string> query;
+        query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
         //FIXME: something like if (args_.bbox != nullptr)
-        params["bbox"] = "-117.183,37.732,-117.173,37.739";
-        config.baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
-        config.credentials = "avitebskiy:MyDG1!";
-        config.typeName = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
-        config.optionalParams = std::move(params);
+        query["bbox"] = "-117.183,37.732,-117.173,37.739";
+        query["typeName"] = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
+        url.query = std::move(query);
 
-        wfsFeatureSet_ = make_unique<WfsFeatureSet>(std::move(config));
+        wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
         //FIXME: Warning/Log? We can continue reasonably without doing this.
         DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
         //FIXME: Maybe preprocess into a bufferedfeatureset.
