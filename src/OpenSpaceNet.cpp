@@ -427,6 +427,7 @@ void OpenSpaceNet::initWfs()
 
     if (!wfsFeatureSet_->isOpen()) {
        OSN_LOG(info) << "Failed to connect to Web Feature Service";
+       wfsFeatureSet_ = nullptr;
     }
     
     //FIXME: Maybe preprocess into a bufferedfeatureset.
@@ -642,8 +643,15 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
 
-            if((args_.dgcsLegacyID || args_.evwhsLegacyID) && wfsFeatureSet_->isOpen()) {
-                auto legacyId = determineLegacyID(point);
+            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+                string legacyId;
+                if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
+                   OSN_LOG(info) << "Web Feature Service has disconnected";
+                   legacyId = "uncataloged";
+                } else {
+                    legacyId = determineLegacyID(point);
+                }
+                
                 fields["legacyId"] = { FieldType::STRING, legacyId };
             }
 
@@ -668,8 +676,15 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            if((args_.dgcsLegacyID || args_.evwhsLegacyID) && wfsFeatureSet_->isOpen()) {
-                auto legacyId = determineLegacyID(llPoints);
+            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+                string legacyId;
+                if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
+                   OSN_LOG(info) << "Web Feature Service has disconnected";
+                   legacyId = "uncataloged";
+                } else {
+                    legacyId = determineLegacyID(llPoints);
+                }
+
                 fields["legacyId"] = { FieldType::STRING, legacyId };
             }
 
@@ -797,11 +812,6 @@ SizeSteps OpenSpaceNet::calcWindows() const
 
 std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
 {
-    if (!wfsFeatureSet_->isOpen()) {
-       OSN_LOG(info) << "Failed to connect to Web Feature Service";
-       return "uncataloged";
-    }
-
     auto filterPoint = Point(llPoint);
     for (auto& layer: *wfsFeatureSet_) {
         layer.setSpatialFilter(filterPoint);
@@ -820,12 +830,7 @@ std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
 }
 
 std::string OpenSpaceNet::determineLegacyID(const vector<cv::Point2d>& llPoints)
-{   
-    if (!wfsFeatureSet_->isOpen()) {
-       OSN_LOG(info) << "Failed to connect to Web Feature Service";
-       return "uncataloged";
-    }
-
+{
     const auto geosFactory = gg::GeometryFactory::getDefaultInstance();
 
     auto filterPoly = Polygon(LinearRing(llPoints));
