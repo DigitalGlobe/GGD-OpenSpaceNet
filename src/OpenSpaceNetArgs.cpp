@@ -139,6 +139,10 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
         ("dgcs-catalog-id", "Add catalaog_id property to detected features, by finding the most intersected catalogIdentifier from DGCS WFS")
         ("evwhs-catalog-id", "Add catalog_id property to detected features, by finding the most intersected catalogIdentifier from EVWHS WFS")
+        ("wfs-credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
+         "Credentials for the WFS service, if appending catalog id. If not specified, credentials from the credentials option will be used.")
+        ("wfs-token", po::value<string>()->value_name("WFS-TOKEN"),
+         "API token used for wfs licensing. IF not specified, API token from the token option will be used.")
         ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
         ;
 
@@ -740,6 +744,8 @@ void OpenSpaceNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
     producerInfo = vm.find("producer-info") != end(vm);
     dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
     evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
+    readVariable("wfs-token", vm, wfsToken);
+    readVariable("wfs-credentials", vm, wfsCredentials);
 }
 
 void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)

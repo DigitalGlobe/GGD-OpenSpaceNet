@@ -19,6 +19,7 @@
 #include <OpenSpaceNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
@@ -389,25 +390,38 @@ void OpenSpaceNet::initWfs()
         OSN_LOG(info) << "Connecting to EVWHS web feature service...";
         baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
     }
+    auto wfsCreds = args_.wfsCredentials;
+    if (wfsCreds.empty()) {
+        DG_CHECK(!args_.credentials.empty(), "No credentials specified for WFS service");
+        wfsCreds = args_.credentials;
+    }
+
+    auto wfsToken = args_.wfsToken;
+    if (wfsToken.empty()) {
+        DG_CHECK(!args_.token.empty(), "No credentials specified for WFS service");
+        wfsToken = args_.token;
+    }
+
+    vector<string> splitCreds;
+    boost::split(splitCreds, wfsCreds, boost::is_any_of(":"));
 
     map<string, string> query;
     query["service"] = "wfs";
     query["version"] = "1.0.0";
-    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61";
+    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //wfsToken;
     query["request"] = "getFeature";
     query["typeName"] = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
     query["bbox"] = "-117.183,37.732,-117.173,37.739"; //FIXME: something like if (args_.bbox != nullptr)
 
     auto url = Url(baseUrl);
-    url.user = "avitebskiy";
-    url.password = "MyDG1!";
+    url.user = "avitebskiy"; //splitCreds[0];
+    url.password = "MyDG1!"; //splitCreds[1];
     url.query = std::move(query);
     wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
 
     //FIXME: Warning/Log? We can continue reasonably without doing this.
     DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
     //FIXME: Maybe preprocess into a bufferedfeatureset.
-    //FIXME: Sanity check geometry type matching somehow.
 }
 
 
@@ -798,7 +812,6 @@ std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
         layer.setSpatialFilter(filterPoly);
         for (const auto& feature : layer) {
             if (feature.geometry) {
-                //FIXME: if (!feature.fields.count("catalogIdentifier") {
                 if (!feature.fields.count("legacyId")) {
                     continue;
                 }
@@ -808,7 +821,7 @@ std::string OpenSpaceNet::determineCatID(const vector<cv::Point2d>& llPoints)
                 auto intersectArea = intersectGeom->getArea();
                 if (intersectArea > maxIntersection) {
                     maxIntersection = intersectArea;
-                    catID = boost::get<string>(feature.fields.at("legacyId").value);//FIXME("catalogIdentifier");
+                    catID = boost::get<string>(feature.fields.at("legacyId").value);
                 }
             }
         }

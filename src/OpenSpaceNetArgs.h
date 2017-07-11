@@ -74,6 +74,8 @@ public:
     bool producerInfo = false;
     bool dgcsCatalogID = false;
     bool evwhsCatalogID = false;
+    std::string wfsCredentials;
+    std::string wfsToken;
     bool append = false;
 
     // Processing options
