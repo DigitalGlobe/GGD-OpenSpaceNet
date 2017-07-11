@@ -1,4 +1,4 @@
-    /********************************************************************************
+/********************************************************************************
 * Copyright 2017 DigitalGlobe, Inc.
 * Author: Joe White
 *
@@ -425,8 +425,10 @@ void OpenSpaceNet::initWfs()
     url.query = std::move(query);
     wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
 
-    //FIXME: Warning/Log? We can continue reasonably without doing this.
-    DG_CHECK(wfsFeatureSet_->isOpen(), "Failed to connect to DGCS Web Feature Service");
+    if (!wfsFeatureSet_->isOpen()) {
+       OSN_LOG(info) << "Failed to connect to Web Feature Service";
+    }
+    
     //FIXME: Maybe preprocess into a bufferedfeatureset.
 }
 
@@ -640,7 +642,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
 
-            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+            if((args_.dgcsLegacyID || args_.evwhsLegacyID) && wfsFeatureSet_->isOpen()) {
                 auto legacyId = determineLegacyID(point);
                 fields["legacyId"] = { FieldType::STRING, legacyId };
             }
@@ -666,7 +668,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+            if((args_.dgcsLegacyID || args_.evwhsLegacyID) && wfsFeatureSet_->isOpen()) {
                 auto legacyId = determineLegacyID(llPoints);
                 fields["legacyId"] = { FieldType::STRING, legacyId };
             }
@@ -795,8 +797,11 @@ SizeSteps OpenSpaceNet::calcWindows() const
 
 std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
 {
-    //FIXME: If we don't allow continuation on a failed connection,
-    //FIXME: add sanity check here for connected WFS. Probably need one either way
+    if (!wfsFeatureSet_->isOpen()) {
+       OSN_LOG(info) << "Failed to connect to Web Feature Service";
+       return "uncataloged";
+    }
+
     auto filterPoint = Point(llPoint);
     for (auto& layer: *wfsFeatureSet_) {
         layer.setSpatialFilter(filterPoint);
@@ -816,8 +821,11 @@ std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
 
 std::string OpenSpaceNet::determineLegacyID(const vector<cv::Point2d>& llPoints)
 {   
-    //FIXME: If we don't allow continuation on a failed connection,
-    //FIXME: add sanity check here for connected WFS. Probably need one either way
+    if (!wfsFeatureSet_->isOpen()) {
+       OSN_LOG(info) << "Failed to connect to Web Feature Service";
+       return "uncataloged";
+    }
+
     const auto geosFactory = gg::GeometryFactory::getDefaultInstance();
 
     auto filterPoly = Polygon(LinearRing(llPoints));
