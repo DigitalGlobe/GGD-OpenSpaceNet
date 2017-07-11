@@ -410,7 +410,7 @@ void OpenSpaceNet::initWfs()
     query["version"] = "1.0.0";
     query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //wfsToken;
     query["request"] = "getFeature";
-    query["typeName"] = "DigitalGlobe:FinishedFeature"; //FIXME: Anything else
+    query["typeName"] = "DigitalGlobe:FinishedFeature";
     query["bbox"] = "-117.183,37.732,-117.173,37.739"; //FIXME: something like if (args_.bbox != nullptr)
 
     auto url = Url(baseUrl);
