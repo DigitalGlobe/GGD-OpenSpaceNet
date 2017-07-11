@@ -86,6 +86,7 @@ using std::recursive_mutex;
 using std::ostringstream;
 using std::pair;
 using std::string;
+using std::to_string;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
@@ -390,6 +391,7 @@ void OpenSpaceNet::initWfs()
         OSN_LOG(info) << "Connecting to EVWHS web feature service...";
         baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
     }
+
     auto wfsCreds = args_.wfsCredentials;
     if (wfsCreds.empty()) {
         DG_CHECK(!args_.credentials.empty(), "No credentials specified for WFS service");
@@ -410,8 +412,16 @@ void OpenSpaceNet::initWfs()
     query["version"] = "1.0.0";
     query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //wfsToken;
     query["request"] = "getFeature";
-    query["typeName"] = "DigitalGlobe:FinishedFeature";
-    query["bbox"] = "-117.183,37.732,-117.173,37.739"; //FIXME: something like if (args_.bbox != nullptr)
+    query["typeName"] = WFS_TYPENAME;
+
+    if (args_.bbox) {
+        auto topLeft = args_.bbox->tl();
+        auto bottomRight = args_.bbox->br();
+        auto stringBbox = to_string(bottomRight.x) + "," + to_string(bottomRight.y) + "," + 
+                          to_string(topLeft.x) + "," + to_string(topLeft.y);
+
+        query["bbox"] = "-117.183,37.732,-117.173,37.739"; //stringBbox
+    }
 
     auto url = Url(baseUrl);
     url.user = "avitebskiy"; //splitCreds[0];
@@ -792,9 +802,20 @@ std::string OpenSpaceNet::determineCatID(const cv::Point& llPoint)
     //FIXME: If we don't allow continuation on a failed connection,
     //FIXME: add sanity check here for connected WFS. Probably need one either way
 
+    auto filterPoint = Point(llPoint);
     for (auto& layer: *wfsFeatureSet_) {
-        layer.setSpatialFilter(Point(llPoint));
+        layer.setSpatialFilter(filterPoint);
+        for (const auto& feature : layer) {
+            if (feature.geometry) {
+                if (!feature.fields.count("legacyId")) {
+                    continue;
+                }
+
+                return boost::get<string>(feature.fields.at("legacyId").value);
+            }
+        }
     }
+    
     return "uncataloged";
 }
 

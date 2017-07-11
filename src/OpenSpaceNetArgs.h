@@ -24,6 +24,7 @@
 
 #define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
+#define WFS_TYPENAME "DigitalGlobe:FinishedFeature"
 
 
 namespace dg { namespace osn {
@@ -64,7 +65,6 @@ public:
     std::string mapId = MAPSAPI_MAPID;
     std::string url;
     bool useTiles=false;
-
 
     // Output options
     deepcore::geometry::GeometryType geometryType = deepcore::geometry::GeometryType::POLYGON;
