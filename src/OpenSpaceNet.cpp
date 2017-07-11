@@ -657,8 +657,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
 
             layer_.addFeature(Feature(new Point(point),
                               move(fields)));
-        }
             break;
+        }
 
         case GeometryType::POLYGON:
         {
@@ -690,8 +690,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
 
             layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
                                       move(fields)));
-        }
             break;
+        }
 
         default:
             DG_ERROR_THROW("Invalid output type");
