@@ -137,8 +137,8 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
          "Output geometry type.  Currently only point and polygon are valid.")
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
-        ("dgcs-legacy-id", "Add legacyId property to detected features, by finding the most intersected legacyId from DGCS WFS")
-        ("evwhs-legacy-id", "Add legacyId property to detected features, by finding the most intersected legacyId from EVWHS WFS")
+        ("dgcs-catalog-id", "Add catalog_id property to detected features, by finding the most intersected legacyId from DGCS WFS data source DigitalGlobe:FinishedFeature")
+        ("evwhs-catalog-id", "Add catalog_id property to detected features, by finding the most intersected legacyId from EVWHS WFS data source DigitalGlobe:FinishedFeature")
         ("wfs-credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
          "Credentials for the WFS service, if appending legacyId. If not specified, credentials from the credentials option will be used.")
         ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
@@ -740,8 +740,8 @@ void OpenSpaceNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
     }
     append = vm.find("append") != end(vm);
     producerInfo = vm.find("producer-info") != end(vm);
-    dgcsLegacyID = vm.find("dgcs-legacy-id") != end(vm);
-    evwhsLegacyID = vm.find("evwhs-legacy-id") != end(vm);
+    dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
+    evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
     readVariable("wfs-credentials", vm, wfsCredentials);
 }
 

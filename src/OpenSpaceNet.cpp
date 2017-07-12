@@ -129,7 +129,7 @@ void OpenSpaceNet::process()
     printModel();
     initFilter();
     initFeatureSet();
-    if (args_.dgcsLegacyID || args_.evwhsLegacyID) {
+    if (args_.dgcsCatalogID || args_.evwhsCatalogID) {
         initWfs();
     }
 
@@ -307,8 +307,8 @@ void OpenSpaceNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
-    if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
-        definitions.push_back({FieldType::STRING, "legacyId"});
+    if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        definitions.push_back({FieldType::STRING, "catalog_id"});
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
@@ -384,10 +384,10 @@ void OpenSpaceNet::initFilter()
 void OpenSpaceNet::initWfs()
 {
     string baseUrl;
-    if(args_.dgcsLegacyID) {
+    if(args_.dgcsCatalogID) {
         OSN_LOG(info) << "Connecting to DGCS web feature service...";
         baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
-    } else if (args_.evwhsLegacyID) {
+    } else if (args_.evwhsCatalogID) {
         OSN_LOG(info) << "Connecting to EVWHS web feature service...";
         baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
     }
@@ -416,8 +416,10 @@ void OpenSpaceNet::initWfs()
         auto stringBbox = to_string(bottomRight.x) + "," + to_string(bottomRight.y) + "," + 
                           to_string(topLeft.x) + "," + to_string(topLeft.y);
 
-        query["bbox"] = "-117.183,37.732,-117.173,37.739"; //stringBbox
+        query["bbox"] = stringBbox;
     }
+
+    query["bbox"] = "-117.183,37.732,-117.173,37.739";
 
     auto url = Url(baseUrl);
     url.user = "avitebskiy"; //splitCreds[0];
@@ -643,7 +645,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
             cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
             auto point = pixelToLL_->transform(center);
 
-            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
                 string legacyId;
                 if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
                    OSN_LOG(info) << "Web Feature Service has disconnected";
@@ -652,7 +654,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                     legacyId = determineLegacyID(point);
                 }
                 
-                fields["legacyId"] = { FieldType::STRING, legacyId };
+                fields["catalog_id"] = { FieldType::STRING, legacyId };
             }
 
             layer_.addFeature(Feature(new Point(point),
@@ -676,7 +678,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                 llPoints.push_back(llPoint);
             }
 
-            if(args_.dgcsLegacyID || args_.evwhsLegacyID) {
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
                 string legacyId;
                 if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
                    OSN_LOG(info) << "Web Feature Service has disconnected";
@@ -685,7 +687,7 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
                     legacyId = determineLegacyID(llPoints);
                 }
 
-                fields["legacyId"] = { FieldType::STRING, legacyId };
+                fields["catalog_id"] = { FieldType::STRING, legacyId };
             }
 
             layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
