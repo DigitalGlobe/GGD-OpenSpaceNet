@@ -28,6 +28,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <classification/GbdxModelReader.h>
+#include <classification/CaffeModelIdentifier.h>
+#include <classification/CaffeModelPackage.h>
 #include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/CvToLog.h>
@@ -147,6 +149,7 @@ void OpenSpaceNet::process()
 
 void OpenSpaceNet::initModel()
 {
+    ModelPackage::registerFactory<CaffeModelPackage, CaffeModelIdentifier>();
     GbdxModelReader modelReader(args_.modelPath);
 
     OSN_LOG(info) << "Reading model package..." ;
@@ -405,8 +408,8 @@ void OpenSpaceNet::initWfs()
 
     map<string, string> query;
     query["service"] = "wfs";
-    query["version"] = "1.0.0";
-    query["connectid"] = "ad841639-0b9c-4ae1-84dc-7e7f1d38ea61"; //args_.token;
+    query["version"] = "1.1.0";
+    query["connectid"] = args_.token; 
     query["request"] = "getFeature";
     query["typeName"] = WFS_TYPENAME;
 
@@ -419,11 +422,9 @@ void OpenSpaceNet::initWfs()
         query["bbox"] = stringBbox;
     }
 
-    query["bbox"] = "-117.183,37.732,-117.173,37.739";
-
     auto url = Url(baseUrl);
-    url.user = "avitebskiy"; //splitCreds[0];
-    url.password = "MyDG1!"; //splitCreds[1];
+    url.user = splitCreds[0];
+    url.password = splitCreds[1];
     url.query = std::move(query);
     wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
 
@@ -431,8 +432,6 @@ void OpenSpaceNet::initWfs()
        OSN_LOG(info) << "Failed to connect to Web Feature Service";
        wfsFeatureSet_ = nullptr;
     }
-    
-    //FIXME: Maybe preprocess into a bufferedfeatureset.
 }
 
 
