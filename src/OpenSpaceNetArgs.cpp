@@ -569,6 +569,10 @@ void OpenSpaceNetArgs::validateArgs()
             DG_ERROR_THROW("Source is unknown or unspecified");
     }
 
+    if (dgcsCatalogID || evwhsCatalogID) {
+        tokenUse = REQUIRED;
+    }
+
     checkArgument("token", tokenUse, token, sourceDescription);
     checkArgument("credentials", credentialsUse, credentials, sourceDescription);
     checkArgument("map-id", mapIdUse, mapIdSet, sourceDescription);

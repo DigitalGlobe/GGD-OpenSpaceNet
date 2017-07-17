@@ -412,13 +412,14 @@ void OpenSpaceNet::initWfs()
     query["connectid"] = args_.token; 
     query["request"] = "getFeature";
     query["typeName"] = WFS_TYPENAME;
+    query["srsName"] = "EPSG:3857";
 
     if (args_.bbox) {
         auto topLeft = args_.bbox->tl();
         auto bottomRight = args_.bbox->br();
-        auto stringBbox = to_string(bottomRight.x) + "," + to_string(bottomRight.y) + "," + 
-                          to_string(topLeft.x) + "," + to_string(topLeft.y);
-
+        auto stringBbox = to_string(topLeft.x) + "," + to_string(topLeft.y) + "," + 
+                          to_string(bottomRight.x) + "," + to_string(bottomRight.y) + ",EPSG:3857";
+                          
         query["bbox"] = stringBbox;
     }
 
@@ -647,8 +648,8 @@ void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &
             if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
                 string legacyId;
                 if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
-                   OSN_LOG(info) << "Web Feature Service has disconnected";
-                   legacyId = "uncataloged";
+                    OSN_LOG(info) << "Web Feature Service has disconnected";
+                    legacyId = "uncataloged";
                 } else {
                     legacyId = determineLegacyID(point);
                 }
@@ -839,7 +840,6 @@ std::string OpenSpaceNet::determineLegacyID(const vector<cv::Point2d>& llPoints)
     auto maxIntersection = -1.0;
     string legacyId = "uncataloged";
     for (auto& layer: *wfsFeatureSet_) {
-        layer.setSpatialFilter(filterPoly);
         for (const auto& feature : layer) {
             if (feature.geometry) {
                 if (!feature.fields.count("legacyId")) {
