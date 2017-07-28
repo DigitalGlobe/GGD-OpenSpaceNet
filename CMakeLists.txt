@@ -19,6 +19,7 @@ set(OpenSpaceNet_VERSION_MAJOR 0)
 set(OpenSpaceNet_VERSION_MINOR 4)
 set(OpenSpaceNet_VERSION_PATCH 0)
 
+# Set the build number
 if(DEFINED ENV{BUILD_NUMBER})
     set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
 else()

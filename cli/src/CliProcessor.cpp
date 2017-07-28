@@ -24,6 +24,7 @@
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
+#include <classification/Classification.h>
 #include <fstream>
 #include <geometry/cv_program_options.hpp>
 #include <iomanip>
@@ -96,6 +97,8 @@ CliProcessor::CliProcessor() :
     generalOptions_("General Options"),
     supportedFormats_(FileFeatureSet::supportedFormats())
 {
+    classification::init();
+
     localOptions_.add_options()
         ("image", po::value<string>()->value_name("PATH"),
          "If this is specified, the input will be taken from a local image.")
@@ -377,9 +380,9 @@ void CliProcessor::parseArgs(int argc, const char* const* argv)
     // parse regular and positional options
     variables_map command_line_vm;
     po::store(po::command_line_parser(argc, argv)
-                  .extra_style_parser(&po::ignore_numbers)
+                  .extra_style_parser(po::combine_style_parsers(
+                      { &po::ignore_numbers, po::postfix_argument("region") }))
                   .options(optionsDescription_)
-                  .extra_style_parser(po::postfix_argument("region"))
                   .positional(pd)
                   .run(), command_line_vm);
     po::notify(command_line_vm);
