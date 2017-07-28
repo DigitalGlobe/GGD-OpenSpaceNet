@@ -16,12 +16,14 @@
 ********************************************************************************/
 
 #include <classification/Model.h>
+#include <classification/Classification.h>
 #include "OSNModelThread.h"
 
 using std::unique_ptr;
 
 void OSNModelThread::run()
 {
+    dg::deepcore::classification::init();
     dg::deepcore::classification::GbdxModelReader modelReader(modelPath_);
 
     unique_ptr<dg::deepcore::classification::ModelPackage> modelPackage(modelReader.readModel());
