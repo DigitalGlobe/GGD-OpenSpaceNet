@@ -24,6 +24,7 @@
 #include <boost/make_unique.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
+#include <classification/Classification.h>
 #include <fstream>
 #include <geometry/cv_program_options.hpp>
 #include <iomanip>
@@ -96,6 +97,8 @@ CliProcessor::CliProcessor() :
     generalOptions_("General Options"),
     supportedFormats_(FileFeatureSet::supportedFormats())
 {
+    classification::init();
+
     localOptions_.add_options()
         ("image", po::value<string>()->value_name("PATH"),
          "If this is specified, the input will be taken from a local image.")
