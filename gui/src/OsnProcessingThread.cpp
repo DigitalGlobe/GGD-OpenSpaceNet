@@ -1,6 +1,6 @@
 /********************************************************************************
 * Copyright 2017 DigitalGlobe, Inc.
-* Author: Joe White
+* Author: Kevin McGee
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
+#include "OsnProcessingThread.h"
 
-#ifndef OPENSPACENET_VERSION_H
-#define OPENSPACENET_VERSION_H
+void OsnProcessingThread::run()
+{
+    DG_CHECK(osnArgs != nullptr, "osnArgs is a null pointer before calling process");
+    dg::osn::OpenSpaceNet osn(*osnArgs);
+    osn.setProgressDisplay(pd_);
+    osn.process();
+    emit processFinished();
+}
 
-#define OPENSPACENET_VERSION_MAJOR @OpenSpaceNet_VERSION_MAJOR@
-#define OPENSPACENET_VERSION_MINOR @OpenSpaceNet_VERSION_MINOR@
-#define OPENSPACENET_VERSION_PATCH @OpenSpaceNet_VERSION_PATCH@
-#define OPENSPACENET_VERSION_BUILD @OpenSpaceNet_VERSION_BUILD@
-#define OPENSPACENET_VERSION_STRING "@OpenSpaceNet_VERSION_MAJOR@.@OpenSpaceNet_VERSION_MINOR@.@OpenSpaceNet_VERSION_PATCH@+@OpenSpaceNet_VERSION_BUILD@"
-
-#endif // OPENSPACENET_VERSION_H
+void OsnProcessingThread::setArgs(const dg::osn::OpenSpaceNetArgs& osnArgsInput, boost::shared_ptr<OSNProgressDisplay> progressDisplay)
+{
+    osnArgs = &osnArgsInput;
+    pd_ = progressDisplay;
+}

@@ -32,6 +32,7 @@
 #include <vector/OgrFeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
+#include <utility/ProgressDisplay.h>
 
 namespace dg { namespace osn {
 
@@ -40,6 +41,7 @@ class OpenSpaceNet
 public:
     OpenSpaceNet(const OpenSpaceNetArgs& args);
     void process();
+    void setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display);
 
 private:
     void initModel();
@@ -70,6 +72,7 @@ private:
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
     deepcore::vector::Layer layer_;
     deepcore::geometry::SpatialReference sr_;
+    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
 };
 
 } } // namespace dg { namespace osn {
