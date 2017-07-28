@@ -149,7 +149,6 @@ void OpenSpaceNet::process()
 
 void OpenSpaceNet::initModel()
 {
-    ModelPackage::registerFactory<CaffeModelPackage, CaffeModelIdentifier>();
     GbdxModelReader modelReader(args_.modelPath);
 
     OSN_LOG(info) << "Reading model package..." ;
