@@ -845,7 +845,6 @@ void MainWindow::importConfig(QString configPath)
         //run validation to ensure that the image is still there
         on_imagepathLineEditLostFocus();
     }
-
     //service
     std::string service;
     if(config_vm.find("service") != end(config_vm)) {
@@ -863,14 +862,12 @@ void MainWindow::importConfig(QString configPath)
         }
         ui->imageSourceComboBox->setCurrentIndex(sourceIndex);
     }
-
     //token
     QString token;
     if(config_vm.find("token") != end(config_vm)) {
         token = QString::fromStdString(config_vm["token"].as<std::string>());
         ui->tokenLineEdit->setText(token);
     }
-
     //credentials
     //only check for credentials if the service key is present in the config file, and doesn't have maps-api as its value
     if(config_vm.find("service") != end(config_vm) && service != "maps-api") {
@@ -891,14 +888,6 @@ void MainWindow::importConfig(QString configPath)
     //downloads
     if(config_vm.find("num-downloads") != end(config_vm)) {
         ui->downloadsSpinBox->setValue(config_vm["num-downloads"].as<int>());
-    }
-
-    //map id
-    if(service == "maps-api") {
-        //don't show the default map id in the UI
-        if (config_vm["mapId"].as<std::string>() != MAPSAPI_MAPID) {
-            ui->mapIdLineEdit->setText(QString::fromStdString(config_vm["mapId"].as<std::string>()));
-        }
     }
 
     //model
@@ -1007,7 +996,6 @@ void MainWindow::importConfig(QString configPath)
     if(config_vm.find("max-utilization") != end(config_vm)) {
         ui->maxUtilizationSpinBox->setValue(config_vm["max-utilization"].as<float>());
     }
-
     //window size
     if(config_vm.find("window-size") != end(config_vm)) {
         std::string windowSize = config_vm["window-size"].as<std::string>();
