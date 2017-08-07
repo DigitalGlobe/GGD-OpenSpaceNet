@@ -39,7 +39,7 @@
 #include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <utility/MultiProgressDisplay.h>
+#include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
@@ -83,7 +83,8 @@ using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
-using dg::deepcore::MultiProgressDisplay;
+using dg::deepcore::ConsoleProgressDisplay;
+using dg::deepcore::ProgressCategory;
 
 OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
     args_(args)
@@ -125,6 +126,11 @@ void OpenSpaceNet::process()
 
     OSN_LOG(info) << "Saving feature set..." ;
     featureSet_.reset();
+}
+
+void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
+{
+    pd_ = display;
 }
 
 void OpenSpaceNet::initModel()
@@ -364,29 +370,38 @@ void OpenSpaceNet::processConcurrent()
     recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
-    atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
 
-    MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
+    pd_->setCategories({});
+    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
+    size_t detectProgressIndex;
+    if (args_.action == Action::LANDCOVER) {
+        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
+    } else if(args_.action == Action::DETECT) {
+        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+    }
+
     if(!args_.quiet) {
-        progressDisplay.start();
+        pd_->start();
     }
 
     auto numBlocks = image_->numBlocks().area();
     size_t curBlockRead = 0;
-    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &progressDisplay](const cv::Point& origin, cv::Mat&& block) -> bool {
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &readProgressIndex, this](const cv::Point& origin, cv::Mat&& block) -> bool {
         {
             lock_guard<recursive_mutex> lock(queueMutex);
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        progressDisplay.update(0, (float)++curBlockRead / numBlocks);
+        pd_->update(readProgressIndex, (float)++curBlockRead / numBlocks);
         haveWork.notify();
 
-        return true;
+        return !pd_->cancelled();
     });
 
-    image_->setOnError([&cancelled, &haveWork](std::exception_ptr) {
-        cancelled.store(true);
+    image_->setOnError([&haveWork, this](std::exception_ptr) {
+        pd_->setCancelled(true);
         haveWork.notify();
     });
 
@@ -396,8 +411,8 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
-        while(curBlockClass < numBlocks && !cancelled.load()) {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize, &detectProgressIndex]() {
+        while(curBlockClass < numBlocks && !pd_->cancelled()) {
             pair<cv::Point, cv::Mat> item;
             {
                 lock_guard<recursive_mutex> lock(queueMutex);
@@ -442,12 +457,12 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            progressDisplay.update(1, (float)++curBlockClass / numBlocks);
+            pd_->update(detectProgressIndex, (float)++curBlockClass / numBlocks);
         }
     });
 
     consumerFuture.wait();
-    progressDisplay.stop();
+    pd_->stop();
 
     image_->rethrowIfError();
 
@@ -457,33 +472,30 @@ void OpenSpaceNet::processConcurrent()
 void OpenSpaceNet::processSerial()
 {
     skipLine();
-    OSN_LOG(info) << "Reading image...";
+    OSN_LOG(info) << "Processing...";
 
-    unique_ptr<boost::progress_display> openProgress;
-    if(!args_.quiet) {
-        openProgress = make_unique<boost::progress_display>(50);
+    pd_->setCategories({});
+    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
+    size_t detectProgressIndex;
+    if (args_.action == Action::LANDCOVER) {
+        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
+    } else if(args_.action == Action::DETECT) {
+        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
     }
 
+    if(!args_.quiet) {
+        pd_->start();
+    }
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
-        size_t curProgress = (size_t)roundf(progress*50);
-        if(openProgress && openProgress->count() < curProgress) {
-            *openProgress += curProgress - openProgress->count();
-        }
-        return true;
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&readProgressIndex, this](float progress) -> bool {
+        pd_->update(readProgressIndex, progress);
+        return !pd_->cancelled();
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
-    OSN_LOG(info) << "Reading time " << duration.count() << " s";
-
-    skipLine();
-    OSN_LOG(info) << "Detecting features...";
-
-    unique_ptr<boost::progress_display> detectProgress;
-    if(!args_.quiet) {
-        detectProgress = make_unique<boost::progress_display>(50);
-    }
 
     SlidingWindowChipper chipper;
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
@@ -512,17 +524,19 @@ void OpenSpaceNet::processSerial()
         auto predictionBatch = model_->detectBoxes(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
-        if(detectProgress) {
-            progress += subsets.size();
-            auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
-            if(detectProgress && detectProgress->count() < curProgress) {
-                *detectProgress += curProgress - detectProgress->count();
-            }
-        }
+        progress += subsets.size();
+        auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
+        pd_->update(detectProgressIndex, (float)curProgress/50);
     }
+
+    pd_->stop();
+
+    skipLine();
+    OSN_LOG(info) << "Reading time " << duration.count() << " s";
 
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
+    skipLine();
 
     if(!args_.excludeLabels.empty()) {
         skipLine();
