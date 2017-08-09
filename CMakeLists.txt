@@ -26,6 +26,23 @@ endif()
 # Common dependencies
 #
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
+   
+
+if(DEEPCORE_STATIC)
+    set(CMAKE_PREFIX_PATH ${DEEPCORE_DEP_DIR})
+    set(CMAKE_EXE_LINKER_FLAGS=-static)
+    add_definitions(-DCUDA_HOME=${DEEPCORE_DEP_DIR})
+    add_definitions(-DCUDA_TOOLKIT_ROOT_DIR=${DEEPCORE_DEP_DIR})
+    #setup DeepCore dependency dir.  This will mostly be used in static mode.
+    if (NOT DEEPCORE_DEP_DIR)
+        if(DEFINED ENV{DEEPCORE_DEP_DIR})
+            set(DEEPCORE_DEP_DIR $ENV{DEEPCORE_DEP_DIR})
+        else()
+            set(DEEPCORE_DEP_DIR /opt/DeepCore)
+        endif()
+    endif()
+    set(CMAKE_CXX_FLAGS "-I ${DEEPCORE_DEP_DIR}/include -L${DEEPCORE_DEP_DIR}/lib -L${DEEPCORE_DEP_DIR}/lib64 ${CMAKE_CXX_FLAGS}")    
+endif()
 
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
@@ -49,10 +66,19 @@ if (Caffe_FOUND)
     list(APPEND OSN_LINK_LIBRARIES ${Caffe_LINK})
 endif()
 
+find_package(CUDA REQUIRED)
+if (CUDA_FOUND)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    list(APPEND OSN_LINK_LIBRARIES ${CUDA_LIBRARIES})
+    if(DEEPCORE_STATIC)
+       list(APPEND OSN_LINK_LIBRARIES culibos)
+    endif() 
+endif()
+
 find_package(Jsoncpp REQUIRED)
 if(JSONCPP_FOUND)
     include_directories(${JSONCPP_INCLUDE_DIRS})
-    list(APPEND OSN_LINK_LIBRARIES ${Caffe_LINK})
+    list(APPEND OSN_LINK_LIBRARIES ${JSONCPP_LIBRARIES})
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -62,6 +88,9 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     list(APPEND OSN_LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
 endif()
+
+find_package(Threads)
+list(APPEND OSN_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
 #
 # Add sub-projects
