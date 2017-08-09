@@ -27,40 +27,22 @@ endif()
 #
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
 
+if (NOT DEEPCORE_DEP_DIR)
+    if(DEFINED ENV{DEEPCORE_DEP_DIR})
+        set(DEEPCORE_DEP_DIR $ENV{DEEPCORE_DEP_DIR})
+    else()
+        set(DEEPCORE_DEP_DIR /opt/DeepCore)
+    endif()
+endif()
+
+
+if(DEEPCORE_STATIC)
+    set(CMAKE_CXX_FLAGS "-I ${DEEPCORE_DEP_DIR}/include -L${DEEPCORE_DEP_DIR}/lib -L/${DEEPCORE_DEP_DIR}/lib64 ${CMAKE_CXX_FLAGS}")
+endif()
+
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
-    include_directories(${DEEPCORE_INCLUDE_DIRS})
     list(APPEND CMAKE_MODULE_PATH ${DEEPCORE_CMAKE_DIR})
-    list(APPEND OSN_LINK_LIBRARIES ${DEEPCORE_LIBRARIES})
-endif()
-
-find_package(Caffe REQUIRED)
-if (Caffe_FOUND)
-    if (DEEPCORE_STATIC)
-        if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-            set(Caffe_LINK -Wl,-force_load caffe)
-        elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(Caffe_LINK -Wl,--whole-archive caffe -Wl,--no-whole-archive)
-        endif()
-    else()
-        set(Caffe_LINK caffe)
-    endif()
-    include_directories(${Caffe_INCLUDE_DIRS})
-    list(APPEND OSN_LINK_LIBRARIES ${Caffe_LINK})
-endif()
-
-find_package(Jsoncpp REQUIRED)
-if(JSONCPP_FOUND)
-    include_directories(${JSONCPP_INCLUDE_DIRS})
-    list(APPEND OSN_LINK_LIBRARIES ${Caffe_LINK})
-endif()
-
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS program_options REQUIRED)
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    list(APPEND OSN_LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
 endif()
 
 #
