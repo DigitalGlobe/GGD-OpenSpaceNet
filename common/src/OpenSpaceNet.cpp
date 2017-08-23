@@ -490,7 +490,17 @@ void OpenSpaceNet::processSerialPolys()
     OSN_LOG(info) << predictions.size() << " features detected.";
 
     for(const auto& prediction : predictions) {
-        addFeature(prediction);
+        bool skip = false;
+        for(const auto& point : prediction.poly.exteriorRing.points) {
+            if(point.x < bbox_.x || point.y < bbox_.y || point.x > bbox_.width || point.y > bbox_.height) {
+                skip = true;
+                break;
+            }
+        }
+
+        if(!skip) {
+            addFeature(prediction);
+        }
     }
 }
 
