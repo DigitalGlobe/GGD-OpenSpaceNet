@@ -454,14 +454,12 @@ void OpenSpaceNet::processConcurrent()
 
                 if(!args_.excludeLabels.empty()) {
                     std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-                    auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
-                    predictions = move(filtered);
+                    predictions = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
                 }
 
                 if(!args_.includeLabels.empty()) {
                     std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-                    auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
-                    predictions = move(filtered);
+                    predictions = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
                 }
 
                 for(auto& prediction : predictions) {
@@ -511,8 +509,7 @@ void OpenSpaceNet::processSerialBoxes()
     if(args_.action != Action::LANDCOVER && args_.nms) {
         skipLine();
         OSN_LOG(info) << "Performing non-maximum suppression..." ;
-        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
-        predictions = move(filtered);
+        predictions = nonMaxSuppression(predictions, args_.overlap / 100);
     }
 
     OSN_LOG(info) << predictions.size() << " features detected.";
@@ -596,16 +593,14 @@ std::vector<T> OpenSpaceNet::processSerial()
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-        auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
-        predictions = move(filtered);
+        predictions = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
     }
 
     if(!args_.includeLabels.empty()) {
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-        auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
-        predictions = move(filtered);
+        predictions = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
     }
 
     return predictions;
