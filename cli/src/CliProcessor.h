@@ -54,9 +54,11 @@ private:
     void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readSegmentationArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void parseFilterArgs(const std::vector<std::string>& filterList);
 
+    void readModelPackage();
     void validateArgs();
 
     boost::program_options::options_description localOptions_;
@@ -64,6 +66,7 @@ private:
     boost::program_options::options_description outputOptions_;
     boost::program_options::options_description processingOptions_;
     boost::program_options::options_description detectOptions_;
+    boost::program_options::options_description segmentationOptions_;
     boost::program_options::options_description filterOptions_;
     boost::program_options::options_description loggingOptions_;
     boost::program_options::options_description generalOptions_;

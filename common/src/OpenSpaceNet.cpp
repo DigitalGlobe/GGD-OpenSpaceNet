@@ -26,23 +26,26 @@
 #include <boost/progress.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/algorithm/copy.hpp>
-#include <classification/GbdxModelReader.h>
 #include <future>
+#include <classification/CaffeSegmentation.h>
 #include <geometry/AffineTransformation.h>
+#include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
 #include <geometry/FilterLabels.h>
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
-#include <imagery/MapBoxClient.h>
-#include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <imagery/MapBoxClient.h>
+#include <imagery/RasterToPolygonDP.h>
+#include <imagery/SlidingWindowChipper.h>
 #include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
+#include <include/OpenSpaceNetArgs.h>
 
 namespace dg { namespace osn {
 
@@ -85,9 +88,10 @@ using dg::deepcore::loginUser;
 using dg::deepcore::Semaphore;
 using dg::deepcore::ConsoleProgressDisplay;
 using dg::deepcore::ProgressCategory;
+using dg::deepcore::classification::CaffeSegmentation;
 
-OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
-    args_(args)
+OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
+    args_(std::move(args))
 {
     if(args_.source > Source::LOCAL) {
         cleanup_ = HttpCleanup::get();
@@ -120,8 +124,10 @@ void OpenSpaceNet::process()
 
     if(concurrent_) {
         processConcurrent();
+    } else if(model_->modelOutput() == ModelOutput::POLYGON){
+        processSerialPolys();
     } else {
-        processSerial();
+        processSerialBoxes();
     }
 
     OSN_LOG(info) << "Saving feature set..." ;
@@ -135,19 +141,15 @@ void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDispla
 
 void OpenSpaceNet::initModel()
 {
-    GbdxModelReader modelReader(args_.modelPath);
-
-    OSN_LOG(info) << "Reading model package..." ;
-    unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
-    DG_CHECK(modelPackage, "Unable to open the model package");
-
     OSN_LOG(info) << "Reading model..." ;
 
-    model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    model_ = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    args_.modelPackage.reset();
+
     modelAspectRatio_ = (float) model_->metadata().modelSize().height / model_->metadata().modelSize().width;
 
     float confidence = 0;
-    if(args_.action == Action::LANDCOVER) {
+    if(args_.action == Action::LANDCOVER && model_->modelOutput() == ModelOutput::BOX) {
         const auto& blockSize = image_->blockSize();
         auto windowSize = calcPrimaryWindowSize();
         if (args_.windowSize.size() < 2) {
@@ -174,6 +176,18 @@ void OpenSpaceNet::initModel()
                       model_->metadata().modelSize().width)
         }
     }
+
+    if(model_->metadata().category() == "segmentation") {
+        initSegmentation();
+    }
+}
+
+void OpenSpaceNet::initSegmentation()
+{
+    auto model = dynamic_cast<CaffeSegmentation*>(model_.get());
+    DG_CHECK(model, "Unsupported model type: only Caffe segmentation models are currently supported");
+
+    model->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -453,7 +467,7 @@ void OpenSpaceNet::processConcurrent()
                 for(auto& prediction : predictions) {
                     prediction.window.x += item.first.x;
                     prediction.window.y += item.first.y;
-                    addFeature(prediction.window, prediction.predictions);
+                    addFeature((PredictionPoly)prediction);
                 }
             }
 
@@ -469,7 +483,37 @@ void OpenSpaceNet::processConcurrent()
     skipLine();
 }
 
-void OpenSpaceNet::processSerial()
+void OpenSpaceNet::processSerialPolys()
+{
+    auto predictions = processSerial<PredictionPoly>();
+
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
+    for(const auto& prediction : predictions) {
+        addFeature(prediction);
+    }
+}
+
+void OpenSpaceNet::processSerialBoxes()
+{
+    auto predictions = processSerial<PredictionBox>();
+
+    if(args_.action != Action::LANDCOVER && args_.nms) {
+        skipLine();
+        OSN_LOG(info) << "Performing non-maximum suppression..." ;
+        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
+        predictions = move(filtered);
+    }
+
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
+    for(const auto& prediction : predictions) {
+        addFeature((PredictionPoly)prediction);
+    }
+}
+
+template<class T>
+std::vector<T> OpenSpaceNet::processSerial()
 {
     skipLine();
     OSN_LOG(info) << "Processing...";
@@ -510,7 +554,7 @@ void OpenSpaceNet::processSerial()
     }
     chipper.setFilter(std::move(regionFilter_->clone()));
     auto it = chipper.begin();
-    std::vector<PredictionBox> predictions;
+    std::vector<T> predictions;
     int progress = 0;
 
     startTime = high_resolution_clock::now();
@@ -521,7 +565,7 @@ void OpenSpaceNet::processSerial()
             subsets.push_back(*it);
         }
 
-        auto predictionBatch = model_->detectBoxes(subsets);
+        auto predictionBatch = model_->detect<T>(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
         progress += subsets.size();
@@ -554,54 +598,30 @@ void OpenSpaceNet::processSerial()
         predictions = move(filtered);
     }
 
-    if(args_.action != Action::LANDCOVER && args_.nms) {
-        skipLine();
-        OSN_LOG(info) << "Performing non-maximum suppression..." ;
-        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
-        predictions = move(filtered);
-    }
+    return predictions;
+};
 
-    OSN_LOG(info) << predictions.size() << " features detected.";
-
-    for(const auto& prediction : predictions) {
-        addFeature(prediction.window, prediction.predictions);
-    }
-}
-
-void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const deepcore::geometry::PredictionPoly& predictionPoly)
 {
-    if(predictions.empty()) {
+    if(predictionPoly.predictions.empty()) {
         return;
     }
 
     switch (args_.geometryType) {
         case GeometryType::POINT:
         {
-            cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+            auto center = centroid(predictionPoly.poly);
             auto point = pixelToLL_->transform(center);
             layer_.addFeature(Feature(new Point(point),
-                              move(createFeatureFields(predictions))));
+                              move(createFeatureFields(predictionPoly.predictions))));
         }
             break;
 
         case GeometryType::POLYGON:
         {
-            std::vector<cv::Point> points = {
-                    window.tl(),
-                    { window.x + window.width, window.y },
-                    window.br(),
-                    { window.x, window.y + window.height },
-                    window.tl()
-            };
-
-            std::vector<cv::Point2d> llPoints;
-            for(const auto& point : points) {
-                auto llPoint = pixelToLL_->transform(point);
-                llPoints.push_back(llPoint);
-            }
-
-            layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                      move(createFeatureFields(predictions))));
+            auto transformed = predictionPoly.poly.transform(*pixelToLL_);
+            layer_.addFeature(Feature((Polygon*)transformed.release(),
+                                      move(createFeatureFields(predictionPoly.predictions))));
         }
             break;
 

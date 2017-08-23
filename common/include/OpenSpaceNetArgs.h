@@ -18,6 +18,8 @@
 #ifndef OPENSPACENET_OPENSPACENETARGS_H
 #define OPENSPACENET_OPENSPACENETARGS_H
 
+#include <imagery/RasterToPolygonDP.h>
+#include <classification/ModelPackage.h>
 #include <vector/Feature.h>
 
 #define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
@@ -71,10 +73,12 @@ struct OpenSpaceNetArgs
     bool producerInfo = false;
     bool append = false;
 
+
     // Processing options
+    std::string modelPath;
+    std::unique_ptr<deepcore::classification::ModelPackage> modelPackage;
     bool useCpu = false;
     float maxUtilization = 95;
-    std::string modelPath;
     std::vector<int> windowSize;
     std::vector<int> windowStep;
     std::unique_ptr<int> resampledSize;
@@ -87,6 +91,11 @@ struct OpenSpaceNetArgs
     std::vector<std::string> includeLabels;
     std::vector<std::string> excludeLabels;
     std::vector<std::pair<std::string, std::vector<std::string>>> filterDefinition;
+
+    // Segmentation options
+    deepcore::imagery::RasterToPolygonDP::Method method = deepcore::imagery::RasterToPolygonDP::SIMPLE;
+    double epsilon = 3.0;
+    double minArea = 0.0;
 
     // Logging options
     bool quiet = false;

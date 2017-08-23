@@ -45,7 +45,9 @@ int main (int argc, const char* const* argv)
     try {
         CliProcessor osnCliProcessor;
         osnCliProcessor.setupArgParsing(argc, argv);
-        osnCliProcessor.startOSNProcessing();
+        if(osnCliProcessor.osnArgs.action != Action::HELP) {
+            osnCliProcessor.startOSNProcessing();
+        }
     } catch (const Error& e) {
         DG_ERROR_LOG(OpenSpaceNet, e);
         return 1;
