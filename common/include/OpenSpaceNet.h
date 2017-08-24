@@ -49,6 +49,8 @@ private:
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
+    void startProgressDisplay();
+    bool isCancelled();
     void processConcurrent();
     void processSerial();
     void addFeature(const cv::Rect& window, const std::vector<deepcore::geometry::Prediction>& predictions);
@@ -73,6 +75,7 @@ private:
     deepcore::vector::Layer layer_;
     deepcore::geometry::SpatialReference sr_;
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
+    std::string classifyCategory_;
 };
 
 } } // namespace dg { namespace osn {
