@@ -51,6 +51,8 @@ private:
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
+    void startProgressDisplay();
+    bool isCancelled();
     void processConcurrent();
 
     void processSerialBoxes();
@@ -81,6 +83,7 @@ private:
     deepcore::vector::Layer layer_;
     deepcore::geometry::SpatialReference sr_;
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
+    std::string classifyCategory_;
 };
 
 } } // namespace dg { namespace osn {

@@ -85,6 +85,7 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::ProgressCategories;
 using dg::deepcore::Semaphore;
 using dg::deepcore::ConsoleProgressDisplay;
 using dg::deepcore::ProgressCategory;
@@ -379,43 +380,64 @@ void OpenSpaceNet::initFilter()
     }
 }
 
+void OpenSpaceNet::startProgressDisplay()
+{
+    if(!pd_ || args_.quiet) {
+        return;
+    }
+
+    ProgressCategories categories = {
+        {"Reading", "Reading the image" }
+    };
+
+    if (args_.action == Action::LANDCOVER) {
+        categories.emplace_back("Classifying", "Classifying the image");
+        classifyCategory_ = "Classifying";
+    } else if(args_.action == Action::DETECT) {
+        categories.emplace_back("Detecting", "Detecting the object(s)");
+        classifyCategory_ = "Detecting";
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+    }
+
+    pd_->setCategories(move(categories));
+    pd_->start();
+}
+
+bool OpenSpaceNet::isCancelled()
+{
+    return !pd_ || pd_->isCancelled();
+}
+
 void OpenSpaceNet::processConcurrent()
 {
     recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
 
-    pd_->setCategories({});
-    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
-    size_t detectProgressIndex;
-    if (args_.action == Action::LANDCOVER) {
-        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
-    } else if(args_.action == Action::DETECT) {
-        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
-    } else {
-        DG_ERROR_THROW("Invalid action called during processConcurrent()");
-    }
-
-    if(!args_.quiet) {
-        pd_->start();
-    }
+    startProgressDisplay();
 
     auto numBlocks = image_->numBlocks().area();
     size_t curBlockRead = 0;
-    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &readProgressIndex, this](const cv::Point& origin, cv::Mat&& block) -> bool {
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, this](const cv::Point& origin, cv::Mat&& block) -> bool {
         {
             lock_guard<recursive_mutex> lock(queueMutex);
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        pd_->update(readProgressIndex, (float)++curBlockRead / numBlocks);
+        if(pd_) {
+            pd_->update("Reading", (float)++curBlockRead / numBlocks);
+        }
         haveWork.notify();
 
-        return !pd_->cancelled();
+        return isCancelled();
     });
 
     image_->setOnError([&haveWork, this](std::exception_ptr) {
-        pd_->setCancelled(true);
+        if(pd_) {
+            pd_->stop();
+        }
+
         haveWork.notify();
     });
 
@@ -425,8 +447,8 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize, &detectProgressIndex]() {
-        while(curBlockClass < numBlocks && !pd_->cancelled()) {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
+        while(curBlockClass < numBlocks && !isCancelled()) {
             pair<cv::Point, cv::Mat> item;
             {
                 lock_guard<recursive_mutex> lock(queueMutex);
@@ -469,12 +491,16 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            pd_->update(detectProgressIndex, (float)++curBlockClass / numBlocks);
+            if(pd_) {
+                pd_->update(classifyCategory_, (float)++curBlockClass / numBlocks);
+            }
         }
     });
 
     consumerFuture.wait();
-    pd_->stop();
+    if(pd_) {
+        pd_->stop();
+    }
 
     image_->rethrowIfError();
 
@@ -525,25 +551,14 @@ std::vector<T> OpenSpaceNet::processSerial()
     skipLine();
     OSN_LOG(info) << "Processing...";
 
-    pd_->setCategories({});
-    size_t readProgressIndex = pd_->addCategory("Reading", "Reading the image");
-    size_t detectProgressIndex;
-    if (args_.action == Action::LANDCOVER) {
-        detectProgressIndex = pd_->addCategory("Classifying", "Classifying the image");
-    } else if(args_.action == Action::DETECT) {
-        detectProgressIndex = pd_->addCategory("Detecting", "Detecting the object(s)");
-    } else {
-        DG_ERROR_THROW("Invalid action called during processConcurrent()");
-    }
-
-    if(!args_.quiet) {
-        pd_->start();
-    }
+    startProgressDisplay();
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&readProgressIndex, this](float progress) -> bool {
-        pd_->update(readProgressIndex, progress);
-        return !pd_->cancelled();
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [this](float progress) -> bool {
+        if(pd_) {
+            pd_->update("Reading", progress);
+        }
+        return !isCancelled();
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
@@ -576,11 +591,15 @@ std::vector<T> OpenSpaceNet::processSerial()
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
         progress += subsets.size();
-        auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
-        pd_->update(detectProgressIndex, (float)curProgress/50);
+        auto curProgress = (progress + it.skipped()) / (float)chipper.slidingWindow().totalWindows();
+        if(pd_) {
+            pd_->update(classifyCategory_, (float)curProgress);
+        }
     }
 
-    pd_->stop();
+    if(pd_) {
+        pd_->stop();
+    }
 
     skipLine();
     OSN_LOG(info) << "Reading time " << duration.count() << " s";
