@@ -22,6 +22,7 @@
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <geometry/Prediction.h>
+#include <geometry/Polygon.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/MaskedRegionFilter.h>
 #include <imagery/GeoImage.h>
@@ -39,12 +40,13 @@ namespace dg { namespace osn {
 class OpenSpaceNet
 {
 public:
-    OpenSpaceNet(const OpenSpaceNetArgs& args);
+    OpenSpaceNet(OpenSpaceNetArgs&& args);
     void process();
     void setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display);
 
 private:
     void initModel();
+    void initSegmentation();
     void initLocalImage();
     void initMapServiceImage();
     void initFeatureSet();
@@ -52,8 +54,14 @@ private:
     void startProgressDisplay();
     bool isCancelled();
     void processConcurrent();
-    void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::geometry::Prediction>& predictions);
+
+    void processSerialBoxes();
+    void processSerialPolys();
+
+    template<class T>
+    std::vector<T> processSerial();
+
+    void addFeature(const deepcore::geometry::PredictionPoly& predictionPoly);
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::geometry::Prediction> &predictions);
     void printModel();
     void skipLine() const;
@@ -61,7 +69,7 @@ private:
     cv::Size calcPrimaryWindowSize() const;
     cv::Point calcPrimaryWindowStep() const;
 
-    const OpenSpaceNetArgs& args_;
+    OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     deepcore::classification::Model::Ptr model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;

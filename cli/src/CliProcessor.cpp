@@ -25,6 +25,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
 #include <classification/Classification.h>
+#include <classification/GbdxModelReader.h>
 #include <fstream>
 #include <geometry/cv_program_options.hpp>
 #include <iomanip>
@@ -66,6 +67,8 @@ using std::unique_ptr;
 using geometry::GeometryType;
 using dg::deepcore::ConsoleProgressDisplay;
 using dg::deepcore::ProgressCategory;
+using dg::deepcore::classification::GbdxModelReader;
+using dg::deepcore::imagery::RasterToPolygonDP;
 using dg::deepcore::vector::FileFeatureSet;
 
 static const string OSN_USAGE =
@@ -92,6 +95,7 @@ CliProcessor::CliProcessor() :
     outputOptions_("Output Options"),
     processingOptions_("Processing Options"),
     detectOptions_("Feature Detection Options"),
+    segmentationOptions_("Segmentation Options"),
     filterOptions_("Filtering Options"),
     loggingOptions_("Logging Options"),
     generalOptions_("General Options"),
@@ -172,6 +176,15 @@ CliProcessor::CliProcessor() :
          "for non-maximum suppression calculation.")
         ;
 
+    segmentationOptions_.add_options()
+        ("r2p-method", po::value<std::string>()->value_name(name_with_default("METHOD", "simple")),
+         "Raster-to-polygon approximation method. Valid values are: none, simple, tc89-l1, tc89-kcos.")
+        ("r2p-accuracy", po::value<double>()->value_name(name_with_default("EPSILON", 3.0)),
+         "Approximation accuracy for the raster-to-polygon operation.")
+        ("r2p-min-area", po::value<double>()->value_name(name_with_default("AREA", 0.0)),
+         "Minimum polygon area (in pixels).")
+        ;
+
     filterOptions_.add_options()
         ("include-labels", po::value<std::vector<string>>()->multitoken()->value_name("LABEL [LABEL...]"),
          "Filter results to only include specified labels.")
@@ -202,6 +215,7 @@ CliProcessor::CliProcessor() :
     optionsDescription_.add(outputOptions_);
     optionsDescription_.add(processingOptions_);
     optionsDescription_.add(detectOptions_);
+    optionsDescription_.add(segmentationOptions_);
     optionsDescription_.add(filterOptions_);
     optionsDescription_.add(loggingOptions_);
     optionsDescription_.add(generalOptions_);
@@ -232,6 +246,7 @@ CliProcessor::CliProcessor() :
     visibleOptions_.add(outputOptions_);
     visibleOptions_.add(processingOptions_);
     visibleOptions_.add(detectOptions_);
+    visibleOptions_.add(segmentationOptions_);
     visibleOptions_.add(filterOptions_);
     visibleOptions_.add(loggingOptions_);
     visibleOptions_.add(generalOptions_);
@@ -263,13 +278,11 @@ void CliProcessor::setupArgParsing(int argc, const char* const* argv)
     }
 
     setupLogging();
-
-
 }
 
 void CliProcessor::startOSNProcessing()
 {
-    OpenSpaceNet osn(osnArgs);
+    OpenSpaceNet osn(std::move(osnArgs));
     pd_ = boost::make_shared<ConsoleProgressDisplay>();
     osn.setProgressDisplay(pd_);
     osn.process();
@@ -482,6 +495,16 @@ inline void checkArgument(const char* argumentName, ArgUse expectedUse, const st
     }
 }
 
+void CliProcessor::readModelPackage()
+{
+    GbdxModelReader modelReader(osnArgs.modelPath);
+
+    OSN_LOG(info) << "Reading model package..." ;
+
+    osnArgs.modelPackage = modelReader.readModel();
+    DG_CHECK(osnArgs.modelPackage, "Unable to open the model package");
+}
+
 void CliProcessor::validateArgs()
 {
     if (osnArgs.action == Action::HELP) {
@@ -513,7 +536,7 @@ void CliProcessor::validateArgs()
             break;
 
         default:
-            DG_ERROR_THROW("Invalid action");
+            DG_ERROR_THROW("Invalid action.\nTry 'OpenSpaceNet help' for more information.");
     }
 
     checkArgument("window-step", windowStepUse, osnArgs.windowStep, actionDescription);
@@ -590,6 +613,7 @@ void CliProcessor::validateArgs()
     // Validate model and detection
     //
     checkArgument("model", REQUIRED, osnArgs.modelPath);
+
     DG_CHECK(osnArgs.includeLabels.empty() || osnArgs.excludeLabels.empty(),
              "Arguments --include-labels and --exclude-labels may not be specified at the same time");
 
@@ -601,7 +625,6 @@ void CliProcessor::validateArgs()
                  osnArgs.windowSize.size() == osnArgs.windowStep.size(),
                  "Arguments --window-size and --window-step must match in length");
     }
-
 
     //
     // Validate output
@@ -697,6 +720,12 @@ void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
     readOutputArgs(vm, splitArgs);
     readFeatureDetectionArgs(vm, splitArgs);
     readLoggingArgs(vm, splitArgs);
+
+    if(!osnArgs.modelPath.empty()) {
+        readModelPackage();
+    }
+
+    readSegmentationArgs(vm, splitArgs);
 }
 
 void CliProcessor::maybeDisplayHelp(variables_map vm)
@@ -767,7 +796,7 @@ void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool /* splitArgs */)
 {
     confidenceSet |= readVariable("confidence", vm, osnArgs.confidence);
 
@@ -779,6 +808,43 @@ void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
         if(args.size()) {
             osnArgs.overlap = args[0];
         }
+    }
+}
+
+void CliProcessor::readSegmentationArgs(boost::program_options::variables_map vm, bool /* splitArgs */)
+{
+    bool isSegmentation = (osnArgs.modelPackage && osnArgs.modelPackage->metadata().category() == "segmentation");
+    static const char* CAUSE = "input model is not a segmentation model.";
+
+    string method;
+    if(readVariable("r2p-method", vm, method)) {
+        if(iequals(method, "none")) {
+            osnArgs.method = RasterToPolygonDP::NONE;
+        } else if(iequals(method, "simple")) {
+            osnArgs.method = RasterToPolygonDP::SIMPLE;
+        } else if(iequals(method, "tc89-l1")) {
+            osnArgs.method = RasterToPolygonDP::TC89_L1;
+        } else if(iequals(method, "tc89-kcos")) {
+            osnArgs.method = RasterToPolygonDP::TC89_KCOS;
+        } else {
+            DG_ERROR_THROW("Invalid --r2p-method parameter: '%s'", method.c_str());
+        }
+
+        if(!isSegmentation) {
+            checkArgument("r2p-method", IGNORED, true, CAUSE);
+        }
+    }
+
+    if(readVariable("r2p-accuracy", vm, osnArgs.epsilon) && !isSegmentation) {
+        checkArgument("r2p-accuracy", IGNORED, true, CAUSE);
+    }
+
+    if(readVariable("r2p-min-area", vm, osnArgs.minArea) && !isSegmentation) {
+        checkArgument("r2p-min-area", IGNORED, true, CAUSE);
+    }
+
+    if(isSegmentation && vm.count("nms")) {
+        checkArgument("nms", IGNORED, true, "when a segmentation model is specified.");
     }
 }
 
