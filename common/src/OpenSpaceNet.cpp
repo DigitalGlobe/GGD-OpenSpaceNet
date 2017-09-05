@@ -425,7 +425,7 @@ void OpenSpaceNet::processConcurrent()
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        if(pd_) {
+        if(pd_ && !args_.quiet) {
             pd_->update("Reading", (float)++curBlockRead / numBlocks);
         }
         haveWork.notify();
@@ -434,7 +434,7 @@ void OpenSpaceNet::processConcurrent()
     });
 
     image_->setOnError([&haveWork, this](std::exception_ptr) {
-        if(pd_) {
+        if(pd_ && !args_.quiet) {
             pd_->stop();
         }
 
@@ -491,14 +491,14 @@ void OpenSpaceNet::processConcurrent()
                 }
             }
 
-            if(pd_) {
+            if(pd_ && !args_.quiet) {
                 pd_->update(classifyCategory_, (float)++curBlockClass / numBlocks);
             }
         }
     });
 
     consumerFuture.wait();
-    if(pd_) {
+    if(pd_ && !args_.quiet) {
         pd_->stop();
     }
 
@@ -555,7 +555,7 @@ std::vector<T> OpenSpaceNet::processSerial()
 
     auto startTime = high_resolution_clock::now();
     auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [this](float progress) -> bool {
-        if(pd_) {
+        if(pd_ && !args_.quiet) {
             pd_->update("Reading", progress);
         }
         return !isCancelled();
@@ -592,12 +592,12 @@ std::vector<T> OpenSpaceNet::processSerial()
 
         progress += subsets.size();
         auto curProgress = (progress + it.skipped()) / (float)chipper.slidingWindow().totalWindows();
-        if(pd_) {
+        if(pd_ && !args_.quiet) {
             pd_->update(classifyCategory_, (float)curProgress);
         }
     }
 
-    if(pd_) {
+    if(pd_ && !args_.quiet) {
         pd_->stop();
     }
 
