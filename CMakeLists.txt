@@ -44,6 +44,12 @@ if(DEEPCORE_STATIC)
     set(CMAKE_CXX_FLAGS "-I ${DEEPCORE_DEP_DIR}/include -L${DEEPCORE_DEP_DIR}/lib -L${DEEPCORE_DEP_DIR}/lib64 ${CMAKE_CXX_FLAGS}")    
 endif()
 
+# From the CaffeConfig.cmake file
+#   Caffe and this config file depends on opencv,
+#   so put `find_package(OpenCV)` before searching Caffe
+#   via `find_package(Caffe)`. All other lib/includes
+#   dependencies are hard coded in the file
+find_package(OpenCV)
 find_package(DeepCore REQUIRED)
 if (DeepCore_FOUND)
     include_directories(${DEEPCORE_INCLUDE_DIRS})
