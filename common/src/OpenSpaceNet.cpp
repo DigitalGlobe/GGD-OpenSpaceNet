@@ -26,23 +26,26 @@
 #include <boost/progress.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/algorithm/copy.hpp>
-#include <classification/GbdxModelReader.h>
 #include <future>
+#include <classification/CaffeSegmentation.h>
 #include <geometry/AffineTransformation.h>
+#include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
 #include <geometry/FilterLabels.h>
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
-#include <imagery/MapBoxClient.h>
-#include <imagery/SlidingWindowChipper.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
-#include <utility/MultiProgressDisplay.h>
+#include <imagery/MapBoxClient.h>
+#include <imagery/RasterToPolygonDP.h>
+#include <imagery/SlidingWindowChipper.h>
+#include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
+#include <include/OpenSpaceNetArgs.h>
 
 namespace dg { namespace osn {
 
@@ -82,11 +85,14 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::ProgressCategories;
 using dg::deepcore::Semaphore;
-using dg::deepcore::MultiProgressDisplay;
+using dg::deepcore::ConsoleProgressDisplay;
+using dg::deepcore::ProgressCategory;
+using dg::deepcore::classification::CaffeSegmentation;
 
-OpenSpaceNet::OpenSpaceNet(const OpenSpaceNetArgs &args) :
-    args_(args)
+OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
+    args_(std::move(args))
 {
     if(args_.source > Source::LOCAL) {
         cleanup_ = HttpCleanup::get();
@@ -119,29 +125,32 @@ void OpenSpaceNet::process()
 
     if(concurrent_) {
         processConcurrent();
+    } else if(model_->modelOutput() == ModelOutput::POLYGON){
+        processSerialPolys();
     } else {
-        processSerial();
+        processSerialBoxes();
     }
 
     OSN_LOG(info) << "Saving feature set..." ;
     featureSet_.reset();
 }
 
+void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
+{
+    pd_ = display;
+}
+
 void OpenSpaceNet::initModel()
 {
-    GbdxModelReader modelReader(args_.modelPath);
-
-    OSN_LOG(info) << "Reading model package..." ;
-    unique_ptr<ModelPackage> modelPackage(modelReader.readModel());
-    DG_CHECK(modelPackage, "Unable to open the model package");
-
     OSN_LOG(info) << "Reading model..." ;
 
-    model_ = Model::create(*modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    model_ = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    args_.modelPackage.reset();
+
     modelAspectRatio_ = (float) model_->metadata().modelSize().height / model_->metadata().modelSize().width;
 
     float confidence = 0;
-    if(args_.action == Action::LANDCOVER) {
+    if(args_.action == Action::LANDCOVER && model_->modelOutput() == ModelOutput::BOX) {
         const auto& blockSize = image_->blockSize();
         auto windowSize = calcPrimaryWindowSize();
         if (args_.windowSize.size() < 2) {
@@ -168,6 +177,18 @@ void OpenSpaceNet::initModel()
                       model_->metadata().modelSize().width)
         }
     }
+
+    if(model_->metadata().category() == "segmentation") {
+        initSegmentation();
+    }
+}
+
+void OpenSpaceNet::initSegmentation()
+{
+    auto model = dynamic_cast<CaffeSegmentation*>(model_.get());
+    DG_CHECK(model, "Unsupported model type: only Caffe segmentation models are currently supported");
+
+    model->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
 void OpenSpaceNet::initLocalImage()
@@ -359,34 +380,64 @@ void OpenSpaceNet::initFilter()
     }
 }
 
+void OpenSpaceNet::startProgressDisplay()
+{
+    if(!pd_ || args_.quiet) {
+        return;
+    }
+
+    ProgressCategories categories = {
+        {"Reading", "Reading the image" }
+    };
+
+    if (args_.action == Action::LANDCOVER) {
+        categories.emplace_back("Classifying", "Classifying the image");
+        classifyCategory_ = "Classifying";
+    } else if(args_.action == Action::DETECT) {
+        categories.emplace_back("Detecting", "Detecting the object(s)");
+        classifyCategory_ = "Detecting";
+    } else {
+        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+    }
+
+    pd_->setCategories(move(categories));
+    pd_->start();
+}
+
+bool OpenSpaceNet::isCancelled()
+{
+    return !pd_ || pd_->isCancelled();
+}
+
 void OpenSpaceNet::processConcurrent()
 {
     recursive_mutex queueMutex;
     deque<pair<cv::Point, cv::Mat>> blockQueue;
     Semaphore haveWork;
-    atomic<bool> cancelled = ATOMIC_VAR_INIT(false);
 
-    MultiProgressDisplay progressDisplay({ "Loading", "Classifying" });
-    if(!args_.quiet) {
-        progressDisplay.start();
-    }
+    startProgressDisplay();
 
     auto numBlocks = image_->numBlocks().area();
     size_t curBlockRead = 0;
-    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, &progressDisplay](const cv::Point& origin, cv::Mat&& block) -> bool {
+    image_->setReadFunc([&blockQueue, &queueMutex, &haveWork, &curBlockRead, numBlocks, this](const cv::Point& origin, cv::Mat&& block) -> bool {
         {
             lock_guard<recursive_mutex> lock(queueMutex);
             blockQueue.push_front(make_pair(origin, std::move(block)));
         }
 
-        progressDisplay.update(0, (float)++curBlockRead / numBlocks);
+        if(pd_ && !args_.quiet) {
+            pd_->update("Reading", (float)++curBlockRead / numBlocks);
+        }
         haveWork.notify();
 
-        return true;
+        return isCancelled();
     });
 
-    image_->setOnError([&cancelled, &haveWork](std::exception_ptr) {
-        cancelled.store(true);
+    image_->setOnError([&haveWork, this](std::exception_ptr) {
+        if(pd_ && !args_.quiet) {
+            pd_->stop();
+        }
+
         haveWork.notify();
     });
 
@@ -396,8 +447,8 @@ void OpenSpaceNet::processConcurrent()
     auto filter = regionFilter_.get();
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
-    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, &cancelled, &progressDisplay, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
-        while(curBlockClass < numBlocks && !cancelled.load()) {
+    auto consumerFuture = async(launch::async, [this, &blockQueue, &queueMutex, &haveWork, numBlocks, &curBlockRead, &curBlockClass, &filter, &windowSizes, &resampledSize]() {
+        while(curBlockClass < numBlocks && !isCancelled()) {
             pair<cv::Point, cv::Mat> item;
             {
                 lock_guard<recursive_mutex> lock(queueMutex);
@@ -425,65 +476,92 @@ void OpenSpaceNet::processConcurrent()
 
                 if(!args_.excludeLabels.empty()) {
                     std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-                    auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
-                    predictions = move(filtered);
+                    predictions = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
                 }
 
                 if(!args_.includeLabels.empty()) {
                     std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-                    auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
-                    predictions = move(filtered);
+                    predictions = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
                 }
 
                 for(auto& prediction : predictions) {
                     prediction.window.x += item.first.x;
                     prediction.window.y += item.first.y;
-                    addFeature(prediction.window, prediction.predictions);
+                    addFeature((PredictionPoly)prediction);
                 }
             }
 
-            progressDisplay.update(1, (float)++curBlockClass / numBlocks);
+            if(pd_ && !args_.quiet) {
+                pd_->update(classifyCategory_, (float)++curBlockClass / numBlocks);
+            }
         }
     });
 
     consumerFuture.wait();
-    progressDisplay.stop();
+    if(pd_ && !args_.quiet) {
+        pd_->stop();
+    }
 
     image_->rethrowIfError();
 
     skipLine();
 }
 
-void OpenSpaceNet::processSerial()
+void OpenSpaceNet::processSerialPolys()
 {
-    skipLine();
-    OSN_LOG(info) << "Reading image...";
+    auto predictions = processSerial<PredictionPoly>();
 
-    unique_ptr<boost::progress_display> openProgress;
-    if(!args_.quiet) {
-        openProgress = make_unique<boost::progress_display>(50);
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
+    for(const auto& prediction : predictions) {
+        bool skip = false;
+        for(const auto& point : prediction.poly.exteriorRing.points) {
+            if(point.x < bbox_.x || point.y < bbox_.y || point.x > bbox_.width || point.y > bbox_.height) {
+                skip = true;
+                break;
+            }
+        }
+
+        if(!skip) {
+            addFeature(prediction);
+        }
+    }
+}
+
+void OpenSpaceNet::processSerialBoxes()
+{
+    auto predictions = processSerial<PredictionBox>();
+
+    if(args_.action != Action::LANDCOVER && args_.nms) {
+        skipLine();
+        OSN_LOG(info) << "Performing non-maximum suppression..." ;
+        predictions = nonMaxSuppression(predictions, args_.overlap / 100);
     }
 
+    OSN_LOG(info) << predictions.size() << " features detected.";
+
+    for(const auto& prediction : predictions) {
+        addFeature((PredictionPoly)prediction);
+    }
+}
+
+template<class T>
+std::vector<T> OpenSpaceNet::processSerial()
+{
+    skipLine();
+    OSN_LOG(info) << "Processing...";
+
+    startProgressDisplay();
 
     auto startTime = high_resolution_clock::now();
-    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [&openProgress](float progress) -> bool {
-        size_t curProgress = (size_t)roundf(progress*50);
-        if(openProgress && openProgress->count() < curProgress) {
-            *openProgress += curProgress - openProgress->count();
+    auto mat = GeoImage::readImage(*image_, bbox_, regionFilter_.get(), [this](float progress) -> bool {
+        if(pd_ && !args_.quiet) {
+            pd_->update("Reading", progress);
         }
-        return true;
+        return !isCancelled();
     });
 
     duration<double> duration = high_resolution_clock::now() - startTime;
-    OSN_LOG(info) << "Reading time " << duration.count() << " s";
-
-    skipLine();
-    OSN_LOG(info) << "Detecting features...";
-
-    unique_ptr<boost::progress_display> detectProgress;
-    if(!args_.quiet) {
-        detectProgress = make_unique<boost::progress_display>(50);
-    }
 
     SlidingWindowChipper chipper;
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
@@ -498,7 +576,7 @@ void OpenSpaceNet::processSerial()
     }
     chipper.setFilter(std::move(regionFilter_->clone()));
     auto it = chipper.begin();
-    std::vector<PredictionBox> predictions;
+    std::vector<T> predictions;
     int progress = 0;
 
     startTime = high_resolution_clock::now();
@@ -509,85 +587,65 @@ void OpenSpaceNet::processSerial()
             subsets.push_back(*it);
         }
 
-        auto predictionBatch = model_->detectBoxes(subsets);
+        auto predictionBatch = model_->detect<T>(subsets);
         predictions.insert(predictions.end(), predictionBatch.begin(), predictionBatch.end());
 
-        if(detectProgress) {
-            progress += subsets.size();
-            auto curProgress = (size_t)round((double)(progress + it.skipped()) / chipper.slidingWindow().totalWindows() * 50);
-            if(detectProgress && detectProgress->count() < curProgress) {
-                *detectProgress += curProgress - detectProgress->count();
-            }
+        progress += subsets.size();
+        auto curProgress = (progress + it.skipped()) / (float)chipper.slidingWindow().totalWindows();
+        if(pd_ && !args_.quiet) {
+            pd_->update(classifyCategory_, (float)curProgress);
         }
     }
 
+    if(pd_ && !args_.quiet) {
+        pd_->stop();
+    }
+
+    skipLine();
+    OSN_LOG(info) << "Reading time " << duration.count() << " s";
+
     duration = high_resolution_clock::now() - startTime;
     OSN_LOG(info) << "Detection time " << duration.count() << " s" ;
+    skipLine();
 
     if(!args_.excludeLabels.empty()) {
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> excludeLabels(args_.excludeLabels.begin(), args_.excludeLabels.end());
-        auto filtered = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
-        predictions = move(filtered);
+        predictions = filterLabels(predictions, LabelFilterType::EXCLUDE, excludeLabels);
     }
 
     if(!args_.includeLabels.empty()) {
         skipLine();
         OSN_LOG(info) << "Performing category filtering..." ;
         std::set<string> includeLabels(args_.includeLabels.begin(), args_.includeLabels.end());
-        auto filtered = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
-        predictions = move(filtered);
+        predictions = filterLabels(predictions, LabelFilterType::INCLUDE, includeLabels);
     }
 
-    if(args_.action != Action::LANDCOVER && args_.nms) {
-        skipLine();
-        OSN_LOG(info) << "Performing non-maximum suppression..." ;
-        auto filtered = nonMaxSuppression(predictions, args_.overlap / 100);
-        predictions = move(filtered);
-    }
+    return predictions;
+};
 
-    OSN_LOG(info) << predictions.size() << " features detected.";
-
-    for(const auto& prediction : predictions) {
-        addFeature(prediction.window, prediction.predictions);
-    }
-}
-
-void OpenSpaceNet::addFeature(const cv::Rect &window, const vector<Prediction> &predictions)
+void OpenSpaceNet::addFeature(const deepcore::geometry::PredictionPoly& predictionPoly)
 {
-    if(predictions.empty()) {
+    if(predictionPoly.predictions.empty()) {
         return;
     }
 
     switch (args_.geometryType) {
         case GeometryType::POINT:
         {
-            cv::Point center(window.x + window.width / 2, window.y + window.height / 2);
+            auto center = centroid(predictionPoly.poly);
             auto point = pixelToLL_->transform(center);
             layer_.addFeature(Feature(new Point(point),
-                              move(createFeatureFields(predictions))));
+                              move(createFeatureFields(predictionPoly.predictions))));
         }
             break;
 
         case GeometryType::POLYGON:
         {
-            std::vector<cv::Point> points = {
-                    window.tl(),
-                    { window.x + window.width, window.y },
-                    window.br(),
-                    { window.x, window.y + window.height },
-                    window.tl()
-            };
-
-            std::vector<cv::Point2d> llPoints;
-            for(const auto& point : points) {
-                auto llPoint = pixelToLL_->transform(point);
-                llPoints.push_back(llPoint);
-            }
-
-            layer_.addFeature(Feature(new Polygon(LinearRing(llPoints)),
-                                      move(createFeatureFields(predictions))));
+            auto transformed = predictionPoly.poly.transform(*pixelToLL_);
+            layer_.addFeature(Feature((Polygon*)transformed.release(),
+                                      move(createFeatureFields(predictionPoly.predictions))));
         }
             break;
 
