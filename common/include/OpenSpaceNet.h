@@ -22,6 +22,7 @@
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <geometry/Prediction.h>
+#include <geometry/Polygon.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/MaskedRegionFilter.h>
 #include <imagery/GeoImage.h>
@@ -33,25 +34,36 @@
 #include <vector/WfsFeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
+#include <utility/ProgressDisplay.h>
 
 namespace dg { namespace osn {
 
 class OpenSpaceNet
 {
 public:
-    OpenSpaceNet(const OpenSpaceNetArgs& args);
+    OpenSpaceNet(OpenSpaceNetArgs&& args);
     void process();
+    void setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display);
 
 private:
     void initModel();
+    void initSegmentation();
     void initLocalImage();
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
     void initWfs();
+    void startProgressDisplay();
+    bool isCancelled();
     void processConcurrent();
-    void processSerial();
-    void addFeature(const cv::Rect& window, const std::vector<deepcore::geometry::Prediction>& predictions);
+
+    void processSerialBoxes();
+    void processSerialPolys();
+
+    template<class T>
+    std::vector<T> processSerial();
+
+    void addFeature(const deepcore::geometry::PredictionPoly& predictionPoly);
     deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::geometry::Prediction> &predictions);
     void printModel();
     void skipLine() const;
@@ -59,9 +71,9 @@ private:
     cv::Size calcPrimaryWindowSize() const;
     cv::Point calcPrimaryWindowStep() const;
     std::string determineLegacyID(const cv::Point& llPoint);
-    std::string determineLegacyID(const std::vector<cv::Point2d>& llPoints);
+    std::string determineLegacyID(const deepcore::geometry::Polygon* polygon);
 
-    const OpenSpaceNetArgs& args_;
+    OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     deepcore::classification::Model::Ptr model_;
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
@@ -75,6 +87,8 @@ private:
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
     deepcore::vector::Layer layer_;
     deepcore::geometry::SpatialReference sr_;
+    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
+    std::string classifyCategory_;
 };
 
 } } // namespace dg { namespace osn {

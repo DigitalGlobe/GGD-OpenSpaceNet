@@ -14,9 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ********************************************************************************/
-#include "OpenSpaceNetArgs.h"
-
-#include "OpenSpaceNet.h"
+#include "CliProcessor.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -27,10 +25,12 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/tokenizer.hpp>
 #include <classification/Classification.h>
+#include <classification/GbdxModelReader.h>
 #include <fstream>
 #include <geometry/cv_program_options.hpp>
 #include <iomanip>
 #include <utility/Console.h>
+#include <utility/ConsoleProgressDisplay.h>
 #include <utility/program_options.hpp>
 #include <vector/FileFeatureSet.h>
 
@@ -65,7 +65,11 @@ using std::ofstream;
 using std::string;
 using std::unique_ptr;
 using geometry::GeometryType;
-using vector::FileFeatureSet;
+using dg::deepcore::ConsoleProgressDisplay;
+using dg::deepcore::ProgressCategory;
+using dg::deepcore::classification::GbdxModelReader;
+using dg::deepcore::imagery::RasterToPolygonDP;
+using dg::deepcore::vector::FileFeatureSet;
 
 static const string OSN_USAGE =
     "Usage:\n"
@@ -85,12 +89,13 @@ static const string OSN_LANDCOVER_USAGE =
         "Usage:\n"
         "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
 
-OpenSpaceNetArgs::OpenSpaceNetArgs() :
+CliProcessor::CliProcessor() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
     outputOptions_("Output Options"),
     processingOptions_("Processing Options"),
     detectOptions_("Feature Detection Options"),
+    segmentationOptions_("Segmentation Options"),
     filterOptions_("Filtering Options"),
     loggingOptions_("Logging Options"),
     generalOptions_("General Options"),
@@ -116,9 +121,9 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ("use-tiles",
          "If set, the \"tiles\" field in TileJSON metadata will be used as the tile service address. The default behavior"
          "is to derive the service address from the provided URL.")
-        ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", zoom)), "Zoom level.")
-        ("map-id", po::value<string>()->value_name(name_with_default("MAPID", MAPSAPI_MAPID)), "MapsAPI map id to use.")
-        ("max-connections", po::value<int>()->value_name(name_with_default("NUM", maxConnections)),
+        ("zoom", po::value<int>()->value_name(name_with_default("ZOOM", osnArgs.zoom)), "Zoom level.")
+        ("map-id", po::value<string>()->value_name(name_with_default("MAPID", osnArgs.mapId)), "MapsAPI map id to use.")
+        ("max-connections", po::value<int>()->value_name(name_with_default("NUM", osnArgs.maxConnections)),
          "Used to speed up downloads by allowing multiple concurrent downloads to happen at once.")
         ;
 
@@ -131,7 +136,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     });
 
     outputOptions_.add_options()
-        ("format", po::value<string>()->value_name(name_with_default("FORMAT", outputFormat))->notifier(formatNotifier),
+        ("format", po::value<string>()->value_name(name_with_default("FORMAT", osnArgs.outputFormat))->notifier(formatNotifier),
          outputDescription.c_str())
         ("output", po::value<string>()->value_name("PATH"),
          "Output location with file name and path or URL.")
@@ -149,7 +154,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
 
     processingOptions_.add_options()
         ("cpu", "Use the CPU for processing, the default is to use the GPU.")
-        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", maxUtilization)),
+        ("max-utilization", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.maxUtilization)),
          "Maximum GPU utilization %. Minimum is 5, and maximum is 100. Not used if processing on CPU")
         ("model", po::value<string>()->value_name("PATH"), "Path to the the trained model.")
         ("window-size", po::value<std::vector<int>>()->multitoken()->value_name("SIZE [SIZE...]"),
@@ -168,11 +173,20 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
         ;
 
     detectOptions_.add_options()
-        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", confidence)),
+        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
          "Minimum percent score for results to be included in the output.")
-        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", overlap)),
+        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
          "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
          "for non-maximum suppression calculation.")
+        ;
+
+    segmentationOptions_.add_options()
+        ("r2p-method", po::value<std::string>()->value_name(name_with_default("METHOD", "simple")),
+         "Raster-to-polygon approximation method. Valid values are: none, simple, tc89-l1, tc89-kcos.")
+        ("r2p-accuracy", po::value<double>()->value_name(name_with_default("EPSILON", 3.0)),
+         "Approximation accuracy for the raster-to-polygon operation.")
+        ("r2p-min-area", po::value<double>()->value_name(name_with_default("AREA", 0.0)),
+         "Minimum polygon area (in pixels).")
         ;
 
     filterOptions_.add_options()
@@ -205,6 +219,7 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     optionsDescription_.add(outputOptions_);
     optionsDescription_.add(processingOptions_);
     optionsDescription_.add(detectOptions_);
+    optionsDescription_.add(segmentationOptions_);
     optionsDescription_.add(filterOptions_);
     optionsDescription_.add(loggingOptions_);
     optionsDescription_.add(generalOptions_);
@@ -235,12 +250,13 @@ OpenSpaceNetArgs::OpenSpaceNetArgs() :
     visibleOptions_.add(outputOptions_);
     visibleOptions_.add(processingOptions_);
     visibleOptions_.add(detectOptions_);
+    visibleOptions_.add(segmentationOptions_);
     visibleOptions_.add(filterOptions_);
     visibleOptions_.add(loggingOptions_);
     visibleOptions_.add(generalOptions_);
 }
 
-void OpenSpaceNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
+void CliProcessor::setupArgParsing(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
@@ -255,23 +271,28 @@ void OpenSpaceNetArgs::parseArgsAndProcess(int argc, const char* const* argv)
         validateArgs();
     } catch (...) {
         if (displayHelp) {
-            printUsage(action);
+            printUsage(osnArgs.action);
         }
         throw;
     }
 
     if (displayHelp) {
-        printUsage(action);
+        printUsage(osnArgs.action);
         return;
     }
 
     setupLogging();
+}
 
-    OpenSpaceNet osn(*this);
+void CliProcessor::startOSNProcessing()
+{
+    OpenSpaceNet osn(std::move(osnArgs));
+    pd_ = boost::make_shared<ConsoleProgressDisplay>();
+    osn.setProgressDisplay(pd_);
     osn.process();
 }
 
-void OpenSpaceNetArgs::setupInitialLogging()
+void CliProcessor::setupInitialLogging()
 {
     log::init();
 
@@ -282,8 +303,8 @@ void OpenSpaceNetArgs::setupInitialLogging()
                                  dg::deepcore::log::dg_log_format::dg_short_log);
 }
 
-void OpenSpaceNetArgs::setupLogging() {
-    quiet = consoleLogLevel > level_t::info;
+void CliProcessor::setupLogging() {
+    osnArgs.quiet = consoleLogLevel > level_t::info;
 
     // If no file is specified, assert that warning and above goes to the console
     if (fileLogPath.empty() && consoleLogLevel > level_t::warning) {
@@ -361,7 +382,7 @@ static bool readVariable(const char* param, variables_map& vm, std::vector<T>& r
 }
 
 // Order of precedence: config files from env, env, config files from cli, cli.
-void OpenSpaceNetArgs::parseArgs(int argc, const char* const* argv)
+void CliProcessor::parseArgs(int argc, const char* const* argv)
 {
     po::positional_options_description pd;
     pd.add("action", 1)
@@ -415,7 +436,7 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void OpenSpaceNetArgs::printUsage(Action action) const
+void CliProcessor::printUsage(Action action) const
 {
     switch(action) {
         case Action::LANDCOVER:
@@ -478,9 +499,19 @@ inline void checkArgument(const char* argumentName, ArgUse expectedUse, const st
     }
 }
 
-void OpenSpaceNetArgs::validateArgs()
+void CliProcessor::readModelPackage()
 {
-    if (action == Action::HELP) {
+    GbdxModelReader modelReader(osnArgs.modelPath);
+
+    OSN_LOG(info) << "Reading model package..." ;
+
+    osnArgs.modelPackage = modelReader.readModel();
+    DG_CHECK(osnArgs.modelPackage, "Unable to open the model package");
+}
+
+void CliProcessor::validateArgs()
+{
+    if (osnArgs.action == Action::HELP) {
         return;
     }
 
@@ -494,7 +525,7 @@ void OpenSpaceNetArgs::validateArgs()
     ArgUse confidenceUse(OPTIONAL);
     const char * actionDescription;
 
-    switch (action) {
+    switch (osnArgs.action) {
         case Action::DETECT:
             actionDescription = "the action is detect";
             break;
@@ -509,13 +540,13 @@ void OpenSpaceNetArgs::validateArgs()
             break;
 
         default:
-            DG_ERROR_THROW("Invalid action");
+            DG_ERROR_THROW("Invalid action.\nTry 'OpenSpaceNet help' for more information.");
     }
 
-    checkArgument("window-step", windowStepUse, windowStep, actionDescription);
-    checkArgument("window-size", windowSizeUse, windowSize, actionDescription);
-    checkArgument("nms", nmsUse, nms, actionDescription);
-    checkArgument("pyramid", pyramidUse, pyramid, actionDescription);
+    checkArgument("window-step", windowStepUse, osnArgs.windowStep, actionDescription);
+    checkArgument("window-size", windowSizeUse, osnArgs.windowSize, actionDescription);
+    checkArgument("nms", nmsUse, osnArgs.nms, actionDescription);
+    checkArgument("pyramid", pyramidUse, osnArgs.pyramid, actionDescription);
     checkArgument("confidence", confidenceUse, confidenceSet, actionDescription);
 
 
@@ -532,7 +563,7 @@ void OpenSpaceNetArgs::validateArgs()
     ArgUse useTilesUse(IGNORED);
     const char * sourceDescription;
 
-    switch (source) {
+    switch (osnArgs.source) {
         case Source::LOCAL:
             bboxUse = OPTIONAL;
             sourceDescription = "using a local image";
@@ -572,54 +603,53 @@ void OpenSpaceNetArgs::validateArgs()
             DG_ERROR_THROW("Source is unknown or unspecified");
     }
 
-    if (dgcsCatalogID || evwhsCatalogID) {
+    if (osnArgs.dgcsCatalogID || osnArgs.evwhsCatalogID) {
         tokenUse = REQUIRED;
     }
 
-    checkArgument("token", tokenUse, token, sourceDescription);
-    checkArgument("credentials", credentialsUse, credentials, sourceDescription);
+    checkArgument("token", tokenUse, osnArgs.token, sourceDescription);
+    checkArgument("credentials", credentialsUse, osnArgs.credentials, sourceDescription);
     checkArgument("map-id", mapIdUse, mapIdSet, sourceDescription);
     checkArgument("zoom", zoomUse, zoomSet, sourceDescription);
-    checkArgument("bbox", bboxUse, (bool) bbox, sourceDescription);
+    checkArgument("bbox", bboxUse, (bool) osnArgs.bbox, sourceDescription);
     checkArgument("max-connections", maxConnectionsUse, maxConnectionsSet, sourceDescription);
-    checkArgument("url", urlUse, url, sourceDescription);
-    checkArgument("use-tiles", useTilesUse, useTiles, sourceDescription);
-
+    checkArgument("url", urlUse, osnArgs.url, sourceDescription);
+    checkArgument("use-tiles", useTilesUse, osnArgs.useTiles, sourceDescription);
 
     //
     // Validate model and detection
     //
-    checkArgument("model", REQUIRED, modelPath);
-    DG_CHECK(includeLabels.empty() || excludeLabels.empty(),
+    checkArgument("model", REQUIRED, osnArgs.modelPath);
+
+    DG_CHECK(osnArgs.includeLabels.empty() || osnArgs.excludeLabels.empty(),
              "Arguments --include-labels and --exclude-labels may not be specified at the same time");
 
-    if (pyramidUse > IGNORED && pyramid) {
-        checkArgument("window-size", MAY_USE_ONE, windowSize, "--pyramid is specified");
-        checkArgument("window-step", MAY_USE_ONE, windowStep, "--pyramid is specified");
+    if (pyramidUse > IGNORED && osnArgs.pyramid) {
+        checkArgument("window-size", MAY_USE_ONE, osnArgs.windowSize, "--pyramid is specified");
+        checkArgument("window-step", MAY_USE_ONE, osnArgs.windowStep, "--pyramid is specified");
     } else if(windowSizeUse > MAY_USE_ONE || windowStepUse > MAY_USE_ONE) {
-        DG_CHECK(windowSize.size() < 2 || windowStep.size() < 2 ||
-                 windowSize.size() == windowStep.size(),
+        DG_CHECK(osnArgs.windowSize.size() < 2 || osnArgs.windowStep.size() < 2 ||
+                 osnArgs.windowSize.size() == osnArgs.windowStep.size(),
                  "Arguments --window-size and --window-step must match in length");
     }
-
 
     //
     // Validate output
     //
-    checkArgument("output", REQUIRED, outputPath);
-    if(outputFormat  == "shp") {
-        checkArgument("output-layer", IGNORED, layerName, "the output format is a shapefile");
-        layerName = path(outputPath).stem().filename().string();
-    } else if(layerName.empty()) {
-        layerName = "osndetects";
+    checkArgument("output", REQUIRED, osnArgs.outputPath);
+    if(osnArgs.outputFormat  == "shp") {
+        checkArgument("output-layer", IGNORED, osnArgs.layerName, "the output format is a shapefile");
+        osnArgs.layerName = path(osnArgs.outputPath).stem().filename().string();
+    } else if(osnArgs.layerName.empty()) {
+        osnArgs.layerName = "osndetects";
     }
 
 
     //
     // Validate filtering
     //
-    if (filterDefinition.size()) {
-        for (const auto& action : filterDefinition) {
+    if (osnArgs.filterDefinition.size()) {
+        for (const auto& action : osnArgs.filterDefinition) {
             for (const auto& file : action.second) {
                 path filePath = path(file);
                 if (!exists(filePath)) {
@@ -636,27 +666,27 @@ void OpenSpaceNetArgs::validateArgs()
             }
         }
 
-        if (pyramidUse > IGNORED && pyramid) {
-            checkArgument("window-size", MAY_USE_ONE, windowSize, "creating the spatial filter");
+        if (pyramidUse > IGNORED && osnArgs.pyramid) {
+            checkArgument("window-size", MAY_USE_ONE, osnArgs.windowSize, "creating the spatial filter");
         }
     }
 
     // Ask for password, if not specified
-    if (credentialsUse > IGNORED && !displayHelp && !credentials.empty() && credentials.find(':') == string::npos) {
+    if (credentialsUse > IGNORED && !displayHelp && !osnArgs.credentials.empty() && osnArgs.credentials.find(':') == string::npos) {
         promptForPassword();
     }
 }
 
-void OpenSpaceNetArgs::promptForPassword()
+void CliProcessor::promptForPassword()
 {
     cout << "Enter your web service password: ";
     auto password = readMaskedInputFromConsole();
-    credentials += ":";
-    credentials += password;
+    osnArgs.credentials += ":";
+    osnArgs.credentials += password;
 }
 
 
-void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
+void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
     // See if we have --config option(s), parse it if we do
     std::vector<string> configFiles;
     if (readVariable("config", vm, configFiles, splitArgs)) {
@@ -670,18 +700,18 @@ void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
         }
     }
 
-    bbox = readVariable<cv::Rect2d>("bbox", vm);
+    osnArgs.bbox = readVariable<cv::Rect2d>("bbox", vm);
 
     string service;
     bool serviceSet  = readVariable("service", vm, service);
     if (serviceSet) {
-        source = parseService(service);
+        osnArgs.source = parseService(service);
         readWebServiceArgs(vm, splitArgs);
     }
 
-    bool imageSet = readVariable("image", vm, image);
+    bool imageSet = readVariable("image", vm, osnArgs.image);
     if (imageSet) {
-        source = Source::LOCAL;
+        osnArgs.source = Source::LOCAL;
     }
 
     DG_CHECK(!imageSet || !serviceSet, "Arguments --image and --service may not be specified at the same time");
@@ -689,7 +719,7 @@ void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
 
     string actionString;
     readVariable("action", vm, actionString);
-    action = parseAction(actionString);
+    osnArgs.action = parseAction(actionString);
     maybeDisplayHelp(vm);
 
     readWebServiceArgs(vm, splitArgs);
@@ -697,15 +727,21 @@ void OpenSpaceNetArgs::readArgs(variables_map vm, bool splitArgs) {
     readOutputArgs(vm, splitArgs);
     readFeatureDetectionArgs(vm, splitArgs);
     readLoggingArgs(vm, splitArgs);
+
+    if(!osnArgs.modelPath.empty()) {
+        readModelPackage();
+    }
+
+    readSegmentationArgs(vm, splitArgs);
 }
 
-void OpenSpaceNetArgs::maybeDisplayHelp(variables_map vm)
+void CliProcessor::maybeDisplayHelp(variables_map vm)
 {
     // If "action" is "help", see if there's a topic. Display all help if there isn't
     string topicStr;
-    if(action == Action::HELP) {
+    if(osnArgs.action == Action::HELP) {
         if(readVariable("help-topic", vm, topicStr)) {
-            action = parseAction(topicStr);
+            osnArgs.action = parseAction(topicStr);
         }
         displayHelp = true;
     } else if(readVariable("help-topic", vm, topicStr)) {
@@ -715,77 +751,114 @@ void OpenSpaceNetArgs::maybeDisplayHelp(variables_map vm)
     }
 }
 
-void OpenSpaceNetArgs::readWebServiceArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readWebServiceArgs(variables_map vm, bool splitArgs)
 {
-    mapIdSet |= readVariable("map-id", vm, mapId);
-    readVariable("token", vm, token);
-    readVariable("credentials", vm, credentials);
-    readVariable("url", vm, url);
-    useTiles = vm.find("use-tiles") != vm.end();
-    zoomSet |= readVariable("zoom", vm, zoom);
-    maxConnectionsSet |= readVariable("max-connections", vm, maxConnections);
+    mapIdSet |= readVariable("map-id", vm, osnArgs.mapId);
+    readVariable("token", vm, osnArgs.token);
+    readVariable("credentials", vm, osnArgs.credentials);
+    readVariable("url", vm, osnArgs.url);
+    osnArgs.useTiles = vm.find("use-tiles") != vm.end();
+    zoomSet |= readVariable("zoom", vm, osnArgs.zoom);
+    maxConnectionsSet |= readVariable("max-connections", vm, osnArgs.maxConnections);
 }
 
 
-void OpenSpaceNetArgs::readOutputArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readOutputArgs(variables_map vm, bool splitArgs)
 {
-    readVariable("format", vm, outputFormat);
-    to_lower(outputFormat);
+    readVariable("format", vm, osnArgs.outputFormat);
+    to_lower(osnArgs.outputFormat);
 
-    readVariable("output", vm, outputPath);
-    readVariable("output-layer", vm, layerName);
+    readVariable("output", vm, osnArgs.outputPath);
+    readVariable("output-layer", vm, osnArgs.layerName);
 
     string typeStr = "polygon";
     readVariable("type", vm, typeStr);
     to_lower(typeStr);
     if(typeStr == "polygon") {
-        geometryType = GeometryType::POLYGON;
+        osnArgs.geometryType = GeometryType::POLYGON;
     } else if(typeStr == "point") {
-        geometryType = GeometryType::POINT;
+        osnArgs.geometryType = GeometryType::POINT;
     } else {
         DG_ERROR_THROW("Invalid geometry type: %s", typeStr.c_str());
     }
-    append = vm.find("append") != end(vm);
-    producerInfo = vm.find("producer-info") != end(vm);
-    dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
-    evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
-    readVariable("wfs-credentials", vm, wfsCredentials);
+    osnArgs.append = vm.find("append") != end(vm);
+    osnArgs.producerInfo = vm.find("producer-info") != end(vm);
+    osnArgs.dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
+    osnArgs.evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
+    readVariable("wfs-credentials", vm, osnArgs.wfsCredentials);
 }
 
-void OpenSpaceNetArgs::readProcessingArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
 {
-    useCpu = vm.find("cpu") != end(vm);
-    readVariable("max-utilization", vm, maxUtilization);
-    readVariable("model", vm, modelPath);
+    osnArgs.useCpu = vm.find("cpu") != end(vm);
+    readVariable("max-utilization", vm, osnArgs.maxUtilization);
+    readVariable("model", vm, osnArgs.modelPath);
 
-    readVariable("window-size", vm, windowSize, splitArgs);
-    readVariable("window-step", vm, windowStep, splitArgs);
-    resampledSize = readVariable<int>("resampled-size", vm);
-    pyramid = vm.find("pyramid") != end(vm);
+    readVariable("window-size", vm, osnArgs.windowSize, splitArgs);
+    readVariable("window-step", vm, osnArgs.windowStep, splitArgs);
+    osnArgs.resampledSize = readVariable<int>("resampled-size", vm);
+    osnArgs.pyramid = vm.find("pyramid") != end(vm);
 
-    readVariable("include-labels", vm, includeLabels, splitArgs);
-    readVariable("exclude-labels", vm, excludeLabels, splitArgs);
+    readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);
+    readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);
     if (vm.find("region") != end(vm)) {
         parseFilterArgs(vm["region"].as<std::vector<std::string>>());
     }
 }
 
-void OpenSpaceNetArgs::readFeatureDetectionArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool /* splitArgs */)
 {
-    confidenceSet |= readVariable("confidence", vm, confidence);
+    confidenceSet |= readVariable("confidence", vm, osnArgs.confidence);
 
 
     if(vm.find("nms") != end(vm)) {
-        nms = true;
+        osnArgs.nms = true;
         std::vector<float> args;
         readVariable("nms", vm, args);
         if(args.size()) {
-            overlap = args[0];
+            osnArgs.overlap = args[0];
         }
     }
 }
 
-void OpenSpaceNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
+void CliProcessor::readSegmentationArgs(boost::program_options::variables_map vm, bool /* splitArgs */)
+{
+    bool isSegmentation = (osnArgs.modelPackage && osnArgs.modelPackage->metadata().category() == "segmentation");
+    static const char* CAUSE = "input model is not a segmentation model.";
+
+    string method;
+    if(readVariable("r2p-method", vm, method)) {
+        if(iequals(method, "none")) {
+            osnArgs.method = RasterToPolygonDP::NONE;
+        } else if(iequals(method, "simple")) {
+            osnArgs.method = RasterToPolygonDP::SIMPLE;
+        } else if(iequals(method, "tc89-l1")) {
+            osnArgs.method = RasterToPolygonDP::TC89_L1;
+        } else if(iequals(method, "tc89-kcos")) {
+            osnArgs.method = RasterToPolygonDP::TC89_KCOS;
+        } else {
+            DG_ERROR_THROW("Invalid --r2p-method parameter: '%s'", method.c_str());
+        }
+
+        if(!isSegmentation) {
+            checkArgument("r2p-method", IGNORED, true, CAUSE);
+        }
+    }
+
+    if(readVariable("r2p-accuracy", vm, osnArgs.epsilon) && !isSegmentation) {
+        checkArgument("r2p-accuracy", IGNORED, true, CAUSE);
+    }
+
+    if(readVariable("r2p-min-area", vm, osnArgs.minArea) && !isSegmentation) {
+        checkArgument("r2p-min-area", IGNORED, true, CAUSE);
+    }
+
+    if(isSegmentation && vm.count("nms")) {
+        checkArgument("nms", IGNORED, true, "when a segmentation model is specified.");
+    }
+}
+
+void CliProcessor::readLoggingArgs(variables_map vm, bool splitArgs)
 {
     if(vm.find("quiet") != end(vm)) {
         consoleLogLevel = level_t::fatal;
@@ -809,7 +882,7 @@ void OpenSpaceNetArgs::readLoggingArgs(variables_map vm, bool splitArgs)
     }
 }
 
-void OpenSpaceNetArgs::parseFilterArgs(const std::vector<string>& filterList)
+void CliProcessor::parseFilterArgs(const std::vector<string>& filterList)
 {
     string filterAction = "";
     string finalEntry = "";
@@ -819,13 +892,13 @@ void OpenSpaceNetArgs::parseFilterArgs(const std::vector<string>& filterList)
             finalEntry = entry;
             continue;
         }
-        else if (entry == "include" || 
+        else if (entry == "include" ||
                  entry == "exclude") {
             if (filterAction != "") {
                 if (filterActionFileSet.empty()) {
                     DG_ERROR_THROW("Argument to %s region without file input", filterAction.c_str());
                 }
-                filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
+                osnArgs.filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
             }
 
             filterActionFileSet.clear();
@@ -840,7 +913,7 @@ void OpenSpaceNetArgs::parseFilterArgs(const std::vector<string>& filterList)
         DG_ERROR_THROW("Argument to %s region without file input", finalEntry.c_str());
     }
     if (!filterActionFileSet.empty()) {
-        filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
+        osnArgs.filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
     }
 }
 

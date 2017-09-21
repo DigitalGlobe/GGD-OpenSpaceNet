@@ -15,93 +15,26 @@
 * limitations under the License.
 ********************************************************************************/
 
-#ifndef OPENSPACENET_OPENSPACENETARGS_H
-#define OPENSPACENET_OPENSPACENETARGS_H
+#ifndef OPENSPACENET_CLIPROCESSOR_H
+#define OPENSPACENET_CLIPROCESSOR_H
 
+#include <OpenSpaceNetArgs.h>
+#include <OpenSpaceNet.h>
 #include <boost/program_options.hpp>
-#include <utility/Logging.h>
-#include <vector/Feature.h>
-
-#define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
-#define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
-#define WFS_TYPENAME "DigitalGlobe:FinishedFeature"
-
 
 namespace dg { namespace osn {
 
-enum class Source
-{
-    UNKNOWN,
-    LOCAL,
-    DGCS,
-    EVWHS,
-    MAPS_API,
-    TILE_JSON
-};
-
-enum class Action
-{
-    UNKNOWN,
-    HELP,
-    DETECT,
-    LANDCOVER
-};
-
-class OpenSpaceNetArgs
+class CliProcessor
 {
 public:
-    // Input options
-    Action action = Action::UNKNOWN;
-    Source source = Source::UNKNOWN;
-
-    std::string image;
-    std::unique_ptr<cv::Rect2d> bbox;
-
-    // Web service input options
-    std::string token;
-    std::string credentials;
-    int zoom = 18;
-    int maxConnections = 10;
-    std::string mapId = MAPSAPI_MAPID;
-    std::string url;
-    bool useTiles=false;
-
-    // Output options
-    deepcore::geometry::GeometryType geometryType = deepcore::geometry::GeometryType::POLYGON;
-    std::string outputFormat = "shp";
-    std::string outputPath;
-    std::string layerName;
-    bool producerInfo = false;
-    bool dgcsCatalogID = false;
-    bool evwhsCatalogID = false;
-    std::string wfsCredentials;
-    bool append = false;
-
-    // Processing options
-    bool useCpu = false;
-    float maxUtilization = 95;
-    std::string modelPath;
-    std::vector<int> windowSize;
-    std::vector<int> windowStep;
-    std::unique_ptr<int> resampledSize;
-    bool pyramid = false;
-
-    // Feature detection options
-    float confidence = 95;
-    bool nms = false;
-    float overlap = 30;
-    std::vector<std::string> includeLabels;
-    std::vector<std::string> excludeLabels;
-    std::vector<std::pair<std::string, std::vector<std::string>>> filterDefinition;
-
-    // Logging options
-    bool quiet = false;
     dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
 
-    OpenSpaceNetArgs();
-    void parseArgsAndProcess(int argc, const char* const* argv);
+    CliProcessor();
+    void setupArgParsing(int argc, const char* const* argv);
+    void startOSNProcessing();
+    OpenSpaceNetArgs osnArgs;
 
 private:
     bool confidenceSet = false;
@@ -121,9 +54,11 @@ private:
     void readOutputArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readProcessingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readFeatureDetectionArgs(boost::program_options::variables_map vm, bool splitArgs=false);
+    void readSegmentationArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readLoggingArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void parseFilterArgs(const std::vector<std::string>& filterList);
 
+    void readModelPackage();
     void validateArgs();
 
     boost::program_options::options_description localOptions_;
@@ -131,6 +66,7 @@ private:
     boost::program_options::options_description outputOptions_;
     boost::program_options::options_description processingOptions_;
     boost::program_options::options_description detectOptions_;
+    boost::program_options::options_description segmentationOptions_;
     boost::program_options::options_description filterOptions_;
     boost::program_options::options_description loggingOptions_;
     boost::program_options::options_description generalOptions_;
@@ -143,8 +79,8 @@ private:
 
     boost::shared_ptr<deepcore::log::sinks::sink> cerrSink_;
     boost::shared_ptr<deepcore::log::sinks::sink> coutSink_;
+    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
 };
 
 } } // namespace dg { namespace osn {
-
-#endif //OPENSPACENET_OPENSPACENETARGS_H
+#endif //OPENSPACENET_CLIPROCESSOR_H
