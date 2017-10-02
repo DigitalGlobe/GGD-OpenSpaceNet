@@ -31,6 +31,7 @@
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
+#include <vector/WfsFeatureSet.h>
 #include <vector/Layer.h>
 #include <utility/Logging.h>
 #include <utility/ProgressDisplay.h>
@@ -51,6 +52,7 @@ private:
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
+    void initWfs();
     void startProgressDisplay();
     bool isCancelled();
     void processConcurrent();
@@ -68,6 +70,8 @@ private:
     deepcore::imagery::SizeSteps calcWindows() const;
     cv::Size calcPrimaryWindowSize() const;
     cv::Point calcPrimaryWindowStep() const;
+    std::string determineLegacyID(const cv::Point& llPoint);
+    std::string determineLegacyID(const deepcore::geometry::Polygon* polygon);
 
     OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
@@ -75,6 +79,7 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
+    std::unique_ptr<deepcore::vector::WfsFeatureSet> wfsFeatureSet_ = nullptr;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
     cv::Rect bbox_;

@@ -19,6 +19,7 @@
 #include <OpenSpaceNetVersion.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
@@ -42,11 +43,17 @@
 #include <imagery/MapBoxClient.h>
 #include <imagery/RasterToPolygonDP.h>
 #include <imagery/SlidingWindowChipper.h>
+#include <network/Url.h>
 #include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
+#include <vector/WfsFeatureSet.h>
 #include <include/OpenSpaceNetArgs.h>
+
+#include <geometry/GeosCompat_define.h>
+#include <geos/geom/GeometryFactory.h>
+#include <geometry/GeosCompat_undef.h>
 
 namespace dg { namespace osn {
 
@@ -83,6 +90,7 @@ using std::recursive_mutex;
 using std::ostringstream;
 using std::pair;
 using std::string;
+using std::to_string;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
@@ -91,6 +99,13 @@ using dg::deepcore::Semaphore;
 using dg::deepcore::ConsoleProgressDisplay;
 using dg::deepcore::ProgressCategory;
 using dg::deepcore::classification::CaffeSegmentation;
+
+namespace gg = geos::geom;
+auto deleter_ = [](gg::Geometry* geometry) {
+                    gg::GeometryFactory::getDefaultInstance()->destroyGeometry(geometry);
+                };
+
+using GGGeometryPtr = unique_ptr<gg::Geometry, decltype(deleter_)>;
 
 OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
     args_(std::move(args))
@@ -121,6 +136,9 @@ void OpenSpaceNet::process()
     printModel();
     initFilter();
     initFeatureSet();
+    if (args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        initWfs();
+    }
 
     pixelToLL.compact();
 
@@ -311,6 +329,10 @@ void OpenSpaceNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
     }
 
+    if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        definitions.push_back({FieldType::STRING, "catalog_id"});
+    }
+
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     featureSet_ = make_unique<FileFeatureSet>(args_.outputPath, args_.outputFormat, openMode);
@@ -378,6 +400,57 @@ void OpenSpaceNet::initFilter()
         }
     } else {
         regionFilter_ = make_unique<PassthroughRegionFilter>();
+    }
+}
+
+void OpenSpaceNet::initWfs()
+{
+    string baseUrl;
+    if(args_.dgcsCatalogID) {
+        OSN_LOG(info) << "Connecting to DGCS web feature service...";
+        baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
+    } else if (args_.evwhsCatalogID) {
+        OSN_LOG(info) << "Connecting to EVWHS web feature service...";
+        baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
+    }
+
+    auto wfsCreds = args_.wfsCredentials;
+    if (wfsCreds.empty()) {
+        DG_CHECK(!args_.credentials.empty(), "No credentials specified for WFS service");
+        wfsCreds = args_.credentials;
+    }
+
+    DG_CHECK(!args_.token.empty(), "No token specified for WFS service");
+
+    vector<string> splitCreds;
+    boost::split(splitCreds, wfsCreds, boost::is_any_of(":"));
+
+    map<string, string> query;
+    query["service"] = "wfs";
+    query["version"] = "1.1.0";
+    query["connectid"] = args_.token; 
+    query["request"] = "getFeature";
+    query["typeName"] = WFS_TYPENAME;
+    query["srsName"] = "EPSG:3857";
+
+    if (args_.bbox) {
+        auto topLeft = args_.bbox->tl();
+        auto bottomRight = args_.bbox->br();
+        auto stringBbox = to_string(topLeft.x) + "," + to_string(topLeft.y) + "," + 
+                          to_string(bottomRight.x) + "," + to_string(bottomRight.y) + ",EPSG:3857";
+                          
+        query["bbox"] = stringBbox;
+    }
+
+    auto url = Url(baseUrl);
+    url.user = splitCreds[0];
+    url.password = splitCreds[1];
+    url.query = std::move(query);
+    wfsFeatureSet_ = make_unique<WfsFeatureSet>(url);
+
+    if (!wfsFeatureSet_->isOpen()) {
+       OSN_LOG(info) << "Failed to connect to Web Feature Service";
+       wfsFeatureSet_ = nullptr;
     }
 }
 
@@ -638,21 +711,49 @@ void OpenSpaceNet::addFeature(const deepcore::geometry::PredictionPoly& predicti
         return;
     }
 
+    Fields fields = move(createFeatureFields(predictionPoly.predictions));
+
     switch (args_.geometryType) {
         case GeometryType::POINT:
         {
             auto center = centroid(predictionPoly.poly);
             auto point = pixelToLL_->transform(center);
+
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+                string legacyId;
+                if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
+                    OSN_LOG(info) << "Web Feature Service has disconnected";
+                    legacyId = "uncataloged";
+                } else {
+                    legacyId = determineLegacyID(point);
+                }
+                
+                fields["catalog_id"] = { FieldType::STRING, legacyId };
+            }
+
             layer_.addFeature(Feature(new Point(point),
-                              move(createFeatureFields(predictionPoly.predictions))));
+                              move(fields)));
         }
             break;
 
         case GeometryType::POLYGON:
         {
             auto transformed = predictionPoly.poly.transform(*pixelToLL_);
+
+            if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+                string legacyId;
+                if (wfsFeatureSet_ && !wfsFeatureSet_->isOpen()) {
+                   OSN_LOG(info) << "Web Feature Service has disconnected";
+                   legacyId = "uncataloged";
+                } else {
+                   legacyId = determineLegacyID((const Polygon*)transformed.get());
+                }
+
+                fields["catalog_id"] = { FieldType::STRING, legacyId };
+            }
+
             layer_.addFeature(Feature((Polygon*)transformed.release(),
-                                      move(createFeatureFields(predictionPoly.predictions))));
+                                      move(fields)));
         }
             break;
 
@@ -664,8 +765,8 @@ void OpenSpaceNet::addFeature(const deepcore::geometry::PredictionPoly& predicti
 Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) {
     Fields fields = {
             { "top_cat", { FieldType::STRING, predictions[0].label.c_str() } },
-            { "top_score", { FieldType ::REAL, predictions[0].confidence } },
-            { "date", { FieldType ::DATE, time(nullptr) } }
+            { "top_score", { FieldType::REAL, predictions[0].confidence } },
+            { "date", { FieldType::DATE, time(nullptr) } }
     };
 
     ptree top5;
@@ -679,7 +780,7 @@ Fields OpenSpaceNet::createFeatureFields(const vector<Prediction> &predictions) 
     fields["top_five"] = Field(FieldType::STRING, oss.str());
 
     if(args_.producerInfo) {
-        fields["username"] = { FieldType ::STRING, loginUser() };
+        fields["username"] = { FieldType::STRING, loginUser() };
         fields["app"] = { FieldType::STRING, "OpenSpaceNet"};
         fields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
@@ -771,6 +872,53 @@ SizeSteps OpenSpaceNet::calcWindows() const
     } else {
         return { { calcPrimaryWindowSize(), calcPrimaryWindowStep() } };
     }
+}
+
+std::string OpenSpaceNet::determineLegacyID(const cv::Point& llPoint)
+{
+    auto filterPoint = Point(llPoint);
+    for (auto& layer: *wfsFeatureSet_) {
+        layer.setSpatialFilter(filterPoint);
+        for (const auto& feature : layer) {
+            if (feature.geometry) {
+                if (!feature.fields.count("legacyId")) {
+                    continue;
+                }
+
+                return boost::get<string>(feature.fields.at("legacyId").value);
+            }
+        }
+    }
+    
+    return "uncataloged";
+}
+
+std::string OpenSpaceNet::determineLegacyID(const Polygon* polygon)
+{
+    const auto geosFactory = gg::GeometryFactory::getDefaultInstance();
+
+    auto geosFilter = polygon->toGeos(*geosFactory);
+    auto maxIntersection = -1.0;
+    string legacyId = "uncataloged";
+    for (auto& layer: *wfsFeatureSet_) {
+        for (const auto& feature : layer) {
+            if (feature.geometry) {
+                if (!feature.fields.count("legacyId")) {
+                    continue;
+                }
+
+                GGGeometryPtr extractGeom(feature.geometry->toGeos(*geosFactory), deleter_);
+                GGGeometryPtr intersectGeom(geosFilter->intersection(extractGeom.get()), deleter_);
+                auto intersectArea = intersectGeom->getArea();
+                if (intersectArea > maxIntersection) {
+                    maxIntersection = intersectArea;
+                    legacyId = boost::get<string>(feature.fields.at("legacyId").value);
+                }
+            }
+        }
+    }
+    
+    return legacyId;
 }
 
 } } // namespace dg { namespace osn {
