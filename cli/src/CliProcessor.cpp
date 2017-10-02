@@ -852,10 +852,6 @@ void CliProcessor::readSegmentationArgs(boost::program_options::variables_map vm
     if(readVariable("r2p-min-area", vm, osnArgs.minArea) && !isSegmentation) {
         checkArgument("r2p-min-area", IGNORED, true, CAUSE);
     }
-
-    if(isSegmentation && vm.count("nms")) {
-        checkArgument("nms", IGNORED, true, "when a segmentation model is specified.");
-    }
 }
 
 void CliProcessor::readLoggingArgs(variables_map vm, bool splitArgs)

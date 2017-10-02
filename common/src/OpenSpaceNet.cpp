@@ -35,6 +35,7 @@
 #include <geometry/FilterLabels.h>
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
+#include <geometry/PolygonalNonMaxSuppression.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/GdalImage.h>
 #include <imagery/DgcsClient.h>
@@ -583,6 +584,12 @@ void OpenSpaceNet::processConcurrent()
 void OpenSpaceNet::processSerialPolys()
 {
     auto predictions = processSerial<PredictionPoly>();
+
+    if(args_.action != Action::LANDCOVER && args_.nms) {
+        skipLine();
+        OSN_LOG(info) << "Performing non-maximum suppression..." ;
+        predictions = polygonalNonMaxSuppression(predictions, args_.overlap / 100);
+    }
 
     OSN_LOG(info) << predictions.size() << " features detected.";
 
