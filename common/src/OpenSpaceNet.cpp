@@ -32,29 +32,39 @@
 #include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
 #include <geometry/FilterLabels.h>
+#include <geometry/Nodes.h>
 #include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
 #include <geometry/PolygonalNonMaxSuppression.h>
 #include <geometry/TransformationChain.h>
-#include <imagery/GdalImage.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
+#include <imagery/GdalImage.h>
+#include <imagery/Imagery.h>
 #include <imagery/MapBoxClient.h>
+#include <imagery/Nodes.h>
 #include <imagery/RasterToPolygonDP.h>
 #include <imagery/SlidingWindowChipper.h>
 #include <utility/ConsoleProgressDisplay.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
+#include <vector/Nodes.h>
+#include <vector/Vector.h>
 #include <include/OpenSpaceNetArgs.h>
 
 namespace dg { namespace osn {
 
+std::once_flag osnInitProcessingFlag;
+
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::geometry;
+using namespace dg::deepcore::geometry::node;
 using namespace dg::deepcore::imagery;
+using namespace dg::deepcore::imagery::node;
 using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;
+using namespace dg::deepcore::vector::node;
 
 using boost::copy;
 using boost::format;
@@ -121,7 +131,7 @@ void OpenSpaceNet::process()
     printModel();
     initFilter();
     initFeatureSet();
-
+    initProcessChain();
     pixelToLL.compact();
 
     if(concurrent_) {
@@ -298,6 +308,11 @@ void OpenSpaceNet::initFeatureSet()
 {
     OSN_LOG(info) << "Initializing the output feature set..." ;
 
+    time_t currentTime = time(nullptr);
+    struct tm* timeInfo = gmtime(&currentTime);
+    time_t gmTimet = timegm(timeInfo);
+    Fields extraFields = { {"date", Field(FieldType::DATE,  gmTimet)} };
+
     FieldDefinitions definitions = {
             { FieldType::STRING, "top_cat", 50 },
             { FieldType::REAL, "top_score" },
@@ -309,6 +324,10 @@ void OpenSpaceNet::initFeatureSet()
         definitions.push_back({ FieldType::STRING, "username", 50 });
         definitions.push_back({ FieldType::STRING, "app", 50 });
         definitions.push_back({ FieldType::STRING, "app_ver", 50 });
+
+        extraFields["username"] = { FieldType ::STRING, loginUser() };
+        extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
+        extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
@@ -379,6 +398,143 @@ void OpenSpaceNet::initFilter()
     } else {
         regionFilter_ = make_unique<PassthroughRegionFilter>();
     }
+}
+
+void OpenSpaceNet::initProcessChain()
+{
+    //FIXME: Break up this method, chaining nodes and probably just holding the feature sink
+
+    //FIXME:
+    //block source -> block cache -> regionFilter -> sliding window -> detector/classifier
+    //classifier/detector Node -> label filter node -> nms node -> prediction to feature -> (optional wfs feature field extractor) -> feature sink
+    //I _think_ run will be called on the featureSink so that's all we should hold?
+    std::call_once(osnInitProcessingFlag, []() {
+        dg::deepcore::imagery::init();
+        dg::deepcore::vector::init();
+    });
+
+    GeoBlockSource::Ptr blockSource;
+    if(args_.source > Source::LOCAL) {
+        blockSource = MapServiceBlockSource::create();
+
+        DG_CHECK(args_.bbox, "Bounding box must be specified");
+        bool wmts = true;
+        string url;
+        switch(args_.source) {
+            case Source::MAPS_API:
+                OSN_LOG(info) << "Connecting to MapsAPI..." ;
+                client_ = make_unique<MapBoxClient>(args_.mapId, args_.token);
+                wmts = false;
+                break;
+
+            case Source ::EVWHS:
+                OSN_LOG(info) << "Connecting to EVWHS..." ;
+                client_ = make_unique<EvwhsClient>(args_.token, args_.credentials);
+                break;
+
+            case Source::TILE_JSON:
+                OSN_LOG(info) << "Connecting to TileJSON...";
+                client_ = make_unique<TileJsonClient>(args_.url, args_.credentials, args_.useTiles);
+                wmts = false;
+                break;
+
+            default:
+                OSN_LOG(info) << "Connecting to DGCS..." ;
+                client_ = make_unique<DgcsClient>(args_.token, args_.credentials);
+                break;
+        }
+
+        if(wmts) {
+            client_->setImageFormat("image/jpeg");
+            client_->setLayer("DigitalGlobe:ImageryTileService");
+            client_->setTileMatrixSet("EPSG:3857");
+            client_->setTileMatrixId((format("EPSG:3857:%1d") % args_.zoom).str());
+        } else {
+            client_->setTileMatrixId(lexical_cast<string>(args_.zoom));
+        }
+
+        blockSource->attr("config") = client_->configFromArea(*args_.bbox);
+    } else if(args_.source == Source::LOCAL) {
+        blockSource = GdalBlockSource::create();
+        blockSource->attr("path") = args_.image;
+    } else {
+        DG_ERROR_THROW("Input source not specified");
+    }
+
+    auto blockCache = BlockCache::create();
+    blockCache->input("blocks") = blockSource->output("blocks");
+    blockCache->connectAttrs(*blockSource);
+
+    // FIXME regionFilter
+    // auto regionFiler = dg::deepcore::geometry::node::MaskedRegionFilter::create();
+    // regionFilter->input("subsets") = blockCache->output("subsets");
+
+    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create();
+    // slidingWindow->input("subsets") = regionFilter->output("subsets");
+    slidingWindow->input("subsets") = blockCache->output("subsets");
+
+    // FIXME: Detector/Classifier whatever
+
+    LabelFilter::Ptr labelFilter;
+    vector<string> labels;
+    if(!args_.excludeLabels.empty()) {
+        labels = vector<string>(args_.excludeLabels.begin(), args_.excludeLabels.end());
+        labelFilter = ExcludeLabels::create();
+    } else if(!args_.includeLabels.empty()) {
+        labels = vector<string>(args_.includeLabels.begin(), args_.includeLabels.end());
+        labelFilter = IncludeLabels::create();
+    }
+    labelFilter->attr("labels") = labels;
+
+    //FIXME: nms...different nms types?
+
+    time_t currentTime = time(nullptr);
+    struct tm* timeInfo = gmtime(&currentTime);
+    time_t gmTimet = timegm(timeInfo);
+    Fields extraFields = { {"date", Field(FieldType::DATE,  gmTimet)} };
+
+    FieldDefinitions definitions = {
+            { FieldType::STRING, "top_cat", 50 },
+            { FieldType::REAL, "top_score" },
+            { FieldType::DATE, "date" },
+            { FieldType::STRING, "top_five", 254 }
+    };
+
+    if(args_.producerInfo) {
+        definitions.push_back({ FieldType::STRING, "username", 50 });
+        definitions.push_back({ FieldType::STRING, "app", 50 });
+        definitions.push_back({ FieldType::STRING, "app_ver", 50 });
+
+        extraFields["username"] = { FieldType ::STRING, loginUser() };
+        extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
+        extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
+    }
+
+    VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
+
+    testPredictionSource_ = TestPredictionSource::create();
+
+    auto predictionToFeature = PredictionToFeature::create();
+    predictionToFeature->input("predictions") = testPredictionSource_->output("predictions");
+    predictionToFeature->attr("geometryType") = args_.geometryType;
+
+    //FIXME: Should be able to chain pixelToProj and sr_->from(imageSR) and not churn two transformations
+    predictionToFeature->attr("pixelToProj") = image_->pixelToProj();
+    predictionToFeature->attr("topNName") = "top_five";
+    predictionToFeature->attr("topNCategories") = 5;
+
+    //FIXME: insert featureFieldExtractor to featuresink here for WFS
+
+    featureSink_ = FileFeatureSink::create();
+    featureSink_->input("features") =  predictionToFeature->output("features");
+    featureSink_->attr("spatialReference") = image_->spatialReference();
+    featureSink_->attr("outputSpatialReference") = sr_;
+    featureSink_->attr("geometryType") = args_.geometryType;
+    featureSink_->attr("path") = "whocarestest.shp"; //FIXME: args_.outputPath
+    featureSink_->attr("layerName") = args_.layerName;
+    featureSink_->attr("outputFormat") = args_.outputFormat;
+    featureSink_->attr("openMode") = openMode;
+    featureSink_->attr("fieldDefinitions") = definitions;
 }
 
 void OpenSpaceNet::startProgressDisplay()
@@ -547,9 +703,21 @@ void OpenSpaceNet::processSerialBoxes()
 
     OSN_LOG(info) << predictions.size() << " features detected.";
 
+    auto startTime = high_resolution_clock::now();
     for(const auto& prediction : predictions) {
         addFeature((PredictionPoly)prediction);
     }
+    duration<double> duration = high_resolution_clock::now() - startTime;
+
+    // OSN_LOG(info) << "Old time " << duration.count() << " s";
+
+    // startTime = high_resolution_clock::now();
+    // testPredictionSource_->predictions = std::move(predictions);
+    // featureSink_->run();
+    // featureSink_->wait();
+    // duration = high_resolution_clock::now() - startTime;
+
+    // OSN_LOG(info) << "New time " << duration.count() << " s";
 }
 
 template<class T>

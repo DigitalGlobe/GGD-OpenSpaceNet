@@ -25,6 +25,10 @@
 #include <geometry/Polygon.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/MaskedRegionFilter.h>
+
+#include <geometry/node/TestPredictionPolySource.h> //FIXME: Remove these two
+#include <geometry/node/TestPredictionSource.h>
+
 #include <imagery/GeoImage.h>
 #include <imagery/MapServiceClient.h>
 #include <imagery/SlidingWindow.h>
@@ -32,6 +36,7 @@
 #include <opencv2/core/types.hpp>
 #include <vector/FeatureSet.h>
 #include <vector/Layer.h>
+#include <vector/node/FileFeatureSink.h>
 #include <utility/Logging.h>
 #include <utility/ProgressDisplay.h>
 
@@ -51,6 +56,7 @@ private:
     void initMapServiceImage();
     void initFeatureSet();
     void initFilter();
+    void initProcessChain();
     void startProgressDisplay();
     bool isCancelled();
     void processConcurrent();
@@ -75,6 +81,8 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
+    deepcore::geometry::node::TestPredictionSource::Ptr testPredictionSource_; //FIXME: Remove
+    deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
     cv::Rect bbox_;
