@@ -27,7 +27,9 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <future>
+#include <classification/Classification.h>
 #include <classification/CaffeSegmentation.h>
+#include <classification/Nodes.h>
 #include <geometry/AffineTransformation.h>
 #include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
@@ -55,9 +57,8 @@
 
 namespace dg { namespace osn {
 
-std::once_flag osnInitProcessingFlag;
-
 using namespace dg::deepcore::classification;
+using namespace dg::deepcore::classification::node;
 using namespace dg::deepcore::geometry;
 using namespace dg::deepcore::geometry::node;
 using namespace dg::deepcore::imagery;
@@ -202,7 +203,7 @@ void OpenSpaceNet::initSegmentation()
     model->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
-void OpenSpaceNet::initLocalImage()
+GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     image_ = make_unique<GdalImage>(args_.image);
@@ -250,7 +251,7 @@ void OpenSpaceNet::initLocalImage()
     }
 }
 
-void OpenSpaceNet::initMapServiceImage()
+GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
@@ -404,18 +405,38 @@ void OpenSpaceNet::initProcessChain()
 {
     //FIXME: Break up this method, chaining nodes and probably just holding the feature sink
 
-    //FIXME:
+    time_t currentTime = time(nullptr);
+    struct tm* timeInfo = gmtime(&currentTime);
+    time_t gmTimet = timegm(timeInfo);
+    Fields extraFields = { {"date", Field(FieldType::DATE,  gmTimet)} };
+
+    FieldDefinitions definitions = {
+            { FieldType::STRING, "top_cat", 50 },
+            { FieldType::REAL, "top_score" },
+            { FieldType::DATE, "date" },
+            { FieldType::STRING, "top_five", 254 }
+    };
+
+    if(args_.producerInfo) {
+        definitions.push_back({ FieldType::STRING, "username", 50 });
+        definitions.push_back({ FieldType::STRING, "app", 50 });
+        definitions.push_back({ FieldType::STRING, "app_ver", 50 });
+
+        extraFields["username"] = { FieldType ::STRING, loginUser() };
+        extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
+        extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
+    }
+
+    VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
+
     //block source -> block cache -> regionFilter -> sliding window -> detector/classifier
     //classifier/detector Node -> label filter node -> nms node -> prediction to feature -> (optional wfs feature field extractor) -> feature sink
-    //I _think_ run will be called on the featureSink so that's all we should hold?
-    std::call_once(osnInitProcessingFlag, []() {
-        dg::deepcore::imagery::init();
-        dg::deepcore::vector::init();
-    });
+    deepcore::classification::init(); 
+    deepcore::vector::init();
 
     GeoBlockSource::Ptr blockSource;
     if(args_.source > Source::LOCAL) {
-        blockSource = MapServiceBlockSource::create();
+        blockSource = MapServiceBlockSource::create("source");
 
         DG_CHECK(args_.bbox, "Bounding box must be specified");
         bool wmts = true;
@@ -455,77 +476,86 @@ void OpenSpaceNet::initProcessChain()
 
         blockSource->attr("config") = client_->configFromArea(*args_.bbox);
     } else if(args_.source == Source::LOCAL) {
-        blockSource = GdalBlockSource::create();
+        blockSource = GdalBlockSource::create("source");
         blockSource->attr("path") = args_.image;
     } else {
         DG_ERROR_THROW("Input source not specified");
     }
 
-    auto blockCache = BlockCache::create();
+    auto blockCache = BlockCache::create("cache");
     blockCache->input("blocks") = blockSource->output("blocks");
     blockCache->connectAttrs(*blockSource);
 
+    auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
+    subsetWithBorder->input("subsets") = blockCache->output("subsets");
+    subsetWithBorder->connectAttrs(*blockSource);
+
     // FIXME regionFilter
-    // auto regionFiler = dg::deepcore::geometry::node::MaskedRegionFilter::create();
-    // regionFilter->input("subsets") = blockCache->output("subsets");
+    // auto regionFiler = dg::deepcore::geometry::node::MaskedRegionFilter::create("regionFilter");
+    // regionFilter->input("subsets") = subsetWithBorder->output("subsets");
 
-    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create();
+    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
     // slidingWindow->input("subsets") = regionFilter->output("subsets");
-    slidingWindow->input("subsets") = blockCache->output("subsets");
+    slidingWindow->input("subsets") = subsetWithBorder->output("subsets");
+    slidingWindow->connectAttrs(*blockSource);
+    auto windowSizes = calcWindows();
+    for (const auto& thing1 : windowSizes) {
+        std::cout << "Windows: " << thing1.size << " " << thing1.step.x << ", " << thing1.step.y << std::endl;
+    }
+    slidingWindow->attr("windowSizes") = windowSizes;
+    auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
+    slidingWindow->attr("resampledSize") = resampledSize;
+    std::cout << "Resampled Size: " << resampledSize << std::endl;
 
-    // FIXME: Detector/Classifier whatever
+    auto modelNode = Detector::create("model");
+    modelNode->attr("confidence") = model_->confidence();
+    modelNode->attr("model") = model_;
+    modelNode->input("subsets") = slidingWindow->output("subsets");
 
     LabelFilter::Ptr labelFilter;
     vector<string> labels;
     if(!args_.excludeLabels.empty()) {
         labels = vector<string>(args_.excludeLabels.begin(), args_.excludeLabels.end());
-        labelFilter = ExcludeLabels::create();
+        labelFilter = ExcludeLabels::create("excludeLabels");
     } else if(!args_.includeLabels.empty()) {
         labels = vector<string>(args_.includeLabels.begin(), args_.includeLabels.end());
-        labelFilter = IncludeLabels::create();
+        labelFilter = IncludeLabels::create("includeLabels");
     }
-    labelFilter->attr("labels") = labels;
-
-    //FIXME: nms...different nms types?
-
-    time_t currentTime = time(nullptr);
-    struct tm* timeInfo = gmtime(&currentTime);
-    time_t gmTimet = timegm(timeInfo);
-    Fields extraFields = { {"date", Field(FieldType::DATE,  gmTimet)} };
-
-    FieldDefinitions definitions = {
-            { FieldType::STRING, "top_cat", 50 },
-            { FieldType::REAL, "top_score" },
-            { FieldType::DATE, "date" },
-            { FieldType::STRING, "top_five", 254 }
-    };
-
-    if(args_.producerInfo) {
-        definitions.push_back({ FieldType::STRING, "username", 50 });
-        definitions.push_back({ FieldType::STRING, "app", 50 });
-        definitions.push_back({ FieldType::STRING, "app_ver", 50 });
-
-        extraFields["username"] = { FieldType ::STRING, loginUser() };
-        extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
-        extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
+    
+    if (labelFilter) {
+        labelFilter->attr("labels") = labels;
+        labelFilter->input("predictions") = modelNode->output("predictions");
     }
 
-    VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
+    NonMaxSuppression::Ptr nmsNode;
+    if(args_.action != Action::LANDCOVER && args_.nms) {
+        nmsNode = NonMaxSuppression::create("NonMaxSuppression");
+        nmsNode->attr("overlapThreshold") = 0.6; //FIXME: where's this come from.
 
-    testPredictionSource_ = TestPredictionSource::create();
+        if (labelFilter) {
+            nmsNode->input("predictions") = labelFilter->output("predictions");
+        } else {
+            nmsNode->input("predictions") = modelNode->output("predictions");
+        }
+    }
 
-    auto predictionToFeature = PredictionToFeature::create();
-    predictionToFeature->input("predictions") = testPredictionSource_->output("predictions");
+    auto predictionToFeature = PredictionToFeature::create("predictionToFeature");
     predictionToFeature->attr("geometryType") = args_.geometryType;
-
-    //FIXME: Should be able to chain pixelToProj and sr_->from(imageSR) and not churn two transformations
     predictionToFeature->attr("pixelToProj") = image_->pixelToProj();
     predictionToFeature->attr("topNName") = "top_five";
     predictionToFeature->attr("topNCategories") = 5;
 
-    //FIXME: insert featureFieldExtractor to featuresink here for WFS
+    if (nmsNode) {
+        predictionToFeature->input("predictions") = nmsNode->output("predictions");
+    } else if (labelFilter) {
+        predictionToFeature->input("predictions") = labelFilter->output("predictions");
+    } else {
+        predictionToFeature->input("predictions") = modelNode->output("predictions");
+    }
 
-    featureSink_ = FileFeatureSink::create();
+    //FIXME/TODO: insert featureFieldExtractor to featuresink here for WFS
+
+    featureSink_ = FileFeatureSink::create("featureSink");
     featureSink_->input("features") =  predictionToFeature->output("features");
     featureSink_->attr("spatialReference") = image_->spatialReference();
     featureSink_->attr("outputSpatialReference") = sr_;
@@ -693,31 +723,30 @@ void OpenSpaceNet::processSerialPolys()
 
 void OpenSpaceNet::processSerialBoxes()
 {
-    auto predictions = processSerial<PredictionBox>();
+    // auto predictions = processSerial<PredictionBox>();
+    // auto startTime = high_resolution_clock::now();
 
-    if(args_.action != Action::LANDCOVER && args_.nms) {
-        skipLine();
-        OSN_LOG(info) << "Performing non-maximum suppression..." ;
-        predictions = nonMaxSuppression(predictions, args_.overlap / 100);
-    }
+    // if(args_.action != Action::LANDCOVER && args_.nms) {
+    //     skipLine();
+    //     OSN_LOG(info) << "Performing non-maximum suppression..." ;
+    //     predictions = nonMaxSuppression(predictions, args_.overlap / 100);
+    // }
 
-    OSN_LOG(info) << predictions.size() << " features detected.";
+    // OSN_LOG(info) << predictions.size() << " features detected.";
 
-    auto startTime = high_resolution_clock::now();
-    for(const auto& prediction : predictions) {
-        addFeature((PredictionPoly)prediction);
-    }
-    duration<double> duration = high_resolution_clock::now() - startTime;
-
+    // for(const auto& prediction : predictions) {
+    //     addFeature((PredictionPoly)prediction);
+    // }
+    // duration<double> duration = high_resolution_clock::now() - startTime;
     // OSN_LOG(info) << "Old time " << duration.count() << " s";
 
-    // startTime = high_resolution_clock::now();
-    // testPredictionSource_->predictions = std::move(predictions);
-    // featureSink_->run();
-    // featureSink_->wait();
-    // duration = high_resolution_clock::now() - startTime;
+    auto startTime = high_resolution_clock::now();
+    OSN_LOG(info) << "starting process at time: " <<  startTime.time_since_epoch().count() << std::endl;
+    featureSink_->run();
+    featureSink_->wait();
+    duration<double> duration = high_resolution_clock::now() - startTime;
 
-    // OSN_LOG(info) << "New time " << duration.count() << " s";
+    OSN_LOG(info) << "New time " << duration.count() << " s";
 }
 
 template<class T>
@@ -739,7 +768,12 @@ std::vector<T> OpenSpaceNet::processSerial()
     duration<double> duration = high_resolution_clock::now() - startTime;
 
     SlidingWindowChipper chipper;
+    auto thing = calcWindows();
+    for (const auto& thing1 : thing) {
+        std::cout << "Windows: " << thing1.size << " " << thing1.step.x << ", " << thing1.step.y << std::endl;
+    }
     auto resampledSize = args_.resampledSize ?  cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : cv::Size {};
+    std::cout << "Resampled Size: " << resampledSize << std::endl;
     if (args_.action != Action::LANDCOVER && args_.pyramid) {
         chipper = SlidingWindowChipper(mat, 2.0,
                                        calcPrimaryWindowSize(),

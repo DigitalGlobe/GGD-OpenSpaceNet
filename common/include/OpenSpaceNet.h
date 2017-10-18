@@ -52,8 +52,8 @@ public:
 private:
     void initModel();
     void initSegmentation();
-    void initLocalImage();
-    void initMapServiceImage();
+    GeoBlockSource::Ptr initLocalImage();
+    GeoBlockSource::Ptr initMapServiceImage();
     void initFeatureSet();
     void initFilter();
     void initProcessChain();
@@ -81,7 +81,6 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
-    deepcore::geometry::node::TestPredictionSource::Ptr testPredictionSource_; //FIXME: Remove
     deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
     std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
