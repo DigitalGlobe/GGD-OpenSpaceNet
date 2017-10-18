@@ -203,7 +203,7 @@ void OpenSpaceNet::initSegmentation()
     model->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
-GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
+void OpenSpaceNet::initLocalImage()
 {
     OSN_LOG(info) << "Opening image..." ;
     image_ = make_unique<GdalImage>(args_.image);
@@ -251,7 +251,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
     }
 }
 
-GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
+void OpenSpaceNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
 
