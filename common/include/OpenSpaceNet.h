@@ -24,7 +24,6 @@
 #include <classification/node/Detector.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/node/LabelFilter.h>
-#include <imagery/GeoImage.h>
 #include <imagery/node/GeoBlockSource.h>
 #include <imagery/node/SlidingWindow.h>
 #include <network/HttpCleanup.h>
@@ -44,10 +43,10 @@ public:
     void setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display);
 
 private:
-    deepcore::classification::node::Detector::Ptr initModel();
-    void initSegmentation(deepcore::classification::Model::Ptr model);
     deepcore::imagery::node::GeoBlockSource::Ptr initLocalImage();
     deepcore::imagery::node::GeoBlockSource::Ptr initMapServiceImage();
+    deepcore::classification::node::Detector::Ptr initModel();
+    void initSegmentation(deepcore::classification::Model::Ptr model);
     deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
     deepcore::geometry::node::LabelFilter::Ptr initLabelFilter();
     deepcore::vector::node::PredictionToFeature::Ptr initPredictionToFeature();

@@ -128,7 +128,6 @@ void OpenSpaceNet::process()
         DG_ERROR_THROW("Input source not specified");
     }
 
-    OSN_LOG(info) << "Creating image preprocessors..." ;
     auto blockCache = BlockCache::create("cache");
     blockCache->input("blocks") = blockSource->output("blocks");
     blockCache->connectAttrs(*blockSource);
@@ -141,17 +140,17 @@ void OpenSpaceNet::process()
     // auto regionFiler = dg::deepcore::geometry::node::MaskedRegionFilter::create("regionFilter");
     // regionFilter->input("subsets") = subsetWithBorder->output("subsets");
 
-    auto slidingWindow = initSlidingWindow();
-    // slidingWindow->input("subsets") = regionFilter->output("subsets");
-    slidingWindow->input("subsets") = subsetWithBorder->output("subsets"); //FIXME: switch to region filter if it's there
-    slidingWindow->connectAttrs(*blockSource);
-
     OSN_LOG(info) << "Reading model..." ;
+    //Note: Model must be initialized before sliding window for model size and stepping
     auto model = initModel();
+    auto slidingWindow = initSlidingWindow();
+    slidingWindow->input("subsets") = subsetWithBorder->output("subsets"); //FIXME: switch to region filter if it's there
+    // slidingWindow->input("subsets") = regionFilter->output("subsets");
     model->input("subsets") = slidingWindow->output("subsets");
+    slidingWindow->connectAttrs(*blockSource);
     model->connectAttrs(*blockSource);
 
-    OSN_LOG(info) << "Creating post processing nodes..." ;
+    OSN_LOG(info) << "Creating post processors..." ;
     auto labelFilter = initLabelFilter();
     if (labelFilter) {
         labelFilter->input("predictions") = model->output("predictions");
@@ -160,7 +159,7 @@ void OpenSpaceNet::process()
     NonMaxSuppression::Ptr nmsNode;
     if(args_.action != Action::LANDCOVER && args_.nms) {
         nmsNode = NonMaxSuppression::create("NonMaxSuppression");
-        nmsNode->attr("overlapThreshold") = 0.6; //FIXME: where's this come from.
+        nmsNode->attr("overlapThreshold") = (float) args_.overlap / 100;
 
         if (labelFilter) {
             nmsNode->input("predictions") = labelFilter->output("predictions");
@@ -183,8 +182,8 @@ void OpenSpaceNet::process()
     featureSink_ = initFeatureSink();
     featureSink_->input("features") =  predictionToFeature->output("features");
 
+    startProgressDisplay(); //FIXME: Make the progress display work
     auto startTime = high_resolution_clock::now();
-    OSN_LOG(info) << "starting process at time: " <<  startTime.time_since_epoch().count() << std::endl;
     featureSink_->run();
     featureSink_->wait();
     duration<double> duration = high_resolution_clock::now() - startTime;
@@ -195,69 +194,6 @@ void OpenSpaceNet::process()
 void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
 {
     pd_ = display;
-}
-
-Detector::Ptr OpenSpaceNet::initModel()
-{
-    auto model = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
-    args_.modelPackage.reset();
-
-    metadata_ = model->metadata().clone();
-    modelSize_ = metadata_->modelSize();
-    defaultStep_ = model->defaultStep();
-    modelAspectRatio_ = (float) modelSize_.height / modelSize_.width;
-
-    std::cout << "Stuff: " << std::endl;
-    std::cout << modelSize_ << std::endl;
-    std::cout << defaultStep_ << std::endl;
-    std::cout << "Other Stuff: " << std::endl;
-    std::cout << model->metadata().modelSize() << std::endl;
-    std::cout << model->defaultStep() << std::endl;
-
-
-
-    float confidence = 0;
-    if(args_.action == Action::LANDCOVER && model->modelOutput() == ModelOutput::BOX) {
-        auto windowSize = calcPrimaryWindowSize();
-        if (args_.windowSize.size() < 2) {
-            if(blockSize_.width % windowSize.width == 0 &&
-               blockSize_.height % windowSize.height == 0) {
-                bbox_ = {cv::Point {0, 0}, imageSize_};
-                concurrent_ = true;
-            }
-        }
-    } else if(args_.action == Action::DETECT) {
-        confidence = args_.confidence / 100;
-    }
-
-    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= modelSize_.width,
-             "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
-             *args_.resampledSize, modelSize_.width)
-
-    if (!args_.resampledSize) {
-        for (auto c : args_.windowSize) {
-            DG_CHECK(c <= modelSize_.width,
-                     "Argument --window-size contains a size that does not fit within the model (width: %d).",
-                      modelSize_.width)
-        }
-    }
-
-    if(metadata_->category() == "segmentation") {
-        initSegmentation(model);
-    }
-
-    auto modelNode = Detector::create("model");
-    modelNode->attr("model") = model;
-    modelNode->attr("confidence") = confidence;
-    return modelNode;
-}
-
-void OpenSpaceNet::initSegmentation(Model::Ptr model)
-{
-    auto castModel = dynamic_cast<CaffeSegmentation*>(model.get());
-    DG_CHECK(castModel, "Unsupported model type: only Caffe segmentation models are currently supported");
-
-    castModel->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
 GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
@@ -318,10 +254,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
 GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
 {
     DG_CHECK(args_.bbox, "Bounding box must be specified");
-    GeoBlockSource::Ptr blockSource = MapServiceBlockSource::create("source");
 
-    //FIXME: I think all we need to do here is get the sr and such from the client
-    DG_CHECK(args_.bbox, "Bounding box must be specified");
     std::unique_ptr<deepcore::imagery::MapServiceClient> client;
     bool wmts = true;
     string url;
@@ -376,9 +309,65 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
 
     auto msImage = dynamic_cast<MapServiceImage*>(image);
     msImage->setMaxConnections(args_.maxConnections);
+    //FIXME: end fixing zone
 
+    GeoBlockSource::Ptr blockSource = MapServiceBlockSource::create("source");
     blockSource->attr("config") = client->configFromArea(*args_.bbox);
     return blockSource;
+}
+
+Detector::Ptr OpenSpaceNet::initModel()
+{
+    auto model = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
+    args_.modelPackage.reset();
+
+    metadata_ = model->metadata().clone();
+    modelSize_ = metadata_->modelSize();
+    defaultStep_ = model->defaultStep();
+    modelAspectRatio_ = (float) modelSize_.height / modelSize_.width;
+
+    float confidence = 0;
+    if(args_.action == Action::LANDCOVER && model->modelOutput() == ModelOutput::BOX) {
+        auto windowSize = calcPrimaryWindowSize();
+        if (args_.windowSize.size() < 2) {
+            if(blockSize_.width % windowSize.width == 0 &&
+               blockSize_.height % windowSize.height == 0) {
+                bbox_ = {cv::Point {0, 0}, imageSize_};
+                concurrent_ = true;
+            }
+        }
+    } else if(args_.action == Action::DETECT) {
+        confidence = args_.confidence / 100;
+    }
+
+    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= modelSize_.width,
+             "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
+             *args_.resampledSize, modelSize_.width)
+
+    if (!args_.resampledSize) {
+        for (auto c : args_.windowSize) {
+            DG_CHECK(c <= modelSize_.width,
+                     "Argument --window-size contains a size that does not fit within the model (width: %d).",
+                      modelSize_.width)
+        }
+    }
+
+    if(metadata_->category() == "segmentation") {
+        initSegmentation(model);
+    }
+
+    auto modelNode = Detector::create("model");
+    modelNode->attr("model") = model;
+    modelNode->attr("confidence") = confidence;
+    return modelNode;
+}
+
+void OpenSpaceNet::initSegmentation(Model::Ptr model)
+{
+    auto castModel = dynamic_cast<CaffeSegmentation*>(model.get());
+    DG_CHECK(castModel, "Unsupported model type: only Caffe segmentation models are currently supported");
+
+    castModel->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
 dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow()
