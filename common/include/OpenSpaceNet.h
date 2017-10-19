@@ -75,7 +75,7 @@ private:
     std::unique_ptr<deepcore::imagery::GeoImage> image_;
     std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
     std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
-    std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
+    deepcore::geometry::RegionFilter::Ptr regionFilter_;
     bool concurrent_ = false;
     cv::Rect bbox_;
     float modelAspectRatio_;
