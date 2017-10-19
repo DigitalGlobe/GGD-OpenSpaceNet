@@ -21,22 +21,16 @@
 
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
-#include <geometry/Prediction.h>
-#include <geometry/Polygon.h>
+#include <classification/node/Detector.h>
 #include <geometry/SpatialReference.h>
-#include <geometry/MaskedRegionFilter.h>
-
-#include <geometry/node/TestPredictionPolySource.h> //FIXME: Remove these two
-#include <geometry/node/TestPredictionSource.h>
-
+#include <geometry/node/LabelFilter.h>
 #include <imagery/GeoImage.h>
-#include <imagery/MapServiceClient.h>
-#include <imagery/SlidingWindow.h>
+#include <imagery/node/GeoBlockSource.h>
+#include <imagery/node/SlidingWindow.h>
 #include <network/HttpCleanup.h>
 #include <opencv2/core/types.hpp>
-#include <vector/FeatureSet.h>
-#include <vector/Layer.h>
 #include <vector/node/FileFeatureSink.h>
+#include <vector/node/PredictionToFeature.h>
 #include <utility/Logging.h>
 #include <utility/ProgressDisplay.h>
 
@@ -50,25 +44,18 @@ public:
     void setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display);
 
 private:
-    void initModel();
-    void initSegmentation();
-    GeoBlockSource::Ptr initLocalImage();
-    GeoBlockSource::Ptr initMapServiceImage();
-    void initFeatureSet();
+    deepcore::classification::node::Detector::Ptr initModel();
+    void initSegmentation(deepcore::classification::Model::Ptr model);
+    deepcore::imagery::node::GeoBlockSource::Ptr initLocalImage();
+    deepcore::imagery::node::GeoBlockSource::Ptr initMapServiceImage();
+    deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
+    deepcore::geometry::node::LabelFilter::Ptr initLabelFilter();
+    deepcore::vector::node::PredictionToFeature::Ptr initPredictionToFeature();
+    deepcore::vector::node::FileFeatureSink::Ptr initFeatureSink();
+    
     void initFilter();
-    void initProcessChain();
     void startProgressDisplay();
-    bool isCancelled();
-    void processConcurrent();
-
-    void processSerialBoxes();
-    void processSerialPolys();
-
-    template<class T>
-    std::vector<T> processSerial();
-
-    void addFeature(const deepcore::geometry::PredictionPoly& predictionPoly);
-    deepcore::vector::Fields createFeatureFields(const std::vector<deepcore::geometry::Prediction> &predictions);
+    bool isCancelled(); 
     void printModel();
     void skipLine() const;
     deepcore::imagery::SizeSteps calcWindows() const;
@@ -77,18 +64,24 @@ private:
 
     OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
-    deepcore::classification::Model::Ptr model_;
-    std::unique_ptr<deepcore::imagery::GeoImage> image_;
-    std::unique_ptr<deepcore::imagery::MapServiceClient> client_;
-    std::unique_ptr<deepcore::vector::FeatureSet> featureSet_;
-    deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
-    std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;
     bool concurrent_ = false;
+    
+    cv::Size blockSize_;
+    cv::Size imageSize_;
     cv::Rect bbox_;
-    float modelAspectRatio_;
-    std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
-    deepcore::vector::Layer layer_;
+    deepcore::geometry::SpatialReference imageSr_;
     deepcore::geometry::SpatialReference sr_;
+    std::unique_ptr<deepcore::geometry::Transformation> pixelToProj_;
+    std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
+
+    std::unique_ptr<deepcore::classification::ModelMetadata> metadata_;
+    cv::Size modelSize_;
+    cv::Point defaultStep_;
+    float modelAspectRatio_;
+
+    deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
+
+    std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;    
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
     std::string classifyCategory_;
 };
