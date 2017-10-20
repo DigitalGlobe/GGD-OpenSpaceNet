@@ -297,7 +297,6 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
         client->setTileMatrixId(lexical_cast<string>(args_.zoom));
     }
 
-    //FIXME: fix this
     unique_ptr<Transformation> llToProj(client->spatialReference().fromLatLon());
     auto projBbox = llToProj->transform(*args_.bbox);
     auto image = client->imageFromArea(projBbox);
@@ -311,12 +310,9 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
     sr_ = SpatialReference::WGS84;
 
-    auto msImage = dynamic_cast<MapServiceImage*>(image);
-    msImage->setMaxConnections(args_.maxConnections);
-    //FIXME: end fixing zone
-
-    GeoBlockSource::Ptr blockSource = MapServiceBlockSource::create("source");
+    auto blockSource = MapServiceBlockSource::create("source");
     blockSource->attr("config") = client->configFromArea(*args_.bbox);
+    blockSource->attr("maxConnections") = args_.maxConnections;
     return blockSource;
 }
 
@@ -503,7 +499,7 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     featureSink->attr("spatialReference") = imageSr_;
     featureSink->attr("outputSpatialReference") = sr_;
     featureSink->attr("geometryType") = args_.geometryType;
-    featureSink->attr("path") = "whocarestest.shp"; //FIXME: args_.outputPath
+    featureSink->attr("path") = args_.outputPath;
     featureSink->attr("layerName") = args_.layerName;
     featureSink->attr("outputFormat") = args_.outputFormat;
     featureSink->attr("openMode") = openMode;
