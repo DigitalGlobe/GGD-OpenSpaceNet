@@ -155,7 +155,7 @@ void OpenSpaceNet::process()
     }
 
     auto predictionToFeature = initPredictionToFeature();
-    //FIXME/TODO: insert featureFieldExtractor to featuresink here for WFS
+    //TODO: insert featureFieldExtractor to featuresink here for WFS
     auto featureSink = initFeatureSink();
 
     blockCache->input("blocks") = blockSource->output("blocks");
