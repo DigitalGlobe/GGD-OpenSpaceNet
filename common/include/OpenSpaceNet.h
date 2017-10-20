@@ -65,6 +65,8 @@ private:
 
     OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
+    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
+    std::string classifyCategory_;
     bool concurrent_ = false;
     
     cv::Size blockSize_;
@@ -79,12 +81,6 @@ private:
     cv::Size modelSize_;
     cv::Point defaultStep_;
     float modelAspectRatio_;
-
-    //FIXME: Probably remove this
-    deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
-
-    boost::shared_ptr<deepcore::ProgressDisplay> pd_;
-    std::string classifyCategory_;
 };
 
 } } // namespace dg { namespace osn {

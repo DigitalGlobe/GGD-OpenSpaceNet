@@ -18,6 +18,8 @@
 #include "OpenSpaceNet.h"
 #include <OpenSpaceNetVersion.h>
 
+#include <include/OpenSpaceNetArgs.h>
+
 //FIXME: Cleanup includes
 #include <boost/algorithm/string.hpp>
 #include <boost/range/combine.hpp>
@@ -27,10 +29,10 @@
 #include <boost/progress.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/algorithm/copy.hpp>
-#include <future>
 #include <classification/Classification.h>
 #include <classification/CaffeSegmentation.h>
 #include <classification/Nodes.h>
+#include <future>
 #include <geometry/AffineTransformation.h>
 #include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
@@ -54,7 +56,6 @@
 #include <vector/FileFeatureSet.h>
 #include <vector/Nodes.h>
 #include <vector/Vector.h>
-#include <include/OpenSpaceNetArgs.h>
 
 namespace dg { namespace osn {
 
@@ -137,7 +138,7 @@ void OpenSpaceNet::process()
     auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
     subsetWithBorder->connectAttrs(*blockSource);
 
-    // auto subsetFilter = initSubsetRegionFilter();
+    auto subsetFilter = initSubsetRegionFilter();
 
     //Note: Model must be initialized before sliding window for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
@@ -155,16 +156,16 @@ void OpenSpaceNet::process()
 
     auto predictionToFeature = initPredictionToFeature();
     //FIXME/TODO: insert featureFieldExtractor to featuresink here for WFS
-    featureSink_ = initFeatureSink();
+    auto featureSink = initFeatureSink();
 
     blockCache->input("blocks") = blockSource->output("blocks");
     subsetWithBorder->input("subsets") = blockCache->output("subsets");
-    // if (subsetFilter) {
-        // subsetFilter->input("subsets") = subsetWithBorder->output("subsets");
-        // slidingWindow->input("subsets") = subsetFilter->output("subsets");
-    // } else {
+    if (subsetFilter) {
+        subsetFilter->input("subsets") = subsetWithBorder->output("subsets");
+        slidingWindow->input("subsets") = subsetFilter->output("subsets");
+    } else {
         slidingWindow->input("subsets") = subsetWithBorder->output("subsets");
-    // }
+    }
 
     model->input("subsets") = slidingWindow->output("subsets");
     if (labelFilter) {
@@ -184,12 +185,12 @@ void OpenSpaceNet::process()
         predictionToFeature->input("predictions") = model->output("predictions");
     }
 
-    featureSink_->input("features") =  predictionToFeature->output("features");
+    featureSink->input("features") =  predictionToFeature->output("features");
 
     startProgressDisplay(); //FIXME: Make the progress display work
     auto startTime = high_resolution_clock::now();
-    featureSink_->run();
-    featureSink_->wait();
+    featureSink->run();
+    featureSink->wait();
     duration<double> duration = high_resolution_clock::now() - startTime;
 
     OSN_LOG(info) << "New time " << duration.count() << " s";
@@ -321,9 +322,9 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the subset filter..." ;
 
-        auto regionFilter = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
-                                                             calcPrimaryWindowStep(),
-                                                             MaskedRegionFilter::FilterMethod::ANY);
+        RegionFilter::Ptr regionFilter = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
+                                                                         calcPrimaryWindowStep(),
+                                                                         MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
@@ -367,11 +368,11 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
             }
         }
 
-        //FIXME: create issue
-        // auto subsetFilter = dg::deepcore::geometry::node::SubsetRegionFilter::create("SubsetRegionFilter");
-        // subsetFilter->attr("regionFilter") = regionFilter;
+        
+        auto subsetFilter = SubsetRegionFilter::create("SubsetRegionFilter");
+        subsetFilter->attr("regionFilter") = regionFilter;
 
-        // return subsetFilter;
+        return subsetFilter;
     }
 
     return nullptr;
