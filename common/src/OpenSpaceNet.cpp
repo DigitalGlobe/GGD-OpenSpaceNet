@@ -18,6 +18,7 @@
 #include "OpenSpaceNet.h"
 #include <OpenSpaceNetVersion.h>
 
+//FIXME: Cleanup includes
 #include <boost/algorithm/string.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/date_time.hpp>
@@ -33,7 +34,6 @@
 #include <geometry/AffineTransformation.h>
 #include <geometry/Algorithms.h>
 #include <geometry/CvToLog.h>
-#include <geometry/FilterLabels.h>
 #include <geometry/MaskedRegionFilter.h>
 #include <geometry/Nodes.h>
 #include <geometry/NonMaxSuppression.h>
@@ -58,6 +58,7 @@
 
 namespace dg { namespace osn {
 
+//FIXME: cleanup
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::classification::node;
 using namespace dg::deepcore::geometry;
@@ -68,6 +69,8 @@ using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;
 using namespace dg::deepcore::vector::node;
 
+
+//FIXME: Cleanup
 using boost::copy;
 using boost::format;
 using boost::join;
@@ -129,46 +132,50 @@ void OpenSpaceNet::process()
     }
 
     auto blockCache = BlockCache::create("cache");
-    blockCache->input("blocks") = blockSource->output("blocks");
     blockCache->connectAttrs(*blockSource);
 
     auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
-    subsetWithBorder->input("subsets") = blockCache->output("subsets");
     subsetWithBorder->connectAttrs(*blockSource);
 
-    // FIXME regionFilter
-    // auto regionFiler = dg::deepcore::geometry::node::MaskedRegionFilter::create("regionFilter");
-    // regionFilter->input("subsets") = subsetWithBorder->output("subsets");
+    // auto subsetFilter = initSubsetRegionFilter();
 
-    OSN_LOG(info) << "Reading model..." ;
     //Note: Model must be initialized before sliding window for model size and stepping
+    OSN_LOG(info) << "Reading model..." ;
     auto model = initModel();
     auto slidingWindow = initSlidingWindow();
-    slidingWindow->input("subsets") = subsetWithBorder->output("subsets"); //FIXME: switch to region filter if it's there
-    // slidingWindow->input("subsets") = regionFilter->output("subsets");
-    model->input("subsets") = slidingWindow->output("subsets");
     slidingWindow->connectAttrs(*blockSource);
     model->connectAttrs(*blockSource);
 
-    OSN_LOG(info) << "Creating post processors..." ;
     auto labelFilter = initLabelFilter();
-    if (labelFilter) {
-        labelFilter->input("predictions") = model->output("predictions");
-    }
-
     NonMaxSuppression::Ptr nmsNode;
     if(args_.action != Action::LANDCOVER && args_.nms) {
         nmsNode = NonMaxSuppression::create("NonMaxSuppression");
         nmsNode->attr("overlapThreshold") = (float) args_.overlap / 100;
-
-        if (labelFilter) {
-            nmsNode->input("predictions") = labelFilter->output("predictions");
-        } else {
-            nmsNode->input("predictions") = model->output("predictions");
-        }
     }
 
     auto predictionToFeature = initPredictionToFeature();
+    //FIXME/TODO: insert featureFieldExtractor to featuresink here for WFS
+    featureSink_ = initFeatureSink();
+
+    blockCache->input("blocks") = blockSource->output("blocks");
+    subsetWithBorder->input("subsets") = blockCache->output("subsets");
+    // if (subsetFilter) {
+        // subsetFilter->input("subsets") = subsetWithBorder->output("subsets");
+        // slidingWindow->input("subsets") = subsetFilter->output("subsets");
+    // } else {
+        slidingWindow->input("subsets") = subsetWithBorder->output("subsets");
+    // }
+
+    model->input("subsets") = slidingWindow->output("subsets");
+    if (labelFilter) {
+        labelFilter->input("predictions") = model->output("predictions");
+        if (nmsNode) {
+            nmsNode->input("predictions") = labelFilter->output("predictions");
+        }
+    } else if (nmsNode) {
+        nmsNode->input("predictions") = model->output("predictions");
+    }
+
     if (nmsNode) {
         predictionToFeature->input("predictions") = nmsNode->output("predictions");
     } else if (labelFilter) {
@@ -177,9 +184,6 @@ void OpenSpaceNet::process()
         predictionToFeature->input("predictions") = model->output("predictions");
     }
 
-    //FIXME/TODO: insert featureFieldExtractor to featuresink here for WFS
-
-    featureSink_ = initFeatureSink();
     featureSink_->input("features") =  predictionToFeature->output("features");
 
     startProgressDisplay(); //FIXME: Make the progress display work
@@ -316,6 +320,67 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     return blockSource;
 }
 
+SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
+{
+    if (args_.filterDefinition.size()) {
+        OSN_LOG(info) << "Initializing the subset filter..." ;
+
+        auto regionFilter = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
+                                                             calcPrimaryWindowStep(),
+                                                             MaskedRegionFilter::FilterMethod::ANY);
+        bool firstAction = true;
+        for (const auto& filterAction : args_.filterDefinition) {
+            string action = filterAction.first;
+            std::vector<Polygon> filterPolys;
+            for (const auto& filterFile : filterAction.second) {
+                FileFeatureSet filter(filterFile);
+                for (auto& layer : filter) {
+                    auto pixelToProj = dynamic_cast<const TransformationChain&>(*pixelToLL_);
+
+                    if(layer.spatialReference().isLocal() != sr_.isLocal()) {
+                        DG_CHECK(layer.spatialReference().isLocal(), "Error applying region filter: %d doesn't have a spatial reference, but the input image does", filterFile.c_str());
+                        DG_CHECK(sr_.isLocal(), "Error applying region filter: Input image doesn't have a spatial reference, but the %d does", filterFile.c_str());
+                    } else if(!sr_.isLocal()) {
+                        pixelToProj.append(*layer.spatialReference().from(SpatialReference::WGS84));
+                    }
+
+                    auto transform = pixelToProj.inverse();
+                    transform->compact();
+
+                    for (const auto& feature: layer) {
+                        if (feature.type() != GeometryType::POLYGON) {
+                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile.c_str());
+                        }
+                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(*transform).release());
+                        filterPolys.emplace_back(std::move(*poly));
+                    }
+                }
+            }
+            if (action == "include") {
+                regionFilter->add(filterPolys);
+                firstAction = false;
+            } else if (action == "exclude") {
+                if (firstAction) {
+                    OSN_LOG(info) << "User excluded regions first...automatically including the bounding box...";
+                    regionFilter->add(Polygon(LinearRing(cv::Rect(0, 0, bbox_.width, bbox_.height))));
+                }
+                regionFilter->subtract(filterPolys);
+                firstAction = false;
+            } else {
+                DG_ERROR_THROW("Unknown filtering action \"%s\"", action.c_str());
+            }
+        }
+
+        //FIXME: create issue
+        // auto subsetFilter = dg::deepcore::geometry::node::SubsetRegionFilter::create("SubsetRegionFilter");
+        // subsetFilter->attr("regionFilter") = regionFilter;
+
+        // return subsetFilter;
+    }
+
+    return nullptr;
+}
+
 Detector::Ptr OpenSpaceNet::initModel()
 {
     auto model = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
@@ -356,7 +421,7 @@ Detector::Ptr OpenSpaceNet::initModel()
         initSegmentation(model);
     }
 
-    auto modelNode = Detector::create("model");
+    auto modelNode = Detector::create("Model");
     modelNode->attr("model") = model;
     modelNode->attr("confidence") = confidence;
     return modelNode;
@@ -372,7 +437,7 @@ void OpenSpaceNet::initSegmentation(Model::Ptr model)
 
 dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow()
 {
-    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
+    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("SlidingWindow");
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  
                          cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : 
@@ -387,10 +452,10 @@ LabelFilter::Ptr OpenSpaceNet::initLabelFilter()
 {
     LabelFilter::Ptr labelFilter;
     if(!args_.excludeLabels.empty()) {
-        labelFilter = ExcludeLabels::create("excludeLabels");
+        labelFilter = ExcludeLabels::create("ExcludeLabelFilter");
         labelFilter->attr("labels") = vector<string>(args_.excludeLabels.begin(), args_.excludeLabels.end());
     } else if(!args_.includeLabels.empty()) {
-        labelFilter = IncludeLabels::create("includeLabels");
+        labelFilter = IncludeLabels::create("IncludeLabelFilter");
         labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin(), args_.includeLabels.end());
     }
 
@@ -399,7 +464,7 @@ LabelFilter::Ptr OpenSpaceNet::initLabelFilter()
 
 PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
 {
-    auto predictionToFeature = PredictionToFeature::create("predictionToFeature");
+    auto predictionToFeature = PredictionToFeature::create("PredictionToFeature");
     predictionToFeature->attr("geometryType") = args_.geometryType;
     predictionToFeature->attr("pixelToProj") = pixelToProj_;
     predictionToFeature->attr("topNName") = "top_five";
@@ -434,7 +499,7 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    auto featureSink = FileFeatureSink::create("featureSink");
+    auto featureSink = FileFeatureSink::create("FeatureSink");
     featureSink->attr("spatialReference") = imageSr_;
     featureSink->attr("outputSpatialReference") = sr_;
     featureSink->attr("geometryType") = args_.geometryType;
@@ -445,61 +510,6 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     featureSink->attr("fieldDefinitions") = definitions;
 
     return featureSink;
-}
-
-void OpenSpaceNet::initFilter()
-{
-    if (args_.filterDefinition.size()) {
-        OSN_LOG(info) << "Initializing the region filter..." ;
-
-        regionFilter_ = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
-                                                        calcPrimaryWindowStep(),
-                                                        MaskedRegionFilter::FilterMethod::ANY);
-        bool firstAction = true;
-        for (const auto& filterAction : args_.filterDefinition) {
-            string action = filterAction.first;
-            std::vector<Polygon> filterPolys;
-            for (const auto& filterFile : filterAction.second) {
-                FileFeatureSet filter(filterFile);
-                for (auto& layer : filter) {
-                    auto pixelToProj = dynamic_cast<const TransformationChain&>(*pixelToLL_);
-
-                    if(layer.spatialReference().isLocal() != sr_.isLocal()) {
-                        DG_CHECK(layer.spatialReference().isLocal(), "Error applying region filter: %d doesn't have a spatial reference, but the input image does", filterFile.c_str());
-                        DG_CHECK(sr_.isLocal(), "Error applying region filter: Input image doesn't have a spatial reference, but the %d does", filterFile.c_str());
-                    } else if(!sr_.isLocal()) {
-                        pixelToProj.append(*layer.spatialReference().from(SpatialReference::WGS84));
-                    }
-
-                    auto transform = pixelToProj.inverse();
-                    transform->compact();
-
-                    for (const auto& feature: layer) {
-                        if (feature.type() != GeometryType::POLYGON) {
-                            DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile.c_str());
-                        }
-                        auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(*transform).release());
-                        filterPolys.emplace_back(std::move(*poly));
-                    }
-                }
-            }
-            if (action == "include") {
-                regionFilter_->add(filterPolys);
-                firstAction = false;
-            } else if (action == "exclude") {
-                if (firstAction) {
-                    OSN_LOG(info) << "User excluded regions first...automatically including the bounding box...";
-                    regionFilter_->add(Polygon(LinearRing(cv::Rect(0, 0, bbox_.width, bbox_.height))));
-                }
-                regionFilter_->subtract(filterPolys);
-                firstAction = false;
-            } else {
-                DG_ERROR_THROW("Unknown filtering action \"%s\"", action.c_str());
-            }
-        }
-    } else {
-        regionFilter_ = make_unique<PassthroughRegionFilter>();
-    }
 }
 
 void OpenSpaceNet::startProgressDisplay()

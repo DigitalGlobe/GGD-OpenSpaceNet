@@ -19,11 +19,13 @@
 #ifndef OPENSPACENET_OPENSPACENET_H
 #define OPENSPACENET_OPENSPACENET_H
 
+//FIXME: Cleanup
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <classification/node/Detector.h>
 #include <geometry/SpatialReference.h>
 #include <geometry/node/LabelFilter.h>
+#include <geometry/node/SubsetRegionFilter.h>
 #include <imagery/node/GeoBlockSource.h>
 #include <imagery/node/SlidingWindow.h>
 #include <network/HttpCleanup.h>
@@ -45,14 +47,14 @@ public:
 private:
     deepcore::imagery::node::GeoBlockSource::Ptr initLocalImage();
     deepcore::imagery::node::GeoBlockSource::Ptr initMapServiceImage();
+    deepcore::geometry::node::SubsetRegionFilter::Ptr initSubsetRegionFilter();
     deepcore::classification::node::Detector::Ptr initModel();
     void initSegmentation(deepcore::classification::Model::Ptr model);
     deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
     deepcore::geometry::node::LabelFilter::Ptr initLabelFilter();
     deepcore::vector::node::PredictionToFeature::Ptr initPredictionToFeature();
     deepcore::vector::node::FileFeatureSink::Ptr initFeatureSink();
-    
-    void initFilter();
+
     void startProgressDisplay();
     bool isCancelled(); 
     void printModel();
@@ -78,9 +80,9 @@ private:
     cv::Point defaultStep_;
     float modelAspectRatio_;
 
+    //FIXME: Probably remove this
     deepcore::vector::node::FileFeatureSink::Ptr featureSink_;
 
-    std::unique_ptr<deepcore::geometry::RegionFilter> regionFilter_ = nullptr;    
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
     std::string classifyCategory_;
 };
