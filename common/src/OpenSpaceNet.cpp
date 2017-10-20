@@ -581,7 +581,7 @@ std::vector<T> OpenSpaceNet::processSerial()
         chipper = SlidingWindowChipper(mat, calcWindows(), resampledSize,
                                        model_->metadata().modelSize());
     }
-    chipper.setFilter(std::move(regionFilter_->clone()));
+    chipper.setFilter(regionFilter_);
     auto it = chipper.begin();
     std::vector<T> predictions;
     int progress = 0;
