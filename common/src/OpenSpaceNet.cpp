@@ -59,13 +59,16 @@ using namespace dg::deepcore::vector;
 using namespace dg::deepcore::vector::node;
 
 using boost::format;
+using boost::is_any_of;
 using boost::join;
 using boost::lexical_cast;
 using boost::make_unique;
 using boost::posix_time::from_time_t;
 using boost::posix_time::to_simple_string;
+using boost::split;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
+using std::map;
 using std::move;
 using std::string;
 using std::thread;
@@ -121,7 +124,7 @@ void OpenSpaceNet::process()
     }
 
     auto predictionToFeature = initPredictionToFeature();
-    //TODO: insert featureFieldExtractor to featuresink here for WFS
+    auto wfsExtractor = initWfs();
     auto featureSink = initFeatureSink();
 
     blockCache->input("blocks") = blockSource->output("blocks");
@@ -151,7 +154,12 @@ void OpenSpaceNet::process()
         predictionToFeature->input("predictions") = model->output("predictions");
     }
 
-    featureSink->input("features") =  predictionToFeature->output("features");
+    if (wfsExtractor) {
+        wfsExtractor->input("features") = predictionToFeature->output("features");
+        featureSink->input("features") = wfsExtractor->output("features");
+    } else {
+        featureSink->input("features") = predictionToFeature->output("features");
+    }
 
     startProgressDisplay();
     auto startTime = high_resolution_clock::now();
@@ -483,6 +491,55 @@ PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
     return predictionToFeature;
 }
 
+WfsFeatureFieldExtractor::Ptr OpenSpaceNet::initWfs()
+{
+    if (args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        string baseUrl;
+        if(args_.dgcsCatalogID) {
+            OSN_LOG(info) << "Connecting to DGCS web feature service...";
+            baseUrl = "https://services.digitalglobe.com/catalogservice/wfsaccess";
+        } else if (args_.evwhsCatalogID) {
+            OSN_LOG(info) << "Connecting to EVWHS web feature service...";
+            baseUrl = Url("https://evwhs.digitalglobe.com/catalogservice/wfsaccess");
+        }
+
+        auto wfsCreds = args_.wfsCredentials;
+        if (wfsCreds.empty()) {
+            DG_CHECK(!args_.credentials.empty(), "No credentials specified for WFS service");
+            wfsCreds = args_.credentials;
+        }
+
+        DG_CHECK(!args_.token.empty(), "No token specified for WFS service");
+
+        map<string, string> query;
+        query["service"] = "wfs";
+        query["version"] = "1.1.0";
+        query["connectid"] = args_.token; 
+        query["request"] = "getFeature";
+        query["typeName"] = WFS_TYPENAME;
+        query["srsName"] = "EPSG:3857";
+
+        vector<string> splitCreds;
+        split(splitCreds, wfsCreds, is_any_of(":"));
+        auto url = Url(baseUrl);
+        url.user = splitCreds[0];
+        url.password = splitCreds[1];
+        url.query = std::move(query);
+
+        vector<string> fieldNames = {"legacyId"};
+        Fields defaultFields = { {"legacyId", Field(FieldType::STRING, "uncataloged")}};
+
+        auto featureFieldExtractor = WfsFeatureFieldExtractor::create("WFSFeatureFieldExtractor");
+        featureFieldExtractor->attr("inputSpatialReference") = imageSr_;
+        featureFieldExtractor->attr("fieldNames") = fieldNames;
+        featureFieldExtractor->attr("defaultFields") = defaultFields;
+        featureFieldExtractor->attr("url") = url;
+        return featureFieldExtractor;
+    }
+
+    return nullptr;
+}
+
 FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
 {
     time_t currentTime = time(nullptr);
@@ -505,6 +562,10 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
         extraFields["username"] = { FieldType ::STRING, loginUser() };
         extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
         extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
+    }
+
+    if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
+        definitions.push_back({FieldType::STRING, "catalog_id"});
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;

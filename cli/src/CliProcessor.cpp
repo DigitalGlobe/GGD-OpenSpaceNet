@@ -145,6 +145,10 @@ CliProcessor::CliProcessor() :
         ("type", po::value<string>()->value_name(name_with_default("TYPE", "polygon")),
          "Output geometry type.  Currently only point and polygon are valid.")
         ("producer-info", "Add user name, application name, and application version to the output feature set.")
+        ("dgcs-catalog-id", "Add catalog_id property to detected features, by finding the most intersected legacyId from DGCS WFS data source DigitalGlobe:FinishedFeature")
+        ("evwhs-catalog-id", "Add catalog_id property to detected features, by finding the most intersected legacyId from EVWHS WFS data source DigitalGlobe:FinishedFeature")
+        ("wfs-credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
+         "Credentials for the WFS service, if appending legacyId. If not specified, credentials from the credentials option will be used.")
         ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
         ;
 
@@ -599,6 +603,11 @@ void CliProcessor::validateArgs()
             DG_ERROR_THROW("Source is unknown or unspecified");
     }
 
+    if (osnArgs.dgcsCatalogID || osnArgs.evwhsCatalogID) {
+        tokenUse = REQUIRED;
+    }
+
+
     checkArgument("token", tokenUse, osnArgs.token, sourceDescription);
     checkArgument("credentials", credentialsUse, osnArgs.credentials, sourceDescription);
     checkArgument("map-id", mapIdUse, mapIdSet, sourceDescription);
@@ -776,6 +785,10 @@ void CliProcessor::readOutputArgs(variables_map vm, bool splitArgs)
     }
     osnArgs.append = vm.find("append") != end(vm);
     osnArgs.producerInfo = vm.find("producer-info") != end(vm);
+
+    osnArgs.dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
+    osnArgs.evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
+    readVariable("wfs-credentials", vm, osnArgs.wfsCredentials);
 }
 
 void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)

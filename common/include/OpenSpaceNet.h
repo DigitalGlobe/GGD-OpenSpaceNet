@@ -31,6 +31,7 @@
 #include <opencv2/core/types.hpp>
 #include <vector/node/FileFeatureSink.h>
 #include <vector/node/PredictionToFeature.h>
+#include <vector/node/WfsFeatureFieldExtractor.h>
 #include <utility/Logging.h>
 #include <utility/ProgressDisplay.h>
 
@@ -52,6 +53,7 @@ private:
     deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
     deepcore::geometry::node::LabelFilter::Ptr initLabelFilter();
     deepcore::vector::node::PredictionToFeature::Ptr initPredictionToFeature();
+    deepcore::vector::node::WfsFeatureFieldExtractor::Ptr initWfs();
     deepcore::vector::node::FileFeatureSink::Ptr initFeatureSink();
 
     void startProgressDisplay();
