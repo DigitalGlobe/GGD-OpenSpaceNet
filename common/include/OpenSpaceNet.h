@@ -19,7 +19,6 @@
 #ifndef OPENSPACENET_OPENSPACENET_H
 #define OPENSPACENET_OPENSPACENET_H
 
-//FIXME: Cleanup
 #include "OpenSpaceNetArgs.h"
 #include <classification/Model.h>
 #include <classification/node/Detector.h>

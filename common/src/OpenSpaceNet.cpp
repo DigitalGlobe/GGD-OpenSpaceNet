@@ -20,27 +20,18 @@
 
 #include <include/OpenSpaceNetArgs.h>
 
-//FIXME: Cleanup includes
 #include <boost/algorithm/string.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/make_unique.hpp>
-#include <boost/progress.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/range/algorithm/copy.hpp>
 #include <classification/Classification.h>
 #include <classification/CaffeSegmentation.h>
 #include <classification/Nodes.h>
-#include <future>
 #include <geometry/AffineTransformation.h>
-#include <geometry/Algorithms.h>
-#include <geometry/CvToLog.h>
 #include <geometry/MaskedRegionFilter.h>
 #include <geometry/Nodes.h>
-#include <geometry/NonMaxSuppression.h>
 #include <geometry/PassthroughRegionFilter.h>
-#include <geometry/PolygonalNonMaxSuppression.h>
 #include <geometry/TransformationChain.h>
 #include <imagery/DgcsClient.h>
 #include <imagery/EvwhsClient.h>
@@ -49,9 +40,7 @@
 #include <imagery/MapBoxClient.h>
 #include <imagery/Nodes.h>
 #include <imagery/RasterToPolygonDP.h>
-#include <imagery/SlidingWindowChipper.h>
-#include <utility/ConsoleProgressDisplay.h>
-#include <utility/Semaphore.h>
+#include <process/Metrics.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
 #include <vector/Nodes.h>
@@ -59,7 +48,6 @@
 
 namespace dg { namespace osn {
 
-//FIXME: cleanup
 using namespace dg::deepcore::classification;
 using namespace dg::deepcore::classification::node;
 using namespace dg::deepcore::geometry;
@@ -70,43 +58,21 @@ using namespace dg::deepcore::network;
 using namespace dg::deepcore::vector;
 using namespace dg::deepcore::vector::node;
 
-
-//FIXME: Cleanup
-using boost::copy;
 using boost::format;
 using boost::join;
 using boost::lexical_cast;
 using boost::make_unique;
 using boost::posix_time::from_time_t;
 using boost::posix_time::to_simple_string;
-using boost::progress_display;
-using boost::property_tree::json_parser::write_json;
-using boost::property_tree::ptree;
-using std::atomic;
-using std::async;
-using std::back_inserter;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
-using std::cout;
-using std::deque;
-using std::endl;
-using std::launch;
-using std::lock_guard;
-using std::make_pair;
-using std::map;
 using std::move;
-using std::recursive_mutex;
-using std::ostringstream;
-using std::pair;
 using std::string;
+using std::thread;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
 using dg::deepcore::ProgressCategories;
-using dg::deepcore::Semaphore;
-using dg::deepcore::ConsoleProgressDisplay;
-using dg::deepcore::ProgressCategory;
-using dg::deepcore::classification::CaffeSegmentation;
 
 OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
     args_(std::move(args))
@@ -187,13 +153,60 @@ void OpenSpaceNet::process()
 
     featureSink->input("features") =  predictionToFeature->output("features");
 
-    startProgressDisplay(); //FIXME: Make the progress display work
+    startProgressDisplay();
     auto startTime = high_resolution_clock::now();
-    featureSink->run();
-    featureSink->wait();
+
+    if (!args_.quiet && pd_) {
+        thread([&slidingWindow, this]() {
+            while(!slidingWindow->canceled()) {
+                slidingWindow->metric("processed").changed().wait();
+                auto processed = slidingWindow->metric("processed").convert<int>();
+                auto requested = slidingWindow->metric("requested").convert<int>();
+                if (processed) {
+                    auto progress = (float) processed / requested;
+                    this->pd_->update("Reading", progress);
+                }
+            }
+        }).detach();
+
+        thread([&model, this]() {
+            while(!model->canceled()) {
+                model->metric("processed").changed().wait();
+                auto processed = model->metric("processed").convert<int>();
+                if (processed) {
+                    auto progress = (float) processed / model->metric("requested").convert<int>();
+                    this->pd_->update(classifyCategory_, progress);
+                }
+            }
+        }).detach();
+
+        thread([&featureSink, this]() {
+            while(!featureSink->canceled()) {
+                featureSink->metric("processed").changed().wait();
+                auto processed = featureSink->metric("processed").convert<int>();
+                if (processed) {
+                    auto progress = (float) processed / featureSink->metric("requested").convert<int>();
+                    this->pd_->update("Writing", progress);
+                }
+            }
+        }).detach();
+
+        featureSink->run();
+        featureSink->wait();
+        pd_->stop();
+    } else {
+        featureSink->run();
+        featureSink->wait();
+
+    }
+
     duration<double> duration = high_resolution_clock::now() - startTime;
 
-    OSN_LOG(info) << "New time " << duration.count() << " s";
+    if (!args_.quiet) {
+        skipLine();
+        OSN_LOG(info) << featureSink->metric("processed").convert<int>() << " features detected.";
+        OSN_LOG(info) << "Processing time " << duration.count() << " s";
+    }
 }
 
 void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
@@ -515,19 +528,19 @@ void OpenSpaceNet::startProgressDisplay()
         return;
     }
 
-    ProgressCategories categories = {
-        {"Reading", "Reading the image" }
-    };
+    ProgressCategories categories = {{"Reading", "Reading the image" }};
 
     if (args_.action == Action::LANDCOVER) {
-        categories.emplace_back("Classifying", "Classifying the image");
         classifyCategory_ = "Classifying";
+        categories.emplace_back(classifyCategory_, "Classifying the image");
     } else if(args_.action == Action::DETECT) {
-        categories.emplace_back("Detecting", "Detecting the object(s)");
         classifyCategory_ = "Detecting";
+        categories.emplace_back(classifyCategory_, "Detecting the object(s)");
     } else {
-        DG_ERROR_THROW("Invalid action called during processConcurrent()");
+        DG_ERROR_THROW("Invalid action called during process()");
     }
+
+    categories.emplace_back("Writing", "Writing the features");
 
     pd_->setCategories(move(categories));
     pd_->start();
@@ -557,7 +570,7 @@ void OpenSpaceNet::printModel()
 void OpenSpaceNet::skipLine() const
 {
     if(!args_.quiet) {
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
