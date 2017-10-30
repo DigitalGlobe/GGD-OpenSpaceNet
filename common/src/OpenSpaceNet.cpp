@@ -146,12 +146,31 @@ void OpenSpaceNet::process()
         nmsNode->input("predictions") = model->output("predictions");
     }
 
+    bool isSegmentation = (metadata_->category() == "segmentation");
+    PredictionBoxToPoly::Ptr toPoly;
+    if (!isSegmentation) {
+        toPoly = PredictionBoxToPoly::create("PredictionBoxToPoly");
+        predictionToFeature->input("predictions") = toPoly->output("predictions");
+    }
+
     if (nmsNode) {
-        predictionToFeature->input("predictions") = nmsNode->output("predictions");
+        if (isSegmentation) {
+            predictionToFeature->input("predictions") = nmsNode->output("predictions");
+        } else {
+            toPoly->input("predictions") = nmsNode->output("predictions");
+        }
     } else if (labelFilter) {
-        predictionToFeature->input("predictions") = labelFilter->output("predictions");
+        if (isSegmentation) {
+            predictionToFeature->input("predictions") = labelFilter->output("predictions");
+        } else {
+            toPoly->input("predictions") = labelFilter->output("predictions");   
+        }
     } else {
-        predictionToFeature->input("predictions") = model->output("predictions");
+        if (isSegmentation) {
+            predictionToFeature->input("predictions") = model->output("predictions");
+        } else {
+            toPoly->input("predictions") = model->output("predictions");      
+        }
     }
 
     if (wfsExtractor) {
