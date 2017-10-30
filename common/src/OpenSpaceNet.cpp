@@ -205,13 +205,11 @@ void OpenSpaceNet::process()
     } else {
         featureSink->run();
         featureSink->wait();
-
     }
-
-    duration<double> duration = high_resolution_clock::now() - startTime;
 
     if (!args_.quiet) {
         skipLine();
+        duration<double> duration = high_resolution_clock::now() - startTime;
         OSN_LOG(info) << featureSink->metric("processed").convert<int>() << " features detected.";
         OSN_LOG(info) << "Processing time " << duration.count() << " s";
     }
