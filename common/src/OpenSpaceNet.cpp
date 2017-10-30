@@ -470,12 +470,20 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
 LabelFilter::Ptr OpenSpaceNet::initLabelFilter()
 {
     LabelFilter::Ptr labelFilter;
+    if (metadata_->category() == "segmentation") {
+        labelFilter = BoxLabelFilter::create("LabelFilter");
+    } else {
+        labelFilter = PolyLabelFilter::create("LabelFilter");
+    }
+
     if(!args_.excludeLabels.empty()) {
-        labelFilter = ExcludeLabels::create("ExcludeLabelFilter");
         labelFilter->attr("labels") = vector<string>(args_.excludeLabels.begin(), args_.excludeLabels.end());
+        labelFilter->attr("labelFilterType") = LabelFilterType::EXCLUDE;
     } else if(!args_.includeLabels.empty()) {
-        labelFilter = IncludeLabels::create("IncludeLabelFilter");
         labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin(), args_.includeLabels.end());
+        labelFilter->attr("labelFilterType") = LabelFilterType::INCLUDE;
+    } else {
+        return nullptr;
     }
 
     return labelFilter;
