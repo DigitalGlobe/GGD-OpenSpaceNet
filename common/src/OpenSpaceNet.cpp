@@ -433,11 +433,14 @@ Detector::Ptr OpenSpaceNet::initModel()
         }
     }
 
+    Detector::Ptr modelNode;
     if(metadata_->category() == "segmentation") {
         initSegmentation(model);
+        modelNode = deepcore::classification::node::PolyDetector::create("Model");
+    } else {
+        modelNode = deepcore::classification::node::BoxDetector::create("Model");
     }
 
-    auto modelNode = Detector::create("Model");
     modelNode->attr("model") = model;
     modelNode->attr("confidence") = confidence;
     return modelNode;
