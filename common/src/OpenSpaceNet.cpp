@@ -116,10 +116,17 @@ void OpenSpaceNet::process()
     slidingWindow->connectAttrs(*blockSource);
     model->connectAttrs(*blockSource);
 
+    bool isSegmentation = (metadata_->category() == "segmentation");
+
     auto labelFilter = initLabelFilter();
     NonMaxSuppression::Ptr nmsNode;
     if(args_.action != Action::LANDCOVER && args_.nms) {
-        nmsNode = NonMaxSuppression::create("NonMaxSuppression");
+        if (isSegmentation) {
+            nmsNode = PolygonalNonMaxSuppression::create("NonMaxSuppression");
+        } else {
+            nmsNode = BoxNonMaxSuppression::create("NonMaxSuppression");
+        }
+
         nmsNode->attr("overlapThreshold") = (float) args_.overlap / 100;
     }
 
@@ -146,7 +153,6 @@ void OpenSpaceNet::process()
         nmsNode->input("predictions") = model->output("predictions");
     }
 
-    bool isSegmentation = (metadata_->category() == "segmentation");
     PredictionBoxToPoly::Ptr toPoly;
     if (!isSegmentation) {
         toPoly = PredictionBoxToPoly::create("PredictionBoxToPoly");
