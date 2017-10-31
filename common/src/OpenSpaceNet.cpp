@@ -122,7 +122,7 @@ void OpenSpaceNet::process()
     NonMaxSuppression::Ptr nmsNode;
     if(args_.action != Action::LANDCOVER && args_.nms) {
         if (isSegmentation) {
-            nmsNode = PolygonalNonMaxSuppression::create("NonMaxSuppression");
+            nmsNode = PolyNonMaxSuppression::create("NonMaxSuppression");
         } else {
             nmsNode = BoxNonMaxSuppression::create("NonMaxSuppression");
         }
