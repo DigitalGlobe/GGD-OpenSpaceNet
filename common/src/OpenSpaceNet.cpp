@@ -107,7 +107,8 @@ void OpenSpaceNet::process()
     auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
     subsetWithBorder->connectAttrs(*blockSource);
 
-    //Note: Model must be initialized before sliding window and subset filter for model size and stepping
+    //Note: Model must be initialized before sliding window
+    //and subset filter for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
     auto model = initModel();
     auto subsetFilter = initSubsetRegionFilter();
@@ -505,7 +506,7 @@ LabelFilter::Ptr OpenSpaceNet::initLabelFilter(bool isSegmentation)
                                                      args_.excludeLabels.end());
         labelFilter->attr("labelFilterType") = LabelFilterType::EXCLUDE;
     } else if(!args_.includeLabels.empty()) {
-        labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin()
+        labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin(),
                                                      args_.includeLabels.end());
         labelFilter->attr("labelFilterType") = LabelFilterType::INCLUDE;
     } else {
