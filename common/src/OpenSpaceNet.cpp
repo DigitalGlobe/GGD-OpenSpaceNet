@@ -107,18 +107,17 @@ void OpenSpaceNet::process()
     auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
     subsetWithBorder->connectAttrs(*blockSource);
 
-    auto subsetFilter = initSubsetRegionFilter();
-
-    //Note: Model must be initialized before sliding window for model size and stepping
+    //Note: Model must be initialized before sliding window and subset filter for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
     auto model = initModel();
+    auto subsetFilter = initSubsetRegionFilter();
     auto slidingWindow = initSlidingWindow();
     slidingWindow->connectAttrs(*blockSource);
     model->connectAttrs(*blockSource);
 
     bool isSegmentation = (metadata_->category() == "segmentation");
 
-    auto labelFilter = initLabelFilter();
+    auto labelFilter = initLabelFilter(isSegmentation);
     NonMaxSuppression::Ptr nmsNode;
     if(args_.action != Action::LANDCOVER && args_.nms) {
         if (isSegmentation) {
@@ -492,20 +491,22 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
     return slidingWindow;
 }
 
-LabelFilter::Ptr OpenSpaceNet::initLabelFilter()
+LabelFilter::Ptr OpenSpaceNet::initLabelFilter(bool isSegmentation)
 {
     LabelFilter::Ptr labelFilter;
-    if (metadata_->category() == "segmentation") {
-        labelFilter = BoxLabelFilter::create("LabelFilter");
-    } else {
+    if (isSegmentation) {
         labelFilter = PolyLabelFilter::create("LabelFilter");
+    } else {
+        labelFilter = BoxLabelFilter::create("LabelFilter");
     }
 
     if(!args_.excludeLabels.empty()) {
-        labelFilter->attr("labels") = vector<string>(args_.excludeLabels.begin(), args_.excludeLabels.end());
+        labelFilter->attr("labels") = vector<string>(args_.excludeLabels.begin(),
+                                                     args_.excludeLabels.end());
         labelFilter->attr("labelFilterType") = LabelFilterType::EXCLUDE;
     } else if(!args_.includeLabels.empty()) {
-        labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin(), args_.includeLabels.end());
+        labelFilter->attr("labels") = vector<string>(args_.includeLabels.begin()
+                                                     args_.includeLabels.end());
         labelFilter->attr("labelFilterType") = LabelFilterType::INCLUDE;
     } else {
         return nullptr;

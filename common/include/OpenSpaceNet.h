@@ -51,7 +51,7 @@ private:
     deepcore::classification::node::Detector::Ptr initModel();
     void initSegmentation(deepcore::classification::Model::Ptr model);
     deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
-    deepcore::geometry::node::LabelFilter::Ptr initLabelFilter();
+    deepcore::geometry::node::LabelFilter::Ptr initLabelFilter(bool isSegmentation);
     deepcore::vector::node::PredictionToFeature::Ptr initPredictionToFeature();
     deepcore::vector::node::WfsFeatureFieldExtractor::Ptr initWfs();
     deepcore::vector::node::FileFeatureSink::Ptr initFeatureSink();
