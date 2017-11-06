@@ -195,7 +195,7 @@ void OpenSpaceNet::process()
                 slidingWindow->metric("processed").changed().wait();
                 auto processed = slidingWindow->metric("processed").convert<int>();
                 auto requested = slidingWindow->metric("requested").convert<int>();
-                if (processed) {
+                if (processed > 0 && requested > 0) {
                     auto progress = (float) processed / requested;
                     this->pd_->update("Reading", progress);
                 }
@@ -206,8 +206,9 @@ void OpenSpaceNet::process()
             while(!model->canceled()) {
                 model->metric("processed").changed().wait();
                 auto processed = model->metric("processed").convert<int>();
-                if (processed) {
-                    auto progress = (float) processed / model->metric("requested").convert<int>();
+                auto requested = model->metric("requested").convert<int>();
+                if (processed > 0 && requested > 0) {
+                    auto progress = (float) processed / requested;
                     this->pd_->update(classifyCategory_, progress);
                 }
             }
@@ -217,8 +218,9 @@ void OpenSpaceNet::process()
             while(!featureSink->canceled()) {
                 featureSink->metric("processed").changed().wait();
                 auto processed = featureSink->metric("processed").convert<int>();
-                if (processed) {
-                    auto progress = (float) processed / featureSink->metric("requested").convert<int>();
+                auto requested = featureSink->metric("requested").convert<int>();
+                if (processed > 0 && requested > 0) {
+                    auto progress = (float) processed / requested;
                     this->pd_->update("Writing", progress);
                 }
             }
