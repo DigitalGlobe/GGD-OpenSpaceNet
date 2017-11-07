@@ -325,6 +325,11 @@ and is not recommended. Most _OpenSpaceNet_ models are designed to work at a cer
 
 When this is given, `--window-size` and `--window-step` arguments may be specified, but only the first option for each will be used.
 
+##### Size parameters
+
+Some models may require that the imagery be resized or padded to fit the target model.  When performing these actions, use `--resampled-size` and `--window-size` to add padding and resizing, respectively.  See the image below for guidance.
+
+![Resizing parameters](modelsize.svg)
 
 <a name="filter" />
 
