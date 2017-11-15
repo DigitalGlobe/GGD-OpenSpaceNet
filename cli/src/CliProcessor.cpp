@@ -84,11 +84,6 @@ static const string OSN_DETECT_USAGE =
     "Usage:\n"
         "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
 
-static const string OSN_LANDCOVER_USAGE =
-    "Run OpenSpaceNet in landcover classification mode.\n\n"
-        "Usage:\n"
-        "  OpenSpaceNet landcover <input options> <output options> <processing options>\n\n";
-
 CliProcessor::CliProcessor() :
     localOptions_("Local Image Input Options"),
     webOptions_("Web Service Input Options"),
@@ -413,8 +408,6 @@ static Action parseAction(string str)
         return Action::HELP;
     } else if(str == "detect") {
         return Action::DETECT;
-    } else if(str == "landcover") {
-        return Action::LANDCOVER;
     }
 
     return Action::UNKNOWN;
@@ -439,21 +432,6 @@ static Source parseService(string service)
 void CliProcessor::printUsage(Action action) const
 {
     switch(action) {
-        case Action::LANDCOVER:
-        {
-            po::options_description desc;
-            desc.add(localOptions_);
-            desc.add(webOptions_);
-            desc.add(outputOptions_);
-            desc.add(processingOptions_);
-            desc.add(filterOptions_);
-            desc.add(loggingOptions_);
-            desc.add(generalOptions_);
-
-            cout << OSN_LANDCOVER_USAGE << desc;
-        }
-            break;
-
         case Action::DETECT:
             cout << OSN_DETECT_USAGE << visibleOptions_;
             break;
@@ -530,15 +508,6 @@ void CliProcessor::validateArgs()
             actionDescription = "the action is detect";
             break;
 
-        case Action::LANDCOVER:
-            windowStepUse = IGNORED;
-            windowSizeUse = MAY_USE_ONE;
-            nmsUse = IGNORED;
-            pyramidUse = IGNORED;
-            confidenceUse = IGNORED;
-            actionDescription = "the action is landcover";
-            break;
-
         default:
             DG_ERROR_THROW("Invalid action.\nTry 'OpenSpaceNet help' for more information.");
     }
@@ -606,7 +575,6 @@ void CliProcessor::validateArgs()
     if (osnArgs.dgcsCatalogID || osnArgs.evwhsCatalogID) {
         tokenUse = REQUIRED;
     }
-
 
     checkArgument("token", tokenUse, osnArgs.token, sourceDescription);
     checkArgument("credentials", credentialsUse, osnArgs.credentials, sourceDescription);

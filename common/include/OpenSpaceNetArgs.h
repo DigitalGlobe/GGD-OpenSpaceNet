@@ -43,8 +43,7 @@ enum class Action
 {
     UNKNOWN,
     HELP,
-    DETECT,
-    LANDCOVER
+    DETECT
 };
 
 struct OpenSpaceNetArgs

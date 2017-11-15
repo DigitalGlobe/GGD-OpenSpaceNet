@@ -41,6 +41,7 @@
 #include <imagery/Nodes.h>
 #include <imagery/RasterToPolygonDP.h>
 #include <process/Metrics.h>
+#include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
 #include <vector/Nodes.h>
@@ -66,6 +67,7 @@ using boost::make_unique;
 using boost::posix_time::from_time_t;
 using boost::posix_time::to_simple_string;
 using boost::split;
+using std::async;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::map;
@@ -75,10 +77,12 @@ using std::thread;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::NodeState;
 using dg::deepcore::ProgressCategories;
+using dg::deepcore::Semaphore;
 
 OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
-    args_(std::move(args))
+    args_(move(args))
 {
     if(args_.source > Source::LOCAL) {
         cleanup_ = HttpCleanup::get();
@@ -120,7 +124,7 @@ void OpenSpaceNet::process()
 
     auto labelFilter = initLabelFilter(isSegmentation);
     NonMaxSuppression::Ptr nmsNode;
-    if(args_.action != Action::LANDCOVER && args_.nms) {
+    if(args_.nms) {
         if (isSegmentation) {
             nmsNode = PolyNonMaxSuppression::create("NonMaxSuppression");
         } else {
@@ -190,44 +194,50 @@ void OpenSpaceNet::process()
     auto startTime = high_resolution_clock::now();
 
     if (!args_.quiet && pd_) {
-        thread([&slidingWindow, this]() {
-            while(!slidingWindow->canceled()) {
-                slidingWindow->metric("processed").changed().wait();
-                auto processed = slidingWindow->metric("processed").convert<int>();
-                auto requested = slidingWindow->metric("requested").convert<int>();
-                if (processed > 0 && requested > 0) {
-                    auto progress = (float) processed / requested;
-                    this->pd_->update("Reading", progress);
+        Semaphore stop;
+        auto allMetrics = async([&stop, &slidingWindow, &featureSink, &model, this]() {
+            do {
+                if(slidingWindow->metric("processed").changed().tryWait()) {
+                    auto processed = slidingWindow->metric("processed").convert<int>();
+                    auto requested = slidingWindow->metric("requested").convert<int>();
+                    if (processed > 0 && requested > 0) {
+                        auto progress = (float) processed / requested;
+                        this->pd_->update("Reading", progress);
+                    }
                 }
-            }
-        }).detach();
 
-        thread([&model, this]() {
-            while(!model->canceled()) {
-                model->metric("processed").changed().wait();
-                auto processed = model->metric("processed").convert<int>();
-                auto requested = model->metric("requested").convert<int>();
-                if (processed > 0 && requested > 0) {
-                    auto progress = (float) processed / requested;
-                    this->pd_->update(classifyCategory_, progress);
+                if(model->metric("processed").changed().tryWait()) {
+                    auto processed = model->metric("processed").convert<int>();
+                    auto requested = model->metric("requested").convert<int>();
+                    if (processed > 0 && requested > 0) {
+                        auto progress = (float) processed / requested;
+                        this->pd_->update(classifyCategory_, progress);
+                    }
                 }
-            }
-        }).detach();
 
-        thread([&featureSink, this]() {
-            while(!featureSink->canceled()) {
-                featureSink->metric("processed").changed().wait();
-                auto processed = featureSink->metric("processed").convert<int>();
-                auto requested = featureSink->metric("requested").convert<int>();
-                if (processed > 0 && requested > 0) {
-                    auto progress = (float) processed / requested;
-                    this->pd_->update("Writing", progress);
+                if(featureSink->metric("processed").changed().tryWait()) {
+                    auto processed = featureSink->metric("processed").convert<int>();
+                    auto requested = featureSink->metric("requested").convert<int>();
+                    if (processed > 0 && requested > 0) {
+                        auto progress = (float) processed / requested;
+                        this->pd_->update("Writing", progress);
+                    }
                 }
-            }
-        }).detach();
+
+                stop.wait([&slidingWindow, &featureSink, &model]() {
+                    return featureSink->state() == NodeState::STOPPED ||
+                           slidingWindow->metric("processed").changed().check() || 
+                           featureSink->metric("processed").changed().check() ||
+                           model->metric("processed").changed().check();
+                });
+
+            } while(featureSink->state() != NodeState::STOPPED);
+        });
 
         featureSink->run();
         featureSink->wait();
+        stop.notify();
+        allMetrics.get();
         pd_->stop();
     } else {
         featureSink->run();
@@ -311,24 +321,24 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     string url;
     switch(args_.source) {
         case Source::MAPS_API:
-            OSN_LOG(info) << "    Connecting to MapsAPI..." ;
+            OSN_LOG(info) << "Connecting to MapsAPI..." ;
             client = make_unique<MapBoxClient>(args_.mapId, args_.token);
             wmts = false;
             break;
 
         case Source ::EVWHS:
-            OSN_LOG(info) << "    Connecting to EVWHS..." ;
+            OSN_LOG(info) << "Connecting to EVWHS..." ;
             client = make_unique<EvwhsClient>(args_.token, args_.credentials);
             break;
 
         case Source::TILE_JSON:
-            OSN_LOG(info) << "    Connecting to TileJSON...";
+            OSN_LOG(info) << "Connecting to TileJSON...";
             client = make_unique<TileJsonClient>(args_.url, args_.credentials, args_.useTiles);
             wmts = false;
             break;
 
         default:
-            OSN_LOG(info) << "    Connecting to DGCS..." ;
+            OSN_LOG(info) << "Connecting to DGCS..." ;
             client = make_unique<DgcsClient>(args_.token, args_.credentials);
             break;
     }
@@ -344,7 +354,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
         client->setTileMatrixId(lexical_cast<string>(args_.zoom));
     }
 
-    unique_ptr<Transformation> llToProj(client->spatialReference().fromLatLon());
+    auto llToProj = client->spatialReference().fromLatLon();
     auto projBbox = llToProj->transform(*args_.bbox);
     auto image = client->imageFromArea(projBbox);
     blockSize_ = image->blockSize();
@@ -354,7 +364,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
 
     unique_ptr<Transformation> projToPixel(image->pixelToProj().inverse());
     bbox_ = projToPixel->transformToInt(projBbox);
-    pixelToLL_ = TransformationChain { std::move(llToProj), std::move(projToPixel) }.inverse();
+    pixelToLL_ = TransformationChain { move(llToProj), move(projToPixel) }.inverse();
     sr_ = SpatialReference::WGS84;
 
     auto blockSource = MapServiceBlockSource::create("source");
@@ -368,9 +378,9 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
     if (args_.filterDefinition.size()) {
         OSN_LOG(info) << "Initializing the subset filter..." ;
 
-        RegionFilter::Ptr regionFilter = make_unique<MaskedRegionFilter>(cv::Rect(0, 0, bbox_.width, bbox_.height),
-                                                                         calcPrimaryWindowStep(),
-                                                                         MaskedRegionFilter::FilterMethod::ANY);
+        RegionFilter::Ptr regionFilter = MaskedRegionFilter::create(cv::Rect(0, 0, bbox_.width, bbox_.height),
+                                                                    calcPrimaryWindowStep(),
+                                                                    MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
             string action = filterAction.first;
@@ -395,7 +405,7 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
                             DG_ERROR_THROW("Filter from file \"%s\" contains a geometry that is not a POLYGON", filterFile.c_str());
                         }
                         auto poly = dynamic_cast<Polygon*>(feature.geometry->transform(*transform).release());
-                        filterPolys.emplace_back(std::move(*poly));
+                        filterPolys.emplace_back(move(*poly));
                     }
                 }
             }
@@ -433,20 +443,7 @@ Detector::Ptr OpenSpaceNet::initModel()
     modelSize_ = metadata_->modelSize();
     defaultStep_ = model->defaultStep();
     modelAspectRatio_ = (float) modelSize_.height / modelSize_.width;
-
-    float confidence = 0;
-    if(args_.action == Action::LANDCOVER && model->modelOutput() == ModelOutput::BOX) {
-        auto windowSize = calcPrimaryWindowSize();
-        if (args_.windowSize.size() < 2) {
-            if(blockSize_.width % windowSize.width == 0 &&
-               blockSize_.height % windowSize.height == 0) {
-                bbox_ = {cv::Point {0, 0}, imageSize_};
-                concurrent_ = true;
-            }
-        }
-    } else if(args_.action == Action::DETECT) {
-        confidence = args_.confidence / 100;
-    }
+    float confidence = args_.confidence / 100;
 
     DG_CHECK(!args_.resampledSize || *args_.resampledSize <= modelSize_.width,
              "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
@@ -475,7 +472,7 @@ Detector::Ptr OpenSpaceNet::initModel()
 
 void OpenSpaceNet::initSegmentation(Model::Ptr model)
 {
-    auto castModel = dynamic_cast<CaffeSegmentation*>(model.get());
+    auto castModel = dynamic_cast<Segmentation*>(model.get());
     DG_CHECK(castModel, "Unsupported model type: only Caffe segmentation models are currently supported");
 
     castModel->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
@@ -562,7 +559,7 @@ WfsFeatureFieldExtractor::Ptr OpenSpaceNet::initWfs()
         auto url = Url(baseUrl);
         url.user = splitCreds[0];
         url.password = splitCreds[1];
-        url.query = std::move(query);
+        url.query = move(query);
 
         vector<string> fieldNames = {"legacyId"};
         Fields defaultFields = { {"legacyId", Field(FieldType::STRING, "uncataloged")}};
@@ -629,10 +626,7 @@ void OpenSpaceNet::startProgressDisplay()
 
     ProgressCategories categories = {{"Reading", "Reading the image" }};
 
-    if (args_.action == Action::LANDCOVER) {
-        classifyCategory_ = "Classifying";
-        categories.emplace_back(classifyCategory_, "Classifying the image");
-    } else if(args_.action == Action::DETECT) {
+    if(args_.action == Action::DETECT) {
         classifyCategory_ = "Detecting";
         categories.emplace_back(classifyCategory_, "Detecting the object(s)");
     } else {
@@ -693,11 +687,6 @@ cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
 
 SizeSteps OpenSpaceNet::calcWindows() const
 {
-    if (args_.action == Action::LANDCOVER) {
-        auto primaryWindowSize = calcPrimaryWindowSize();
-        return { { primaryWindowSize, primaryWindowSize } };
-    }
-
     DG_CHECK(args_.windowSize.size() < 2 || args_.windowStep.size() < 2 ||
              args_.windowSize.size() == args_.windowStep.size(),
              "Number of window sizes and window steps must match.");
