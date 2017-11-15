@@ -518,7 +518,6 @@ void CliProcessor::validateArgs()
     checkArgument("pyramid", pyramidUse, osnArgs.pyramid, actionDescription);
     checkArgument("confidence", confidenceUse, confidenceSet, actionDescription);
 
-
     //
     // Validate source args.
     //
@@ -585,7 +584,6 @@ void CliProcessor::validateArgs()
     checkArgument("url", urlUse, osnArgs.url, sourceDescription);
     checkArgument("use-tiles", useTilesUse, osnArgs.useTiles, sourceDescription);
 
-
     //
     // Validate model and detection
     //
@@ -613,7 +611,6 @@ void CliProcessor::validateArgs()
     } else if(osnArgs.layerName.empty()) {
         osnArgs.layerName = "osndetects";
     }
-
 
     //
     // Validate filtering
@@ -685,7 +682,6 @@ void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
     }
 
     DG_CHECK(!imageSet || !serviceSet, "Arguments --image and --service may not be specified at the same time");
-
 
     string actionString;
     readVariable("action", vm, actionString);
@@ -780,7 +776,6 @@ void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
 void CliProcessor::readFeatureDetectionArgs(variables_map vm, bool /* splitArgs */)
 {
     confidenceSet |= readVariable("confidence", vm, osnArgs.confidence);
-
 
     if(vm.find("nms") != end(vm)) {
         osnArgs.nms = true;
