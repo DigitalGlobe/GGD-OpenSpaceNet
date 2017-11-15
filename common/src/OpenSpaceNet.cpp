@@ -472,10 +472,10 @@ Detector::Ptr OpenSpaceNet::initModel()
 
 void OpenSpaceNet::initSegmentation(Model::Ptr model)
 {
-    auto castModel = dynamic_cast<Segmentation*>(model.get());
-    DG_CHECK(castModel, "Unsupported model type: only Caffe segmentation models are currently supported");
+    auto segmentation = std::dynamic_pointer_cast<Segmentation>(model);
+    DG_CHECK(segmentation, "Unsupported model type: only Caffe segmentation models are currently supported");
 
-    castModel->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
+    segmentation->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
 
 dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow()
