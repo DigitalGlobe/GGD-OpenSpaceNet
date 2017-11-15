@@ -68,7 +68,6 @@ private:
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
     std::string classifyCategory_;
-    bool concurrent_ = false;
     
     cv::Size blockSize_;
     cv::Size imageSize_;
