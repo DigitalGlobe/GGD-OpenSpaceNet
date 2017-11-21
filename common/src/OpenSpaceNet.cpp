@@ -407,7 +407,7 @@ void OpenSpaceNet::startProgressDisplay()
 
 bool OpenSpaceNet::isCancelled()
 {
-    return !pd_ || pd_->isCancelled();
+    return !pd_ || !pd_->isRunning();
 }
 
 void OpenSpaceNet::processConcurrent()
