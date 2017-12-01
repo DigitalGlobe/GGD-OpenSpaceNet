@@ -645,9 +645,7 @@ void OpenSpaceNet::startProgressDisplay()
 
 bool OpenSpaceNet::isCancelled()
 {
-    //FIXME: This isn't right -> ProgressDisplay no longer
-    //FIXME: has a cancelled accessor.
-    return !pd_;
+    return !pd_ || !pd_->isRunning();
 }
 
 void OpenSpaceNet::printModel()
