@@ -197,7 +197,7 @@ void OpenSpaceNet::process()
         Semaphore stop;
         auto allMetrics = async([&stop, &slidingWindow, &featureSink, &model, this]() {
             do {
-                if(slidingWindow->metric("processed").changed().tryWait()) {
+                if(slidingWindow->metric("processed").changed().count()) {
                     auto processed = slidingWindow->metric("processed").convert<int>();
                     auto requested = slidingWindow->metric("requested").convert<int>();
                     if (processed > 0 && requested > 0) {
@@ -206,7 +206,7 @@ void OpenSpaceNet::process()
                     }
                 }
 
-                if(model->metric("processed").changed().tryWait()) {
+                if(model->metric("processed").changed().count()) {
                     auto processed = model->metric("processed").convert<int>();
                     auto requested = model->metric("requested").convert<int>();
                     if (processed > 0 && requested > 0) {
@@ -215,7 +215,7 @@ void OpenSpaceNet::process()
                     }
                 }
 
-                if(featureSink->metric("processed").changed().tryWait()) {
+                if(featureSink->metric("processed").changed().count()) {
                     auto processed = featureSink->metric("processed").convert<int>();
                     auto requested = featureSink->metric("requested").convert<int>();
                     if (processed > 0 && requested > 0) {
@@ -224,12 +224,16 @@ void OpenSpaceNet::process()
                     }
                 }
 
-                stop.wait([&slidingWindow, &featureSink, &model]() {
-                    return featureSink->state() == NodeState::STOPPED ||
-                           slidingWindow->metric("processed").changed().check() || 
-                           featureSink->metric("processed").changed().check() ||
-                           model->metric("processed").changed().check();
-                });
+                stop.wait();
+                //FIXME: Below was the functionality prior to this
+                //FIXME: Lambda semaphore method was removed.
+                //FIXME: A simple wait may not suffice here.
+                // stop.wait([&slidingWindow, &featureSink, &model]() {
+                //     return featureSink->state() == NodeState::STOPPED ||
+                //            slidingWindow->metric("processed").changed().count() || 
+                //            featureSink->metric("processed").changed().count() ||
+                //            model->metric("processed").changed().count();
+                // });
 
             } while(featureSink->state() != NodeState::STOPPED);
         });
@@ -641,7 +645,9 @@ void OpenSpaceNet::startProgressDisplay()
 
 bool OpenSpaceNet::isCancelled()
 {
-    return !pd_ || pd_->isCancelled();
+    //FIXME: This isn't right -> ProgressDisplay no longer
+    //FIXME: has a cancelled accessor.
+    return !pd_;
 }
 
 void OpenSpaceNet::printModel()
