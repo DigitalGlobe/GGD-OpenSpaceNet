@@ -34,6 +34,7 @@ public:
     CliProcessor();
     void setupArgParsing(int argc, const char* const* argv);
     void startOSNProcessing();
+    bool showHelp();
     OpenSpaceNetArgs osnArgs;
 
 private:
