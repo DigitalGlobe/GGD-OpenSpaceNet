@@ -45,7 +45,7 @@ int main (int argc, const char* const* argv)
     try {
         CliProcessor osnCliProcessor;
         osnCliProcessor.setupArgParsing(argc, argv);
-        if(osnCliProcessor.osnArgs.action != Action::HELP) {
+        if(!osnCliProcessor.showHelp()) {
             osnCliProcessor.startOSNProcessing();
         }
     } catch (const Error& e) {
