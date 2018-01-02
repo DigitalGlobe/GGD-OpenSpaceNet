@@ -41,6 +41,7 @@
 #include <imagery/Nodes.h>
 #include <imagery/RasterToPolygonDP.h>
 #include <process/Metrics.h>
+#include <utility/ProgressDisplayHelper.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
@@ -77,9 +78,11 @@ using std::thread;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::Metric;
 using dg::deepcore::NodeState;
-using dg::deepcore::ProgressCategories;
+using dg::deepcore::ProgressDisplayHelper;
 using dg::deepcore::Semaphore;
+using dg::deepcore::Value;
 
 OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
     args_(move(args))
@@ -194,54 +197,39 @@ void OpenSpaceNet::process()
     auto startTime = high_resolution_clock::now();
 
     if (!args_.quiet && pd_) {
-        Semaphore stop;
-        auto allMetrics = async([&stop, &slidingWindow, &featureSink, &model, this]() {
-            do {
-                if(slidingWindow->metric("processed").changed().count()) {
-                    auto processed = slidingWindow->metric("processed").convert<int>();
-                    auto requested = slidingWindow->metric("requested").convert<int>();
-                    if (processed > 0 && requested > 0) {
-                        auto progress = (float) processed / requested;
-                        this->pd_->update("Reading", progress);
-                    }
+        ProgressDisplayHelper<int64_t> pdHelper(*pd_);
+
+        auto subsetsRequested = slidingWindow->metric("requested").changed().connect(
+            [&pdHelper, &featureSink, this] (const std::weak_ptr<Metric>&, Value value) {
+                if(!pd_->isRunning()) {
+                    featureSink->cancel();
+                } else {
+                    pdHelper.updateMaximum("Reading", value.convert<int64_t>());
+                    pdHelper.updateMaximum("Detecting", value.convert<int64_t>());
                 }
-
-                if(model->metric("processed").changed().count()) {
-                    auto processed = model->metric("processed").convert<int>();
-                    auto requested = model->metric("requested").convert<int>();
-                    if (processed > 0 && requested > 0) {
-                        auto progress = (float) processed / requested;
-                        this->pd_->update(classifyCategory_, progress);
-                    }
-                }
-
-                if(featureSink->metric("processed").changed().count()) {
-                    auto processed = featureSink->metric("processed").convert<int>();
-                    auto requested = featureSink->metric("requested").convert<int>();
-                    if (processed > 0 && requested > 0) {
-                        auto progress = (float) processed / requested;
-                        this->pd_->update("Writing", progress);
-                    }
-                }
-
-                stop.wait();
-                //FIXME: Below was the functionality prior to this
-                //FIXME: Lambda semaphore method was removed.
-                //FIXME: A simple wait may not suffice here.
-                // stop.wait([&slidingWindow, &featureSink, &model]() {
-                //     return featureSink->state() == NodeState::STOPPED ||
-                //            slidingWindow->metric("processed").changed().count() ||
-                //            featureSink->metric("processed").changed().count() ||
-                //            model->metric("processed").changed().count();
-                // });
-
-            } while(featureSink->state() != NodeState::STOPPED);
         });
+
+        auto subsetsRead = slidingWindow->metric("processed").changed().connect(
+            [&pdHelper, &featureSink, this] (const std::weak_ptr<Metric>&, Value value) {
+                if(!pd_->isRunning()) {
+                    featureSink->cancel();
+                } else {
+                    pdHelper.updateCurrent("Reading", value.convert<int64_t>());
+                }
+        });
+
+        auto subsetsProcessed = model->metric("processed").changed().connect(
+            [&pdHelper, &featureSink, this] (const std::weak_ptr<Metric>&, Value value) {
+                if(!pd_->isRunning()) {
+                    featureSink->cancel();
+                } else {
+                    pdHelper.updateCurrent("Detecting", value.convert<int64_t>());
+                }
+            });
 
         featureSink->run();
         featureSink->wait();
-        stop.notify();
-        allMetrics.get();
+        subsetsProcessed->wait();
         pd_->stop();
     } else {
         featureSink->run();
@@ -264,7 +252,6 @@ void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDispla
 GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
 {
     auto image = make_unique<GdalImage>(args_.image);
-    blockSize_ = image->blockSize();
     imageSize_ = image->size();
     pixelToProj_ = image->pixelToProj().clone();
     imageSr_ = image->spatialReference();
@@ -361,7 +348,6 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     auto llToProj = client->spatialReference().fromLatLon();
     auto projBbox = llToProj->transform(*args_.bbox);
     auto image = client->imageFromArea(projBbox);
-    blockSize_ = image->blockSize();
     imageSize_ = image->size();
     pixelToProj_ = image->pixelToProj().clone();
     imageSr_ = image->spatialReference();
@@ -372,7 +358,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     sr_ = SpatialReference::WGS84;
 
     auto blockSource = MapServiceBlockSource::create("source");
-    blockSource->attr("config") = client->configFromArea(*args_.bbox);
+    blockSource->attr("config") = client->configFromArea(projBbox);
     blockSource->attr("maxConnections") = args_.maxConnections;
     return blockSource;
 }
@@ -628,18 +614,11 @@ void OpenSpaceNet::startProgressDisplay()
         return;
     }
 
-    ProgressCategories categories = {{"Reading", "Reading the image" }};
+    pd_->setCategories({
+        {"Reading", "Reading the image" },
+        {"Detecting", "Detecting the object(s)" }
+    });
 
-    if(args_.action == Action::DETECT) {
-        classifyCategory_ = "Detecting";
-        categories.emplace_back(classifyCategory_, "Detecting the object(s)");
-    } else {
-        DG_ERROR_THROW("Invalid action called during process()");
-    }
-
-    categories.emplace_back("Writing", "Writing the features");
-
-    pd_->setCategories(move(categories));
     pd_->start();
 }
 

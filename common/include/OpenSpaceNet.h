@@ -67,9 +67,7 @@ private:
     OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
     boost::shared_ptr<deepcore::ProgressDisplay> pd_;
-    std::string classifyCategory_;
 
-    cv::Size blockSize_;
     cv::Size imageSize_;
     cv::Rect bbox_;
     deepcore::geometry::SpatialReference imageSr_;
