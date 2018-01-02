@@ -230,7 +230,7 @@ void OpenSpaceNet::process()
                 //FIXME: A simple wait may not suffice here.
                 // stop.wait([&slidingWindow, &featureSink, &model]() {
                 //     return featureSink->state() == NodeState::STOPPED ||
-                //            slidingWindow->metric("processed").changed().count() || 
+                //            slidingWindow->metric("processed").changed().count() ||
                 //            featureSink->metric("processed").changed().count() ||
                 //            model->metric("processed").changed().count();
                 // });

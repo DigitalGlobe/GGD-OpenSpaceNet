@@ -489,7 +489,7 @@ void CliProcessor::readModelPackage()
 
 void CliProcessor::validateArgs()
 {
-    if (osnArgs.action == Action::HELP) {
+    if (osnArgs.action == Action::HELP || displayHelp) {
         return;
     }
 
@@ -877,6 +877,11 @@ void CliProcessor::parseFilterArgs(const std::vector<string>& filterList)
     if (!filterActionFileSet.empty()) {
         osnArgs.filterDefinition.push_back(std::make_pair(filterAction, move(filterActionFileSet)));
     }
+}
+
+bool CliProcessor::showHelp()
+{
+    return displayHelp;
 }
 
 } } // namespace dg { namespace osn {
