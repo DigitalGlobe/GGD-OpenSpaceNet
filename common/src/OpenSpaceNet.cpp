@@ -118,6 +118,9 @@ void OpenSpaceNet::process()
     //and subset filter for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
     auto model = initModel();
+
+    printModel();
+
     auto subsetFilter = initSubsetRegionFilter();
     auto slidingWindow = initSlidingWindow();
     slidingWindow->connectAttrs(*blockSource);
@@ -134,7 +137,7 @@ void OpenSpaceNet::process()
             nmsNode = BoxNonMaxSuppression::create("NonMaxSuppression");
         }
 
-        nmsNode->attr("overlapThreshold") = (float) args_.overlap / 100;
+        nmsNode->attr("overlapThreshold") = args_.overlap / 100;
     }
 
     auto predictionToFeature = initPredictionToFeature();
