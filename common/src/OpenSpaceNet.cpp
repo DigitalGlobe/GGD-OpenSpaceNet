@@ -41,6 +41,7 @@
 #include <imagery/Nodes.h>
 #include <imagery/RasterToPolygonDP.h>
 #include <process/Metrics.h>
+#include <utility/Memory.h>
 #include <utility/ProgressDisplayHelper.h>
 #include <utility/Semaphore.h>
 #include <utility/User.h>
@@ -78,6 +79,7 @@ using std::thread;
 using std::vector;
 using std::unique_ptr;
 using dg::deepcore::loginUser;
+using dg::deepcore::memory::prettyBytes;
 using dg::deepcore::Metric;
 using dg::deepcore::NodeState;
 using dg::deepcore::ProgressDisplayHelper;
@@ -110,6 +112,13 @@ void OpenSpaceNet::process()
 
     auto blockCache = BlockCache::create("cache");
     blockCache->connectAttrs(*blockSource);
+    blockCache->attr("bufferSize") = args_.maxCacheSize;
+
+    if(args_.maxCacheSize > 0) {
+        OSN_LOG(info) << "Maximum raster cache size is set to " << prettyBytes(args_.maxCacheSize);
+    } else {
+        OSN_LOG(info) << "Maximum raster cache size is not limited";
+    }
 
     auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
     subsetWithBorder->connectAttrs(*blockSource);

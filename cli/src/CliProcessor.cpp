@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <utility/Console.h>
 #include <utility/ConsoleProgressDisplay.h>
+#include <utility/Memory.h>
 #include <utility/program_options.hpp>
 #include <vector/FileFeatureSet.h>
 
@@ -165,6 +166,10 @@ CliProcessor::CliProcessor() :
          "Calculate window parameters.  If this is set, only the first window size "
          "and window step are used.  A family of each are created by doubling the supplied parameters up to "
          "the area of the detection box.")
+        ("max-cache-size", po::value<std::string>()->value_name("SIZE"),
+         "Maximum raster cache size. This can be specified as a memory amount, "
+         "e.g. 16G, or as a percentage, e.g. 50%. Specifying 0 turns off raster "
+         "cache size limiting. The default is 25% of the total physical RAM.")
         ;
 
     detectOptions_.add_options()
@@ -770,6 +775,14 @@ void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
     readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);
     if (vm.find("region") != end(vm)) {
         parseFilterArgs(vm["region"].as<std::vector<std::string>>());
+    }
+
+    string sizeString("25%");
+    readVariable("max-cache-size", vm, sizeString);
+    try {
+        osnArgs.maxCacheSize = memory::stringToRam(sizeString);
+    } catch(...) {
+        DG_ERROR_THROW("Argument --max-cache-size is invalid");
     }
 }
 
