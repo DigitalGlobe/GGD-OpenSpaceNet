@@ -15,6 +15,7 @@
 * limitations under the License.
 ********************************************************************************/
 
+#include <classification/GbdxmCommon.h>
 #include "CliProcessor.h"
 #include <OpenSpaceNetVersion.h>
 #include <DeepCoreVersion.h>
@@ -27,7 +28,7 @@ using std::exception;
 using std::string;
 
 static const string OSN_LOGO =
-    "DigitalGlobe, Inc.\n"
+    "Radiant Solutions\n"
         "   ____                    _____                      _   _      _          \n"
         "  / __ \\                  / ____|                    | \\ | |    | |         \n"
         " | |  | |_ __   ___ _ __ | (___  _ __   __ _  ___ ___|  \\| | ___| |_        \n"
@@ -37,11 +38,13 @@ static const string OSN_LOGO =
         "        | |                     | |                                         \n"
         "        |_|                     |_|                                         \n\n"
         "Version: " OPENSPACENET_VERSION_STRING "\n"
-        "DeepCore Version: " DEEPCORE_VERSION_STRING "\n\n";
+        "DeepCore Version: " DEEPCORE_VERSION_STRING "\n";
 
 int main (int argc, const char* const* argv)
 {
     cout << OSN_LOGO;
+    cout << "GBDXM Metadata Version: " << classification::gbdxm::METADATA_VERSION << "\n\n";
+
     try {
         CliProcessor osnCliProcessor;
         osnCliProcessor.setupArgParsing(argc, argv);

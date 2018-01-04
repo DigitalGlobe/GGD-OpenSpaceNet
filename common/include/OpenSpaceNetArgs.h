@@ -24,6 +24,7 @@
 
 #define OSN_LOG(sev) DG_LOG(OpenSpaceNet, sev)
 #define MAPSAPI_MAPID  "digitalglobe.nal0g75k"
+#define WFS_TYPENAME "DigitalGlobe:FinishedFeature"
 
 
 namespace dg { namespace osn {
@@ -42,8 +43,7 @@ enum class Action
 {
     UNKNOWN,
     HELP,
-    DETECT,
-    LANDCOVER
+    DETECT
 };
 
 struct OpenSpaceNetArgs
@@ -71,8 +71,10 @@ struct OpenSpaceNetArgs
     std::string outputPath;
     std::string layerName;
     bool producerInfo = false;
+    bool dgcsCatalogID = false;
+    bool evwhsCatalogID = false;
+    std::string wfsCredentials;
     bool append = false;
-
 
     // Processing options
     std::string modelPath;
@@ -83,6 +85,7 @@ struct OpenSpaceNetArgs
     std::vector<int> windowStep;
     std::unique_ptr<int> resampledSize;
     bool pyramid = false;
+    size_t maxCacheSize = 0ULL;
 
     // Feature detection options
     float confidence = 95;
