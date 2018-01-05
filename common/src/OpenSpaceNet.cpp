@@ -489,6 +489,7 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
                          cv::Size {};
     slidingWindow->attr("windowSizes") = windowSizes;
     slidingWindow->attr("resampledSize") = resampledSize;
+    slidingWindow->attr("aoi") = bbox_;
 
     return slidingWindow;
 }
