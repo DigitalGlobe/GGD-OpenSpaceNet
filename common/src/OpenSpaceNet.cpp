@@ -120,9 +120,6 @@ void OpenSpaceNet::process()
         OSN_LOG(info) << "Maximum raster cache size is not limited";
     }
 
-    auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
-    subsetWithBorder->connectAttrs(*blockSource);
-
     //Note: Model must be initialized before sliding window
     //and subset filter for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
@@ -130,10 +127,15 @@ void OpenSpaceNet::process()
 
     printModel();
 
+    auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
+    if(args_.resampledSize) {
+        subsetWithBorder->attr("paddedSize") = cv::Size { *args_.resampledSize, *args_.resampledSize };
+    }
+    subsetWithBorder->connectAttrs(*blockSource);
+
     auto subsetFilter = initSubsetRegionFilter();
     auto slidingWindow = initSlidingWindow();
-    slidingWindow->connectAttrs(*blockSource);
-    model->connectAttrs(*blockSource);
+    slidingWindow->attr("size") = blockSource->prop("size");
 
     bool isSegmentation = (metadata_->category() == "segmentation");
 
