@@ -1,59 +1,32 @@
 # OpenSpaceNet User Reference Guide
 
 _OpenSpaceNet_ application to perform object or terrain detection against georegistered imagery using the DeepCore libraries.
-This application includes and is based on CUDA 7.5 and requires NVIDIA driver version 352 or higher to run using the GPU.
+This application includes and is based on CUDA 8.0 and requires NVIDIA driver version 384 or higher to run using the GPU.
 
 ## Table Of Contents
 
-* [OpenSpaceNet Actions](#actions)
- * [help](#help)
- * [detect](#detect)
- * [landcover](#landcover)
-* [Image Input](#input)
- * [Web Service Input](#service)
- * [Local Image Input](#image)
- * [S3 Input Files](#s3)
-* [Common Options](#options)
+* [Command Line Arguments](#arguments)
+ * [Local Image Input Options](#image)
+ * [Web Service Input Options](#service)
  * [Output Options](#output)
  * [Processing Options](#processing)
- * [Filter Options](#filter)
+ * [Segmentation Options](#segmentation)
+ * [Filtering Options](#filter)
  * [Logging Options](#logging)
-* [Using Configuration Files](#config)
-* [Complete Usage Statement](#usage)
+* [Further Details](#details)
+ * [Image Input](#input)
+ * [Size Parameters](#size)
+ * [Using Configuration Files](#config)
+ * [S3 Input Files](#s3)
+ * [Usage Statement](#usage)
 
+<a name="arguments" />
 
-<a name="actions" />
-
-## OpenSpaceNet Actions
-_OpenSpaceNet_ can be called in 3 different ways:
-
-```
-OpenSpaceNet help [topic]
-OpenSpaceNet detect <additional options>
-OpenSpaceNet landcover <additional options>
-```
-
-<a name="help" />
-
-### help
-The `help` mode shows the _OpenSpaceNet_ usage. The amount of information can be reduced by specifying the action for
-which to show the help.
-
-The following are the ways you can call help:
-```
-OpenSpaceNet help
-OpenSpaceNet help landcover
-OpenSpaceNet help detect
-OpenSpaceNet <other arguments> --help
-```
-
+## Command Line Arguments
 
 <a name="detect" />
 
-### detect
-The `detect` mode performs feature detection. In addition to the common options, the following options are allowed:
-
-#### Command Line arguments for the `detect` Action
+### Feature Detection Options
 
 ##### --confidence
 This option sets the minimum percent score for results to be included in the output. This should be a value between 0 and 100. 
@@ -66,53 +39,29 @@ This option will cause _OpenSpaceNet_ to perform non-maximum suppression on the 
 will be removed for each feature detected and only one detection box per object will be output. This option results in much
 better quality output. You can optionally specify the overlap threshold percentage for non-maximum suppression calculation.
 The default overlap is 30%.
-
 i.e. `--nms` will result in non-maximum suppression with 30% overlap, while `--nms 20` will result in non-maximum 
 suppression with 20% overlap.
 
+<a name="image" />
 
-<a name="landcover" />
+### Local Image Input Options
 
-### landcover
+##### --image
 
-The landcover action is used to perform CNN-based landcover classification. This mode differs from the `detect` mode
-as follows:
+This argument is required for local image input and specifies the path to the image.  For the advanced user, GDAL syntax
+may be used to load files from URLs or S3 buckets (see below for instructions on how to load imagery from S3).
 
-* If the image source is a web service, the requested bounding box will be expanded to include whole server tiles.
-* `--window-size` may only have one value.  Additional values are ignored.
-* `--window-step` argument is ignored. The window step is set to the model's window size or to the `--window-size` argument's value.
-* `--nms` argument is ignored.
-* `--confidence` argument is ignored, confidence is set to 0%.
-* `--pyramid` argument is ignored.
+i.e. `--image /home/user/Pictures/my_image.tif`
 
+##### --bbox
 
-
-<a name="input" />
-
-## Image Input
-
-_OpenSpaceNet_ is able use either a georegistered local image or one of a number of tile servers as its input. Depending on
-the input source, different command line arguments apply. To select which source to use, one of two options must be present:
-
-* `--service <service name>` To load imagery from a web service.
-* `--image <path>` To load a local image file.
-
-Depending on which source you use, different arguments apply.
-
-| source                | token    | credentials | map-id   | zoom     | bbox     | max-connections | url      | use-tiles |
-|-----------------------|----------|-------------|----------|----------|----------|-----------------|----------|-----------|
-| `--service dgcs`      | Required | Required    |          | Optional | Required | Optional        |          |           |
-| `--service evwhs`     | Required | Required    |          | Optional | Required | Optional        |          |           |
-| `--service maps-api`  | Required |             | Optional | Optional | Required | Optional        |          |           |
-| `--service tile-json` |          | Optional    |          | Optional | Required | Optional        | Required | Optional  |
-| `--image <path>`      |          |             |          |          | Optional |                 |          |           |
-
+The bounding box argument is optional for local image input. If the specified bounding box is not fully within the input
+image an intersection of the image bounding box and the specified bounding box will be used. If the specified bounding
+box does not intersect the image, an error will be displayed.
 
 <a name="service" />
 
-### Web Service Input
-
-#### Command Line Options Specific to Web Services
+### Web Service Input Options
 
 ##### --service
 
@@ -152,15 +101,53 @@ This argument specifies the user name and password for the WMTS services, that i
 prompted for the password before _OpenSpaceNet_ will proceed. In addition, credentials can be specified by setting the
 `OSN_CREDENTIALS` environment variable.
 
-##### --map-id
+##### --url
 
-This argument is only valid for the MapsAPI, or `maps-api` service. The DigitalGlobe map IDs are listed on this web page:
-http://mapsapidocs.digitalglobe.com/docs/imagery-and-basemaps.
+TileJSON server URL. TileJSON server URL. This is only required for the tile-json service.
+
+TileJSON server URL should either directly point to the to the JSON definition of the
+TileJSON server, or if the JSON definition's file name matches the root tile directory
+name, we can just specify the root tile directory name. 
+
+i.e. if the server
+URL is `https://my.server.com/tiles`, then _OpenSpaceNet_ will look for
+`https://my.server.com/tiles.json`.
+
+_OpenSpaceNet_ also supports reading tilesets locally. To do this, just specify
+a `file://` URL. 
+
+i.e.
+
+If I have the following file structure:
+
+* /data/
+ * tiles.json
+ * tiles/
+  * 14/
+   * 4348/
+    * 6564.jpg
+   * 4349/
+    * 6564.jpg
+   * 4350/
+    * 6564.jpg
+
+I can specify it as `file:///data/tiles`. 
+
+##### --use-tiles
+
+If set, the "tiles" field in TileJSON metadata will be used as the tile service 
+address. The default behavior is to derive the service address from the provided URL.
+
 
 ##### --zoom
 
 This argument specifies the zoom level for the web service. For MapsAPI the zoom level is 0 to 22, while both DGCS and
 EVWHS zoom levels range from 0 to 20. The default zoom level is 18.
+
+##### --map-id
+
+This argument is only valid for the MapsAPI, or `maps-api` service. The DigitalGlobe map IDs are listed on this web page:
+http://mapsapidocs.digitalglobe.com/docs/imagery-and-basemaps.
 
 ##### --max-connections
 
@@ -168,71 +155,22 @@ This argument specifies the number of image tiles that will be downloaded simult
 argument can dramatically speed up downloads, but it can cause the service to crash or deny you access. The default value
 is 10.
 
-
-<a name="image" />
-
-### Local Image Input
-
-Local image input means that _OpenSpaceNet_ will load a single image accessible from the file system.
-
-#### Command Line Options for Local Image Input
-
-##### --image
-
-This argument is required for local image input and specifies the path to the image.  For the advanced user, GDAL syntax
-may be used to load files from URLs or S3 buckets (see below for instructions on how to load imagery from S3).
-
-i.e. `--image /home/user/Pictures/my_image.tif`
-
-##### --bbox
-
-The bounding box argument is optional for local image input. If the specified bounding box is not fully within the input
-image an intersection of the image bounding box and the specified bounding box will be used. If the specified bounding
-box does not intersect the image, an error will be displayed.
-
-
-<a name="s3" />
-
-### Files on S3 (a variant of local files)
-
-Since _OpenSpaceNet_ uses GDAL to load local imagery, VSI sources are supported out of the box.  Of 
-particular interest is imagery stored on S3.
-
-i.e.
-
-```
-AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_KEY] \
-   ./OpenSpaceNet --image /vsis3/bucket/path/to/image.tif --model /path/to/model.gbdxm \
-   --output foo.shp --confidence 99 --window-step 30
-```
-
-#### VSI S3 Parameters
- * `AWS_SECRET_ACCESS_KEY`, `AWS_ACCESS_KEY_ID` (Required) define the access credentials
- * `AWS_SESSION_TOKEN` (Required for temporary credentials)
- * `AWS_REGION` (defaults to 'us-east-1')
- * `AWS_S3_ENDPOINT` (defaults to 's3.amazonaws.com')
-
-#### Additional HTTP Parameters
- * `GDAL_HTTP_PROXY`, `GDAL_HTTP_PROXYUSERPWD`, `GDAL_PROXY_AUTH` configuration options can be used to define a proxy server.
-
-
-<a name="options" />
-
-## Common Options
-
 <a name="output" />
 
 ### Output Options
 
 ##### --format
 
-This option specifies the output vector format. The default format is 'shp'. The following formats are supported:
+This option specifies the output vector format. The default format is `shp`. 
+The following formats are supported:
 
-* `shp` for ESRI Shapefile output. For this format, `--output-layer` is ignored.
-* `elasticsearch` writes the output features to an Elastic Search database.
+* `csv` outputs to a CSV file.
+* `elasticsearch` writes the output to an Elastic Search database.
 * `geojson` outputs a GeoJSON file.
 * `kml` outputs a Google's Keyhole Markup Language format.
 * `postgis` writes the output to a Postgres SQL database with PostGIS extensions.
+* `shp` for ESRI Shapefile output. For this format, `--output-layer` is ignored.
+* `sqlite` writes the output to a SpatialLite SQLite database.
 
 ##### --output
 
@@ -242,14 +180,15 @@ above are supported.
 
 ##### --output-layer
 
-This option specifies the output layer name if the output format supports it. This option is ignored for `shp` output.
+This option specifies the output layer name if the output format supports it. 
+This option is ignored for `shp` output.
 
 ##### --type
 
 This option specifies the output geometry type. The supported types are:
 
-* `polygon` draws a polygon bounding box around each detected feature.
-* `point` draws a point in the middle of each detection bounding box.
+* `polygon` draws a polygon around each detected feature.
+* `point` draws a point in the centroid of each detected feature polygon.
 
 ##### --producer-info
 
@@ -259,28 +198,49 @@ This option adds additional attributes to each vector feature, the attributes ar
 * `app` is the name of the application, this is set to "OpenSpaceNet".
 * `version` is the application version, which is the _OpenSpaceNet_ version.
 
-##### --append
-This option will cause _OpenSpaceNet_ to append to the specified output. If the specified output is not found, it will be created.
-If this option is not specified and the output already exists, it will be overwritten.
 
+##### --dgcs-catalog-id
+
+Add `catalog_id` property to detected features by finding the most intersected 
+`legacyId` from DGCS WFS data source `DigitalGlobe:FinishedFeature`.
+                                        
+##### --evwhs-catalog-id
+
+Add `catalog_id` property to detected features by finding the most intersected 
+`legacyId` from EVWHS WFS data source `DigitalGlobe:FinishedFeature`.
+
+##### --wfs-credentials
+
+Specifies credentials for the WFS service, if appending legacyId. The format is
+`--wfs-credentials username:password`. If not specified, credentials from the 
+`--credentials` option will be used.
+
+##### --append
+This option will cause _OpenSpaceNet_ to append to the specified output. If the 
+specified output is not found, it will be created. If this option is not 
+specified and the output already exists, it will be overwritten.
 
 <a name="processing" />
 
 ### Processing Options
 
-Processing options contain the classifier configuration options that are common for both landcover and detect modes.
+Processing options contain the classifier configuration options that are common 
+for both landcover and detect modes.
 
 ##### --cpu
 
-Specifying this option causes _OpenSpaceNet_ to use the fall-back CPU mode. This can be used on machines that don't have the
-supported GPU, but it is dramatically slower, so it's not recommended. It is recommended that a GPU be used to do CNN feature 
-detection efficiently.
+Specifying this option causes _OpenSpaceNet_ to use the fall-back CPU mode. This 
+can be used on machines that don't have the supported GPU, but it is 
+dramatically slower, so it's not recommended. It is recommended that a GPU be 
+used to do CNN feature detection efficiently.
 
 ##### --max-utilization
 
-This option specifies how much GPU memory _OpenSpaceNet_ will try to use. The default value is 95%, which empirically shown
-to yield best performance. As utilization approaches 100%, it slows down drastically, so 95% is the recommended maximum.
-The valid values are between 5% and 100%. Values outside of this range will be clamped, and a warning will be shown.
+This option specifies how much GPU memory _OpenSpaceNet_ will try to use. The 
+default value is 95%, which empirically shown to yield best performance. As 
+utilization approaches 100%, it slows down drastically, so 95% is the 
+recommended maximum. The valid values are between 5% and 100%. Values outside of 
+this range will be clamped, and a warning will be shown.
 
 ##### --model
 
@@ -288,52 +248,107 @@ This option specifies the path to a package GBDXM model file to use in processin
 
 ##### --window-size
 
-This option sets the size of the window that is chipped from the source imagery.  If multiple arguments are supplied, windows for each
-size are extracted in turn.  Each window that is extracted will have the aspect ratio of the model and the width that is specified.
+This option sets the size of the window that is chipped from the source imagery.  
+If multiple arguments are supplied, windows for each size are extracted in turn.  
+Each window that is extracted will have the aspect ratio of the model and the 
+width that is specified.
 
-If one window size and move than one window step is given, it is used for every window step.  If more than one window size and more than one
-window step is specified, the number of window sizes must match the number of window steps.
+If one window size and move than one window step is given, it is used for every 
+window step.  If more than one window size and more than one window step is 
+specified, the number of window sizes must match the number of window steps.
 
-Unless `--resample-size` is supplied, each window size must be equal to or smaller than the model's size.  If it is smaller, the chipped image will
-be padded with uniformly distributed white noise.  The range of the noise is dependent on the image's datatype (specifically, 0 to 1 for
-floating point datatypes and the full representable range for integer datatypes).
+Unless `--resample-size` is supplied, each window size must be equal to or 
+smaller than the model's size.  If it is smaller, the chipped image will be 
+padded with uniformly distributed white noise.  The range of the noise is 
+dependent on the image's datatype (specifically, 0 to 1 for floating point 
+datatypes and the full representable range for integer datatypes).
 
 ##### --window-step
 
-This option sets the sliding window step. The default value is 20% of the model's size.  Each window step will have the aspect ratio of
-the model and the _x_ step that is specified.
+This option sets the sliding window step. The default value is 20% of the 
+model's size.  Each window step will have the aspect ratio of the model and the 
+_x_ step that is specified.
 
-If one window step and move than one window size is given, it is used for every window step.  If more than one window size and more than one
-window step is specified, the number of window sizes must match the number of window steps.
+If one window step and move than one window size is given, it is used for every 
+window step.  If more than one window size and more than one window step is 
+specified, the number of window sizes must match the number of window steps.
 
-i.e. `--window-step 30` will result in the sliding window step being 30 in the _x_ direction and 30 in the _y_ direction.
+i.e. `--window-step 30` will result in the sliding window step being 30 in the 
+_x_ direction and 30 in the _y_ direction.
 
 ##### --resampled-size
 
-This option resampled all chipped windows to a single size.  The resampled images will have the aspect ratio of the model and the width
-that is specified.
+This option resampled all chipped windows to a single size.  The resampled 
+images will have the aspect ratio of the model and the width that is specified.
 
-If given, the resampled size must be equal to or smaller than the model's size.  If it is smaller, the chipped image will
-be padded with uniformly distributed white noise.  The range of the noise is dependent on the image's datatype (specifically, 0 to 1 for
-floating point datatypes and the full representable range for integer datatypes).
+If given, the resampled size must be equal to or smaller than the model's size. 
+If it is smaller, the chipped image will be padded with uniformly distributed 
+white noise.  The range of the noise is dependent on the image's datatype 
+(specifically, 0 to 1 for floating point datatypes and the full representable 
+range for integer datatypes).
 
 ##### --pyramid
 
-This option will enable using pyramids in feature detection. This means that the image will be repeatedly resampled down
-by a factor of 2 with sliding window detection run on each reduced image. This option will result in much longer run time
-and is not recommended. Most _OpenSpaceNet_ models are designed to work at a certain resolution and do not benefit from pyramiding.`
+This option will enable using pyramids in feature detection. This means that the 
+image will be repeatedly resampled down by a factor of 2 with sliding window 
+detection run on each reduced image. This option will result in much longer run 
+time and is not recommended. Most _OpenSpaceNet_ models are designed to work at 
+a certain resolution and do not benefit from pyramiding.`
 
-When this is given, `--window-size` and `--window-step` arguments may be specified, but only the first option for each will be used.
+When this is given, `--window-size` and `--window-step` arguments may be 
+specified, but only the first option for each will be used.
 
-##### Size parameters
+<a name="segmentation />
 
-Some models may require that the imagery be resized or padded to fit the target model.  When performing these actions, use `--resampled-size` and `--window-size` to add padding and resizing, respectively.  See the image below for guidance.
+### Segmentation Options
 
-![Resizing parameters](modelsize.svg)
+Segmentation options contain options for raster-to-polygon conversion for
+segmentation models. These are not mandatory and are only applicable to
+segmentation models. If set for a different model type, a warning will be 
+displayed.
+
+##### --r2p-method METHOD
+This is the raster-to-polygon approximation method.
+Valid values are: `none`, `simple`, `tc89-l1`, `tc89-kcos`. The default value
+is `simple`.
+
+The methods are as follows:
+
+* `none`: Stores absolutely all the contour points. That is, any 2 subsequent 
+points _(x<sub>1</sub>,y<sub>1</sub>)_ and _(x<sub>2</sub>,y<sub>2</sub>)_ of 
+the contour will be either horizontal, vertical or diagonal neighbors, that is, 
+<em>max(|x<sub>1</sub> - x<sub>2</sub>|, |y<sub>2</sub>-y<sub>1</sub>|) = 1</em>.
+
+* `simple`: Compresses horizontal, vertical, and diagonal segments and leaves 
+only their end points. For example, an up-right rectangular contour is encoded 
+with 4 points.
+
+* `tc89-l1`:  Applies the <em>1 curvature</em> Teh-Chin chain approximation 
+algorithm.
+
+* `tc89-kcos`: Applies the <em>k cosine</em> Teh-Chin chain approximation 
+algorithm.
+
+
+The Teh-Chin approximations are as described in:
+
+> Teh, C-H and Chin, Roland T. <b>On the detection of dominant points on digital curves.</b> <br/> 
+> IEEE Transactions on Pattern Analysis and Machine Intelligence, 1989, vol. 11, num. 8, pp. 859-872 
+
+##### --r2p-accuracy
+
+This argument specifies the polygon approximation accuracy. This is the maximum 
+distance between the original curve and its approximation. The default value is 3.
+
+
+##### --r2p-min-area
+
+This argument sets the minimum area of a polygon in pixels. The default value
+is 0.
 
 <a name="filter" />
 
-### Filter Options
+### Filtering Options
 
 ##### --include-labels / --exclude-labels
 
@@ -387,16 +402,50 @@ i.e.
 Normally `_OpenSpaceNet_` will output its status to the console even if a log file is specified. If
 this is not desired, console output can be suppressed by specifying this option.
 
+<a name="details" />
+
+## Further Details
+
+
+<a name="input" />
+
+### Image Input
+
+_OpenSpaceNet_ is able use either a geo-registered local image or one of number of web maping servcies as input. Depending on the 
+input source, different command line arguments apply. To select which source to use, one of two options must be present:
+
+* `--service <service name>` To load imagery from a web service.
+* `--image <path>` To load a local image file.
+
+Depending on which source you use, different arguments apply.
+
+| source                | token    | credentials | map-id   | zoom     | bbox     | max-connections | url      | use-tiles |
+|-----------------------|----------|-------------|----------|----------|----------|-----------------|----------|-----------|
+| `--service dgcs`      | Required | Required    |          | Optional | Required | Optional        |          |           |
+| `--service evwhs`     | Required | Required    |          | Optional | Required | Optional        |          |           |
+| `--service maps-api`  | Required |             | Optional | Optional | Required | Optional        |          |           |
+| `--service tile-json` |          | Optional    |          | Optional | Required | Optional        | Required | Optional  |
+| `--image <path>`      |          |             |          |          | Optional |                 |          |           |
+
+<a name="size" />
+
+## Size Parameters
+
+Some models may require that the imagery be resized or padded to fit the target 
+model.  When performing these actions, use `--resampled-size` and `--window-size` 
+to add padding and resizing, respectively.  See the image below for guidance.
+
+![Resizing parameters](modelsize.svg)
 
 
 <a name="config" />
 
-## Using Configuration Files
+### Using Configuration Files
 
 When using _OpenSpaceNet_, some or all command line arguments can be put in configuration file(s) and passed through the `--config` command
 line option.  Multiple files may be used to specify different options.
 
-### Configuration File Syntax
+#### Configuration File Syntax
 
 Configuration files are text files with each command line option specified in the following format:
 ```
@@ -428,7 +477,7 @@ Configuration files may be included in the command line, environment, and other 
 within each).
 
 
-### Example Using a Configuration File for All Options
+#### Example Using a Configuration File for All Options
 
 In this example, we will use the following file:
 
@@ -456,7 +505,7 @@ is the same as running _OpenSpaceNet_ with these options:
 ```
 ./OpenSpaceNet detect --service dgcs --token abcd-efgh-ijkl-mnop-qrst-uvxyz --credentials username:password --bbox -84.44579 33.63404 -84.40601 33.64853 --model airliner.gbdxm --output atl_detected.shp --confidence 99 --window-step 15 --max-connections 200 --nms
 ```
-### Example Using Multiple Configuration Files
+#### Example Using Multiple Configuration Files
 
 As a use case for using multiple files, we'll use the fact that because _OpenSpaceNet_ can use different input sources for its input,
 it can be cumbersome to enter that particular service's token and credentials every time.  We can create a configuration file with a
@@ -494,7 +543,7 @@ We can now combine the two files and get the same result as our previous example
 ./OpenSpaceNet --config dgcs.cfg detect_atl.cfg
 ```
 
-### Example Using a Configuration File Combined with Command Line Options
+#### Example Using a Configuration File Combined with Command Line Options
 
 Alternatively, we can use the configuration file from previous example to run a landcover job against the same DGCS account:
 
@@ -502,20 +551,63 @@ Alternatively, we can use the configuration file from previous example to run a 
 ./OpenSpaceNet landcover --config dgcs.cfg --bbox -84.44579 33.63404 -84.40601 33.64853 --model landcover.gbdxm --output atl_detected.shp
 ```
 
+<a name="s3" />
+
+### Files on S3 (a variant of local files)
+
+Since _OpenSpaceNet_ uses GDAL to load local imagery, VSI sources are supported out of the box.  Of 
+particular interest is imagery stored on S3.
+
+i.e.
+
+```
+AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_KEY] \
+   ./OpenSpaceNet --image /vsis3/bucket/path/to/image.tif --model /path/to/model.gbdxm \
+   --output foo.shp
+```
+
+#### VSI S3 Parameters
+ * `AWS_SECRET_ACCESS_KEY`, `AWS_ACCESS_KEY_ID` (Required) define the access credentials
+ * `AWS_SESSION_TOKEN` (Required for temporary credentials)
+ * `AWS_REGION` (defaults to 'us-east-1')
+ * `AWS_S3_ENDPOINT` (defaults to 's3.amazonaws.com')
+
+#### Additional HTTP Parameters
+ * `GDAL_HTTP_PROXY`, `GDAL_HTTP_PROXYUSERPWD`, `GDAL_PROXY_AUTH` configuration options can be used to define a proxy server.
 
 <a name="usage" />
 
-## Complete Usage Statement
+### Usage Statement
 
-```
+This is the usage statement as it appears on the command line.
+
+```text
+Radiant Solutions
+   ____                    _____                      _   _      _          
+  / __ \                  / ____|                    | \ | |    | |         
+ | |  | |_ __   ___ _ __ | (___  _ __   __ _  ___ ___|  \| | ___| |_        
+ | |  | | '_ \ / _ \ '_ \ \___ \| '_ \ / _` |/ __/ _ \ . ` |/ _ \ __|       
+ | |__| | |_) |  __/ | | |____) | |_) | (_| | (_|  __/ |\  |  __/ |_ _ _ _  
+  \____/| .__/ \___|_| |_|_____/| .__/ \__,_|\___\___|_| \_|\___|\__(_|_|_) 
+        | |                     | |                                         
+        |_|                     |_|                                         
+
+Version: 1.1.0+SNAPSHOT
+DeepCore Version: 1.1.0+SNAPSHOT
+GBDXM Metadata Version: 3.0
+
 Usage:
-  OpenSpaceNet <action> <input options> <output options> <processing options>
+  OpenSpaceNet <options>
   OpenSpaceNet --config <configuration file> [other options]
 
-Actions:
-  help                                  Show this help message
-  detect                                Perform feature detection
-  landcover                             Perform land cover classification
+
+Feature Detection Options:
+  --confidence PERCENT (=95)            Minimum percent score for results to be
+                                        included in the output.
+  --nms PERCENT (=30)                   Perform non-maximum suppression on the 
+                                        output. You can optionally specify the 
+                                        overlap threshold percentage for 
+                                        non-maximum suppression calculation.
 
 Local Image Input Options:
   --image PATH                          If this is specified, the input will be
@@ -562,8 +654,8 @@ Web Service Input Options:
 
 Output Options:
   --format FORMAT (=shp)                Output file format for the results. 
-                                        Valid values are: elasticsearch, 
-                                        geojson, kml, postgis, shp.
+                                        Valid values are: csv, elasticsearch, 
+                                        geojson, kml, postgis, shp, sqlite.
   --output PATH                         Output location with file name and path
                                         or URL.
   --output-layer NAME (=osndetects)     The output layer name, index name, or 
@@ -573,6 +665,19 @@ Output Options:
   --producer-info                       Add user name, application name, and 
                                         application version to the output 
                                         feature set.
+  --dgcs-catalog-id                     Add catalog_id property to detected 
+                                        features, by finding the most 
+                                        intersected legacyId from DGCS WFS data
+                                        source DigitalGlobe:FinishedFeature
+  --evwhs-catalog-id                    Add catalog_id property to detected 
+                                        features, by finding the most 
+                                        intersected legacyId from EVWHS WFS 
+                                        data source DigitalGlobe:FinishedFeatur
+                                        e
+  --wfs-credentials USERNAME[:PASSWORD] Credentials for the WFS service, if 
+                                        appending legacyId. If not specified, 
+                                        credentials from the credentials option
+                                        will be used.
   --append                              Append to an existing vector set. If 
                                         the output does not exist, it will be 
                                         created.
@@ -602,14 +707,20 @@ Processing Options:
                                         are created by doubling the supplied 
                                         parameters up to the area of the 
                                         detection box.
+  --max-cache-size SIZE                 Maximum raster cache size. This can be 
+                                        specified as a memory amount, e.g. 16G,
+                                        or as a percentage, e.g. 50%. 
+                                        Specifying 0 turns off raster cache 
+                                        size limiting. The default is 25% of 
+                                        the total physical RAM.
 
-Feature Detection Options:
-  --confidence PERCENT (=95)            Minimum percent score for results to be
-                                        included in the output.
-  --nms PERCENT (=30)                   Perform non-maximum suppression on the 
-                                        output. You can optionally specify the 
-                                        overlap threshold percentage for 
-                                        non-maximum suppression calculation.
+Segmentation Options:
+  --r2p-method METHOD (=simple)         Raster-to-polygon approximation method.
+                                        Valid values are: none, simple, 
+                                        tc89-l1, tc89-kcos.
+  --r2p-accuracy EPSILON (=3)           Approximation accuracy for the 
+                                        raster-to-polygon operation.
+  --r2p-min-area AREA (=0)              Minimum polygon area (in pixels).
 
 Filtering Options:
   --include-labels LABEL [LABEL...]     Filter results to only include 
@@ -636,5 +747,4 @@ Logging Options:
 General Options:
   --config PATH                         Use options from a configuration file.
   --help                                Show this help message
-
 ```
