@@ -47,8 +47,7 @@ private:
     void setupInitialLogging();
     void setupLogging();
     void parseArgs(int argc, const char* const* argv);
-    void maybeDisplayHelp(boost::program_options::variables_map vm);
-    void printUsage(Action action=Action::UNKNOWN) const;
+    void printUsage() const;
     void readArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void readWebServiceArgs(boost::program_options::variables_map vm, bool splitArgs=false);
     void promptForPassword();
