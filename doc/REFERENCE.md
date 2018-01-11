@@ -6,6 +6,7 @@ This application includes and is based on CUDA 8.0 and requires NVIDIA driver ve
 ## Table Of Contents
 
 * [Command Line Arguments](#arguments)
+  * [Feature Detection Options](#detect)
   * [Local Image Input Options](#image)
   * [Web Service Input Options](#service)
   * [Output Options](#output)
@@ -18,7 +19,7 @@ This application includes and is based on CUDA 8.0 and requires NVIDIA driver ve
   * [Size Parameters](#size)
   * [Using Configuration Files](#config)
   * [S3 Input Files](#s3)
-  * [Usage Statement](#usage)
+* [Usage Statement](#usage)
 
 <a name="arguments" />
 
@@ -372,6 +373,10 @@ first action is "exclude", the filter is initialized to include the bounding box
 `--region` can be used to chain together multiple includes and excludes.  Parameters to this option are in the
 form `(exclude|include) path [path..]`  This may be repeated any number of times after `--region`.
 
+_Note:_ Filtering is an optimization that is not performed at the detection level. This is will impact detection
+models, such as DetectNet, where one window may contain result in many detections. This may cause detects far
+from the include/exclude boundary to be included in the output. Post processing will be required to remove these
+detections.
 
 i.e `--region exclude northwest.shp northeast.shp include truenorth.shp` .  In this example, "exclude" is first,
 so the search region is initialized to the bounding box.  The geometries defined in northwest.shp and northeast.shp
@@ -429,13 +434,13 @@ Depending on which source you use, different arguments apply.
 
 <a name="size" />
 
-## Size Parameters
+### Size Parameters
 
 Some models may require that the imagery be resized or padded to fit the target 
 model.  When performing these actions, use `--resampled-size` and `--window-size` 
 to add padding and resizing, respectively.  See the image below for guidance.
 
-![Resizing parameters](./modelsize.svg)
+![Resizing parameters](./modelsize.png)
 
 
 <a name="config" />
@@ -577,7 +582,7 @@ AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY_ID] AWS_SECRET_ACCESS_KEY=[AWS_SECRET_ACCESS_K
 
 <a name="usage" />
 
-### Usage Statement
+## Usage Statement
 
 This is the usage statement as it appears on the command line.
 
