@@ -6,19 +6,19 @@ This application includes and is based on CUDA 8.0 and requires NVIDIA driver ve
 ## Table Of Contents
 
 * [Command Line Arguments](#arguments)
- * [Local Image Input Options](#image)
- * [Web Service Input Options](#service)
- * [Output Options](#output)
- * [Processing Options](#processing)
- * [Segmentation Options](#segmentation)
- * [Filtering Options](#filter)
- * [Logging Options](#logging)
+  * [Local Image Input Options](#image)
+  * [Web Service Input Options](#service)
+  * [Output Options](#output)
+  * [Processing Options](#processing)
+  * [Segmentation Options](#segmentation)
+  * [Filtering Options](#filter)
+  * [Logging Options](#logging)
 * [Further Details](#details)
- * [Image Input](#input)
- * [Size Parameters](#size)
- * [Using Configuration Files](#config)
- * [S3 Input Files](#s3)
- * [Usage Statement](#usage)
+  * [Image Input](#input)
+  * [Size Parameters](#size)
+  * [Using Configuration Files](#config)
+  * [S3 Input Files](#s3)
+  * [Usage Statement](#usage)
 
 <a name="arguments" />
 
