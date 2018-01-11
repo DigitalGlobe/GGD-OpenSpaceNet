@@ -435,7 +435,7 @@ Some models may require that the imagery be resized or padded to fit the target
 model.  When performing these actions, use `--resampled-size` and `--window-size` 
 to add padding and resizing, respectively.  See the image below for guidance.
 
-![Resizing parameters](modelsize.svg)
+![Resizing parameters](./modelsize.svg)
 
 
 <a name="config" />
