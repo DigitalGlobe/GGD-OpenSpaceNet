@@ -298,7 +298,7 @@ a certain resolution and do not benefit from pyramiding.`
 When this is given, `--window-size` and `--window-step` arguments may be 
 specified, but only the first option for each will be used.
 
-<a name="segmentation />
+<a name="segmentation" />
 
 ### Segmentation Options
 
