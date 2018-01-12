@@ -373,10 +373,10 @@ first action is "exclude", the filter is initialized to include the bounding box
 `--region` can be used to chain together multiple includes and excludes.  Parameters to this option are in the
 form `(exclude|include) path [path..]`  This may be repeated any number of times after `--region`.
 
-_Note:_ Filtering is an optimization that is not performed at the detection level. This is will impact detection
-models, such as DetectNet, where one window may contain result in many detections. This may cause detects far
-from the include/exclude boundary to be included in the output. Post processing will be required to remove these
-detections.
+_Note:_ Region filtering is designed to guide window selection and is not performed at the detection level. This will
+impact detection models, such as DetectNet, where one window may result in many detections. As a result, detects
+far from the include/exclude boundary may be included in the output. Post processing will be required to remove these
+detects.
 
 i.e `--region exclude northwest.shp northeast.shp include truenorth.shp` .  In this example, "exclude" is first,
 so the search region is initialized to the bounding box.  The geometries defined in northwest.shp and northeast.shp
