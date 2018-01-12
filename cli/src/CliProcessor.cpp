@@ -74,16 +74,8 @@ using dg::deepcore::vector::FileFeatureSet;
 
 static const string OSN_USAGE =
     "Usage:\n"
-        "  OpenSpaceNet <action> <input options> <output options> <processing options>\n"
-        "  OpenSpaceNet --config <configuration file> [other options]\n\n"
-        "Actions:\n"
-        "  help                                  Show this help message\n"
-        "  detect                                Perform feature detection\n";
-
-static const string OSN_DETECT_USAGE =
-    "Run OpenSpaceNet in feature detection mode.\n\n"
-    "Usage:\n"
-        "  OpenSpaceNet detect <input options> <output options> <processing options>\n\n";
+        "  OpenSpaceNet <options>\n"
+        "  OpenSpaceNet --config <configuration file> [other options]\n\n";
 
 CliProcessor::CliProcessor() :
     localOptions_("Local Image Input Options"),
@@ -98,6 +90,14 @@ CliProcessor::CliProcessor() :
     supportedFormats_(FileFeatureSet::supportedFormats())
 {
     classification::init();
+
+    detectOptions_.add_options()
+        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
+         "Minimum percent score for results to be included in the output.")
+        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
+         "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
+         "for non-maximum suppression calculation.")
+        ;
 
     localOptions_.add_options()
         ("image", po::value<string>()->value_name("PATH"),
@@ -172,14 +172,6 @@ CliProcessor::CliProcessor() :
          "cache size limiting. The default is 25% of the total physical RAM.")
         ;
 
-    detectOptions_.add_options()
-        ("confidence", po::value<float>()->value_name(name_with_default("PERCENT", osnArgs.confidence)),
-         "Minimum percent score for results to be included in the output.")
-        ("nms", po::bounded_value<std::vector<float>>()->min_tokens(0)->max_tokens(1)->value_name(name_with_default("PERCENT", osnArgs.overlap)),
-         "Perform non-maximum suppression on the output. You can optionally specify the overlap threshold percentage "
-         "for non-maximum suppression calculation.")
-        ;
-
     segmentationOptions_.add_options()
         ("r2p-method", po::value<std::string>()->value_name(name_with_default("METHOD", "simple")),
          "Raster-to-polygon approximation method. Valid values are: none, simple, tc89-l1, tc89-kcos.")
@@ -214,11 +206,11 @@ CliProcessor::CliProcessor() :
         ;
 
     // Build the options used for processing
+    optionsDescription_.add(detectOptions_);
     optionsDescription_.add(localOptions_);
     optionsDescription_.add(webOptions_);
     optionsDescription_.add(outputOptions_);
     optionsDescription_.add(processingOptions_);
-    optionsDescription_.add(detectOptions_);
     optionsDescription_.add(segmentationOptions_);
     optionsDescription_.add(filterOptions_);
     optionsDescription_.add(loggingOptions_);
@@ -226,7 +218,6 @@ CliProcessor::CliProcessor() :
 
     optionsDescription_.add_options()
         ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
-        ("help-topic", po::value<string>()->value_name("TOPIC"), "Help topic.")
         ("debug", "Switch console output to \"debug\" log level.")
         ("trace", "Switch console output to \"trace\" log level.")
         // This bbox argument works for both local and web options, but we have duplicated bbox argument
@@ -245,11 +236,11 @@ CliProcessor::CliProcessor() :
          "Bounding box for determining tiles specified in WGS84 Lat/Lon coordinate system. Coordinates are "
          "specified in the following order: west longitude, south latitude, east longitude, and north latitude.");
 
+    visibleOptions_.add(detectOptions_);
     visibleOptions_.add(localOptions_);
     visibleOptions_.add(webOptions_);
     visibleOptions_.add(outputOptions_);
     visibleOptions_.add(processingOptions_);
-    visibleOptions_.add(detectOptions_);
     visibleOptions_.add(segmentationOptions_);
     visibleOptions_.add(filterOptions_);
     visibleOptions_.add(loggingOptions_);
@@ -260,24 +251,18 @@ void CliProcessor::setupArgParsing(int argc, const char* const* argv)
 {
     setupInitialLogging();
 
-    for (int i = 1; i < argc;  ++i) {
-        if(strcmp(argv[i], "--help") == 0) {
-            displayHelp = true;
-        }
-    }
-
     try {
         parseArgs(argc, argv);
         validateArgs();
     } catch (...) {
         if (displayHelp) {
-            printUsage(osnArgs.action);
+            printUsage();
         }
         throw;
     }
 
     if (displayHelp) {
-        printUsage(osnArgs.action);
+        printUsage();
         return;
     }
 
@@ -381,31 +366,6 @@ static bool readVariable(const char* param, variables_map& vm, std::vector<T>& r
     return false;
 }
 
-// Order of precedence: config files from env, env, config files from cli, cli.
-void CliProcessor::parseArgs(int argc, const char* const* argv)
-{
-    po::positional_options_description pd;
-    pd.add("action", 1)
-      .add("help-topic", 1);
-
-    // parse environment variable options
-    variables_map environment_vm;
-    po::store(po::parse_environment(optionsDescription_, "OSN_"), environment_vm);
-    po::notify(environment_vm);
-    readArgs(environment_vm, true);
-
-    // parse regular and positional options
-    variables_map command_line_vm;
-    po::store(po::command_line_parser(argc, argv)
-                  .extra_style_parser(po::combine_style_parsers(
-                      { &po::ignore_numbers, po::postfix_argument("region") }))
-                  .options(optionsDescription_)
-                  .positional(pd)
-                  .run(), command_line_vm);
-    po::notify(command_line_vm);
-    readArgs(command_line_vm);
-}
-
 static Action parseAction(string str)
 {
     to_lower(str);
@@ -416,6 +376,48 @@ static Action parseAction(string str)
     }
 
     return Action::UNKNOWN;
+}
+
+// Order of precedence: config files from env, env, config files from cli, cli.
+void CliProcessor::parseArgs(int argc, const char* const* argv)
+{
+    if(argc > 1) {
+        osnArgs.action = parseAction(argv[1]);
+        if(osnArgs.action == Action::HELP) {
+            displayHelp = true;
+            return;
+        } else if(osnArgs.action == Action::DETECT) {
+            --argc;
+            ++argv;
+        } else {
+            osnArgs.action = Action::DETECT;
+        }
+
+        for (int i = 1; i < argc;  ++i) {
+            if(iequals(argv[i], "--help")) {
+                displayHelp = true;
+                if(argc == 2) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // parse environment variable options
+    variables_map environment_vm;
+    po::store(po::parse_environment(optionsDescription_, "OSN_"), environment_vm);
+    po::notify(environment_vm);
+    readArgs(environment_vm, true);
+
+    // parse regular options
+    variables_map command_line_vm;
+    po::store(po::command_line_parser(argc, argv)
+                  .extra_style_parser(po::combine_style_parsers(
+                      { &po::ignore_numbers, po::postfix_argument("region") }))
+                  .options(optionsDescription_)
+                  .run(), command_line_vm);
+    po::notify(command_line_vm);
+    readArgs(command_line_vm);
 }
 
 static Source parseService(string service)
@@ -434,19 +436,9 @@ static Source parseService(string service)
     DG_ERROR_THROW("Invalid --service parameter: %s", service.c_str());
 }
 
-void CliProcessor::printUsage(Action action) const
+void CliProcessor::printUsage() const
 {
-    switch(action) {
-        case Action::DETECT:
-            cout << OSN_DETECT_USAGE << visibleOptions_;
-            break;
-
-        default:
-            cout << OSN_USAGE << visibleOptions_;
-            break;
-    }
-
-    cout << endl;
+    cout << OSN_USAGE << visibleOptions_ << endl;
 }
 
 enum ArgUse {
@@ -498,6 +490,8 @@ void CliProcessor::validateArgs()
         return;
     }
 
+    DG_CHECK(osnArgs.action == Action::DETECT, "Try 'OpenSpaceNet --help' for more information.");
+
     //
     // Validate action args.
     //
@@ -506,22 +500,12 @@ void CliProcessor::validateArgs()
     ArgUse nmsUse(OPTIONAL);
     ArgUse pyramidUse(OPTIONAL);
     ArgUse confidenceUse(OPTIONAL);
-    const char * actionDescription;
 
-    switch (osnArgs.action) {
-        case Action::DETECT:
-            actionDescription = "the action is detect";
-            break;
-
-        default:
-            DG_ERROR_THROW("Invalid action.\nTry 'OpenSpaceNet help' for more information.");
-    }
-
-    checkArgument("window-step", windowStepUse, osnArgs.windowStep, actionDescription);
-    checkArgument("window-size", windowSizeUse, osnArgs.windowSize, actionDescription);
-    checkArgument("nms", nmsUse, osnArgs.nms, actionDescription);
-    checkArgument("pyramid", pyramidUse, osnArgs.pyramid, actionDescription);
-    checkArgument("confidence", confidenceUse, confidenceSet, actionDescription);
+    checkArgument("window-step", windowStepUse, osnArgs.windowStep);
+    checkArgument("window-size", windowSizeUse, osnArgs.windowSize);
+    checkArgument("nms", nmsUse, osnArgs.nms);
+    checkArgument("pyramid", pyramidUse, osnArgs.pyramid);
+    checkArgument("confidence", confidenceUse, confidenceSet);
 
     //
     // Validate source args.
@@ -688,11 +672,6 @@ void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
 
     DG_CHECK(!imageSet || !serviceSet, "Arguments --image and --service may not be specified at the same time");
 
-    string actionString;
-    readVariable("action", vm, actionString);
-    osnArgs.action = parseAction(actionString);
-    maybeDisplayHelp(vm);
-
     readWebServiceArgs(vm, splitArgs);
     readProcessingArgs(vm, splitArgs);
     readOutputArgs(vm, splitArgs);
@@ -704,22 +683,6 @@ void CliProcessor::readArgs(variables_map vm, bool splitArgs) {
     }
 
     readSegmentationArgs(vm, splitArgs);
-}
-
-void CliProcessor::maybeDisplayHelp(variables_map vm)
-{
-    // If "action" is "help", see if there's a topic. Display all help if there isn't
-    string topicStr;
-    if(osnArgs.action == Action::HELP) {
-        if(readVariable("help-topic", vm, topicStr)) {
-            osnArgs.action = parseAction(topicStr);
-        }
-        displayHelp = true;
-    } else if(readVariable("help-topic", vm, topicStr)) {
-        // If we have "help" listed after the "action", we display help for that action
-        DG_CHECK(iequals(topicStr, "help"), "Invalid argument: %s", topicStr.c_str());
-        displayHelp = true;
-    }
 }
 
 void CliProcessor::readWebServiceArgs(variables_map vm, bool splitArgs)
