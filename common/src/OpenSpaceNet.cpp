@@ -112,7 +112,7 @@ void OpenSpaceNet::process()
 
     auto blockCache = BlockCache::create("cache");
     blockCache->connectAttrs(*blockSource);
-    blockCache->attr("bufferSize") = args_.maxCacheSize;
+    blockCache->attr("bufferSize") = args_.maxCacheSize / 2;
 
     if(args_.maxCacheSize > 0) {
         OSN_LOG(info) << "Maximum raster cache size is set to " << prettyBytes(args_.maxCacheSize);
@@ -135,7 +135,7 @@ void OpenSpaceNet::process()
 
     auto subsetFilter = initSubsetRegionFilter();
     auto slidingWindow = initSlidingWindow();
-    slidingWindow->attr("size") = blockSource->prop("size");
+    slidingWindow->connectAttrs(*blockSource);
 
     bool isSegmentation = (metadata_->category() == "segmentation");
 
@@ -213,7 +213,7 @@ void OpenSpaceNet::process()
     if (!args_.quiet && pd_) {
         ProgressDisplayHelper<int64_t> pdHelper(*pd_);
 
-        auto subsetsRequested = slidingWindow->metric("requested").changed().connect(
+        auto subsetsRequested = slidingWindow->metric("total").changed().connect(
             [&pdHelper, &featureSink, this] (const std::weak_ptr<Metric>&, Value value) {
                 if(!pd_->isRunning()) {
                     featureSink->cancel();
@@ -223,7 +223,7 @@ void OpenSpaceNet::process()
                 }
         });
 
-        auto subsetsRead = slidingWindow->metric("processed").changed().connect(
+        auto subsetsRead = slidingWindow->metric("forwarded").changed().connect(
             [&pdHelper, &featureSink, this] (const std::weak_ptr<Metric>&, Value value) {
                 if(!pd_->isRunning()) {
                     featureSink->cancel();
@@ -242,8 +242,7 @@ void OpenSpaceNet::process()
             });
 
         featureSink->run();
-        featureSink->wait();
-        subsetsProcessed->wait();
+        featureSink->wait(true);
         pd_->stop();
     } else {
         featureSink->run();
@@ -492,6 +491,7 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
     slidingWindow->attr("windowSizes") = windowSizes;
     slidingWindow->attr("resampledSize") = resampledSize;
     slidingWindow->attr("aoi") = bbox_;
+    slidingWindow->attr("bufferSize") = args_.maxCacheSize / 2;
 
     return slidingWindow;
 }
