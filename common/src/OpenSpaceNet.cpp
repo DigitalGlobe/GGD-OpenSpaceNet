@@ -261,6 +261,10 @@ void OpenSpaceNet::process()
 void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
 {
     pd_ = display;
+    pd_->setCategories({
+        {"Reading", "Reading the image" },
+        {"Detecting", "Detecting the object(s)" }
+    });
 }
 
 GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
@@ -625,16 +629,9 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
 
 void OpenSpaceNet::startProgressDisplay()
 {
-    if(!pd_ || args_.quiet) {
-        return;
+    if(pd_ && !args_.quiet) {
+        pd_->start();
     }
-
-    pd_->setCategories({
-        {"Reading", "Reading the image" },
-        {"Detecting", "Detecting the object(s)" }
-    });
-
-    pd_->start();
 }
 
 bool OpenSpaceNet::isCancelled()
