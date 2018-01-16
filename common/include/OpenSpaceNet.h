@@ -56,8 +56,6 @@ private:
     deepcore::vector::node::WfsFeatureFieldExtractor::Ptr initWfs();
     deepcore::vector::node::FileFeatureSink::Ptr initFeatureSink();
 
-    void startProgressDisplay();
-    bool isCancelled(); 
     void printModel();
     void skipLine() const;
     deepcore::imagery::SizeSteps calcWindows() const;
