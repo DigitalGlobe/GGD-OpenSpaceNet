@@ -207,10 +207,11 @@ void OpenSpaceNet::process()
         featureSink->input("features") = predictionToFeature->output("features");
     }
 
-    startProgressDisplay();
     auto startTime = high_resolution_clock::now();
 
     if (!args_.quiet && pd_) {
+        pd_->start();
+
         ProgressDisplayHelper<int64_t> pdHelper(*pd_);
 
         auto subsetsRequested = slidingWindow->metric("total").changed().connect(
@@ -259,7 +260,11 @@ void OpenSpaceNet::process()
 
 void OpenSpaceNet::setProgressDisplay(boost::shared_ptr<deepcore::ProgressDisplay> display)
 {
-    pd_ = display;
+    pd_ = std::move(display);
+    pd_->setCategories({
+        {"Reading", "Reading the image" },
+        {"Detecting", "Detecting the object(s)" }
+    });
 }
 
 GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
@@ -621,25 +626,6 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     featureSink->attr("fieldDefinitions") = definitions;
 
     return featureSink;
-}
-
-void OpenSpaceNet::startProgressDisplay()
-{
-    if(!pd_ || args_.quiet) {
-        return;
-    }
-
-    pd_->setCategories({
-        {"Reading", "Reading the image" },
-        {"Detecting", "Detecting the object(s)" }
-    });
-
-    pd_->start();
-}
-
-bool OpenSpaceNet::isCancelled()
-{
-    return !pd_ || !pd_->isRunning();
 }
 
 void OpenSpaceNet::printModel()

@@ -272,8 +272,11 @@ void CliProcessor::setupArgParsing(int argc, const char* const* argv)
 void CliProcessor::startOSNProcessing()
 {
     OpenSpaceNet osn(std::move(osnArgs));
-    pd_ = boost::make_shared<ConsoleProgressDisplay>();
-    osn.setProgressDisplay(pd_);
+
+    auto pd = boost::make_shared<ConsoleProgressDisplay>();
+    osn.setProgressDisplay(pd);
+    pd->enableTiming("Detecting");
+
     osn.process();
 }
 
