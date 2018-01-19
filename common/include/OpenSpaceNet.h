@@ -48,7 +48,7 @@ private:
     deepcore::imagery::node::GeoBlockSource::Ptr initLocalImage();
     deepcore::imagery::node::GeoBlockSource::Ptr initMapServiceImage();
     deepcore::geometry::node::SubsetRegionFilter::Ptr initSubsetRegionFilter();
-    deepcore::classification::node::Detector::Ptr initModel();
+    deepcore::classification::node::Detector::Ptr initDetector();
     void initSegmentation(deepcore::classification::Model::Ptr model);
     deepcore::imagery::node::SlidingWindow::Ptr initSlidingWindow();
     deepcore::geometry::node::LabelFilter::Ptr initLabelFilter(bool isSegmentation);
