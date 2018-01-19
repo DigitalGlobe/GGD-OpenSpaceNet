@@ -110,7 +110,7 @@ void OpenSpaceNet::process()
         DG_ERROR_THROW("Input source not specified");
     }
 
-    auto blockCache = BlockCache::create("cache");
+    auto blockCache = BlockCache::create("blockCache");
     blockCache->connectAttrs(*blockSource);
     blockCache->attr("bufferSize") = args_.maxCacheSize / 2;
 
@@ -123,11 +123,11 @@ void OpenSpaceNet::process()
     //Note: Model must be initialized before sliding window
     //and subset filter for model size and stepping
     OSN_LOG(info) << "Reading model..." ;
-    auto model = initModel();
+    auto model = initDetector();
 
     printModel();
 
-    auto subsetWithBorder = SubsetWithBorder::create("subsetWithBorder");
+    auto subsetWithBorder = SubsetWithBorder::create("border");
     if(args_.resampledSize) {
         subsetWithBorder->attr("paddedSize") = cv::Size { *args_.resampledSize, *args_.resampledSize };
     }
@@ -143,9 +143,9 @@ void OpenSpaceNet::process()
     NonMaxSuppression::Ptr nmsNode;
     if(args_.nms) {
         if (isSegmentation) {
-            nmsNode = PolyNonMaxSuppression::create("NonMaxSuppression");
+            nmsNode = PolyNonMaxSuppression::create("nms");
         } else {
-            nmsNode = BoxNonMaxSuppression::create("NonMaxSuppression");
+            nmsNode = BoxNonMaxSuppression::create("nms");
         }
 
         nmsNode->attr("overlapThreshold") = args_.overlap / 100;
@@ -176,7 +176,7 @@ void OpenSpaceNet::process()
 
     PredictionBoxToPoly::Ptr toPoly;
     if (!isSegmentation) {
-        toPoly = PredictionBoxToPoly::create("PredictionBoxToPoly");
+        toPoly = PredictionBoxToPoly::create("predictionToPoly");
         predictionToFeature->input("predictions") = toPoly->output("predictions");
     }
 
@@ -316,7 +316,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
         bbox_ = intersect;
     }
 
-    GeoBlockSource::Ptr blockSource = GdalBlockSource::create("source");
+    GeoBlockSource::Ptr blockSource = GdalBlockSource::create("blockSource");
     blockSource->attr("path") = args_.image;
     return blockSource;
 }
@@ -375,7 +375,7 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     pixelToLL_ = TransformationChain { move(llToProj), move(projToPixel) }.inverse();
     sr_ = SpatialReference::WGS84;
 
-    auto blockSource = MapServiceBlockSource::create("source");
+    auto blockSource = MapServiceBlockSource::create("blockSource");
     blockSource->attr("config") = client->configFromArea(projBbox);
     blockSource->attr("maxConnections") = args_.maxConnections;
     return blockSource;
@@ -433,7 +433,7 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
         }
 
         
-        auto subsetFilter = SubsetRegionFilter::create("SubsetRegionFilter");
+        auto subsetFilter = SubsetRegionFilter::create("regionFilter");
         subsetFilter->attr("regionFilter") = regionFilter;
 
         return subsetFilter;
@@ -442,7 +442,7 @@ SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
     return nullptr;
 }
 
-Detector::Ptr OpenSpaceNet::initModel()
+Detector::Ptr OpenSpaceNet::initDetector()
 {
     auto model = Model::create(*args_.modelPackage, !args_.useCpu, args_.maxUtilization / 100);
     args_.modelPackage.reset();
@@ -465,17 +465,17 @@ Detector::Ptr OpenSpaceNet::initModel()
         }
     }
 
-    Detector::Ptr modelNode;
+    Detector::Ptr detectorNode;
     if(metadata_->category() == "segmentation") {
         initSegmentation(model);
-        modelNode = deepcore::classification::node::PolyDetector::create("Model");
+        detectorNode = deepcore::classification::node::PolyDetector::create("detector");
     } else {
-        modelNode = deepcore::classification::node::BoxDetector::create("Model");
+        detectorNode = deepcore::classification::node::BoxDetector::create("detector");
     }
 
-    modelNode->attr("model") = model;
-    modelNode->attr("confidence") = confidence;
-    return modelNode;
+    detectorNode->attr("model") = model;
+    detectorNode->attr("confidence") = confidence;
+    return detectorNode;
 }
 
 void OpenSpaceNet::initSegmentation(Model::Ptr model)
@@ -488,7 +488,7 @@ void OpenSpaceNet::initSegmentation(Model::Ptr model)
 
 dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow()
 {
-    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("SlidingWindow");
+    auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
     auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?  
                          cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : 
@@ -505,9 +505,9 @@ LabelFilter::Ptr OpenSpaceNet::initLabelFilter(bool isSegmentation)
 {
     LabelFilter::Ptr labelFilter;
     if (isSegmentation) {
-        labelFilter = PolyLabelFilter::create("LabelFilter");
+        labelFilter = PolyLabelFilter::create("labelFilter");
     } else {
-        labelFilter = BoxLabelFilter::create("LabelFilter");
+        labelFilter = BoxLabelFilter::create("labelFilter");
     }
 
     if(!args_.excludeLabels.empty()) {
@@ -527,7 +527,7 @@ LabelFilter::Ptr OpenSpaceNet::initLabelFilter(bool isSegmentation)
 
 PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
 {
-    auto predictionToFeature = PredictionToFeature::create("PredictionToFeature");
+    auto predictionToFeature = PredictionToFeature::create("predToFeature");
     predictionToFeature->attr("geometryType") = args_.geometryType;
     predictionToFeature->attr("pixelToProj") = pixelToProj_;
     predictionToFeature->attr("topNName") = "top_five";
@@ -574,7 +574,7 @@ WfsFeatureFieldExtractor::Ptr OpenSpaceNet::initWfs()
         vector<string> fieldNames = {"legacyId"};
         Fields defaultFields = { {"legacyId", Field(FieldType::STRING, "uncataloged")}};
 
-        auto featureFieldExtractor = WfsFeatureFieldExtractor::create("WFSFeatureFieldExtractor");
+        auto featureFieldExtractor = WfsFeatureFieldExtractor::create("fieldExtractor");
         featureFieldExtractor->attr("inputSpatialReference") = imageSr_;
         featureFieldExtractor->attr("fieldNames") = fieldNames;
         featureFieldExtractor->attr("defaultFields") = defaultFields;
@@ -615,7 +615,7 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
-    auto featureSink = FileFeatureSink::create("FeatureSink");
+    auto featureSink = FileFeatureSink::create("featureSink");
     featureSink->attr("spatialReference") = imageSr_;
     featureSink->attr("outputSpatialReference") = sr_;
     featureSink->attr("geometryType") = args_.geometryType;
