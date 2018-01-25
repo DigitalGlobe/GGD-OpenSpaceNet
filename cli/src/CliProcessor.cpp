@@ -220,6 +220,7 @@ CliProcessor::CliProcessor() :
         ("action", po::value<string>()->value_name("ACTION"), "Action to perform.")
         ("debug", "Switch console output to \"debug\" log level.")
         ("trace", "Switch console output to \"trace\" log level.")
+        ("log-format", po::value<string>()->value_name("FORMAT"), "Log format. Valid values are: short, long, debug. Default value: short")
         // This bbox argument works for both local and web options, but we have duplicated bbox argument
         // description in the usage display
         ("bbox", po::cvRect2d_value())
@@ -300,20 +301,21 @@ void CliProcessor::setupLogging() {
     }
 
     // If we have all the arguments parsed correctly, now is the time to turn off console logging
-    if(consoleLogLevel > level_t::info) {
+    if(consoleLogLevel > level_t::info || logFormat > log::dg_short_log) {
         log::removeSink(coutSink_);
         log::removeSink(cerrSink_);
-        cerrSink_ = log::addCerrSink(consoleLogLevel, level_t::fatal, log::dg_log_format::dg_short_log);
+        cerrSink_ = log::addCerrSink(consoleLogLevel, level_t::fatal, logFormat);
     } else if(consoleLogLevel < level_t::info) {
         log::removeSink(coutSink_);
-        coutSink_ = log::addCoutSink(consoleLogLevel, level_t::info, log::dg_log_format::dg_short_log);
+        coutSink_ = log::addCoutSink(consoleLogLevel, level_t::info, logFormat);
     }
 
     // Setup a file logger
     if (!fileLogPath.empty()) {
         auto ofs = boost::make_shared<ofstream>(fileLogPath);
         DG_CHECK(!ofs->fail(), "Error opening log file %s for writing", fileLogPath.c_str());
-        log::addStreamSink(ofs, fileLogLevel, level_t::fatal, log::dg_log_format::dg_long_log);
+        log::addStreamSink(ofs, fileLogLevel, level_t::fatal,
+            logFormat > log::dg_log_format::dg_long_log ? logFormat : log::dg_log_format::dg_long_log);
     }
 }
 
@@ -807,6 +809,20 @@ void CliProcessor::readLoggingArgs(variables_map vm, bool splitArgs)
         consoleLogLevel = level_t::trace;
     } else if(vm.find("debug") != end(vm)) {
         consoleLogLevel = level_t::debug;
+    }
+
+    string strLogFormat;
+    if(readVariable("log-format", vm, strLogFormat)) {
+        to_lower(strLogFormat);
+        if(strLogFormat == "short") {
+            logFormat = log::dg_log_format::dg_short_log;
+        } else if(strLogFormat == "long") {
+            logFormat = log::dg_log_format::dg_long_log;
+        } else if(strLogFormat == "debug") {
+            logFormat = log::dg_log_format::dg_debug_log;
+        } else {
+            DG_ERROR_THROW("Invalid --log-format parameter: %s", strLogFormat.c_str());
+        }
     }
 
     std::vector<string> logArgs;
