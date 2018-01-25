@@ -129,7 +129,7 @@ void OpenSpaceNet::process()
 
     auto subsetWithBorder = SubsetWithBorder::create("border");
     if(args_.resampledSize) {
-        subsetWithBorder->attr("paddedSize") = cv::Size { *args_.resampledSize, *args_.resampledSize };
+        subsetWithBorder->attr("paddedSize") = metadata_->modelSize();
     }
     subsetWithBorder->connectAttrs(*blockSource);
 
@@ -490,9 +490,9 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
 {
     auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
     auto windowSizes = calcWindows();
-    auto resampledSize = args_.resampledSize ?  
-                         cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : 
-                         cv::Size {};
+    auto resampledSize = args_.resampledSize ?
+                         cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} :
+                         metadata_->modelSize();
     slidingWindow->attr("windowSizes") = windowSizes;
     slidingWindow->attr("resampledSize") = resampledSize;
     slidingWindow->attr("aoi") = bbox_;
