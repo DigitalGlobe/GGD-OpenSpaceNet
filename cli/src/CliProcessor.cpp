@@ -734,7 +734,7 @@ void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
 
     readVariable("window-size", vm, osnArgs.windowSize, splitArgs);
     readVariable("window-step", vm, osnArgs.windowStep, splitArgs);
-    osnArgs.resampledSize = readVariable<int>("resampled-size", vm);
+    osnArgs.paddedSize = readVariable<int>("resampled-size", vm);
     osnArgs.pyramid = vm.find("pyramid") != end(vm);
 
     readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);

@@ -128,8 +128,8 @@ void OpenSpaceNet::process()
     printModel();
 
     auto subsetWithBorder = SubsetWithBorder::create("border");
-    if(args_.resampledSize) {
-        subsetWithBorder->attr("paddedSize") = cv::Size { *args_.resampledSize, *args_.resampledSize };
+    if(args_.paddedSize) {
+        subsetWithBorder->attr("paddedSize") = cv::Size { *args_.paddedSize, *args_.paddedSize };
     }
     subsetWithBorder->connectAttrs(*blockSource);
 
@@ -453,11 +453,11 @@ Detector::Ptr OpenSpaceNet::initDetector()
     modelAspectRatio_ = (float) modelSize_.height / modelSize_.width;
     float confidence = args_.confidence / 100;
 
-    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= modelSize_.width,
-             "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
-             *args_.resampledSize, modelSize_.width)
+    DG_CHECK(!args_.paddedSize || *args_.paddedSize <= modelSize_.width,
+             "Argument --resampled-size (size: %d) does not fit within the model (width: %d).",
+             *args_.paddedSize, modelSize_.width)
 
-    if (!args_.resampledSize) {
+    if (!args_.paddedSize) {
         for (auto c : args_.windowSize) {
             DG_CHECK(c <= modelSize_.width,
                      "Argument --window-size contains a size that does not fit within the model (width: %d).",
@@ -490,11 +490,8 @@ dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow(
 {
     auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
     auto windowSizes = calcWindows();
-    auto resampledSize = args_.resampledSize ?  
-                         cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} : 
-                         cv::Size {};
     slidingWindow->attr("windowSizes") = windowSizes;
-    slidingWindow->attr("resampledSize") = resampledSize;
+    slidingWindow->attr("resampledSize") = metadata_->modelSize();
     slidingWindow->attr("aoi") = bbox_;
     slidingWindow->attr("bufferSize") = args_.maxCacheSize / 2;
 

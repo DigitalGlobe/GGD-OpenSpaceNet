@@ -83,7 +83,7 @@ struct OpenSpaceNetArgs
     float maxUtilization = 95;
     std::vector<int> windowSize;
     std::vector<int> windowStep;
-    std::unique_ptr<int> resampledSize;
+    std::unique_ptr<int> paddedSize;
     bool pyramid = false;
     size_t maxCacheSize = 0ULL;
 
