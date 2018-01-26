@@ -30,6 +30,7 @@ public:
     dg::deepcore::level_t consoleLogLevel = dg::deepcore::level_t::info;
     std::string fileLogPath;
     dg::deepcore::level_t fileLogLevel = dg::deepcore::level_t::debug;
+    dg::deepcore::log::dg_log_format logFormat = dg::deepcore::log::dg_log_format::dg_short_log;
 
     CliProcessor();
     void setupArgParsing(int argc, const char* const* argv);
