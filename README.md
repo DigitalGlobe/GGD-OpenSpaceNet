@@ -1,6 +1,6 @@
 # OpenSpaceNet
 
-[![Build Status](http://52.1.7.235/buildStatus/icon?job=OpenSpaceNet&style=plastic)](http://52.1.7.235/job/OpenSpaceNet) Jenkins Build Status
+[![Build Status](http://52.1.7.235/buildStatus/icon?job=OpenSpaceNet_CUDA8&style=plastic)](http://52.1.7.235/job/OpenSpaceNet_CUDA8) Jenkins Build Status
 
 OpenSpaceNet is an open-source application to perform object or terrain detection against orthorectified imagery using the DeepCore libraries. This application includes and is based on CUDA 7.5 and requires NVIDIA driver version 352 or higher to run using the GPU.
 
