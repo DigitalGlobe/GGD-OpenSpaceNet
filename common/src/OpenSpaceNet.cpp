@@ -43,7 +43,6 @@
 #include <process/Metrics.h>
 #include <utility/Memory.h>
 #include <utility/ProgressDisplayHelper.h>
-#include <utility/Semaphore.h>
 #include <utility/User.h>
 #include <vector/FileFeatureSet.h>
 #include <vector/Nodes.h>
@@ -83,7 +82,6 @@ using dg::deepcore::memory::prettyBytes;
 using dg::deepcore::Metric;
 using dg::deepcore::NodeState;
 using dg::deepcore::ProgressDisplayHelper;
-using dg::deepcore::Semaphore;
 using dg::deepcore::Value;
 
 OpenSpaceNet::OpenSpaceNet(OpenSpaceNetArgs&& args) :
@@ -129,6 +127,8 @@ void OpenSpaceNet::process()
 
     auto subsetWithBorder = SubsetWithBorder::create("border");
     if(args_.resampledSize) {
+        auto modelSize = metadata_->modelSize();
+        auto resampledSize = args_.resampledSize.get();
         subsetWithBorder->attr("paddedSize") = metadata_->modelSize();
     }
     subsetWithBorder->connectAttrs(*blockSource);
@@ -383,11 +383,11 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
 
 SubsetRegionFilter::Ptr OpenSpaceNet::initSubsetRegionFilter()
 {
-    if (args_.filterDefinition.size()) {
+    if (!args_.filterDefinition.empty()) {
         OSN_LOG(info) << "Initializing the subset filter..." ;
 
         RegionFilter::Ptr regionFilter = MaskedRegionFilter::create(cv::Rect(0, 0, bbox_.width, bbox_.height),
-                                                                    calcPrimaryWindowStep(),
+                                                                    primaryWindowStep_,
                                                                     MaskedRegionFilter::FilterMethod::ANY);
         bool firstAction = true;
         for (const auto& filterAction : args_.filterDefinition) {
@@ -448,20 +448,32 @@ Detector::Ptr OpenSpaceNet::initDetector()
     args_.modelPackage.reset();
 
     metadata_ = model->metadata().clone();
-    modelSize_ = metadata_->modelSize();
-    defaultStep_ = model->defaultStep();
-    modelAspectRatio_ = (float) modelSize_.height / modelSize_.width;
+    modelAspectRatio_ = (float) metadata_->modelSize().height / metadata_->modelSize().width;
     float confidence = args_.confidence / 100;
 
-    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= modelSize_.width,
+    if(!args_.windowStep.empty()) {
+        primaryWindowStep_ = { args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0]) };
+    } else if (args_.resampledSize) {
+        primaryWindowStep_ = { *args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize)) };
+    } else {
+        primaryWindowSize_ = metadata_->modelSize();
+    }
+
+    if(!args_.windowStep.empty()) {
+        primaryWindowStep_ = {args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0])};
+    } else {
+        primaryWindowStep_ = model->defaultStep(primaryWindowSize_);
+    }
+
+    DG_CHECK(!args_.resampledSize || *args_.resampledSize <= metadata_->modelSize().width,
              "Argument --resample-size (size: %d) does not fit within the model (width: %d).",
-             *args_.resampledSize, modelSize_.width)
+             *args_.resampledSize, metadata_->modelSize().width)
 
     if (!args_.resampledSize) {
         for (auto c : args_.windowSize) {
-            DG_CHECK(c <= modelSize_.width,
+            DG_CHECK(c <= metadata_->modelSize().width,
                      "Argument --window-size contains a size that does not fit within the model (width: %d).",
-                      modelSize_.width)
+                     metadata_->modelSize().width)
         }
     }
 
@@ -481,7 +493,7 @@ Detector::Ptr OpenSpaceNet::initDetector()
 void OpenSpaceNet::initSegmentation(Model::Ptr model)
 {
     auto segmentation = std::dynamic_pointer_cast<Segmentation>(model);
-    DG_CHECK(segmentation, "Unsupported model type: only Caffe segmentation models are currently supported");
+    DG_CHECK(segmentation, "Unsupported model type.");
 
     segmentation->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
@@ -489,10 +501,10 @@ void OpenSpaceNet::initSegmentation(Model::Ptr model)
 dg::deepcore::imagery::node::SlidingWindow::Ptr OpenSpaceNet::initSlidingWindow()
 {
     auto slidingWindow = dg::deepcore::imagery::node::SlidingWindow::create("slidingWindow");
-    auto windowSizes = calcWindows();
     auto resampledSize = args_.resampledSize ?
                          cv::Size {*args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize))} :
                          metadata_->modelSize();
+    auto windowSizes = calcWindows();
     slidingWindow->attr("windowSizes") = windowSizes;
     slidingWindow->attr("resampledSize") = resampledSize;
     slidingWindow->attr("aoi") = bbox_;
@@ -600,9 +612,9 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     };
 
     if(args_.producerInfo) {
-        definitions.push_back({ FieldType::STRING, "username", 50 });
-        definitions.push_back({ FieldType::STRING, "app", 50 });
-        definitions.push_back({ FieldType::STRING, "app_ver", 50 });
+        definitions.emplace_back(FieldType::STRING, "username", 50);
+        definitions.emplace_back(FieldType::STRING, "app", 50);
+        definitions.emplace_back(FieldType::STRING, "app_ver", 50);
 
         extraFields["username"] = { FieldType ::STRING, loginUser() };
         extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
@@ -610,7 +622,7 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     }
 
     if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
-        definitions.push_back({FieldType::STRING, "catalog_id"});
+        definitions.emplace_back(FieldType::STRING, "catalog_id");
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
@@ -636,7 +648,7 @@ void OpenSpaceNet::printModel()
                   << "; Version: " << metadata_->version()
                   << "; Created: " << to_simple_string(from_time_t(metadata_->timeCreated()));
     OSN_LOG(info) << "Description: " << metadata_->description();
-    OSN_LOG(info) << "Dimensions (pixels): " << modelSize_
+    OSN_LOG(info) << "Dimensions (pixels): " << metadata_->modelSize()
                   << "; Color Mode: " << metadata_->colorMode();
     OSN_LOG(info) << "Bounding box (lat/lon): " << metadata_->boundingBox();
     OSN_LOG(info) << "Labels: " << join(metadata_->labels(), ", ");
@@ -651,32 +663,13 @@ void OpenSpaceNet::skipLine() const
     }
 }
 
-cv::Size OpenSpaceNet::calcPrimaryWindowSize() const
-{
-    auto windowSize = modelSize_;
-    if(!args_.windowSize.empty()) {
-        windowSize = {args_.windowSize[0], (int) roundf(modelAspectRatio_ * args_.windowSize[0])};
-    }
-    return windowSize;
-}
-
-cv::Point OpenSpaceNet::calcPrimaryWindowStep() const
-{
-    auto windowStep = defaultStep_;
-    if(!args_.windowStep.empty()) {
-        windowStep = {args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0])};
-    }
-    return windowStep;
-}
-
 SizeSteps OpenSpaceNet::calcWindows() const
 {
     DG_CHECK(args_.windowSize.size() < 2 || args_.windowStep.size() < 2 ||
              args_.windowSize.size() == args_.windowStep.size(),
              "Number of window sizes and window steps must match.");
 
-    if(args_.windowSize.size() == args_.windowStep.size() &&
-       args_.windowStep.size() > 0) {
+    if(args_.windowSize.size() == args_.windowStep.size() && !args_.windowStep.empty()) {
         SizeSteps ret;
         for(const auto& c : boost::combine(args_.windowSize, args_.windowStep)) {
             int windowSize, windowStep;
@@ -686,23 +679,19 @@ SizeSteps OpenSpaceNet::calcWindows() const
         }
         return ret;
     } else if (args_.windowSize.size() > 1) {
-        auto windowStep = calcPrimaryWindowStep();
-
         SizeSteps ret;
         for(const auto& c : args_.windowSize) {
-            ret.emplace_back(cv::Size { c, (int) roundf(modelAspectRatio_ * c) }, windowStep);
+            ret.emplace_back(cv::Size { c, (int) roundf(modelAspectRatio_ * c) }, primaryWindowStep_);
         }
         return ret;
     } else if (args_.windowStep.size() > 1) {
-        auto windowSize = calcPrimaryWindowSize();
-
         SizeSteps ret;
         for(const auto& c : args_.windowStep) {
-            ret.emplace_back(windowSize, cv::Point { c, (int) roundf(modelAspectRatio_ * c) });
+            ret.emplace_back(primaryWindowSize_, cv::Point { c, (int) roundf(modelAspectRatio_ * c) });
         }
         return ret;
     } else {
-        return { { calcPrimaryWindowSize(), calcPrimaryWindowStep() } };
+        return { { primaryWindowSize_, primaryWindowStep_ } };
     }
 }
 
