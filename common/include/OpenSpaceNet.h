@@ -59,8 +59,6 @@ private:
     void printModel();
     void skipLine() const;
     deepcore::imagery::SizeSteps calcWindows() const;
-    cv::Size calcPrimaryWindowSize() const;
-    cv::Point calcPrimaryWindowStep() const;
 
     OpenSpaceNetArgs args_;
     std::shared_ptr<deepcore::network::HttpCleanup> cleanup_;
@@ -74,8 +72,8 @@ private:
     std::unique_ptr<deepcore::geometry::Transformation> pixelToLL_;
 
     std::unique_ptr<deepcore::classification::ModelMetadata> metadata_;
-    cv::Size modelSize_;
-    cv::Point defaultStep_;
+    cv::Size primaryWindowSize_;
+    cv::Point primaryWindowStep_;
     float modelAspectRatio_;
 };
 
