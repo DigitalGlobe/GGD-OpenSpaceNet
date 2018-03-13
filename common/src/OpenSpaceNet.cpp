@@ -127,8 +127,6 @@ void OpenSpaceNet::process()
 
     auto subsetWithBorder = SubsetWithBorder::create("border");
     if(args_.resampledSize) {
-        auto modelSize = metadata_->modelSize();
-        auto resampledSize = args_.resampledSize.get();
         subsetWithBorder->attr("paddedSize") = metadata_->modelSize();
     }
     subsetWithBorder->connectAttrs(*blockSource);
