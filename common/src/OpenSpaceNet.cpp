@@ -493,7 +493,7 @@ Detector::Ptr OpenSpaceNet::initDetector()
 void OpenSpaceNet::initSegmentation(Model::Ptr model)
 {
     auto segmentation = std::dynamic_pointer_cast<Segmentation>(model);
-    DG_CHECK(segmentation, "Unsupported model type.");
+    DG_CHECK(segmentation, "Unsupported model type");
 
     segmentation->setRasterToPolygon(make_unique<RasterToPolygonDP>(args_.method, args_.epsilon, args_.minArea));
 }
