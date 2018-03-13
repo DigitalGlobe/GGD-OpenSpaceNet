@@ -451,10 +451,10 @@ Detector::Ptr OpenSpaceNet::initDetector()
     modelAspectRatio_ = (float) metadata_->modelSize().height / metadata_->modelSize().width;
     float confidence = args_.confidence / 100;
 
-    if(!args_.windowStep.empty()) {
-        primaryWindowStep_ = { args_.windowStep[0], (int) roundf(modelAspectRatio_ * args_.windowStep[0]) };
+    if(!args_.windowSize.empty()) {
+        primaryWindowSize_ = { args_.windowSize[0], (int) roundf(modelAspectRatio_ * args_.windowSize[0]) };
     } else if (args_.resampledSize) {
-        primaryWindowStep_ = { *args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize)) };
+        primaryWindowSize_ = { *args_.resampledSize, (int) roundf(modelAspectRatio_ * (*args_.resampledSize)) };
     } else {
         primaryWindowSize_ = metadata_->modelSize();
     }
