@@ -162,10 +162,6 @@ CliProcessor::CliProcessor() :
          "is 20% of the model size.")
         ("resampled-size", po::value<int>()->value_name("SIZE"),
          "Resample window chips to a fixed size.  This must fit within the model.")
-        ("pyramid",
-         "Calculate window parameters.  If this is set, only the first window size "
-         "and window step are used.  A family of each are created by doubling the supplied parameters up to "
-         "the area of the detection box.")
         ("max-cache-size", po::value<std::string>()->value_name("SIZE"),
          "Maximum raster cache size. This can be specified as a memory amount, "
          "e.g. 16G, or as a percentage, e.g. 50%. Specifying 0 turns off raster "
@@ -503,13 +499,11 @@ void CliProcessor::validateArgs()
     ArgUse windowStepUse(OPTIONAL);
     ArgUse windowSizeUse(OPTIONAL);
     ArgUse nmsUse(OPTIONAL);
-    ArgUse pyramidUse(OPTIONAL);
     ArgUse confidenceUse(OPTIONAL);
 
     checkArgument("window-step", windowStepUse, osnArgs.windowStep);
     checkArgument("window-size", windowSizeUse, osnArgs.windowSize);
     checkArgument("nms", nmsUse, osnArgs.nms);
-    checkArgument("pyramid", pyramidUse, osnArgs.pyramid);
     checkArgument("confidence", confidenceUse, confidenceSet);
 
     //
@@ -586,10 +580,7 @@ void CliProcessor::validateArgs()
     DG_CHECK(osnArgs.includeLabels.empty() || osnArgs.excludeLabels.empty(),
              "Arguments --include-labels and --exclude-labels may not be specified at the same time");
 
-    if (pyramidUse > IGNORED && osnArgs.pyramid) {
-        checkArgument("window-size", MAY_USE_ONE, osnArgs.windowSize, "--pyramid is specified");
-        checkArgument("window-step", MAY_USE_ONE, osnArgs.windowStep, "--pyramid is specified");
-    } else if(windowSizeUse > MAY_USE_ONE || windowStepUse > MAY_USE_ONE) {
+    if(windowSizeUse > MAY_USE_ONE || windowStepUse > MAY_USE_ONE) {
         DG_CHECK(osnArgs.windowSize.size() < 2 || osnArgs.windowStep.size() < 2 ||
                  osnArgs.windowSize.size() == osnArgs.windowStep.size(),
                  "Arguments --window-size and --window-step must match in length");
@@ -625,10 +616,6 @@ void CliProcessor::validateArgs()
                     }
                 }
             }
-        }
-
-        if (pyramidUse > IGNORED && osnArgs.pyramid) {
-            checkArgument("window-size", MAY_USE_ONE, osnArgs.windowSize, "creating the spatial filter");
         }
     }
 
@@ -737,7 +724,6 @@ void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
     readVariable("window-size", vm, osnArgs.windowSize, splitArgs);
     readVariable("window-step", vm, osnArgs.windowStep, splitArgs);
     osnArgs.resampledSize = readVariable<int>("resampled-size", vm);
-    osnArgs.pyramid = vm.find("pyramid") != end(vm);
 
     readVariable("include-labels", vm, osnArgs.includeLabels, splitArgs);
     readVariable("exclude-labels", vm, osnArgs.excludeLabels, splitArgs);

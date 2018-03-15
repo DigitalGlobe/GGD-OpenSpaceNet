@@ -288,17 +288,6 @@ white noise.  The range of the noise is dependent on the image's datatype
 (specifically, 0 to 1 for floating point datatypes and the full representable 
 range for integer datatypes).
 
-##### --pyramid
-
-This option will enable using pyramids in feature detection. This means that the 
-image will be repeatedly resampled down by a factor of 2 with sliding window 
-detection run on each reduced image. This option will result in much longer run 
-time and is not recommended. Most _OpenSpaceNet_ models are designed to work at 
-a certain resolution and do not benefit from pyramiding.`
-
-When this is given, `--window-size` and `--window-step` arguments may be 
-specified, but only the first option for each will be used.
-
 <a name="segmentation" />
 
 ### Segmentation Options
@@ -706,12 +695,6 @@ Processing Options:
                                         size.
   --resampled-size SIZE                 Resample window chips to a fixed size. 
                                         This must fit within the model.
-  --pyramid                             Calculate window parameters.  If this 
-                                        is set, only the first window size and 
-                                        window step are used.  A family of each
-                                        are created by doubling the supplied 
-                                        parameters up to the area of the 
-                                        detection box.
   --max-cache-size SIZE                 Maximum raster cache size. This can be 
                                         specified as a memory amount, e.g. 16G,
                                         or as a percentage, e.g. 50%. 

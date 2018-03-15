@@ -84,7 +84,6 @@ struct OpenSpaceNetArgs
     std::vector<int> windowSize;
     std::vector<int> windowStep;
     std::unique_ptr<int> resampledSize;
-    bool pyramid = false;
     size_t maxCacheSize = 0ULL;
 
     // Feature detection options
