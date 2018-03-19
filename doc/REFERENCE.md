@@ -216,6 +216,11 @@ Specifies credentials for the WFS service, if appending legacyId. The format is
 `--wfs-credentials username:password`. If not specified, credentials from the 
 `--credentials` option will be used.
 
+#### --extra-fields
+
+Specifies extra metadata to be added to each vector feature.  This is specified 
+in key-value pairs, and must be strings.
+
 ##### --append
 This option will cause _OpenSpaceNet_ to append to the specified output. If the 
 specified output is not found, it will be created. If this option is not 

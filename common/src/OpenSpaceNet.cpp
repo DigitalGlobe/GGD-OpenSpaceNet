@@ -623,6 +623,13 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
         definitions.emplace_back(FieldType::STRING, "catalog_id");
     }
 
+    for (int i = 0 ; i < args_.extraFields.size(); i+=2){
+        std::string fieldKey = args_.extraFields[i];
+        std::string fieldVal = args_.extraFields[i+1];
+        definitions.emplace_back(FieldType::STRING, fieldKey);
+        extraFields[fieldKey] = {FieldType::STRING, fieldVal};
+    }
+
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
 
     auto featureSink = FileFeatureSink::create("featureSink");
