@@ -543,7 +543,7 @@ PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
     predictionToFeature->attr("topNName") = "top_five";
     predictionToFeature->attr("topNCategories") = 5;
 
-    Fields fields;
+    auto fields = predictionToFeature->attr("extraFields").cast<std::map<std::string, Field>>();
     if(args_.producerInfo) {
         fields.emplace("username", Field(FieldType::STRING, loginUser()));
         fields.emplace("app", Field(FieldType::STRING, "OpenSpaceNet"));
