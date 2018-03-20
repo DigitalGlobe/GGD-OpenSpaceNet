@@ -544,6 +544,12 @@ PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
     predictionToFeature->attr("topNCategories") = 5;
 
     auto fields = predictionToFeature->attr("extraFields").cast<std::map<std::string, Field>>();
+
+    time_t currentTime = time(nullptr);
+    struct tm* timeInfo = gmtime(&currentTime);
+    time_t gmTimet = timegm(timeInfo);
+    fields.emplace("date", Field(FieldType::DATE,  gmTimet));
+
     if(args_.producerInfo) {
         fields.emplace("username", Field(FieldType::STRING, loginUser()));
         fields.emplace("app", Field(FieldType::STRING, "OpenSpaceNet"));
@@ -611,11 +617,6 @@ WfsFeatureFieldExtractor::Ptr OpenSpaceNet::initWfs()
 
 FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
 {
-    time_t currentTime = time(nullptr);
-    struct tm* timeInfo = gmtime(&currentTime);
-    time_t gmTimet = timegm(timeInfo);
-    Fields extraFields = { {"date", Field(FieldType::DATE,  gmTimet)} };
-
     FieldDefinitions definitions = {
             { FieldType::STRING, "top_cat", 50 },
             { FieldType::REAL, "top_score" },
@@ -627,10 +628,6 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
         definitions.emplace_back(FieldType::STRING, "username", 50);
         definitions.emplace_back(FieldType::STRING, "app", 50);
         definitions.emplace_back(FieldType::STRING, "app_ver", 50);
-
-        extraFields["username"] = { FieldType ::STRING, loginUser() };
-        extraFields["app"] = { FieldType::STRING, "OpenSpaceNet"};
-        extraFields["app_ver"] =  { FieldType::STRING, OPENSPACENET_VERSION_STRING };
     }
 
     if(args_.dgcsCatalogID || args_.evwhsCatalogID) {
@@ -638,10 +635,7 @@ FileFeatureSink::Ptr OpenSpaceNet::initFeatureSink()
     }
 
     for (int i = 0 ; i < args_.extraFields.size(); i+=2){
-        std::string fieldKey = args_.extraFields[i];
-        std::string fieldVal = args_.extraFields[i+1];
-        definitions.emplace_back(FieldType::STRING, fieldKey);
-        extraFields[fieldKey] = {FieldType::STRING, fieldVal};
+        definitions.emplace_back(FieldType::STRING, args_.extraFields[i]);
     }
 
     VectorOpenMode openMode = args_.append ? APPEND : OVERWRITE;
