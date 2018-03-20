@@ -75,6 +75,7 @@ struct OpenSpaceNetArgs
     bool evwhsCatalogID = false;
     std::string wfsCredentials;
     bool append = false;
+    std::vector<std::string> extraFields;
 
     // Processing options
     std::string modelPath;
