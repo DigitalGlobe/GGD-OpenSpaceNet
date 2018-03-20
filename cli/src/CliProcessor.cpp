@@ -146,6 +146,7 @@ CliProcessor::CliProcessor() :
         ("wfs-credentials", po::value<string>()->value_name("USERNAME[:PASSWORD]"),
          "Credentials for the WFS service, if appending legacyId. If not specified, credentials from the credentials option will be used.")
         ("append", "Append to an existing vector set. If the output does not exist, it will be created.")
+        ("extra-fields",po::value<std::vector<string> >()->multitoken()->value_name("KEY VALUE [KEY VALUE...]"), "A set of key-value string pairs that will be added to the output feature set.")
         ;
 
     processingOptions_.add_options()
@@ -713,6 +714,10 @@ void CliProcessor::readOutputArgs(variables_map vm, bool splitArgs)
     osnArgs.dgcsCatalogID = vm.find("dgcs-catalog-id") != end(vm);
     osnArgs.evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
     readVariable("wfs-credentials", vm, osnArgs.wfsCredentials);
+    readVariable("extra-fields", vm, osnArgs.extraFields, true);
+    if (!osnArgs.extraFields.empty() && osnArgs.extraFields.size() % 2 != 0){
+        DG_ERROR_THROW("Invalid number of fields: Fields must be supplied pairs of strings for key and value.");
+    }
 }
 
 void CliProcessor::readProcessingArgs(variables_map vm, bool splitArgs)
