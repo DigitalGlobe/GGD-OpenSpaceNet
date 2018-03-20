@@ -715,8 +715,8 @@ void CliProcessor::readOutputArgs(variables_map vm, bool splitArgs)
     osnArgs.evwhsCatalogID = vm.find("evwhs-catalog-id") != end(vm);
     readVariable("wfs-credentials", vm, osnArgs.wfsCredentials);
     readVariable("extra-fields", vm, osnArgs.extraFields, true);
-    if (osnArgs.extraFields.size() > 0 && osnArgs.extraFields.size() % 2 != 0){
-        DG_ERROR_THROW("Invalid number of fields: Fields must be supplied in key-value pairs of strings.");
+    if (!osnArgs.extraFields.empty() && osnArgs.extraFields.size() % 2 != 0){
+        DG_ERROR_THROW("Invalid number of fields: Fields must be supplied pairs of strings for key and value.");
     }
 }
 

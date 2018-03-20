@@ -550,15 +550,12 @@ PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
         fields.emplace("app_ver", Field(FieldType::STRING, OPENSPACENET_VERSION_STRING));
     }
 
-    if (args_.extraFields.size() > 0) {
+    if (!args_.extraFields.empty()) {
         for(int i = 0; i < args_.extraFields.size(); i += 2) {
-            std::string fieldKey = args_.extraFields[i];
-            std::string fieldVal = args_.extraFields[i + 1];
-            Field field(FieldType::STRING, fieldVal);
-            fields.emplace(fieldKey, field);
-
+            fields.emplace(args_.extraFields[i], Field(FieldType::STRING, args_.extraFields[i + 1]));
         }
     }
+
     predictionToFeature->attr("extraFields") = fields;
     return predictionToFeature;
 }
