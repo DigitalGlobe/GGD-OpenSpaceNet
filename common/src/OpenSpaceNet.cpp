@@ -543,6 +543,23 @@ PredictionToFeature::Ptr OpenSpaceNet::initPredictionToFeature()
     predictionToFeature->attr("topNName") = "top_five";
     predictionToFeature->attr("topNCategories") = 5;
 
+    Fields fields;
+    if(args_.producerInfo) {
+        fields.emplace("username", Field(FieldType::STRING, loginUser()));
+        fields.emplace("app", Field(FieldType::STRING, "OpenSpaceNet"));
+        fields.emplace("app_ver", Field(FieldType::STRING, OPENSPACENET_VERSION_STRING));
+    }
+
+    if (args_.extraFields.size() > 0) {
+        for(int i = 0; i < args_.extraFields.size(); i += 2) {
+            std::string fieldKey = args_.extraFields[i];
+            std::string fieldVal = args_.extraFields[i + 1];
+            Field field(FieldType::STRING, fieldVal);
+            fields.emplace(fieldKey, field);
+
+        }
+    }
+    predictionToFeature->attr("extraFields") = fields;
     return predictionToFeature;
 }
 
