@@ -1,7 +1,7 @@
 cmake_policy(SET CMP0015 NEW)
 cmake_minimum_required(VERSION 3.5)
 
-project(OpenSpaceNet CXX)
+project(OpenSpaceNet C CXX)
 
 # Options for overriding the installation directories
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
