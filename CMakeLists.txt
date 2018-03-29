@@ -12,7 +12,7 @@ set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header fi
 # Set up OpenSpaceNet versioning
 #
 set(OpenSpaceNet_VERSION_MAJOR 1)
-set(OpenSpaceNet_VERSION_MINOR 1)
+set(OpenSpaceNet_VERSION_MINOR 22)
 set(OpenSpaceNet_VERSION_PATCH 0)
 
 # Set the build number
