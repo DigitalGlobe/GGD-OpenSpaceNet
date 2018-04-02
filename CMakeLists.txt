@@ -16,7 +16,7 @@ set(OpenSpaceNet_VERSION_MINOR 2)
 set(OpenSpaceNet_VERSION_PATCH 0)
 
 # Set the build number
-if(DEFINED ENV{BUILD_NUMBER})
+if(DEFINED ENV{BUILD_NUMBER} AND NOT DEEPCORE_RELEASE)
     set(OpenSpaceNet_VERSION_BUILD $ENV{BUILD_NUMBER})
 else()
     set(OpenSpaceNet_VERSION_BUILD "SNAPSHOT")
@@ -25,8 +25,7 @@ endif()
 #
 # Common dependencies
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libgcc -static-libstdc++")
-   
+set(CMAKE_CXX_STANDARD 11)  
 
 if(DEEPCORE_STATIC)
     set(CMAKE_PREFIX_PATH ${DEEPCORE_DEP_DIR})
