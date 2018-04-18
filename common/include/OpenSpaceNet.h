@@ -75,6 +75,7 @@ private:
     cv::Size primaryWindowSize_;
     cv::Point primaryWindowStep_;
     float modelAspectRatio_;
+    bool haveAlpha_ = false;
 };
 
 } } // namespace dg { namespace osn {

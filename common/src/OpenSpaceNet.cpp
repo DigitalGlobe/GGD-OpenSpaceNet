@@ -135,6 +135,17 @@ void OpenSpaceNet::process()
     auto slidingWindow = initSlidingWindow();
     slidingWindow->connectAttrs(*blockSource);
 
+    RemoveBandByColorInterp::Ptr removeAlpha;
+    if(haveAlpha_) {
+        removeAlpha = RemoveBandByColorInterp::create("removeAlpha");
+        removeAlpha->attr("bandToRemove") = ColorInterpretation::ALPHA_BAND;
+        removeAlpha->connectAttrs(*blockSource);
+
+        blockCache->connectAttrs(*removeAlpha);
+        subsetWithBorder->connectAttrs(*removeAlpha);
+        slidingWindow->connectAttrs(*removeAlpha);
+    }
+
     bool isSegmentation = (metadata_->category() == "segmentation");
 
     auto labelFilter = initLabelFilter(isSegmentation);
@@ -153,7 +164,13 @@ void OpenSpaceNet::process()
     auto wfsExtractor = initWfs();
     auto featureSink = initFeatureSink();
 
-    blockCache->input("blocks") = blockSource->output("blocks");
+    if(removeAlpha) {
+        removeAlpha->input("blocks") = blockSource->output("blocks");
+        blockCache->input("blocks") = removeAlpha->output("blocks");
+    } else {
+        blockCache->input("blocks") = blockSource->output("blocks");
+    }
+
     subsetWithBorder->input("subsets") = blockCache->output("subsets");
     if (subsetFilter) {
         subsetFilter->input("subsets") = subsetWithBorder->output("subsets");
@@ -314,6 +331,8 @@ GeoBlockSource::Ptr OpenSpaceNet::initLocalImage()
         bbox_ = intersect;
     }
 
+    haveAlpha_ = RasterBand::haveAlpha(image->rasterBands());
+
     GeoBlockSource::Ptr blockSource = GdalBlockSource::create("blockSource");
     blockSource->attr("path") = args_.image;
     return blockSource;
@@ -372,6 +391,8 @@ GeoBlockSource::Ptr OpenSpaceNet::initMapServiceImage()
     bbox_ = projToPixel->transformToInt(projBbox);
     pixelToLL_ = TransformationChain { move(llToProj), move(projToPixel) }.inverse();
     sr_ = SpatialReference::WGS84;
+
+    haveAlpha_ = RasterBand::haveAlpha(client->rasterBands());
 
     auto blockSource = MapServiceBlockSource::create("blockSource");
     blockSource->attr("config") = client->configFromArea(projBbox);
