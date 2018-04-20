@@ -13,7 +13,7 @@ set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header fi
 #
 set(OpenSpaceNet_VERSION_MAJOR 1)
 set(OpenSpaceNet_VERSION_MINOR 2)
-set(OpenSpaceNet_VERSION_PATCH 0)
+set(OpenSpaceNet_VERSION_PATCH 1)
 
 # Set the build number
 if(DEFINED ENV{BUILD_NUMBER} AND NOT DEEPCORE_RELEASE)
